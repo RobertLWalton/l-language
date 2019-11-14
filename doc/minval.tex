@@ -1,0 +1,393 @@
+% Minimal Runtime System Virtual Assembly Language
+%
+% File:         minval.tex
+% Author:       Bob Walton (walton@acm.org)
+% Date:		See \date below.
+  
+\documentclass[12pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{makeidx}
+% \usepackage{pictex} (obsolete? not available under CentOS 7)
+\usepackage{upquote} % (imported to local directory
+                     % ; not available under CentOS 7)
+    % Modifies \verb and \verbatim to print ' with
+    % the Computer Modern Typewrite font.
+    % Also includes the textcomp package.
+    % Modifies \verb and \verbatim to print ' with
+    % the Computer Modern Typewrite font.
+    % Also includes the textcomp package.
+
+\makeindex
+
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+\setlength{\textwidth}{6.5in}
+\setlength{\textheight}{8.5in}
+\raggedbottom
+
+\setlength{\unitlength}{1in}
+
+% The following attempt to eliminate headers at the bottom of a page.
+\widowpenalty=300
+\clubpenalty=300
+\setlength{\parskip}{3ex plus 2ex minus 2ex}
+
+\pagestyle{headings}
+\setlength{\parindent}{0.0in}
+\setlength{\parskip}{1ex}
+
+\setcounter{secnumdepth}{5}
+\setcounter{tocdepth}{5}
+\newcommand{\subsubsubsection}[1]{\paragraph[#1]{#1.}}
+\newcommand{\subsubsubsubsection}[1]{\subparagraph[#1]{#1.}}
+
+% Begin \tableofcontents surgery.
+
+\newcount\AtCatcode
+\AtCatcode=\catcode`@
+\catcode `@=11	% @ is now a letter
+
+\renewcommand{\contentsname}{}
+\renewcommand\l@section{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\l@table{\@dottedtocline{1}{0.1em}{1.4em}}
+\renewcommand\tableofcontents{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{0.8in}%
+	      \setlength{\rightmargin}{0.8in}}%
+    \item\@starttoc{toc}%
+    \end{list}}
+\renewcommand\listoftables{%
+    \begin{list}{}%
+	     {\setlength{\itemsep}{0in}%
+	      \setlength{\topsep}{0in}%
+	      \setlength{\parsep}{1ex}%
+	      \setlength{\labelwidth}{0in}%
+	      \setlength{\baselineskip}{1.5ex}%
+	      \setlength{\leftmargin}{1.0in}%
+	      \setlength{\rightmargin}{1.0in}%
+	      }%
+    \item\@starttoc{lot}%
+    \end{list}}
+
+\catcode `@=\AtCatcode	% @ is now restored
+
+% End \tableofcontents surgery.
+
+\newcommand{\TILDE}{\textasciitilde}
+
+\newcommand{\CN}[2]%	Change Notice.
+    {\hspace*{0in}\marginpar{\sloppy \raggedright \it \footnotesize
+     $^{\mbox{#1}}$#2}}
+    % Change notice.
+
+\newcommand{\TT}[1]{{\tt \bfseries #1}}
+\newcommand{\TTALL}{\tt \bfseries}
+
+\newcommand{\STAR}{{\Large $^\star$}}
+\newcommand{\PLUS}[1][]{{$^{+#1}$}}
+\newcommand{\QMARK}{{$^{\,\mbox{\footnotesize ?}}$}}
+\newcommand{\OPEN}{{$\{$}}
+\newcommand{\CLOSE}{{$\}$}}
+
+\newcommand{\key}[1]{{\bf \em #1}\index{#1}}
+\newcommand{\lkey}[2]{{\bf \em #1 #2}\index{#1!#2}}
+\newcommand{\mkey}[2]{{\bf \em #1}\index{#1!#2}}
+\newcommand{\lmkey}[3]{{\bf \em #1 #2}\index{#1!#2!#3}}
+
+\newcommand{\skey}[2]{{\bf \em #1#2}\index{#1}}
+\newcommand{\slkey}[3]{{\bf \em #1 #2#3}\index{#1!#2}}
+\newcommand{\smkey}[3]{{\bf \em #1#2}\index{#1!#3}}
+
+\newcommand{\ikey}[2]{{\bf \em #1}\index{#2}}
+
+\newcommand{\ttkey}[1]{\TT{#1}\index{#1@{\tt #1}}}
+\newcommand{\ttikey}[2]{\TT{#1}\index{#2@{\tt #2}}}
+\newcommand{\ttlkey}[2]{\TT{#1 #2}\index{#1@{\tt #1}!#2@{\tt #2}}}
+\newcommand{\ttmkey}[2]{\TT{#1}\index{#1@{\tt #1}!#2}}
+
+\newcommand{\ttdkey}[1]{\TT{.#1}\index{#1@{\tt .#1}}}
+\newcommand{\ttdmkey}[2]{\TT{.#1}\index{#1@{\tt .#1}!#2}}
+
+\newcommand{\ttbkey}[1]{\TT{[#1]}\index{[]@{\tt [#1]}}}
+\newcommand{\ttbmkey}[2]{\TT{[#1]}\index{[]@{\tt [#1]}!#2}}
+
+\newcommand{\tttkey}[1]{\TT{<#1>}\index{#1@{\tt <#1>}}}
+\newcommand{\tttmkey}[2]{\TT{<#1>}\index{#1@{\tt <#1>}!#2}}
+
+\newcommand{\tttbkey}[1]{{\TT {<#1|}\ldots\TT{|#1>}}%
+    \index{#1@\TT{<#1|}\ldots\TT{|#1>}}}
+\newcommand{\tttbmkey}[2]{{\TT{<#1|}\ldots\TT{|#1>}}%
+    \index{#1@\TT{<#1|}\ldots\TT{|#1>}!#2}}
+
+\newcommand{\ttarmkey}[2]{{\tt ->}\TT{#1}\index{#1@{\tt #1}!#2}}
+
+\newcommand{\ttindex}[1]{\index{#1@{\tt #1}}}
+\newcommand{\ttmindex}[2]{\index{#1@{\tt #1}!#2}}
+\newcommand{\ttlindex}[2]{\index{#1#2@{\tt #1}!{\tt #2}}}
+
+\newcommand{\emkey}[1]{{\bf \em #1}\index{#1@{\em #1}}}
+\newcommand{\emlkey}[2]{{\bf \em #1#2}\index{#1@{\em #1}!#2@{\em #2}}}
+\newcommand{\emskey}[2]{{\bf \em #1#2}\index{#1@{\em #1}}}
+\newcommand{\emikey}[2]{{\bf \em #1}\index{#2}}
+\newcommand{\emindex}[1]{\index{#1@{\em #1}}}
+
+\newcommand{\ttomkey}[3]{\TT{operator #2}\index{#1@{\tt operator #2}!{#3}}}
+\newcommand{\ttmokey}[2]{\TT{#1}\index{#1@{\tt operator #1}!{#2}}}
+
+\newcommand{\ttfkey}[2]{\TT{#1}\index{#1@{\tt #1}!for #2@for {\tt #2}}}
+
+\newcommand{\ttakey}[2]{\TT{#1}\index{#2@{\tt #1}}}
+\newcommand{\ttamkey}[3]{\TT{#1}\index{#2@{\tt #1}!#3}}
+
+\newcommand{\subskey}[1]{$\mathbf{^{#1}}$\index{#1@$^{#1}$}}
+\newcommand{\subsmkey}[2]{$\mathbf{^{#1}}$\index{#1@$^{#1}$!#2}}
+
+\newcommand{\minkey}[1]%
+           {\TT{min::#1}\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\minlkey}[2]%
+           {\TT{min::#1#2}\index{min::#1@{\tt min::#1}!#2@{\tt #2}}%
+                          \index{#1@{\tt #1}!#2@{\tt #2}}}
+\newcommand{\minikey}[2]%
+           {\TT{min::#1}\ttindex{min::#2}\ttindex{#2}}
+\newcommand{\minmkey}[2]%
+           {\TT{min::#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\MUPkey}[1]{\TT{MUP::#1}\ttindex{MUP::#1}\ttindex{#1}}
+\newcommand{\MUPmkey}[2]%
+           {\TT{MUP::#1}\ttmindex{MUP::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\minindex}[1]{\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\minmindex}[2]{\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\MUPindex}[1]{\ttindex{MUP::#1}\ttindex{#1}}
+
+\newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
+\newcommand{\pagref}[1]{p\pageref{#1}}
+
+\newcommand{\EOL}{\penalty \exhyphenpenalty}
+
+\newlength{\figurewidth}
+\setlength{\figurewidth}{\textwidth}
+\addtolength{\figurewidth}{-0.40in}
+
+\newsavebox{\figurebox}
+
+\newenvironment{boxedfigure}[1][!btp]%
+	{\begin{figure*}[#1]
+	 \begin{lrbox}{\figurebox}
+	 \begin{minipage}{\figurewidth}
+
+	 \vspace*{1ex}}%
+	{
+	 \vspace*{1ex}
+
+	 \end{minipage}
+	 \end{lrbox}
+
+	 \vspace*{-15ex}
+	 \centering
+	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
+	 \end{figure*}}
+
+\newenvironment{indpar}[1][0.3in]%
+	{\begin{list}{}%
+		     {\setlength{\itemsep}{0in}%
+		      \setlength{\topsep}{0in}%
+		      \setlength{\parsep}{1ex}%
+		      \setlength{\labelwidth}{#1}%
+		      \setlength{\leftmargin}{#1}%
+		      \addtolength{\leftmargin}{\labelsep}}%
+	 \item}%
+	{\end{list}}
+
+\newenvironment{itemlist}[1][1.2in]%
+	{\begin{list}{}{\setlength{\labelwidth}{#1}%
+		        \setlength{\leftmargin}{\labelwidth}%
+		        \addtolength{\leftmargin}{+0.2in}%
+		        \renewcommand{\makelabel}[1]{##1\hfill}}}%
+	{\end{list}}
+
+\newcommand{\LABEL}[1]{\label{#1}}
+\newlength{\ARGBREAKLENGTH}
+\settowidth{\ARGBREAKLENGTH}{\tt ~~~~}
+\newcommand{\ARGBREAK}[1][\ARGBREAKLENGTH]{\\&\hspace*{#1}}
+\newcommand{\ARGSKIP}[2][\ARGBREAKLENGTH]{\\[#2]&\hspace*{#1}}
+\newcommand{\TTKEY}[1]{\ttkey{#1}}
+\newcommand{\TTARMKEY}[2]{\ttarmkey{#1}{#2}}
+\newcommand{\TTBKEY}[1]{\ttbkey{#1}}
+\newcommand{\TTBMKEY}[2]{\ttbmkey{#1}{#2}}
+\newcommand{\TTOMKEY}[3]{\ttomkey{#1}{#2}{#3}}
+\newcommand{\TTMOKEY}[2]{\ttmokey{#1}{#2}}
+\newcommand{\TTDKEY}[1]{\ttdkey{#1}}
+\newcommand{\TTDMKEY}[2]{\ttdmkey{#1}{#2}}
+\newcommand{\TTMKEY}[1]{\ttmkey{#1}}
+\newcommand{\MINKEY}[1]%
+	   {\TT{#1}\ttindex{min::#1}\ttindex{#1}}
+\newcommand{\MINLKEY}[2]%
+           {\TT{#1#2}\index{min::#1@{\tt min::#1}!#2@{\tt #2}}%
+                     \index{#1@{\tt #1}!#2@{\tt #2}}}
+\newcommand{\MINIKEY}[2]%
+           {\TT{#1}\ttindex{min::#2}\ttindex{#2}}
+\newcommand{\MINMKEY}[2]%
+           {\TT{#1}\ttmindex{min::#1}{#2}\ttmindex{#1}{#2}}
+\newcommand{\MUPKEY}[1]%
+	   {\TT{#1}\ttindex{MUP::#1}\ttindex{#1}}
+
+\newcommand{\REL}{$\,^R$}
+\newcommand{\COMPACT}{$\,^C$}
+\newcommand{\LOOSE}{$\,^L$}
+\newcommand{\RESIZE}{$\,^S$}
+\newcommand{\REORG}{$\,^O$}
+
+\begin{document}
+        
+\title{Minimal Runtime System\\[2ex]
+       Virtual Assembly Langauge\\[2ex]
+       MINVAL\\[2ex]
+       (Draft 1a)}
+
+\author{Robert L. Walton}
+
+\date{November 14, 2019}
+ 
+\maketitle
+
+\newpage
+\begin{center}
+\large \bf Table of Contents
+\end{center}
+
+\bigskip
+
+\tableofcontents 
+
+\newpage
+
+\section{Introduction}
+
+This document describes MINVAL, the Minimal Runtime System Virtual
+Assembly Language.
+
+\section{Overview}
+
+A typical MINVAL statement is:
+\begin{center}
+\tt int X = Y + Z
+\end{center}
+This allocates a new variable {\tt X} of type {\tt int}
+to the stack, and sets its value to that value of the
+variable {\tt Y} plus the value of the variable {\tt Z}.
+Most variables in the stack have a size equal to the natural
+word size of the computer (typically 32 or 64 bits), or
+a size twice that: {\tt intdbl} is a two word integer.
+
+Variables have names, like {\tt X}, {\tt Y}, and {\tt Z},
+and locations in memory where their values are stored.
+
+Locations can be complicated.  The statement:
+\begin{center}
+\tt Y \TILDE{} Gobbledeegook
+\end{center}
+makes the variable {\tt T} synonymous with the
+global variable {\tt Gobbledeegook} in the current
+module.  {\tt Gobbledeegook} will have a location that
+is a fixed address in the program virtual memory, and
+a type, such as {\tt uns8}, which says it is a one byte
+unsigned integer, a.k.a., a character.
+
+The location of {\tt X} is an address in
+the frame of the current function execution.
+
+The statement
+\begin{center}
+\tt Z \TILDE{} Gobbledeegook[W]
+\end{center}
+makes {\tt Z} synonymous with {\tt Gobbledeegook}
+indexed by the variable {\tt W}.  If {\tt W} is a
+plain integer, the address of {\tt Z} the address
+of {\tt Gobbledeegook} plus the value of {\tt W}
+times the size of {\tt uns8}.
+
+Now suppose
+\begin{center}
+\tt W \TILDE{} Gook
+\end{center}
+where {\tt Gook} is a global variable of type {\tt int16},
+a signed 16 bit integer.  Then to execute
+\begin{center}
+\tt int X = Y + Z
+\end{center}
+the computer must:
+\begin{enumerate}
+\item read the value of {\tt Y} from the location of {\tt Gobbledeegook}
+\item read the value of {\tt W} from the location of {\tt Gook}
+\item add the value of {\tt W} to the location of {\tt Gobbledeegook}
+      to get the location of {\tt Z}
+\item read the value of {\tt Z} from its location
+\item convert the value of {\tt Y}, an {\tt uns8} to an {\tt int}
+\item convert the value of {\tt Z}, an {\tt uns8} to an {\tt int}
+\item store the sum of the values of {\tt Y} and {\tt Z} into {\tt X}
+\end{enumerate}
+
+Now there is a very important difference between {\tt X} on one
+hand, and {\tt Y} and {\tt Z} on the other.  When we call an
+out-of-line function and then return, we can expect the value of
+{\tt X} to be the same as before the call, but the values of
+{\tt Y} and {\tt Z} may have changed.  This is because the out-of-line
+function and functions it calls can access the locations of {\tt Y}
+and {\tt Z}, but not the location of {\tt X}.
+
+The expressions that compute locations have a limited structure,
+so that the operations used consists of reading variables or constants,
+adding values, multiplying values by constants, and shifting values
+left or right by a constant number of bits.  More specifically, a
+location must be one of the following:
+\begin{itemize}
+\item a constant, as for global variables
+\item the value of the current function execution frame pointer
+\item the value of a variable, as for pointer variables
+\item a constant offset added to another location
+\item a variable offset added to another location, where
+      the variable offset is obtained by multiplying together
+      one or more values read from other variables and optionally
+      multiplying that product by a constant
+\end{itemize}
+
+The following apply to computing locations:
+\begin{itemize}
+\item locations and offsets are {\tt intwrd} values that are
+      addresses or offsets of
+      memory units whose size in bits is a constant that is a
+      power of two; e.g.,
+      there can be bit addresses, byte addresses, word
+      addresses, page addresses, etc.
+\item whenever a variable value is read as part of a location
+      computation, it will be first expanded to a {\tt intwrd}
+      value, then optionally masked by a constant, and lastly
+      optionally shifted left or right by a constant
+\item whenever a location and an offset are added, they will
+      first be left shifted so the result is a location in
+      the smaller of the two units of the input location and
+      offset
+\end{itemize}
+
+MINVAL has a full set of number types:
+{\tt int8}, {\tt uns8},
+{\tt int16}, {\tt uns16}, {\tt flt16}, \ldots,
+{\tt int128}, {\tt uns128}, {\tt flt128}.
+The types {\tt int}, {\tt uns}, {\tt flt} are just these
+types for the target machine word size, and the types
+The types {\tt intdbl}, {\tt unsdbl}, {\tt fltdbl} are just these
+types for twice the target machine word size.
+
+There are also two kinds of user defined types: packed numbers
+and structures.
+
+
+\printindex
+
+\end{document}
