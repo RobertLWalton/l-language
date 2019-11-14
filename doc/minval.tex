@@ -383,9 +383,42 @@ The types {\tt int}, {\tt uns}, {\tt flt} are just these
 types for the target machine word size, and the types
 The types {\tt intdbl}, {\tt unsdbl}, {\tt fltdbl} are just these
 types for twice the target machine word size.
+The {\tt bool} type is a single bit interpreted as {\tt true} if
+1 and {\tt false} if zero: it is in essence a 1-bit unsigned integer.
 
 There are also two kinds of user defined types: packed numbers
 and structures.
+
+An example packed number is:
+
+\begin{indpar}\begin{verbatim}
+my_type:    packed uns32
+    0-7:    uns op_code              // Operation
+    0:      bool has_constant        // Format indicator
+    8-31:   int constant             // Constant
+    8-15:   uns src1                 // Source Register
+    16-23:  uns src2                 // Source Register
+    24-31:  uns des                  // Destination Register
+
+. . . . . . . . . . . .
+
+my_type X = ...
+uns op = X.op_code
+int c = X.constant
+Y ~ X.des
+\end{verbatim}\end{indpar}
+
+A packed number is a number ({\tt uns32} in the example)
+that contains fields.  Each field occupies a sequence of
+bits in the number ({\tt op\_code} occupies bits 0 through 7
+in the example), and this sequence is interpreted as a
+number, {\tt int}, {\tt uns}, or {\tt flt}, or as a {\tt bool},
+and is given
+a name ({\tt op\_code}, {\tt has\_constant}, etc.~in the
+example).
+
+Notice that fields can overlap.
+
 
 
 \printindex
