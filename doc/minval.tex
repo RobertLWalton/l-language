@@ -392,13 +392,13 @@ and structures.
 An example packed number is:
 
 \begin{indpar}\begin{verbatim}
-my_type:    packed uns32
-    0-7:    uns op_code              // Operation
-    0:      bool has_constant        // Format indicator
-    8-31:   int constant             // Constant
-    8-15:   uns src1                 // Source Register
-    16-23:  uns src2                 // Source Register
-    24-31:  uns des                  // Destination Register
+packed uns32 my_type:
+    [0-7]    uns op_code              // Operation
+    [0]      bool has_constant        // Format indicator
+    [8-31]   int constant             // Constant
+    [8-15]   uns src1                 // Source Register
+    [16-23]  uns src2                 // Source Register
+    [24-31]  uns des                  // Destination Register
 
 . . . . . . . . . . . .
 
@@ -422,19 +422,21 @@ Notice that fields can overlap.
 Examples of structures are:
 
 \begin{indpar}\begin{verbatim}
-my_type:    struct
-    align
+struct my_type:
+    pack
     uns8    type                     // Object Type
     flt64   weight                   // Object Weight
+    align   64
+    label   extension
 
-my_type:    struct
-    append after weight
+struct my_type:
+    origin  extension
     align
     flt64   height                   // Object height
     flt64   width                    // Object height
 
-my_type:    struct
-    append after weight
+struct my_type:
+    origin  extension
     align
     flt64   volume                   // Object volume
 
@@ -457,9 +459,16 @@ A structure is a byte sequence that contains members
 the example).
 Each member has an offset in bytes from the beginning of the
 structure (e.g. {\tt type} is offset 0 and because it is
-aligned, {\tt weight} has offet 8).  A structure type has an
+packed, {\tt weight} has offset 1).  A {\tt label} is like
+a zero length member that has no value, and is used to
+position other members via the {\tt origin} statement.
+
+In this case {\tt extension} is aligned on a 64 bit boundary.
+A structure type has an
 alignment equal to the greatest common multiple of the
-alignments of its members.  Structure types can be extended
+alignments of its members.
+
+Structure types can be extended
 (as per the example), and members can overlay each other.
 A structure has a size in bytes just large enough to
 accommodate all its members.
