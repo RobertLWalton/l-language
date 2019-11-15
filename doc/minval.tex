@@ -419,7 +419,60 @@ example).
 
 Notice that fields can overlap.
 
+Examples of structures are:
 
+\begin{indpar}\begin{verbatim}
+my_type:    struct
+    align
+    uns8    type                     // Object Type
+    flt64   weight                   // Object Weight
+
+my_type:    struct
+    append after weight
+    align
+    flt64   height                   // Object height
+    flt64   width                    // Object height
+
+my_type:    struct
+    append after weight
+    align
+    flt64   volume                   // Object volume
+
+. . . . . . . . . . . .
+
+my_type X = ...
+X.type = BOX
+X.weight = 55
+X.height = 1023
+X.width = 572
+
+my_type Y = allocate
+Y.type = BEER
+Y.weight = 0.45
+Y.volume = 48
+\end{verbatim}\end{indpar}
+
+A structure is a byte sequence that contains members
+(e.g., {\tt type}, {\tt weight}, {\tt height}, etc. in
+the example).
+Each member has an offset in bytes from the beginning of the
+structure (e.g. {\tt type} is offset 0 and because it is
+aligned, {\tt weight} has offet 8).  A structure type has an
+alignment equal to the greatest common multiple of the
+alignments of its members.  Structure types can be extended
+(as per the example), and members can overlay each other.
+A structure has a size in bytes just large enough to
+accommodate all its members.
+
+However a value of a structure type is not actually the
+structure proper, but instead it is a pointer to the structure,
+stored in a machine word.  Thus in `{\tt X = ...}' the {\tt xxx}
+must be a function call that allocates the structure.  However,
+the keyword {\tt allocate} as used in the example causes the
+structure to be allocate inline, in this case in the current
+function execution frame.  The value of {\tt Y} is still a pointer to this
+structure, and is stored in a different part of the function
+frame from the structure itself.
 
 \printindex
 
