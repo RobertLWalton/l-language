@@ -252,7 +252,7 @@
 
 \author{Robert L. Walton}
 
-\date{November 14, 2019}
+\date{November 17, 2019}
  
 \maketitle
 
@@ -283,7 +283,8 @@ to the stack, and sets its value to that value of the
 variable {\tt Y} plus the value of the variable {\tt Z}.
 Most variables in the stack have a size equal to the natural
 word size of the computer (typically 32 or 64 bits), or
-a size twice that: {\tt intdbl} is a two word integer.
+several times that size: {\tt intd} is a two word (double) integer
+and {\tt intq} is a four word (quad) integer.
 
 Variables have names, like {\tt X}, {\tt Y}, and {\tt Z},
 and locations in memory where their values are stored.
@@ -296,8 +297,8 @@ makes the variable {\tt T} synonymous with the
 global variable {\tt Gobbledeegook} in the current
 module.  {\tt Gobbledeegook} will have a location that
 is a fixed address in the program virtual memory, and
-a type, such as {\tt uns8}, which says it is a one byte
-unsigned integer, a.k.a., a character.
+a type, such as `pointer to {\tt uns8}', which says it is a
+pointer to a one byte unsigned integer, a.k.a., a character.
 
 The location of {\tt X} is an address in
 the frame of the current function execution.
@@ -307,8 +308,8 @@ The statement
 \tt Z \TILDE{} Gobbledeegook[W]
 \end{center}
 makes {\tt Z} synonymous with {\tt Gobbledeegook}
-indexed by the variable {\tt W}.  If {\tt W} is a
-plain integer, the address of {\tt Z} the address
+indexed by the variable {\tt W}.  If {\tt W} is an
+integer, the address of {\tt Z} the address
 of {\tt Gobbledeegook} plus the value of {\tt W}
 times the size of {\tt uns8}.
 
@@ -319,26 +320,29 @@ Now suppose
 where {\tt Gook} is a global variable of type {\tt int16},
 a signed 16 bit integer.  Then to execute
 \begin{center}
-\tt int X = Y + Z
+\tt int X = Y[4] + Z
 \end{center}
 the computer must:
 \begin{enumerate}
-\item read the value of {\tt Y} from the location of {\tt Gobbledeegook}
-\item read the value of {\tt W} from the location of {\tt Gook}
+\item read the value of {\tt Y} which is the location of {\tt Gobbledeegook}
+\item add {\tt 4} to this location
+\item read the value of {\tt Y[4]} from this location and convert it
+      to an {\tt int}
+\item read the value of {\tt W} from the location of {\tt Gook} and
+      convert it to an {\tt int}
 \item add the value of {\tt W} to the location of {\tt Gobbledeegook}
       to get the location of {\tt Z}
-\item read the value of {\tt Z} from its location
-\item convert the value of {\tt Y}, an {\tt uns8} to an {\tt int}
-\item convert the value of {\tt Z}, an {\tt uns8} to an {\tt int}
-\item store the sum of the values of {\tt Y} and {\tt Z} into {\tt X}
+\item read the value of {\tt Z} from this location and convert
+      it to an {\tt int}
+\item store the sum of the converted values of {\tt Y[4]} and {\tt Z} into {\tt X}
 \end{enumerate}
 
 Now there is a very important difference between {\tt X} on one
-hand, and {\tt Y} and {\tt Z} on the other.  When we call an
+hand, and {\tt W}, {\tt Y} and {\tt Z} on the other.  When we call an
 out-of-line function and then return, we can expect the value of
 {\tt X} to be the same as before the call, but the values of
-{\tt Y} and {\tt Z} may have changed.  This is because the out-of-line
-function and functions it calls can access the locations of {\tt Y}
+{\tt W}, {\tt Y} and {\tt Z} may have changed.  This is because the out-of-line
+function and functions it calls can access the locations of {\tt W}, {\tt Y}
 and {\tt Z}, but not the location of {\tt X}.
 
 The expressions that compute locations have a limited structure,
@@ -381,8 +385,8 @@ MINVAL has a full set of number types:
 {\tt int128}, {\tt uns128}, {\tt flt128}.
 The types {\tt int}, {\tt uns}, {\tt flt} are just these
 types for the target machine word size, and the types
-The types {\tt intdbl}, {\tt unsdbl}, {\tt fltdbl} are just these
-types for twice the target machine word size.
+The types {\tt intd}, {\tt intq}, {\tt unsd}, {\tt unsq} are just integer
+types for twice (double) or four times (quad) the target machine word size.
 The {\tt bool} type is a single bit interpreted as {\tt true} if
 1 and {\tt false} if zero: it is in essence a 1-bit unsigned integer.
 
@@ -440,6 +444,11 @@ struct my_type:
     align
     flt64   volume                   // Object volume
 
+struct your_type:
+    include my_type   // Copy members of my_type
+    dp uns8 name      // Indirect pointer to name
+                      // character string
+
 . . . . . . . . . . . .
 
 my_type X = ...
@@ -448,10 +457,11 @@ X.weight = 55
 X.height = 1023
 X.width = 572
 
-my_type Y = allocate
+struct your_type Y
 Y.type = BEER
 Y.weight = 0.45
 Y.volume = 48
+Y.name = "John Doe"
 \end{verbatim}\end{indpar}
 
 A structure is a byte sequence that contains members
@@ -462,6 +472,8 @@ structure (e.g. {\tt type} is offset 0 and because it is
 packed, {\tt weight} has offset 1).  A {\tt label} is like
 a zero length member that has no value, and is used to
 position other members via the {\tt origin} statement.
+The {\tt include} statement copies members from another
+structure type.
 
 In this case {\tt extension} is aligned on a 64 bit boundary.
 A structure type has an
@@ -473,15 +485,50 @@ Structure types can be extended
 A structure has a size in bytes just large enough to
 accommodate all its members.
 
-However a value of a structure type is not actually the
-structure proper, but instead it is a pointer to the structure,
-stored in a machine word.  Thus in `{\tt X = ...}' the {\tt xxx}
-must be a function call that allocates the structure.  However,
-the keyword {\tt allocate} as used in the example causes the
-structure to be allocate inline, in this case in the current
-function execution frame.  The value of {\tt Y} is still a pointer to this
-structure, and is stored in a different part of the function
-frame from the structure itself.
+Structure types per say cannot be used as variable values.
+Instead, pointers to structure types must be used.  In the
+example {\tt my\_type} and {\tt your\_type} are types of
+direct pointers, which are {\tt int} values containing
+addresses.  Similarly {\tt X} and {\tt Y} are pointers.
+Here {\tt X} is allocated by an out-of-line function call
+denoted by {\tt \ldots}, while {\tt Y} is placed into the
+current function execution frame.  In spite of this last,
+{\tt Y} is still a pointer.
+
+MINVAL has multiple pointer types.  The builtin ones are:
+\begin{itemize}
+\item[{\bf dp}] Direct Pointer.  An {\tt int} value holding
+the byte address of the bytes pointed at.
+\item[{\bf ip}] Indirect Pointer.  An {\tt int} value holding
+a byte address of a {\tt int} value holding the byte address
+of the bytes pointed at.
+\item[{\bf op}] Offset Pointer (a.k.a., indirect offset pointer).
+An {\tt intd} value half of which holds an {\tt int} offset $O$ and
+the other half of which holds and {\tt int}
+byte address of an {\tt int} base value $B$.  $B+O$ is the byte
+address of the bytes pointed at.
+\end{itemize}
+
+In the example above, {\tt name} is a direct pointer to an unsigned
+byte, allowing expressions such as {\tt Y.name[i]} for an index variable
+{\tt i}.
+
+Some pointer types can be converted to other pointer types.
+All the builtin pointer values can be converted to direct
+pointers, as is done when calling legacy library functions
+written in the C programming language.  Direct pointer values
+can be converted to offset pointer values by using a base ($B$)
+equal to zero and setting the offset ($O$) equal to the
+direct address.
+
+The default pointer type of a structure is direct, but this
+can be changed, e.g., to indirect.  The MIN runtime system
+requires that pointers be indirect or indirect offset.
+
+New pointer types may also be defined by the user.
+
+
+
 
 \printindex
 
