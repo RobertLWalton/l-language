@@ -527,6 +527,69 @@ requires that pointers be indirect or indirect offset.
 
 New pointer types may also be defined by the user.
 
+By default, functions in MINVAL are inline.  For example,
+
+\begin{indpar}\begin{verbatim}
+function int r = max ( int x, int y ):
+    if x < y:
+        r = y
+    else:
+        r = x
+
+int x = ...
+int y = ...
+int z = max ( x, y )
+\end{verbatim}\end{indpar}
+
+An assignment statement can contain a single function call
+or a single operator, but not both, and not more than one.
+For example, given the definition of {\tt max} above:
+
+\begin{indpar}\begin{verbatim}
+int x = ...
+int y = ...
+int z = ...
+int w = max ( x, max ( y, z ) )    // Illegal
+int w1 = max ( y, z )              // OK
+int w2 = max ( x, w1 )             // OK
+\end{verbatim}\end{indpar}
+
+Although variables in assignment statement operands cannot be
+replaced by expressions involving variables, they can be replaced
+by expressions involving constants.  Constants are their own
+type, {\tt const}, and named constants can be created by assignment
+statements.  For example, using the definition of {\tt max} above:
+
+\begin{indpar}\begin{verbatim}
+const x = 5
+const y = 1e8
+const z = x + y
+const w = z / x + y
+int u = ...
+int v = max ( u, z / x + w * y )
+\end{verbatim}\end{indpar}
+
+Constant arithemtic is in effect infinite precision with unbounded
+numbers.  Constant numbers can be converted to any of the runtime
+number types, but if the result will not fit in a runtime integer,
+a compiler error occurs.  This happens, for example, if {\tt 1e20}
+is converted to an {\tt int32}.
+
+It is possible to define inline functions that execute at assembly
+time:
+
+\begin{indpar}\begin{verbatim}
+function const r = max ( const x, const y ):
+    if x < y:
+        r = y
+    else:
+        r = x
+
+const x = 2e5
+const y = 3e6
+const z = 9e4
+const w = max ( x, max( y, z ) )
+\end{verbatim}\end{indpar}
 
 
 
