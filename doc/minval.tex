@@ -591,6 +591,49 @@ const z = 9e4
 const w = max ( x, max( y, z ) )
 \end{verbatim}\end{indpar}
 
+Inline function definitions may make use of type wildcards.
+A name that consists of only an initial {\tt T} optionally
+followed by decimal digits is a type wildcard, that denotes
+an arbitary type.  Thus the example:
+
+\begin{indpar}\begin{verbatim}
+function T r = max ( T x, T y ):
+    if x < y:
+        r = y
+    else:
+        r = x
+
+const x = 2e5
+int y = 27e4;
+int z = max ( x, y )
+const w = 34e4;
+const v = max ( x, w )
+\end{verbatim}\end{indpar}
+
+A wildcard type of a result variable gets its value from the
+type of the result variable in a function call.  The exception
+is {\tt const}, which can be a wildcard type in a function
+definition if and only if all type wildcards in the function definition
+are assigned the value {\tt const} and doing so makes
+all types in the function definition be {\tt const}
+(except for types that are not used as types, but are used as
+{\tt const} values, as in `{\tt sizeof ( int )}').
+
+Pointer types can be wildcards which must have names consisting
+of an initial {\tt P} optionally followed by decimal digits.
+An example is:
+
+\begin{indpar}\begin{verbatim}
+function int r = strlen ( P uns8 s ):
+    r = (int) C::strlen ( (dp) s ) )
+\end{verbatim}\end{indpar}
+
+which converts the point of type {\tt P} to a pointer of
+type {\tt dp} (direct pointer) and calls the C programming
+language subroutine {\tt C::strlen} with the direct pointer.
+
+
+
 
 
 \printindex
