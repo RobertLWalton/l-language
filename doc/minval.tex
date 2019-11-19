@@ -96,7 +96,7 @@
 \newcommand{\OPEN}{{$\{$}}
 \newcommand{\CLOSE}{{$\}$}}
 
-\newcommand{\key}[1]{{\bf \em #1}}
+\newcommand{\key}[1]{{\rm \bfseries #1}}
 
 \newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
@@ -158,7 +158,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 17, 2019
+November 19, 2019
 
 \bigskip
  
@@ -173,7 +173,7 @@ Table of Contents
 
 \section{Introduction}
 
-This document describes MINVAL, the Minimal Runtime System Virtual
+This document describes \key{MINVAL}, the Minimal Runtime System Virtual
 Assembly Language.
 
 \section{Overview}
@@ -197,12 +197,13 @@ Locations can be complicated.  The statement:
 \begin{center}
 \tt Y \TILDE{} Gobbledeegook
 \end{center}
-makes the variable {\tt T} synonymous with the
+makes the variable {\tt Y} synonymous with the
 global variable {\tt Gobbledeegook} in the current
 module.  {\tt Gobbledeegook} will have a location that
-is a fixed address in the program virtual memory, and
-a type, such as `pointer to {\tt uns8}', which says it is a
-pointer to a one byte unsigned integer, a.k.a., a character.
+is at a offset address in the current module global memory, and
+a type, such as `{\tt dp uns8}', which says it is a
+direct pointer to a one byte unsigned integer, a.k.a., a character.
+Direct pointers are stored in words.
 
 The location of {\tt X} is an address in
 the frame of the current function execution.
