@@ -158,7 +158,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 19, 2019
+November 22, 2019
 
 \bigskip
  
@@ -254,34 +254,49 @@ The expressions that compute locations have a limited structure,
 so that the operations used consists of reading variables or constants,
 adding values, multiplying values by constants, and shifting values
 left or right by a constant number of bits.  More specifically, a
-location must be one of the following:
-\begin{itemize}
-\item a constant, as for global variables
-\item the value of the current function execution frame pointer
-\item the value of a variable, as for pointer variables
-\item a constant offset added to another location
-\item a variable offset added to another location, where
-      the variable offset is obtained by multiplying together
-      one or more values read from other variables and optionally
-      multiplying that product by a constant
-\end{itemize}
+location as follows:
+\begin{indpar}\begin{tabular}{rcl}
+{\em location} & ::= & {\em global} $|$ {\em local} $|$ {\em base}
+                   $|$ {\em offset} $|$ {\em indexed}
+\\[0.5ex]
+{\em global} & ::= & constant location provided by loader \\
+       &     & (e.g., of a string constant); \\
+       &     & not used for variables
+\\[0.5ex]
+{\em local} & ::= & location at a constant offset from the
+                  current frame pointer \\
+          & $|$ & location at a constant offset from the
+	          current \\
+          &     & module memory pointer
+\\[0.5ex]
+{\em indirect} & ::= & {\tt int} byte address read from a {\em local} location
+\\[0.5ex]
+{\em double-indirect} & ::= &
+    {\tt int} byte address read from an {\em indirect} location
+\\[0.5ex]
+{\em base} & ::= & {\em indirect} $|$ {\em double-indirect}
+\\[0.5ex]
+{\em offset} & ::= & {\em base} + constant
+\\[0.5ex]
+{\em index} & ::= & {\tt int} read from {\em local} location \\
+      & $|$ & {\tt int} read from a {\em offset} location
+\\[0.5ex]
+{\em indexed} & ::= & {\em base} + constant + constant * {\em index} \\
+        &     & where if the {\em index} is read from
+	        an {\em offset} location \\
+	&     & the {\em base} of that {\em offset} location
+	        must be the \underline{same} \\
+	&     & as the {\em base} of the {\em indexed} expression
+\end{tabular}\end{indpar}
 
-The following apply to computing locations:
+Lastly after the above have computed the byte address of a location,
+a location can optionally be a field of a word stored at that
+byte address, where the field is designated by specifying:
+
 \begin{itemize}
-\item locations and offsets are {\tt intwrd} values that are
-      addresses or offsets of
-      memory units whose size in bits is a constant that is a
-      power of two; e.g.,
-      there can be bit addresses, byte addresses, word
-      addresses, page addresses, etc.
-\item whenever a variable value is read as part of a location
-      computation, it will be first expanded to a {\tt intwrd}
-      value, then optionally masked by a constant, and lastly
-      optionally shifted left or right by a constant
-\item whenever a location and an offset are added, they will
-      first be left shifted so the result is a location in
-      the smaller of the two units of the input location and
-      offset
+\item a one word mask selecting the bits of the field
+\item the number of bits to the left of the field in the word
+\item the number of bits to the right of the field in the word
 \end{itemize}
 
 MINVAL has a full set of number types:
@@ -293,7 +308,7 @@ types for the target machine word size, and the types
 The types {\tt intd}, {\tt intq}, {\tt unsd}, {\tt unsq} are just integer
 types for twice (double) or four times (quad) the target machine word size.
 The {\tt bool} type is a single bit interpreted as {\tt true} if
-1 and {\tt false} if zero: it is in essence a 1-bit unsigned integer.
+1 and {\tt false} if 0: it is in essence a 1-bit unsigned integer.
 
 There are also two kinds of user defined types: packed numbers
 and structures.
@@ -333,7 +348,7 @@ Examples of structures are:
 \begin{indpar}\begin{verbatim}
 struct my_type:
     pack
-    uns8    type                     // Object Type
+    uns8    kind                     // Object Kind
     flt64   weight                   // Object Weight
     align   64
     label   extension
@@ -351,29 +366,29 @@ struct my_type:
 
 struct your_type:
     include my_type   // Copy members of my_type
-    dp uns8 name      // Indirect pointer to name
+    dp uns8 name      // Direct pointer to name
                       // character string
 
 . . . . . . . . . . . .
 
 my_type X = ...
-X.type = BOX
+X.kind = BOX
 X.weight = 55
 X.height = 1023
 X.width = 572
 
 struct your_type Y
-Y.type = BEER
+Y.kind = BEER
 Y.weight = 0.45
 Y.volume = 48
 Y.name = "John Doe"
 \end{verbatim}\end{indpar}
 
 A structure is a byte sequence that contains members
-(e.g., {\tt type}, {\tt weight}, {\tt height}, etc. in
+(e.g., {\tt kind}, {\tt weight}, {\tt height}, etc. in
 the example).
 Each member has an offset in bytes from the beginning of the
-structure (e.g. {\tt type} is offset 0 and because it is
+structure (e.g. {\tt kind} is offset 0 and because it is
 packed, {\tt weight} has offset 1).  A {\tt label} is like
 a zero length member that has no value, and is used to
 position other members via the {\tt origin} statement.
@@ -412,6 +427,16 @@ An {\tt intd} value half of which holds an {\tt int} offset $O$ and
 the other half of which holds and {\tt int}
 byte address of an {\tt int} base value $B$.  $B+O$ is the byte
 address of the bytes pointed at.
+\item[{\bf fp}] Field Pointer.  An {\tt intq} value, half of
+which is an offset pointer pointing at an {\tt int} in memory,
+and the other half of which holds the following which defines a field in that
+{\tt int}: (1) an {\tt int} mask for
+the bits of the field in the field's containing {\tt int},
+(2) the number of bits to the left (high order side) of the field in
+its {\tt int}, and
+(3) the number of bits to the right (low order side) of the field in
+its {\tt int}.
+
 \end{itemize}
 
 In the example above, {\tt name} is a direct pointer to an unsigned
