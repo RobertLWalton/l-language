@@ -518,16 +518,16 @@ function const r = max ( const x, const y ):
 const x = 2e5
 const y = 3e6
 const z = 9e4
-const w = max ( x, max( y, z ) )
+const w = max ( x, max( y, z ) )  // Legal!
 \end{verbatim}\end{indpar}
 
 Inline function definitions may make use of type wildcards.
-A name that consists of only an initial {\tt T} optionally
-followed by decimal digits is a type wildcard, that denotes
+A name that consists of only an initial {\tt T}
+followed by one or more decimal digits is a type wildcard, that denotes
 an arbitary type.  Thus the example:
 
 \begin{indpar}\begin{verbatim}
-function T r = max ( T x, T y ):
+function T1 r = max ( T1 x, T1 y ):
     if x < y:
         r = y
     else:
@@ -535,9 +535,9 @@ function T r = max ( T x, T y ):
 
 const x = 2e5
 int y = 27e4;
-int z = max ( x, y )
+int z = max ( x, y )      // Converts x to int.
 const w = 34e4;
-const v = max ( x, w )
+const v = max ( x, w )    // All values are const.
 \end{verbatim}\end{indpar}
 
 A wildcard type of a result variable gets its value from the
@@ -550,39 +550,39 @@ all types in the function definition be {\tt const}
 {\tt const} values, as in `{\tt sizeof ( int )}').
 
 Pointer types can be wildcards which must have names consisting
-of an initial {\tt P} optionally followed by decimal digits.
+of an initial {\tt P} followed by one or more decimal digits.
 An example is:
 
 \begin{indpar}\begin{verbatim}
-function int r = strlen ( P uns8 s ):
+function int r = strlen ( P1 uns8 s ):
     r = (int) C::strlen ( (dp) s ) )
 \end{verbatim}\end{indpar}
 
-which converts the point of type {\tt P} to a pointer of
+which converts the point of type {\tt P1} to a pointer of
 type {\tt dp} (direct pointer) and calls the C programming
 language subroutine {\tt C::strlen} with the direct pointer.
 
 MINVAL does not necessarily make any use of registers, other
-than as temporaries during the execution of an instruction,
-and a several global registers that hold the current function
+than as temporaries during the execution of a single statement,
+and a pair of registers that hold the current function
 execution frame address and current module data address.
 However, registers can be used to cache data that exists in
 RAM memory, or that should exist in RAM memory but does not
 due to optimization.  We call such registers software
 caches.
 
-Software caches of RAM memory are flushed when an out-of-line
-function is called if (1) the memory is not in the currently
-executing function frame, or (2) the memory is part of a
-section of the currently executing function from to which
+Software caches of a RAM memory location are flushed when an out-of-line
+function is called if (1) the location is not in the currently
+executing function frame, or (2) the location is part of a
+section of the currently executing function frame to which
 a pointer (direct, indirect, offset, etc.) has been computed.
 
 In addition to having a type and optionally a pointer type,
 variables may have qualifiers.  The only qualifiers are
 {\tt ro} and {\tt vo}.
 
-{\tt ro} variables are read-only
-can cannot be written.  However, they may be writable by
+{\tt ro} variables are read-only and
+cannot be written.  However, they may be writable by
 code located elsewhere, so it cannot be assumed they will
 never change.  Therefore the {\tt ro} qualifier does not
 affect software cacheing.
