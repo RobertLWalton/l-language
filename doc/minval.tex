@@ -158,7 +158,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 22, 2019
+November 24, 2019
 
 \bigskip
  
@@ -592,6 +592,19 @@ between any two reads of the variable.  {\tt vo} variables are
 \underline{not} cached in software registers.
 
 
+\section{Syntax}
+
+
+\section{Assembly Time}
+
+Statements and functions, all of whose varibles are of {\tt const}
+type, execute solely during assembly, and never at run time
+(when the assembled program is running).  Constants are all of
+type {\tt const}.
+
+\subsection{Assembly Time Data}
+
+\section{Run Time}
 
 
 
