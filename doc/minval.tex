@@ -164,7 +164,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 28, 2019
+December 1, 2019
 
 \bigskip
  
@@ -858,7 +858,7 @@ warning messages.
 {\em end-of-file} ::= see \pagref{END-OF-FILE}
 
 \end{indpar}
-\caption{L-Language Program Lexemes}
+\caption{MINVAL Program Lexemes}
 \label{MINVAL-PROGRAM-LEXEMES}
 \end{boxedfigure}
 
@@ -1094,7 +1094,7 @@ lexemes in the logical line
 are removed from the logical line.  If the result is
 empty, e.g., the logical line is a comment line, it is discarded.
 Otherwise the
-modified logical line becomes a L-Language `\emkey{statement}'.
+modified logical line becomes a MINVAL `\emkey{statement}'.
 
 Therefore a file is a sequence of top-level statements.
 
@@ -1105,6 +1105,177 @@ a block that itself consists of a sequence of statements.
 
 \subsection{Expressions}
 
+Expressions are built from operators, such as \TT{+} and \TT{*},
+and primaries, such as variable names and function calls.
+
+Operators are characterized by fixity, precedence, and format.
+The MINVAL operators are listed in Table~\itemref{MINVAL-OPERATORS}.
+
+\begin{boxedfigure}[!p]
+\begin{center}
+\begin{tabular}{|llllr|}
+\hline
+Operator & Meaning & Fixity & Format & Precedence \\
+\hline
+\ttkey{=} & assignment & infix & binary & L = 1 \\
+\ttkey{\textasciitilde} & overlay & infix & binary & 1 \\
+\ttkey{+=} & increment & infix & binary & 1 \\
+\ttkey{-=} & decrement & infix & binary & 1 \\
+\hline
+\ttkey{,} & separator & nofix & separating & 2 \\
+\hline
+\ttkey{else} & selection & infix & nomix & 3 \\
+\hline
+\ttkey{if} & condition & infix & binary & 4 \\
+\hline
+\ttkey{BUT NOT} & logical and not & infix & binary & 5 \\
+\hline
+\ttkey{AND} & logical and & infix & nomix & 6 \\
+\ttkey{OR} & logical or & infix & nomix & 6 \\
+\hline
+\ttkey{NOT} & logical not & nofix & unary & 7 \\
+\hline
+\ttkey{==} & equal & infix & left associative & 8 \\
+\ttkey{!=} & not equal & infix & left associative & 8 \\
+\ttkey{<} & less than & infix & left associative & 8 \\
+\ttkey{<=} & less than or equal & infix & left associative & 8 \\
+\ttkey{>} & greater than & infix & left associative & 8 \\
+\ttkey{>=} & greater than or equal & infix & left associative & 8 \\
+\hline
+\ttkey{+} & addition & infix & sum & 9 \\
+\ttkey{-} & subtraction & infix & sum & 9 \\
+\ttkey{|} & binary or & infix & nomix & 9 \\
+\ttkey{\&} & binary and & infix & nomix & 9 \\
+\ttkey{xor} & binary exclusive or & infix & nomix & 9 \\
+\ttkey{<{}<} & left shift & infix & left associative & 9 \\
+\ttkey{>{}>} & right shift & infix & left associative & 9 \\
+\hline
+\ttkey{/} & division & infix & binary & 10 \\
+\ttkey{mod} & modulo & infix & binary & 10 \\
+\ttkey{div} & divide and round toward zero & infix & binary & 10 \\
+\ttkey{rem} & remainder of \TT{div} & infix & binary & 10 \\
+\hline
+\ttkey{*} & multiplication & infix & nomix & 11 \\
+\hline
+\ttkey{\textasciicircum} & exponentiation & infix & binary & H = 12 \\
+\hline
+\ttkey{+} & no operation & prefix & unary & \\
+\ttkey{-} & sign change & prefix & unary & \\
+\ttkey{!} & binary complement & prefix & unary & \\
+\hline
+
+\end{tabular}
+\end{center}
+
+\caption{MINVAL OPERATORS}
+\label{MINVAL-OPERATORS}
+\end{boxedfigure}
+
+Given this, expressions have the following syntax,
+where an {\em P-expression}
+is an expression all of whose operators that are outside brackets
+have precedence equal to or greater than P:
+
+\begin{indpar}
+\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
+\\[0.5ex]
+\emkey{N-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \{ {\em (N+1)-expression} $|$ {\em N-operator)} \}\PLUS{} \\
+        & where no two {\em (N+1)-expressions} may be adjacent \\ 
+        & and each {\em infix-N-operator} must be surrounded by
+	  {\em (N+1)-expressions} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{N-operator} ::= {\em nofix-N-operator} $|$ {\em infix-N-operator}
+\\[0.5ex]
+\emkey{nofix-N-operator} ::= nofix operator of precedence N
+\\[0.5ex]
+\emkey{infix-N-operator} ::= infix operator of precedence N
+\\[0.5ex]
+\emkey{(H+2)-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em primary} \\
+    $|$ & {\em prefix-operator} {\em (H+2)-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{primary} ::= {\em non-operator}\PLUS{}
+\\[2.0ex]
+\hspace*{3em}\begin{tabular}{l}
+where N is any precedence in the range [L,H+1]
+\end{tabular}
+\end{indpar}
+
+Generally
+a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
+and operators of precedence $P$.
+An {\em (H+2)-expression}, while it can be thought of as a sequence
+of zero or more prefix operators followed by a single {\em (H+3)-expression},
+is parsed so as to execute the prefix operators from right to left, each
+with a single operand.
+
+Precedence {\em (H+1)} is reserved for the `error operator' which is a
+nofix operator inserted by the parser to `fix up' parsing errors
+so parsing can continue.
+
+
+An \key{infix} operator must be surrounded by operands,
+but a \key{nofix} operator
+may or may not have adjacent operands.  A \key{prefix} operator must be followed
+by an operand, but must not be preceded by an operand.
+
+A \key{binary} operator must be in an expression consisting of nothing
+but two operands separated by an operator.
+A \key{unary} operator must be in an expression consisting of nothing
+but one operand preceded by an operator.
+A \key{nomix} operator must be in an expression consisting of nothing
+but operands and identical operators (e.g., \TT{AND} and \TT{OR}
+cannot be outside parenthesized operands in the same expression).
+The comparison operators are \key{left associative}, e.g.,
+`\TT{x < y < z}' is the same as `\TT{(x < y) < z}'.
+The \key{separating} format inserts special \TT{no-operand} primaries
+into the expression so the separating operator becomes an infix
+operator.  The \key{sum} format allows \TT{+} and \TT{-} to be mixed
+in the same expression, but not other operators of the same
+precedence.
+
+The \TT{NOT} operator is odd in that it is nofix/unary instead of
+prefix/unary.  This is done so it can have lower precedence than
+the comparison operators, as prefix operators effectively have highest
+precedence.
+
+An assembly language instruction can have only one non-prefix
+operator that performs a computation on run-time values.
+Also not all operators can be used to compute run-time values.
+
+However arbitrary expressions computing with {\tt cnst} values
+may occur in an assembly language instruction and elsewhere.
+The following elaborates the meaning of some of the operators
+that can be used in these expressions:
+
+\begin{indpar}
+\begin{tabular}{rp{5.0in}}
+\tt x \TT{if} y & evaluates to {\tt x} if {\tt y} evaluates to {\tt true},
+                  and to {\tt no-operand} otherwise
+\\[0.5ex]
+\tt x \TT{else} y & evaluates to {\tt x} that is not {\tt no-operand}
+                  and to {\tt y} otherwise
+\\[0.5ex]
+\tt x \TT{<} y \TT{<} z & evaluates to {\tt (x < y) AND (y < z)} where
+                  {\tt y} is evaluated only once, and similarly for
+		  all comparison operators
+\\[0.5ex]
+\tt \TT{!} x & evaluates on signed integers as if they were represented
+               in two's complement binary values of unbounded size 
+\end{tabular}
+\end{indpar}
+
+Also the {\tt no-operand} value as if the operand did not exist
+by nomix operators.  I.e., it is treated as 0 by non-logical,
+non-multiplication nomix operators, as 1 by multiplication,
+as {\tt true} by \TT{AND}, and as {\tt false} by \TT{OR}.
+Unary operators return {tt no-operand} when their operand
+has this value.
 
 \section{Assembly Time}
 
