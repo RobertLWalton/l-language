@@ -96,6 +96,10 @@
 \newcommand{\OPEN}{{$\{$}}
 \newcommand{\CLOSE}{{$\}$}}
 
+\newcommand{\ABV}{-{}-{}->}
+\newcommand{\MA}{{\em ma}\QMARK}
+\newcommand{\TS}{\hspace*{0in}\tt}
+
 \newcommand{\key}[1]{{\rm \bfseries #1}}
 \newcommand{\ttkey}[1]{{\tt \bfseries #1}}
 \newcommand{\emkey}[1]{{\em \bfseries #1}}
@@ -164,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 1, 2019
+December 7, 2019
 
 \bigskip
  
@@ -1144,9 +1148,9 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \hline
 \ttkey{+} & addition & infix & sum & 9 \\
 \ttkey{-} & subtraction & infix & sum & 9 \\
-\ttkey{|} & binary or & infix & nomix & 9 \\
-\ttkey{\&} & binary and & infix & nomix & 9 \\
-\ttkey{xor} & binary exclusive or & infix & nomix & 9 \\
+\ttkey{|} & bitwise or & infix & nomix & 9 \\
+\ttkey{\&} & bitwise and & infix & nomix & 9 \\
+\ttkey{xor} & bitwise exclusive or & infix & nomix & 9 \\
 \ttkey{<{}<} & left shift & infix & left associative & 9 \\
 \ttkey{>{}>} & right shift & infix & left associative & 9 \\
 \hline
@@ -1161,7 +1165,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \hline
 \ttkey{+} & no operation & prefix & unary & \\
 \ttkey{-} & sign change & prefix & unary & \\
-\ttkey{!} & binary complement & prefix & unary & \\
+\ttkey{!} & bitwise complement & prefix & unary & \\
 \hline
 
 \end{tabular}
@@ -1176,15 +1180,15 @@ where an {\em P-expression}
 is an expression all of whose operators that are outside brackets
 have precedence equal to or greater than P:
 
-\begin{indpar}
+\begin{indpar}\begin{minipage}{6in}
 \emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
 \\[0.5ex]
 \emkey{N-expression}
     \begin{tabular}[t]{@{}rl}
     ::= & \{ {\em (N+1)-expression} $|$ {\em N-operator)} \}\PLUS{} \\
         & where no two {\em (N+1)-expressions} may be adjacent \\ 
-        & and each {\em infix-N-operator} must be surrounded by
-	  {\em (N+1)-expressions} \\
+        & and each {\em infix-N-operator} must be surrounded by \\
+	& {\em (N+1)-expressions} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{N-operator} ::= {\em nofix-N-operator} $|$ {\em infix-N-operator}
@@ -1204,7 +1208,7 @@ have precedence equal to or greater than P:
 \hspace*{3em}\begin{tabular}{l}
 where N is any precedence in the range [L,H+1]
 \end{tabular}
-\end{indpar}
+\end{minipage}\end{indpar}
 
 Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
@@ -1248,7 +1252,7 @@ An assembly language instruction can have only one non-prefix
 operator that performs a computation on run-time values.
 Also not all operators can be used to compute run-time values.
 
-However arbitrary expressions computing with {\tt cnst} values
+However arbitrary expressions computing with {\tt const} values
 may occur in an assembly language instruction and elsewhere.
 The following elaborates the meaning of some of the operators
 that can be used in these expressions:
@@ -1266,7 +1270,8 @@ that can be used in these expressions:
 		  all comparison operators
 \\[0.5ex]
 \tt \TT{!} x & evaluates on signed integers as if they were represented
-               in two's complement binary values of unbounded size 
+               in two's complement by binary values of unbounded size,
+	       and similarly for other bitwise operators
 \end{tabular}
 \end{indpar}
 
@@ -1276,6 +1281,141 @@ non-multiplication nomix operators, as 1 by multiplication,
 as {\tt true} by \TT{AND}, and as {\tt false} by \TT{OR}.
 Unary operators return {tt no-operand} when their operand
 has this value.
+
+\subsection{Primaries}
+
+A \key{primary} is an {\em expression} that has no operators:
+\begin{indpar}
+\emkey{primary}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em name} \\
+    $|$ & {\em constant} \\
+    $|$ & {\em reference-expression} \\
+    $|$ & {\em function-call} \\
+    \end{tabular}
+\end{indpar}
+
+\subsubsection{Names}
+
+A \key{name} is a sequence of lexemes used to name things like
+variables and functions.
+
+\begin{indpar}
+\emkey{name}\label{NAME} ::=
+    {\em initial-name-item} {\em continuing-name-item}\STAR{} \\
+\emkey{initial-name-item} ::= {\em name-item} other than {\em natural-number} \\
+\emkey{continuing-name-item} ::= {\em name-item} not containing `\TT{.}' \\
+\emkey{name-item}\label{NAME-ITEM}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em word} containing no `\TT{.}' following a character
+                     that is not a `\TT{.}' \\
+        & [see text about splitting words with embedded `\TT{.}'s] \\
+    $|$ & {\em natural-number} \\
+    $|$ & {\em quoted-mark} not containing `\TT{.}'s \\
+    $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
+    \end{tabular} \\
+\emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
+\emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"}
+\end{indpar}
+
+{\em Words} containing embedded `\TT{.}'s are split into
+{\em name-items} which can only contain `\TT{.}'s at their beginning.
+Thus
+\begin{center}
+\TT{bills.wife.1.weight..size}
+\end{center}
+is split into
+\begin{center}
+\TT{bills~~~.wife~~~.1~~~.weight~~~~..size}
+\end{center}
+However, `\TT{.1}' is not a legal {\em name-item} and so cannot
+be part of a legal {\em name}.
+
+Name items beginning with more than one `\TT{.}' are reserved
+for use by systems and compilers (e.g., \TT{..size} in the example).
+Name items that are words containing `\TT{\$}' or
+beginning and ending with `\TT{*}' are
+similarly reserved.  For example, words of the form `\TT{T\$$n$}'
+for a natural number $n$ are reserved for use as type wildcards.
+
+A name can abbreviate another name, using the statement:
+\begin{indpar}
+\emkey{abbreviation-statement} ::=
+    {\em abbreviated-name} ~ \ABV{} ~ {\em abbreviation-name}
+\end{indpar}
+For example:
+\begin{center}
+\tt std bool \ABV{} bool
+\end{center}
+
+A name may begin with a {\em word} that is a {\em module-abbreviation}
+that designates a code module: see~\itemref{MODULES}.
+For example {\tt std} abbreviates the builtin standard module.
+
+The MINVAL uses several kinds of names:
+
+\begin{indpar}
+\emkey{simple-name} ::= \TT{word} not containing any `\TT{.}'s \\
+\emkey{module-abbreviation} ::= {\em simple-name} \\
+\emkey{pointer-type-name}\label{POINTER-TYPE-NAME} ::=
+    {\em simple-name}
+\\[1ex]
+\emkey{basic-name}
+	::= {\em name} not containing a `\TT{.}',
+			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{type-name}\label{TYPE-NAME} ::=
+    {\em basic-name}
+\emkey{variable-name}\label{VARIABLE-NAME} ::=
+    {\em basic-name}
+\\[1ex]
+\emkey{member-name}\label{MEMBER-NAME}
+	::= \begin{tabular}[t]{@{}l@{}}
+                        {\em name} beginning with a `\TT{.}', \\
+			but not containing a {\em quoted-mark}
+			    or {\em quoted-separator}
+			\end{tabular} \\
+\emkey{function-term-name} ::= {\em name} \\
+\emkey{block-name} ::= {\em basic-name} \\
+\emkey{include-name} ::= {em basic-name}
+\\[1ex]
+\emkey{keyword}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{ro} $|$ \TT{vo} $|$ \TT{if} $|$ \TT{else}
+                  $|$ \TT{xor} $|$ \TT{AND} $|$ \TT{OR}
+		  $|$ \TT{NOT} $|$ \TT{BUT}  \\
+    $|$ & \TT{mod} $|$ \TT{div} $|$ \TT{rem}
+                   $|$ \TT{function} $|$ \TT{generic}
+    \end{tabular}
+\\[1ex]
+where
+\begin{enumerate}
+\item
+{\em Names} must not contain keywords.
+\item
+A {\em type-name} may not begin with a {\em module-abbreviation} or
+{\em pointer-type-name}.
+\item
+A {\em variable-name} may not begin with a {\em module-abbreviation},
+{\em pointer-type-name}, or {\em type-name}.
+\item
+A {\em function-term-name} may not begin with a {\em module-abbreviation}.
+\end{enumerate}
+\end{indpar}
+
+Only the first rule is directly enforced, but not the other
+rules.  Violating the other
+rules may cause parsing errors, as, for example,
+the parser treats a sequence of
+names in certain contexts as having the form:
+\begin{center}
+\{\MA {\em pointer-type-name}\}\QMARK{}
+\{\MA {\em type-name}\}\QMARK{}
+\MA {\em variable-name}
+\end{center}
+where \MA denotes an optional {\em module-abbreviation},
+and the parser does \underline{not} back up after idenfifying
+one of the components of this sequence.
+
 
 \section{Assembly Time}
 
