@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 7, 2019
+December 9, 2019
 
 \bigskip
  
@@ -810,7 +810,7 @@ warning messages.
     $|$ {\em leading-separator}
     $|$ {\em trailing-separator}
 \\[1ex]
-\emkey{quoted-string} :::=
+\emkey{quoted-string}\label{QUOTED-STRING} :::=
     \TT{"} {\em character-representative}\,\STAR{} \TT{"}
 \\[0.3ex]
 \emkey{character-representative}\label{CHARACTER-REPRESENTATIVE}
@@ -889,6 +889,7 @@ After each logical line is formed,
 from the logical line.
 
 \ikey{Quoted string lexemes}{quoted strings!concatenated}
+\label{QUOTED-STRING-CONCATENATION}
 separated by the `\TT{\#}' mark
 are glued together if they are in the
 same logical line.  Thus
@@ -1364,7 +1365,7 @@ The MINVAL uses several kinds of names:
 	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
-    {\em basic-name}
+    {\em basic-name} \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     {\em basic-name}
 \\[1ex]
@@ -1432,7 +1433,7 @@ assembly time.  There are three kinds of constants:
 \emkey{string-constant} ::= {\em quoted-string}
 \end{indpar}
 
-A \key{number-constant} is a {\em number} lexeme or sequence of
+A \emkey{number-constant} is a {\em number} lexeme or sequence of
 lexemes with specific syntax
 that is used to denote a number.  Numbers are stored either
 as unbounded integers, or as rational numbers whose numerator
@@ -1549,7 +1550,33 @@ at that produced by hardware on the target machine
 (\pagref{NAN}).
 \TT{+Inf} denotes positive infinity; \TT{-Inf} denotes negative infinity.
 
-TBD
+A \emkey{string-constant} is just a {\em quoted-string} lexeme
+that denotes a character string: see
+\pagref{QUOTED-STRING} and \pagref{QUOTED-STRING-CONCATENATION}.
+
+An \emkey{object-constant} has two parts, a list and a dictionary
+(either or both can be empty).  Its syntax is:
+
+\begin{indpar}
+\emkey{object-constant}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{\{} \TT{\}} \\
+    $|$ & \TT{\{} {\em object-list} \TT{\}} \\
+    $|$ & \TT{\{} {\em object-dictionary} \TT{\}} \\
+    $|$ & \TT{\{} {\em object-list}\TT{,} {\em object-dictionary} \TT{\}} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{object-list} ::= {\em constant} \{ \TT{,} {\em constant} \}\STAR{}
+\\[0.5ex]
+\emkey{object-dictionary} ::= {\em label-value-pair}
+                              \{ \TT{,} {\em label-value-pair} \}\STAR{}
+\\[0.5ex]
+\emkey{label-value-pair} ::= {\em pair-label} \TT{=>} {\em constant}
+\\[0.5ex]
+\emkey{pair-label} ::= {\em basic-name}
+\end{indpar}
+
+TBD (add page refs)
 
 \section{Assembly Time}
 
