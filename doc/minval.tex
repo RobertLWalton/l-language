@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 9, 2019
+December 12, 2019
 
 \bigskip
  
@@ -1288,15 +1288,16 @@ has this value.
 A \key{primary} is an {\em expression} that has no operators:
 \begin{indpar}
 \emkey{primary}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em name} \\
-    $|$ & {\em constant} \\
-    $|$ & {\em reference-expression} \\
-    $|$ & {\em function-call} \\
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em name} 			& [\pagref{NAMES}] \\
+    $|$ & {\em constant}		& [\pagref{CONSTANTS}] \\
+    $|$ & {\em reference-expression}	& [\pagref{REFERENCE-EXPRESSIONS}] \\
+    $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
     \end{tabular}
 \end{indpar}
 
 \subsubsection{Names}
+\label{NAMES}
 
 A \key{name} is a sequence of lexemes used to name things like
 variables and functions.
@@ -1576,7 +1577,12 @@ An \emkey{object-constant} has two parts, a list and a dictionary
 \emkey{pair-label} ::= {\em basic-name}
 \end{indpar}
 
-TBD (add page refs)
+\subsubsection{Reference Expressions}
+\label{REFERENCE-EXPRESSIONS}
+
+\subsubsection{Function Calls}
+\label{FUNCTION-CALLS}
+
 
 \section{Assembly Time}
 
