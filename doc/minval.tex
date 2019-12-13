@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 12, 2019
+December 13, 2019
 
 \bigskip
  
@@ -1378,7 +1378,7 @@ The MINVAL uses several kinds of names:
 			\end{tabular} \\
 \emkey{function-term-name} ::= {\em name} \\
 \emkey{block-name} ::= {\em basic-name} \\
-\emkey{include-name} ::= {em basic-name}
+\emkey{include-name} ::= {\em basic-name}
 \\[1ex]
 \emkey{keyword}
     \begin{tabular}[t]{rl}
@@ -1579,6 +1579,53 @@ An \emkey{object-constant} has two parts, a list and a dictionary
 
 \subsubsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
+
+A \emkey{reference-expression} names a location in memory.  The
+most basic {\em reference-expression} is the name of a variable
+in the current function frame or current module memory.  Other
+reference expressions are made by appending vector indices or structure
+member names to more basic {\em reference-expressions}.  The syntax
+is:
+
+\begin{indpar}
+\emkey{reference-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em variable-name} \\
+    $|$ & {\em reference-expression} \TT{[} {\em reference-index} \TT{]} \\
+    $|$ & {\em reference-expression} {\em member-name} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{reference-index}
+    \begin{tabular}[t]{rl}
+    ::= & {\em variable-name} \\
+    $|$ & {\em expression} evaluating to a {\tt const} integer
+    \end{tabular}
+\\[0.5ex]
+\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
+\\[0.5ex]
+\emkey{member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
+\emkey{expression} ::= see \pagref{EXPRESSION}
+\end{indpar}
+
+A {\em member-name} may be used to select a field of a packed
+number (\pagref{PACKED-NUMBER}) referred to by the {\em reference-expression}
+to which the {\em member-name} is appended.
+
+Alternatively, a {\em member-name} may be used to select a member of a
+structure (\pagref{STRUCTURE}) referred to by the {\em reference-expression}
+to which the {\em member-name} is appended.
+
+A {\em reference-index} may be used to select an element of a vector
+pointed at by a pointer referred to by the {\em reference-expression}
+to which the {\em reference-index} is appended.  The index may be
+possitive or negative.  There is no type-checking that ensures that
+the index is within range.
+
+Inline functions may be defined that syntactically mimic
+{\em reference-expressions}.  An example is:
+
+TBD
 
 \subsubsection{Function Calls}
 \label{FUNCTION-CALLS}
