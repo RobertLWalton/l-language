@@ -190,124 +190,112 @@ Assembly Language.
 
 A typical MINVAL statement is:
 \begin{center}
-\tt int X = Y + Z
+\tt int X = Y - C"0"
 \end{center}
 This allocates a new variable {\tt X} of type {\tt int}
-to the stack, and sets its value to that value of the
-variable {\tt Y} plus the value of the variable {\tt Z}.
-Most variables in the stack have a size equal to the natural
+to the current function frame within the stack,
+and sets its value to that value of the
+variable {\tt Y} minus the constant {\tt C"0"} (which is
+the character code of the character {\tt 0}).
+
+The statement:
+\begin{center}
+\tt op uns8 Z @= Gobbledeegook
+\end{center}
+makes the variable {\tt Z} synonymous with the
+global variable {\tt Gobbledeegook} in the current
+module memory.  It does not allocate any new memory.
+Instead it sets the location of {\tt Z}
+equal to the location of {\tt Gobbledeegook}.
+
+Variables in function frames and module memory
+have names, like {\tt X}, {\tt Y}, and {\tt Z},
+and locations in memory where their values are stored.
+There variables have locations which designate the
+function frame or module memory they are located in,
+and their offset within that memory.
+These variables
+have a size equal to the natural
 word size of the computer (typically 32 or 64 bits), or
 several times that size: {\tt intd} is a two word (double) integer
 and {\tt intq} is a four word (quad) integer.
 
-Variables have names, like {\tt X}, {\tt Y}, and {\tt Z},
-and locations in memory where their values are stored.
-
-Locations can be complicated.  The statement:
-\begin{center}
-\tt Y \TILDE{} Gobbledeegook
-\end{center}
-makes the variable {\tt Y} synonymous with the
-global variable {\tt Gobbledeegook} in the current
-module.  {\tt Gobbledeegook} will have a location that
-is at a offset address in the current module global memory, and
-a type, such as `{\tt dp uns8}', which says it is a
-direct pointer to a one byte unsigned integer, a.k.a., a character.
-Direct pointers are stored in words.
-
-The location of {\tt X} is an address in
-the frame of the current function execution.
+According to its type,
+`{\tt op uns8}', the value of {\tt Gobbledeegook} is an
+offset pointer to a one byte unsigned integer, a.k.a., a character.
+An offset pointer is stored in two words, actually an {\tt intd},
+the first of which points at a word containing the base address of
+a memory block, and the second of which contains an offset within
+that memory block.  In this case the memory block might be
+the module memory to containing the variable {\tt Gobbledeegook}.
 
 The statement
 \begin{center}
-\tt Z \TILDE{} Gobbledeegook[W]
+\tt uns8 Y @= Gobbledeegook[W]
 \end{center}
-makes {\tt Z} synonymous with {\tt Gobbledeegook}
-indexed by the variable {\tt W}.  If {\tt W} is an
-integer, the address of {\tt Z} the address
-of {\tt Gobbledeegook} plus the value of {\tt W}
-times the size of {\tt uns8}.
-
-Now suppose
-\begin{center}
-\tt W \TILDE{} Gook
-\end{center}
-where {\tt Gook} is a global variable of type {\tt int16},
-a signed 16 bit integer.  Then to execute
-\begin{center}
-\tt int X = Y[4] + Z
-\end{center}
-the computer must:
-\begin{enumerate}
-\item read the value of {\tt Y} which is the location of {\tt Gobbledeegook}
-\item add {\tt 4} to this location
-\item read the value of {\tt Y[4]} from this location and convert it
-      to an {\tt int}
-\item read the value of {\tt W} from the location of {\tt Gook} and
-      convert it to an {\tt int}
-\item add the value of {\tt W} to the location of {\tt Gobbledeegook}
-      to get the location of {\tt Z}
-\item read the value of {\tt Z} from this location and convert
-      it to an {\tt int}
-\item store the sum of the converted values of {\tt Y[4]} and {\tt Z} into {\tt X}
-\end{enumerate}
+sets the location of {\tt Y} equal to the value of
+{\tt Gobbledeegook} indexed by the variable {\tt W}.
+The value of {\tt W} must be an integer.
+Then the location of {\tt Y} is the offset
+pointer value of {\tt Gobbledeegook} with {\tt W}
+times the size of {\tt uns8} added to its offset.
 
 Now there is a very important difference between {\tt X} on one
-hand, and {\tt W}, {\tt Y} and {\tt Z} on the other.  When we call an
+hand, and {\tt Y} on the other.  When we call an
 out-of-line function and then return, we can expect the value of
-{\tt X} to be the same as before the call, but the values of
-{\tt W}, {\tt Y} and {\tt Z} may have changed.  This is because the out-of-line
-function and functions it calls can access the locations of {\tt W}, {\tt Y}
-and {\tt Z}, but not the location of {\tt X}.
+{\tt X} to be the same as before the call, but the value of
+{\tt Y} may have changed.  This is because the out-of-line
+function and functions it calls can access the locations of {\tt Y} in
+module memory, but not the location of {\tt X} in the calling
+function frame memory.
 
-The expressions that compute locations have a limited structure,
-so that the operations used consists of reading variables or constants,
-adding values, multiplying values by constants, and shifting values
-left or right by a constant number of bits.  More specifically, a
-location as follows:
-\begin{indpar}\begin{tabular}{rcl}
-{\em location} & ::= & {\em global} $|$ {\em local} $|$ {\em base}
-                   $|$ {\em offset} $|$ {\em indexed}
-\\[0.5ex]
-{\em global} & ::= & constant location provided by loader \\
-       &     & (e.g., of a string constant); \\
-       &     & not used for variables
-\\[0.5ex]
-{\em local} & ::= & location at a constant offset from the
-                  current frame pointer \\
-          & $|$ & location at a constant offset from the
-	          current \\
-          &     & module memory pointer
-\\[0.5ex]
-{\em indirect} & ::= & {\tt int} byte address read from a {\em local} location
-\\[0.5ex]
-{\em double-indirect} & ::= &
-    {\tt int} byte address read from an {\em indirect} location
-\\[0.5ex]
-{\em base} & ::= & {\em indirect} $|$ {\em double-indirect}
-\\[0.5ex]
-{\em offset} & ::= & {\em base} + constant
-\\[0.5ex]
-{\em index} & ::= & {\tt int} read from {\em local} location \\
-      & $|$ & {\tt int} read from a {\em offset} location
-\\[0.5ex]
-{\em indexed} & ::= & {\em base} + constant + constant * {\em index} \\
-        &     & where if the {\em index} is read from
-	        an {\em offset} location \\
-	&     & the {\em base} of that {\em offset} location
-	        must be the \underline{same} \\
-	&     & as the {\em base} of the {\em indexed} expression
-\end{tabular}\end{indpar}
 
-Lastly after the above have computed the byte address of a location,
-a location can optionally be a field of a word stored at that
-byte address, where the field is designated by specifying:
-
+The location of a variable is a pointer value.
+MINVAL has multiple pointer types.  The builtin ones are:
 \begin{itemize}
-\item a one word mask selecting the bits of the field
-\item the number of bits to the left of the field in the word
-\item the number of bits to the right of the field in the word
+\item[{\bf dp}] Direct Pointer.  An {\tt int} value holding
+the byte address of the bytes pointed at.
+\item[{\bf ip}] Indirect Pointer.  An {\tt int} value holding
+a byte address of a {\tt int} value holding the byte address
+of the bytes pointed at.
+\item[{\bf op}] Offset Pointer (a.k.a., indirect offset pointer).
+An {\tt intd} value half of which holds an {\tt int} offset $O$ and
+the other half of which holds the {\tt int}
+byte address of an {\tt int} base value $B$.  $B+O$ is the byte
+address of the bytes pointed at.
+\item[{\bf fp}] Field Pointer.  An {\tt intq} value, half of
+which is an offset pointer pointing at an {\tt int} in memory,
+and the other half of which holds the following which defines a field in that
+{\tt int}: (1) an {\tt int} mask for
+the bits of the field in the field's containing {\tt int},
+(2) the number of bits to the left (high order side) of the field in
+its {\tt int}, and
+(3) the number of bits to the right (low order side) of the field in
+its {\tt int}.
+
 \end{itemize}
+
+Any pointer value can be indexed by an integer.  For direct pointers,
+this adds the integer times the size in bytes of the type of value
+that the direct pointer points at.  For offset pointers the integer
+times the value size is added to the offset.  For indirect pointers,
+an offset pointer is returned with the offset equal to the integer
+times the value size.  For field pointers, a field pointer is returned
+that is calculated as if field pointers pointed at bits of memory
+in little endian order and the size of the value pointed at was
+determined by the size in bits of an {\tt int} minus the number
+of bits to the left or right of the value pointed at.
+
+Some pointer types can be converted to other pointer types.
+Indirect and offset pointer values can be converted to direct
+pointers, as is done when calling legacy library functions
+written in the C programming language.  Direct pointer values
+can be converted to offset pointer values by using a base ($B$)
+equal to zero and setting the offset ($O$) equal to the
+direct address.
+
+New pointer types may also be defined by the user.
+
 
 MINVAL has a full set of number types:
 {\tt int8}, {\tt uns8},
@@ -424,48 +412,6 @@ Here {\tt X} is allocated by an out-of-line function call
 denoted by {\tt \ldots}, while {\tt Y} is placed into the
 current function execution frame.  In spite of this last,
 {\tt Y} is still a pointer.
-
-MINVAL has multiple pointer types.  The builtin ones are:
-\begin{itemize}
-\item[{\bf dp}] Direct Pointer.  An {\tt int} value holding
-the byte address of the bytes pointed at.
-\item[{\bf ip}] Indirect Pointer.  An {\tt int} value holding
-a byte address of a {\tt int} value holding the byte address
-of the bytes pointed at.
-\item[{\bf op}] Offset Pointer (a.k.a., indirect offset pointer).
-An {\tt intd} value half of which holds an {\tt int} offset $O$ and
-the other half of which holds and {\tt int}
-byte address of an {\tt int} base value $B$.  $B+O$ is the byte
-address of the bytes pointed at.
-\item[{\bf fp}] Field Pointer.  An {\tt intq} value, half of
-which is an offset pointer pointing at an {\tt int} in memory,
-and the other half of which holds the following which defines a field in that
-{\tt int}: (1) an {\tt int} mask for
-the bits of the field in the field's containing {\tt int},
-(2) the number of bits to the left (high order side) of the field in
-its {\tt int}, and
-(3) the number of bits to the right (low order side) of the field in
-its {\tt int}.
-
-\end{itemize}
-
-In the example above, {\tt name} is a direct pointer to an unsigned
-byte, allowing expressions such as {\tt Y.name[i]} for an index variable
-{\tt i}.
-
-Some pointer types can be converted to other pointer types.
-All the builtin pointer values can be converted to direct
-pointers, as is done when calling legacy library functions
-written in the C programming language.  Direct pointer values
-can be converted to offset pointer values by using a base ($B$)
-equal to zero and setting the offset ($O$) equal to the
-direct address.
-
-The default pointer type of a structure is direct, but this
-can be changed, e.g., to indirect.  The MIN runtime system
-requires that pointers be indirect or indirect offset.
-
-New pointer types may also be defined by the user.
 
 By default, functions in MINVAL are inline.  For example,
 
