@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 13, 2019
+December 14, 2019
 
 \bigskip
  
@@ -327,7 +327,7 @@ packed uns32 my_type:
 my_type X = ...
 uns op = X.op_code
 int c = X.constant
-Y ~ X.des
+Y @= X.des
 \end{verbatim}\end{indpar}
 
 A packed number is a number ({\tt uns32} in the example)
@@ -339,43 +339,45 @@ and is given
 a name ({\tt op\_code}, {\tt has\_constant}, etc.~in the
 example).
 
-Notice that fields can overlap.
+Notice that fields can overlap and a variable can be
+defines as having a location inside a packed number
+({\tt Y} in the example).
 
 Examples of structures are:
 
 \begin{indpar}\begin{verbatim}
-struct my_type:
+struct my type:
     pack
     uns8    kind                     // Object Kind
     flt64   weight                   // Object Weight
     align   64
     label   extension
 
-struct my_type:
+struct my type:
     origin  extension
     align
     flt64   height                   // Object height
     flt64   width                    // Object height
 
-struct my_type:
+struct my type:
     origin  extension
     align
     flt64   volume                   // Object volume
 
-struct your_type:
+struct your type:
     include my_type   // Copy members of my_type
     dp uns8 name      // Direct pointer to name
                       // character string
 
 . . . . . . . . . . . .
 
-my_type X = ...
+my type X
 X.kind = BOX
 X.weight = 55
 X.height = 1023
 X.width = 572
 
-struct your_type Y
+your type Y
 Y.kind = BEER
 Y.weight = 0.45
 Y.volume = 48
@@ -403,15 +405,8 @@ Structure types can be extended
 A structure has a size in bytes just large enough to
 accommodate all its members.
 
-Structure types per say cannot be used as variable values.
-Instead, pointers to structure types must be used.  In the
-example {\tt my\_type} and {\tt your\_type} are types of
-direct pointers, which are {\tt int} values containing
-addresses.  Similarly {\tt X} and {\tt Y} are pointers.
-Here {\tt X} is allocated by an out-of-line function call
-denoted by {\tt \ldots}, while {\tt Y} is placed into the
-current function execution frame.  In spite of this last,
-{\tt Y} is still a pointer.
+Structures \underline{cannot} be copied by {\tt =} assignments.
+The location of a structure can be copied by {\tt @=} assignments.
 
 By default, functions in MINVAL are inline.  For example,
 
@@ -511,12 +506,12 @@ An example is:
 
 \begin{indpar}\begin{verbatim}
 function int r = strlen ( P1 uns8 s ):
-    r = (int) C::strlen ( (dp) s ) )
+    r = (int) LIBC strlen ( (dp) s ) )
 \end{verbatim}\end{indpar}
 
 which converts the point of type {\tt P1} to a pointer of
 type {\tt dp} (direct pointer) and calls the C programming
-language subroutine {\tt C::strlen} with the direct pointer.
+language subroutine {\tt LIBC strlen} with the direct pointer.
 
 MINVAL does not necessarily make any use of registers, other
 than as temporaries during the execution of a single statement,
