@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 14, 2019
+December 18, 2019
 
 \bigskip
  
@@ -473,21 +473,21 @@ const w = max ( x, max( y, z ) )  // Legal!
 \end{verbatim}\end{indpar}
 
 Inline function definitions may make use of type wildcards.
-A name that consists of only an initial {\tt T}
+A name that consists of only an initial {\tt T\$}
 followed by one or more decimal digits is a type wildcard, that denotes
 an arbitary type.  Thus the example:
 
 \begin{indpar}\begin{verbatim}
-function T1 r = max ( T1 x, T1 y ):
+function T$1 r = max ( T$1 x, T$1 y ):
     if x < y:
         r = y
     else:
         r = x
 
 const x = 2e5
-int y = 27e4;
+int y = 27e4
 int z = max ( x, y )      // Converts x to int.
-const w = 34e4;
+const w = 34e4
 const v = max ( x, w )    // All values are const.
 \end{verbatim}\end{indpar}
 
@@ -501,15 +501,16 @@ all types in the function definition be {\tt const}
 {\tt const} values, as in `{\tt sizeof ( int )}').
 
 Pointer types can be wildcards which must have names consisting
-of an initial {\tt P} followed by one or more decimal digits.
+of an initial {\tt P\$} followed by one or more decimal digits.
 An example is:
 
 \begin{indpar}\begin{verbatim}
-function int r = strlen ( P1 uns8 s ):
-    r = (int) LIBC strlen ( (dp) s ) )
+function uns r = strlen ( P$1 uns8 s ):
+    dp uns8 sdp = s
+    r = LIBC strlen ( sdp )
 \end{verbatim}\end{indpar}
 
-which converts the point of type {\tt P1} to a pointer of
+which converts the point of type {\tt P\$1} to a pointer of
 type {\tt dp} (direct pointer) and calls the C programming
 language subroutine {\tt LIBC strlen} with the direct pointer.
 
