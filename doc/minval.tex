@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 18, 2019
+December 19, 2019
 
 \bigskip
  
@@ -1234,7 +1234,6 @@ A \key{primary} is an {\em expression} that has no operators:
     ::= & {\em name} 			& [\pagref{NAMES}] \\
     $|$ & {\em constant}		& [\pagref{CONSTANTS}] \\
     $|$ & {\em reference-expression}	& [\pagref{REFERENCE-EXPRESSIONS}] \\
-    $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
     \end{tabular}
 \end{indpar}
 
@@ -1564,13 +1563,29 @@ to which the {\em reference-index} is appended.  The index may be
 possitive or negative.  There is no type-checking that ensures that
 the index is within range.
 
-Inline functions may be defined that syntactically mimic
-{\em reference-expressions}.  An example is:
+Inline functions may be defined that syntactically and semantically mimic
+{\em reference-expressions}, and calls to such functions
+can be used as {\em reference-expressions}.  An example is:
 
-TBD
+\begin{indpar}\begin{verbatim}
+// In my vector X, a vector with flt64 elements is located at
+// X.offset from the address of X.
+//
+struct my vector:
+    int offset;
+    . . . .
+function flt64 x @= ( my vector v ) [ uns index ]:
+    op my vector vp = v
+        // Get pointer to v.
+    op flt64 fp = *UNCHECKED* vp
+        // Convert vp to a pointer to a flt64 vector fp.
+    x @= fp[v.offset + index]
+        // Return location of v.offset + index 'th element
+        // of fp.
+\end{verbatim}\end{indpar}
 
-\subsubsection{Function Calls}
-\label{FUNCTION-CALLS}
+
+
 
 
 \section{Assembly Time}
