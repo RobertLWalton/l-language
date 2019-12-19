@@ -1231,9 +1231,9 @@ A \key{primary} is an {\em expression} that has no operators:
 \begin{indpar}
 \emkey{primary}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em name} 			& [\pagref{NAMES}] \\
-    $|$ & {\em constant}		& [\pagref{CONSTANTS}] \\
+    ::= & {\em constant}		& [\pagref{CONSTANTS}] \\
     $|$ & {\em reference-expression}	& [\pagref{REFERENCE-EXPRESSIONS}] \\
+    $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
     \end{tabular}
 \end{indpar}
 
@@ -1585,6 +1585,36 @@ function flt64 x @= ( my vector v ) [ uns index ]:
 \end{verbatim}\end{indpar}
 
 
+
+\subsubsection{Function Calls}
+\label{FUNCTION-CALLS}
+
+\begin{indpar}
+\emkey{function-call} ::= {\em module-abreviation}\QMARK{}
+    	                  {\em call-argument-list}\STAR{}
+                          {\em call-term} {\em call-term}\STAR{}
+\\[0.5ex]
+\emkey{call-term} ::= {\em term-name} {\em call-argument-list}
+\\[0.5ex]
+\emkey{call-argument-list}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{(} {\em actual-argument}
+          \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[} {\em actual-argument}
+          \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
+    $|$ & \TT{()} $|$ \TT{[]} \\
+    $|$ & {\em constant} \\
+    $|$ & {\em reference-expression} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{actual-argument} ::= {\em expression}
+\\[0.5ex]
+\emkey{constant} ::= see \pagref{CONSTANTS}
+\\[0.5ex]
+\emkey{reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
+\\[0.5ex]
+\emkey{expression} ::= see \pagref{EXPRESSION}
+\end{indpar}
 
 
 
