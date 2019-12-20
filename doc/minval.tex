@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 19, 2019
+December 20, 2019
 
 \bigskip
  
@@ -327,7 +327,7 @@ packed uns32 my_type:
 my_type X = ...
 uns op = X.op_code
 int c = X.constant
-Y @= X.des
+Y @=@ X.des
 \end{verbatim}\end{indpar}
 
 A packed number is a number ({\tt uns32} in the example)
@@ -1065,7 +1065,9 @@ The MINVAL operators are listed in Table~\itemref{MINVAL-OPERATORS}.
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
 \ttkey{=} & assignment & infix & binary & L = 1 \\
-\ttkey{\textasciitilde} & overlay & infix & binary & 1 \\
+\ttkey{@=@} & overlay & infix & binary & 1 \\
+\ttkey{@=} & located at  & infix & binary & 1 \\
+\ttkey{=@} & points to & infix & binary & 1 \\
 \ttkey{+=} & increment & infix & binary & 1 \\
 \ttkey{-=} & decrement & infix & binary & 1 \\
 \hline
@@ -1317,9 +1319,12 @@ The MINVAL uses several kinds of names:
 			but not containing a {\em quoted-mark}
 			    or {\em quoted-separator}
 			\end{tabular} \\
-\emkey{function-term-name} ::= {\em name} \\
-\emkey{block-name} ::= {\em basic-name} \\
+\emkey{function-term-name} ::= {\em name}
+    \label{FUNCTION-TERM-NAME} \\
+\emkey{block-name} ::= {\em basic-name}
+    \label{BLOCK-NAME} \\
 \emkey{include-name} ::= {\em basic-name}
+    \label{INCLUDE-NAME}
 \\[1ex]
 \emkey{keyword}
     \begin{tabular}[t]{rl}
@@ -1566,6 +1571,7 @@ the index is within range.
 Inline functions may be defined that syntactically and semantically mimic
 {\em reference-expressions}, and calls to such functions
 can be used as {\em reference-expressions}.  An example is:
+\label{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE}
 
 \begin{indpar}\begin{verbatim}
 // In my vector X, a vector with flt64 elements is located at
@@ -1574,12 +1580,12 @@ can be used as {\em reference-expressions}.  An example is:
 struct my vector:
     int offset;
     . . . .
-function flt64 x @= ( my vector v ) [ uns index ]:
-    op my vector vp = v
+function flt64 x @=@ ( my vector v ) [ uns index ]:
+    op my vector vp =@ v
         // Get pointer to v.
-    op flt64 fp = *UNCHECKED* vp
+    op flt64 fp = *UNCHECKED* ( vp )
         // Convert vp to a pointer to a flt64 vector fp.
-    x @= fp[v.offset + index]
+    x @=@ fp[v.offset + index]
         // Return location of v.offset + index 'th element
         // of fp.
 \end{verbatim}\end{indpar}
@@ -1589,12 +1595,14 @@ function flt64 x @= ( my vector v ) [ uns index ]:
 \subsubsection{Function Calls}
 \label{FUNCTION-CALLS}
 
+The syntax of function calls is:
+
 \begin{indpar}
 \emkey{function-call} ::= {\em module-abreviation}\QMARK{}
     	                  {\em call-argument-list}\STAR{}
                           {\em call-term} {\em call-term}\STAR{}
 \\[0.5ex]
-\emkey{call-term} ::= {\em term-name} {\em call-argument-list}
+\emkey{call-term} ::= {\em function-term-name} {\em call-argument-list}
 \\[0.5ex]
 \emkey{call-argument-list}
     \begin{tabular}[t]{rl}
@@ -1603,24 +1611,43 @@ function flt64 x @= ( my vector v ) [ uns index ]:
     $|$ & \TT{[} {\em actual-argument}
           \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
     $|$ & \TT{()} $|$ \TT{[]} \\
-    $|$ & {\em constant} \\
-    $|$ & {\em reference-expression} \\
+    $|$ & {\em unparenthesized-actual-argument} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{actual-argument} ::= {\em expression}
+\\[0.5ex]
+\emkey{unparenthesized-actual-argument} ::=
+    {\em constant} $|$ {\em reference-expression}
+\\[0.5ex]
+\emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
 \emkey{constant} ::= see \pagref{CONSTANTS}
 \\[0.5ex]
 \emkey{reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
+\\[2.0ex]
+NOTE: Two {\em unparenthesized-actual-arguments} cannot be consecutive.
 \end{indpar}
+
+Thus a {\em function-call} is a sequence of {\em function-term-names}
+and {\em call-argument-lists} with no two {\em function-term-names}
+next to each other.
+
+An {\em unparenthesized-actual-argument} is an {\em actual-argument}
+{\tt X} that would normally be in parentheses as \TT{(X)} but the
+parentheses have been omitted.  Thus given the example function definition
+on page \pageref{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE},
+{\tt (v)[i]} may be written as {\tt v[i]}.  Only {\tt (~)}'s may be
+omitted, and then only if they surround exactly one {\em actual-argument}
+that is a {\em constant} or {\em reference-expression}.
+
 
 
 
 \section{Assembly Time}
 
-Statements and functions, all of whose varibles are of {\tt const}
+Statements and functions, all of whose variables are of {\tt const}
 type, execute solely during assembly, and never at run time
 (when the assembled program is running).  Constants are all of
 type {\tt const}.
