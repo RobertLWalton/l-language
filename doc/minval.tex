@@ -1723,6 +1723,59 @@ The following are the types of statements:
     \end{tabular}
 \end{indpar}
 
+TBD
+
+Assignment statements have the syntax:
+\begin{indpar}
+\emkey{assignment-statement}
+    ::= \{ {\em result-variable-list} \TT{=} \}\QMARK{}
+    		{\em assignment-right-side}
+\\[0.5ex]
+\emkey{result-variable-list}\label{RESULT-VARIABLE-LIST}
+    ::= {\em result-variable}
+	  \{ \TT{,} {\em result-variable} \}\STAR{}
+\\[0.5ex]
+\emkey{result-variable}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em result-variable-declaration} \\
+    $|$ & {\em next-variable-declaration} \\
+    $|$ & {\em deferred-variable}
+    		& [see \pagref{DEFERRED-VARIABLE}] \\
+    $|$ & {\em iteration-result-variable}
+    		& [see \pagref{ITERATION-RESULT-VARIABLE}] \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION}
+    ::= {\em qualifier-name}\STAR{}~{\em type-name}~{\em result-variable-name}
+\\[0.5ex]
+\emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
+    ::= \ttkey{next}~{\em result-variable-name}
+\\[0.5ex]
+\emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[0.5ex]
+\emkey{type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+\emkey{result-variable-name}\label{RESULT-VARIABLE-NAME}
+        {\em variable-name}
+\\[0.5ex]
+\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
+\\[0.5ex]
+\emkey{assignment-right-side}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em expression-list}
+    		& [see \pagref{EXPRESSION-LIST}] \\
+    $|$ & {\em function-call}
+    		& [see \pagref{FUNCTION-CALL}] \\
+    $|$ & {\em generic-call}
+    		& [see \pagref{GENERIC-CALL}] \\
+    $|$ & {\em block}
+	        & [see kinds of assignment statement above] \\
+    \end{tabular}
+\end{indpar}
+
+where the {\em assignment-right-side}
+depends on the kind of assignment statement.
+
 
 
 
