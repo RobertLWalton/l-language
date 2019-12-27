@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 25, 2019
+December 27, 2019
 
 \bigskip
  
@@ -1308,6 +1308,8 @@ The MINVAL uses several kinds of names:
 \emkey{basic-name}
 	::= {\em name} not containing a `\TT{.}',
 			 {\em quoted-mark}, or {\em quoted-separator} \\
+\emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
+    \ttkey{ro} $|$ \ttkey{vo} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
     {\em basic-name} \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
@@ -1711,8 +1713,8 @@ though the right side is never omitted.
 The general form of an assignment statement is:
 \begin{indpar}
 \emkey{assignment-statement} ::= \\
-\hspace*{0.5in} {\em assignment-left-side}
-              {\em assignment-operator}
+\hspace*{0.5in} {\em assignment-left-side} ~~~
+              {\em assignment-operator} ~~~
 	      {\em assignment-right-side}
 \\[0.5ex]
 \emkey{assignment-operator}
@@ -1739,7 +1741,8 @@ The general form of an assignment statement is:
     		& [see \pagref{DEFERRED-VARIABLE}] \\
     $|$ & {\em iteration-result-variable}
     		& [see \pagref{ITERATION-RESULT-VARIABLE}] \\
-    $|$ & {\em reference-expression} \\
+    $|$ & {\em reference-expression}
+    		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
     \end{tabular}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION}
@@ -1783,6 +1786,16 @@ The following are the different kinds of {\em assignment-statements}:
     \end{tabular}
 \end{indpar}
 
+An example using {\em assignment-operators} is:
+\begin{indpar}\begin{verbatim}
+
+int x = 5
+int y @=@ x    // Now x and y have the same locations.
+y = 6          // Now x and y both = 6.
+op int z =@ x  // Now z points at x.
+int w @= z     // Now location of w is that pointed at by z.
+w = 7          // Now w, x, and y all = 7.
+\end{verbatim}\end{indpar}
 
 
 \section{Assembly Time}
