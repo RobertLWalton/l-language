@@ -1689,13 +1689,13 @@ is assembly-time (it is also run-time).
       {\em statements} are assembly-time.
 \item Some builtin functions are specified as being assembly-time.
 \item A {\em statement} is assembly-time if and only if all its
-      variables and expressions are assembly-time.
+      variables and expressions are assem\-bly-time.
 \end{itemize}
 
 A \key{run-time} {\em expression} is an {\em expression} that is
 \underline{not} assembly-time.  Run-time {\em expressions} are
 syntactically limited in that their subexpressions must be
-run-time variables or assembly-time subexressions, with the
+{\em reference-expressions} or assembly-time subexressions, with the
 exception that some operands may be a prefix operator followed
 by a variable, as in `{\tt - X + Y}' or `{\tt X \& !~Y}'
 (but `{\tt !~X + Y}' and `{\tt X \& - Y}' are \underline{not} allowed).
@@ -1703,14 +1703,29 @@ by a variable, as in `{\tt - X + Y}' or `{\tt X \& !~Y}'
 \subsection{Statements}
 \label{STATEMENTS}
 
-All {\em statements} are assignment statements, in the sense that
+The following is a complete list of the kinds of statements:
+\begin{indpar}
+\emkey{statement}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em assignment-statement}
+    	& [this section] \\
+    $|$ & {\em declaration}
+        & [\pagref{DECLARATION}] \\
+    $|$ & {\em include-statement}
+        & [\pagref{INCLUDE-STATEMENT}] \\
+    $|$ & TBD
+    \end{tabular}
+\end{indpar}
+
+Most non-{\em declaration}
+{\em statements} are assignment statements, in the sense that
 they have a list of variables on the left side which receive
 values from a list of expressions or a block of code on the right
 side.  The left-side variables may be omitted if the values are
 not needed.  In some cases the right side produces no values,
 though the right side is never omitted.
 
-The general form of an assignment statement is:
+The general form of an {\em assignment-statement} is:
 \begin{indpar}
 \emkey{assignment-statement} ::= \\
 \hspace*{0.5in} {\em assignment-left-side} ~~~
@@ -1776,13 +1791,13 @@ The following are the different kinds of {\em assignment-statements}:
 \emkey{assignment-statement}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em expression-assignment-statement}
-    	& [\pagref{EXPRESSION-ASSIGMENT-STATEMENT}] \\
+    	& [\pagref{EXPRESSION-ASSIGNMENT-STATEMENTS}] \\
     $|$ & {\em block-assignment-statement}
-        & [\pagref{BLOCK-ASSIGMENT-STATEMENT}] \\
+        & [\pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
     $|$ & {\em conditional-assignment-statement}
-        & [\pagref{CONDITIONAL-ASSIGMENT-STATEMENT}] \\
+        & [\pagref{CONDITIONAL-ASSIGNMENT-STATEMENTS}] \\
     $|$ & {\em loop-assignment-statement}
-        & [\pagref{LOOP-ASSIGMENT-STATEMENT}] \\
+        & [\pagref{LOOP-ASSIGNMENT-STATEMENTS}] \\
     \end{tabular}
 \end{indpar}
 
@@ -1797,6 +1812,24 @@ int w @= z     // Now location of w is that pointed at by z.
 w = 7          // Now w, x, and y all = 7.
 \end{verbatim}\end{indpar}
 
+There are no pointers to {\em const} values, so {\tt @=}
+and {\tt =@} cannot be used with assembly-time variables.
+
+\subsubsection{Expression Assignment Statements}
+\label{EXPRESSION-ASSIGNMENT-STATEMENTS}
+
+\subsubsection{Block Assignment Statements}
+\label{BLOCK-ASSIGNMENT-STATEMENTS}
+
+\subsubsection{Conditional Assignment Statements}
+\label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
+
+\subsubsection{Loop Assignment Statements}
+\label{LOOP-ASSIGNMENT-STATEMENTS}
+
+
+\subsection{Declarations}
+\label{DECLARATIONS}
 
 \section{Assembly Time}
 
