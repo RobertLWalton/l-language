@@ -1314,7 +1314,7 @@ The MINVAL uses several kinds of names:
     {\em basic-name} \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     {\em basic-name} \\
-\emkey{pair-label}\label{PAIR-LABEL} ::=
+\emkey{label}\label{LABEL} ::=
     {\em basic-name}
 \\[1ex]
 \emkey{member-name}\label{MEMBER-NAME}
@@ -1524,9 +1524,9 @@ An \emkey{object-constant} has two parts, a list and a dictionary
 \emkey{object-dictionary} ::= {\em label-value-pair}
                               \{ \TT{,} {\em label-value-pair} \}\STAR{}
 \\[0.5ex]
-\emkey{label-value-pair} ::= {\em pair-label} \TT{=>} {\em constant}
+\emkey{label-value-pair} ::= {\em label} \TT{=>} {\em constant}
 \\[0.5ex]
-\emkey{pair-label} ::= see \pagref{PAIR-LABEL}
+\emkey{label} ::= see \pagref{LABEL}
 \end{indpar}
 
 Most values that exist at assembly-time are {\em constants} or
@@ -1551,7 +1551,7 @@ is:
 \begin{indpar}
 \emkey{reference-expression}
     \begin{tabular}[t]{rl}
-    ::= & {\em variable-name} \\
+    ::= & \TT{@}\QMARK{} {\em variable-name} \\
     $|$ & {\em reference-expression} \TT{[} {\em reference-index} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     \end{tabular}
@@ -1583,6 +1583,16 @@ to which the {\em reference-index} is appended.  The index may be
 possitive or negative.  There is no type-checking that ensures that
 the index is within range.
 
+A {\em reference-expression} with \underline{no} \TT{@}
+refers to the value referenced, whereas the same expression
+prefaced by \TT{@} refers to the location of this value.
+Although \TT{@} behaves somewhat like a prefix operator,
+it is really just a mark that can be prefixed to a
+{\em variable-name}, and only to a {\em variable-name}, and
+changes any {\em reference-experssion} begun with that
+{\em variable-name} so it refers to the location referenced
+and not the value at that location.
+
 Inline functions may be defined that syntactically and semantically mimic
 {\em reference-\EOL expres\-sions}, and calls to such functions
 can be used as {\em reference-expressions}.  An example is:
@@ -1595,12 +1605,12 @@ can be used as {\em reference-expressions}.  An example is:
 struct my vector:
     int offset;
     . . . .
-function flt64 x @=@ ( my vector v ) [ uns index ]:
-    op my vector vp =@ v
+function flt64 @ x = ( my vector v ) [ uns index ]:
+    op my vector vp = @ v
         // Get pointer to v.
     op flt64 fp = *UNCHECKED* ( vp )
         // Convert vp to a pointer to a flt64 vector fp.
-    x @=@ fp[v.offset + index]
+    @ x = @ fp[v.offset + index]
         // Return location of v.offset + index 'th element
         // of fp.
 \end{verbatim}\end{indpar}
@@ -1718,7 +1728,7 @@ The following is a complete list of the kinds of statements:
 \end{indpar}
 
 Most non-{\em declaration}
-{\em statements} are assignment statements, in the sense that
+{\em statements} are {\em assignment-statements}, in the sense that
 they have a list of variables on the left side which receive
 values from a list of expressions or a block of code on the right
 side.  The left-side variables may be omitted if the values are
@@ -1728,17 +1738,8 @@ though the right side is never omitted.
 The general form of an {\em assignment-statement} is:
 \begin{indpar}
 \emkey{assignment-statement} ::= \\
-\hspace*{0.5in} {\em assignment-left-side} ~~~
-              {\em assignment-operator} ~~~
+\hspace*{0.5in} {\em assignment-left-side} \TT{=}
 	      {\em assignment-right-side}
-\\[0.5ex]
-\emkey{assignment-operator}
-    \begin{tabular}[t]{@{}rll}
-    ::= & \ttkey{=}	& [copy value] \\
-    ::= & \ttkey{@=@}	& [copy location] \\
-    ::= & \ttkey{@=}	& [locate at pointer value] \\
-    ::= & \ttkey{=@}	& [point at location] \\
-    \end{tabular}
 \\[0.5ex]
 \emkey{assignment-left-side} ::= \\
 \hspace*{0.5in}
@@ -1761,10 +1762,11 @@ The general form of an {\em assignment-statement} is:
     \end{tabular}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION}
-    ::= {\em qualifier-name}\STAR{}~{\em type-name}~{\em variable-name}
+    ::= {\em qualifier-name}\STAR{} {\em type-name}
+        \TT{@}\QMARK{} {\em variable-name}
 \\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
-    ::= \ttkey{next}~{\em variable-name}
+    ::= \ttkey{next} \TT{@}\QMARK{} {\em variable-name}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
@@ -1801,18 +1803,23 @@ The following are the different kinds of {\em assignment-statements}:
     \end{tabular}
 \end{indpar}
 
-An example using {\em assignment-operators} is:
+
+Given a variable {\tt x}, the variable name {\tt x} refers to the
+value of the variable while {\tt @ x} refers to the location of
+the value of {\tt x }.
+Thus an example using {\em assignment-operators} is:
 \begin{indpar}\begin{verbatim}
 int x = 5
-int y @=@ x    // Now x and y have the same locations.
+int @ y = @ x  // Now x and y have the same locations.
 y = 6          // Now x and y both = 6.
-op int z =@ x  // Now z points at x.
-int w @= z     // Now location of w is that pointed at by z.
+op int z = @ x // Now z points at x.
+int @ w = z    // Now location of w is that pointed at by z.
 w = 7          // Now w, x, and y all = 7.
 \end{verbatim}\end{indpar}
 
-There are no pointers to {\em const} values, so {\tt @=}
-and {\tt =@} cannot be used with assembly-time variables.
+There are no assembly-time pointers, i.e., pointers to {\em const} values,
+so if {\tt int} were replaced by {\tt const} in this example
+it would not be possible to compute {\tt z}.
 
 \subsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
@@ -1837,33 +1844,71 @@ assembly-time {\em expressions} (i.e., operators and
 {\em expressions}).
 \item For run-time {\em expression-assignment-statements} with
 a \underline{single} right-side {\em expression}, this {\em expression}
-may be any run-time {\em expression} (i.e., a single non-prefix
-operator, some prefix-operators depending on context, and a single
-run-time {\em function-call} is allowed).
+may be any run-time {\em expression}.
 \end{itemize}
 \end{indpar}
 
-All the right-side {\em expression} values and locations are
-evaluated first, all left-size {\em assignment-result} locations
-are evaluated next if the {\em assignment-operator} is {\tt =}
-or {\tt =@}, and then the {\em assignment-operator} is applied
+All the left-side {\em assignment-result} locations
+and right-side {\em expression} values are
+evaluated first,
+and then the {\em assignment-operator} is applied
 to each matching {\em assignment-result} and {\em expression}.
 
-There is an exception to this if the right-side is a single
-{\em function-call}, as a {\em function-call} can return more
-than one result.  In this the {\em function-call} must return
-at least as many results as there are {\em assignment-results}
-and all only the {\em assignment-primary-result} is returned
-by the {\em assignment-operator}, with all the 
-{\em assignment-secondary-results} being returned by the {\tt =}
-operator.
-
-Note that there are other semantic rules such as the following:
-no {\em reference-expression} may be an {\em assignment-result}
-of a {\tt @=@} or {\tt @=} operator.
+However, if the right-side is a single {\em function-call},
+this may return more than one result, and must return
+at least as many results as there are {\em assignment-results}.
 
 \subsubsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
+
+The syntax of {\em block-assignment-statements} is:
+
+\begin{indpar}
+\emkey{block-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        {\em assignment-left-side} ~
+	\TT{=} ~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
+	\TT{:} \\
+	\TT{~~~~}{\em statement}\STAR{} \\
+	\TT{~~~~}{\em exit subblock}\STAR{}
+	\end{tabular} \\
+\emkey{block-label} ::= {\em label} ~~~~~ [see \pagref{LABEL}]
+\\[0.5ex]
+\emkey{exit-subblock} ::=
+    \begin{tabular}[t]{l}
+    {\em exit-label} \ttkey{exit}\TT{:} \\
+    \TT{~~~~}{\em statement}\STAR{} \\
+    \end{tabular} \\
+\emkey{exit-label} ::= {\em label} ~~~~~ [see \pagref{LABEL}]
+\\[1ex]
+where {\em reference-expressions} are \underline{not} allowed on the
+{\em assignment-left-side}
+\end{indpar}
+
+The result variables of a {\em block-assignment-statement}
+are given values by the {\em statements} within the block
+of the {\em block-assignment-statement} using {\em deferred-variable}
+names:
+\begin{indpar}
+\emkey{deferred-variable}\label{DEFERRED-VARIABLE} ::=
+    \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name}
+\end{indpar}
+A {\em deferred-variable} is just a copy of one of the
+block's {\em assignment-results} with any {\em qualifiers}
+and {\em types} omitted (these are inferred within the block
+from the associated {\em assignment-result}).
+
+A block may be exited by a `{\tt go to {\em block-label} exit}'
+statement within the block.  A {\em exit-subblock} of a block may be entered
+by a `{\tt go to {\em exit-label} exit}' statement within the block.
+Without such a statement {\em exit-subblocks} are not executed,
+and if execution gets to the end of an {\em exit-subblock},
+the entire block is exited.  However an {\em exit-subblock}
+may contain a `{\tt go to \ldots{}~exit}' statement that goes to
+a \underline{subsequent} {\em exit-subblock}.  There are
+variable scoping requirements that must be met when using
+{\tt go to \ldots{}~exit} statements: see \itemref{SCOPING}.
+
 
 \subsubsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
