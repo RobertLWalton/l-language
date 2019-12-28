@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 27, 2019
+December 28, 2019
 
 \bigskip
  
@@ -1650,7 +1650,7 @@ and {\em call-argument-lists} with no two {\em function-term-names}
 next to each other.
 
 An {\em unparenthesized-actual-argument} is an {\em actual-argument}
-{\tt X} that would normally be in parentheses as \TT{(X)} but the
+{\tt X} that would normally be in parentheses as {\tt (X)} but the
 parentheses have been omitted.  Thus given the example function definition
 on page \pageref{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE},
 {\tt (v)[i]} may be written as {\tt v[i]}.  Only {\tt (~)}'s may be
@@ -1752,12 +1752,12 @@ The general form of an {\em assignment-statement} is:
     \begin{tabular}[t]{@{}rll}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
+    $|$ & {\em reference-expression}
+    		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em deferred-variable}
     		& [see \pagref{DEFERRED-VARIABLE}] \\
     $|$ & {\em iteration-result-variable}
     		& [see \pagref{ITERATION-RESULT-VARIABLE}] \\
-    $|$ & {\em reference-expression}
-    		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
     \end{tabular}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION}
@@ -1803,7 +1803,6 @@ The following are the different kinds of {\em assignment-statements}:
 
 An example using {\em assignment-operators} is:
 \begin{indpar}\begin{verbatim}
-
 int x = 5
 int y @=@ x    // Now x and y have the same locations.
 y = 6          // Now x and y both = 6.
@@ -1817,6 +1816,51 @@ and {\tt =@} cannot be used with assembly-time variables.
 
 \subsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
+
+The syntax of an {\em expression-assignment-statement} is:
+\begin{indpar}
+\emkey{expression-assignment-statement} ::= \\
+\hspace*{0.5in} {\em assignment-left-side} ~
+              {\em assignment-operator} ~
+	      {\em expression} \{ \TT{,} {\em expression} \}\STAR{}
+\\[0.5ex]
+where
+\begin{itemize}
+\item If there is more than one right-side {\em expression},
+the number of right-side {\em expressions} must equal the number
+of left-side {\em assignment-results}.
+\item For run-time {\em expression-assignment-statements}, if
+there is \underline{more than one} right-side {\em expression}, all these
+{\em expressions} must be {\em reference-expressions} or
+assembly-time {\em expressions} (i.e., operators and
+{\em function-calls} are not allowed outside assembly-time
+{\em expressions}).
+\item For run-time {\em expression-assignment-statements} with
+a \underline{single} right-side {\em expression}, this {\em expression}
+may be any run-time {\em expression} (i.e., a single non-prefix
+operator, some prefix-operators depending on context, and a single
+run-time {\em function-call} is allowed).
+\end{itemize}
+\end{indpar}
+
+All the right-side {\em expression} values and locations are
+evaluated first, all left-size {\em assignment-result} locations
+are evaluated next if the {\em assignment-operator} is {\tt =}
+or {\tt =@}, and then the {\em assignment-operator} is applied
+to each matching {\em assignment-result} and {\em expression}.
+
+There is an exception to this if the right-side is a single
+{\em function-call}, as a {\em function-call} can return more
+than one result.  In this the {\em function-call} must return
+at least as many results as there are {\em assignment-results}
+and all only the {\em assignment-primary-result} is returned
+by the {\em assignment-operator}, with all the 
+{\em assignment-secondary-results} being returned by the {\tt =}
+operator.
+
+Note that there are other semantic rules such as the following:
+no {\em reference-expression} may be an {\em assignment-result}
+of a {\tt @=@} or {\tt @=} operator.
 
 \subsubsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
