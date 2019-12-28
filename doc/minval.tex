@@ -1900,7 +1900,23 @@ names:
 A {\em deferred-variable} is just a copy of one of the
 block's {\em assignment-results} with any {\em qualifiers}
 and {\em types} omitted (these are inferred within the block
-from the associated {\em assignment-result}).
+from the associated {\em assignment-result}).  An example is:
+\begin{indpar}\begin{verbatim}
+int x = 5
+int @ y, int z =:
+    @ y = @x
+    y = 6
+    z = 7
+    int k = 8
+int w = x      // Now w = 6.
+int u = z      // Now u = 7
+// k is not visible here
+\end{verbatim}\end{indpar}
+
+There are scoping rules that prevent {\tt k} from being visible
+from outside the block in which it is defined, and would also
+prevent the location of {\tt k} from being stored in {\tt @ y}:
+see \itemref{SCOPING}.
 
 A {\em go-to-exit-statement} within a block may exit the block or
 enter an {\em exit-subblock} of the block:
@@ -1947,6 +1963,27 @@ and have the syntax:
 	\TT{~~~~}{\em exit subblock}\STAR{}
 	\end{tabular}
 \end{indpar}
+
+An example is:
+\begin{indpar}\begin{verbatim}
+int x = 5
+int y = 6
+int z = if:
+    x < y:
+        z = y    // Sets z = 6
+    else:
+        z = x    // Is NOT executed
+// Now z = 6
+\end{verbatim}\end{indpar}
+in which the {\em conditional-assignment-statement} is equivalent to:
+\begin{indpar}\begin{verbatim}
+int z =:
+    if x < y go to E exit   // goes to E exit
+    z = x        // Is NOT executed
+    E exit:
+        z = y    // Sets z = 6
+// Now z = 6
+\end{verbatim}\end{indpar}
 
 \subsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
