@@ -1866,8 +1866,8 @@ The syntax of {\em block-assignment-statements} is:
 \begin{indpar}
 \emkey{block-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        {\em assignment-left-side} ~
-	\TT{=} ~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
+        \{ {\em assignment-left-side} \TT{=} \}\QMARK{}
+	~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
 	\TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}{\em exit subblock}\STAR{}
@@ -1881,8 +1881,12 @@ The syntax of {\em block-assignment-statements} is:
     \end{tabular} \\
 \emkey{exit-label} ::= {\em label} ~~~~~ [see \pagref{LABEL}]
 \\[1ex]
-where {\em reference-expressions} are \underline{not} allowed on the
-{\em assignment-left-side}
+where
+\begin{itemize}
+\item The {\tt =} and {\tt do} cannot \underline{both} be omitted.
+\item The {\em assignment-left-side} may \underline{not} contain
+{\em reference-expressions}.
+\end{itemize}
 \end{indpar}
 
 The result variables of a {\em block-assignment-statement}
@@ -1898,20 +1902,51 @@ block's {\em assignment-results} with any {\em qualifiers}
 and {\em types} omitted (these are inferred within the block
 from the associated {\em assignment-result}).
 
-A block may be exited by a `{\tt go to {\em block-label} exit}'
-statement within the block.  A {\em exit-subblock} of a block may be entered
-by a `{\tt go to {\em exit-label} exit}' statement within the block.
-Without such a statement {\em exit-subblocks} are not executed,
-and if execution gets to the end of an {\em exit-subblock},
-the entire block is exited.  However an {\em exit-subblock}
-may contain a `{\tt go to \ldots{}~exit}' statement that goes to
+A {\em go-to-exit-statement} within a block may exit the block or
+enter an {\em exit-subblock} of the block:
+\begin{indpar}
+\emkey{go-to-exit-statement}\label{GO-TO-STATEMENT} ::=
+    \{ \TT{if} {\em condition-expression} \}\QMARK{}
+    \ttkey{go to} {\em go-to-label} \TT{exit}
+\\[0.5ex]
+\emkey{go-to-label} ::= {\em block-label} $|$ {\em exit-label}
+\\[0.5ex]
+{\em condition-expression} ::= see \pagref{CONDITION-EXPRESSION}
+\end{indpar}
+
+Unless a {\em go-to-exit-statement} is executed,
+a block or exits after the last {\em statement} in the block,
+and a subblock exits its containing block after the last
+{\em statement} in the subblock.
+A {\em go-to-exit-statement} in a subblock may only enter
 a \underline{subsequent} {\em exit-subblock}.  There are
 variable scoping requirements that must be met when using
-{\tt go to \ldots{}~exit} statements: see \itemref{SCOPING}.
+{\em go-to-exit-statements}: see \itemref{SCOPING}.
 
 
 \subsubsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
+
+{\em Conditional-assignment-statements}
+are syntactic sugar for {\em block-assignment-statements}
+with conditional {\em go-to-exit-statements}
+and {\em exit-subblocks} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}),
+and have the syntax:
+
+\begin{indpar}
+\emkey{conditional-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ {\em assignment-left-side} \TT{=} \}\QMARK{} \ttkey{if}\TT{:} \\
+	\TT{~~~~}{\em condition-expression}\TT{:} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
+	\TT{~~~~}{\em condition-expression}\TT{:} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
+	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
+	\TT{~~~~}\ttkey{else}\TT{:} \\
+	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
+	\TT{~~~~}{\em exit subblock}\STAR{}
+	\end{tabular}
+\end{indpar}
 
 \subsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
