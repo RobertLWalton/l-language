@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 28, 2019
+December 29, 2019
 
 \bigskip
  
@@ -1840,7 +1840,7 @@ of left-side {\em assignment-results}.
 there is \underline{more than one} right-side {\em expression}, all these
 {\em expressions} must be {\em reference-expressions} or
 assembly-time {\em expressions} (i.e., operators and
-{\em function-calls} are not allowed outside assembly-time
+{\em function-calls} are not allowed outside assem\-bly-time
 {\em expressions}).
 \item For run-time {\em expression-assignment-statements} with
 a \underline{single} right-side {\em expression}, this {\em expression}
@@ -1988,6 +1988,79 @@ int z =:
 \subsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
 
+A {\em loop-assignment-statement} has the syntax:
+
+\begin{indpar}
+\emkey{loop-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ {\em assignment-left-side} \TT{=} \}\QMARK{} \ttkey{loop}\TT{:} \\
+	\TT{~~~~}{\em initialization-subblock}\QMARK{} \\
+	\TT{~~~~}{\em iteration-subblock} \\
+	\TT{~~~~}{\em finalization-subblock}\QMARK{} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{initialization-subblock} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \ttkey{initially}\TT{:} \\
+	\TT{~~~~}{\em iteration-variable-assignment-statement}\PLUS{} \\
+	\end{tabular} \\
+\emkey{iteration-variable-assignment-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+	{\em assignment-statement} with one or more \\
+	{\em iteration-variable-declarations} and nothing else on its left-side
+	\end{tabular} \\
+\emkey{iteration-variable-declaration}
+    \begin{tabular}[t]{rl}
+    ::= & {\em type-name} \TT{@}\QMARK{} {\em iteration-variable-name} \\
+    $|$ & \TT{next} \TT{@}\QMARK{} {\em iteration-variable-name} \\
+    $|$ & \TT{next} \TT{next} \TT{@}\QMARK{} {\em iteration-variable-name} \\
+    \end{tabular} \\
+\emkey{iteration-variable-name} ::= {\em variable-name}
+\\[0.5ex]
+\emkey{iteration-subblock} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \{ \ttkey{while} $|$ \ttkey{until} \}
+	    {\em condition-expression} \TT{:} \\
+	\TT{~~~~}{\em statement}\STAR{} \\
+	\TT{~~~~}{\em exit-subblock}\STAR{} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{finalization-subblock} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{l}
+        \ttkey{finally}\TT{:} \\
+	\TT{~~~~}{\em statement}\STAR{} \\
+	\TT{~~~~}{\em exit-subblock}\STAR{} \\
+	\end{tabular}
+\end{indpar}
+
+The {\em initialization-subblock} declares the \skey{interation variable}s
+of the loop and gives them initial values.  The {\em iteration-block}
+then executes repeatedly updating these iteration variables.  The
+variable declaration `{\tt next X}' can be used on the left-side of
+an assignment statement to assign the value {\tt X} will have in the
+next iteration.  It can also be used in the {\em initialization-subblock}
+to assign the value of {\tt X} in the second iteration, in which case
+`{\tt next next X}' can be used in the {\em iteration-subblock}
+to assign {\tt X}'s value in the second iteration after the current
+iteration.  After the last iteration, the {\em finalization-subblock}
+executes and must set the variables in the {\em loop-assignment-statement}'s
+left-side.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+// Calculate the sum of i for i == 1 to i == n.
+//
+int64 n = . . .
+int64 sum = loop:
+    initially:
+        int64 i = 1
+        int64 partial sum = 0
+    while i <= n:
+        next partial sum = partial sum + i
+        next i = i + 1
+    finally:
+        sum = partial sum
+\end{verbatim}\end{indpar}
 
 \subsection{Declarations}
 \label{DECLARATIONS}
