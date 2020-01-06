@@ -168,7 +168,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-December 29, 2019
+January 6, 2020
 
 \bigskip
  
@@ -2062,8 +2062,251 @@ int64 sum = loop:
         sum = partial sum
 \end{verbatim}\end{indpar}
 
-\subsection{Declarations}
-\label{DECLARATIONS}
+\subsection{Function Declarations}
+\label{FUNCTION-DECLARATIONS}
+
+\begin{indpar}
+\emkey{function-declaration}\label{FUNCTION-DECLARATION}
+    ::= \begin{tabular}[t]{l}
+        {\em function-prototype} \TT{:} \\
+	\TT{~~~~~}{\em statement}\PLUS{}
+	\end{tabular}
+\\[2ex]
+\emkey{function-prototype}\label{FUNCTION-PROTOTYPE}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \ttkey{function} ~
+          {\em prototype-result-variable-list} ~ \TT{=} \\
+        & \TT{~~~~~}{\em module-abbreviation}\QMARK{}
+	                ~ {\em prototype-pattern} \\
+    $|$ & \ttkey{function} ~ {\em module-abbreviation}\QMARK{}
+                           ~ {\em prototype-pattern} \\
+    $|$ & \ttkey{function} ~ {\em module-abbreviation}\QMARK{}
+                           ~ {\em prototype-pattern} ~ \TT{=} \\
+        & \TT{~~~~~}{\em input-variable-list} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{prototype-result-variable-list} ::= \\
+\hspace*{0.5in}
+    {\em prototype-result-variable-declaration}
+    \{ \TT{,} {\em prototype-result-variable-declaration} \}\STAR{}
+\\[0.5ex]
+\emkey{prototype-result-variable-declaration} \\
+\hspace*{1in}\begin{tabular}[t]{rl}
+    ::= & {\em qualifier-name}\STAR{} ~
+          {\em type-name} ~ \TT{@}\QMARK{} ~ {\em variable-name} \\
+    $|$ & \ttkey{next} {\em variable-name} \\
+    \end{tabular}
+\\[0.5ex]
+{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
+\\[0.5ex]
+\emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[0.5ex]
+{\em type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+{\em variable-name} ::= see \pagref{VARIABLE-NAME}
+\\[0.5ex]
+\emkey{input-variable-list}
+    ::= {\em argument-declaration}
+                 \{ \TT{,} {\em argument-declaration} \}\STAR{}
+\\[0.5ex]
+\emkey{argument-declaration}\label{ARGUMENT-DECLARATION} \\
+\hspace*{1in}\begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em qualifier-name}\STAR{} {\em type-name}
+          \TT{@}\QMARK{} {\em variable-name} \\
+    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
+          {\em variable-name} \TT{?=} {\em default-value} \\
+    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
+          {\em variable-name} \TT{??} \\
+    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
+          {\em variable-name} \TT{==} {\em required-value} \\
+    $|$ & \ttakey{UNUSED} {\em variable-name} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{argument-qualifier-name} ::= {\em qualifier-name} $|$ \ttakey{DEFERRED}
+\\[0.5ex]
+\emkey{default-value} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
+\\[0.5ex]
+\emkey{required-value} ::= {\em expression} with compile time value
+\\[0.5ex]
+\emkey{prototype-pattern}\label{FUNCTION-PATTERN}
+    \begin{tabular}[t]{rl}
+    ::= & {\em first-pattern-term} ~ {\em pattern-term}\STAR{} \\
+    $|$ & {\em pattern-argument-list} {\em pattern-argument-list}\PLUS{}
+    \end{tabular}
+\\[0.5ex]
+\emkey{first-pattern-term} ::= {\em pattern-argument-list}\STAR{} ~
+				{\em pattern-term}
+\\[0.5ex]
+\emkey{pattern-term}
+    ::= {\em term-name} ~ {\em pattern-argument-list}\STAR{}
+\\[0.5ex]
+\emkey{term-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
+\\[0.5ex]
+\emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
+    \begin{tabular}[t]{@{}p{4in}@{}}
+    {\em term-name} $N$ that appears in a {\em function-prototype}
+    of the form `{\tt function $N$ = \ldots}'
+    \end{tabular}
+\\[0.5ex]
+\emkey{pattern-argument-list} ::= {\em regular-argument-list}
+                              $|$ {\em qualifiers-type-argument-list}
+\\[0.5ex]
+\emkey{regular-argument-list}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \TT{(} {\em argument-declaration}
+                 \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[} {\em argument-declaration}
+                 \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{]} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{qualifiers-type-argument-list} ::= \\
+\hspace*{0.2in}\TT{(|} {\em qualifiers-type-argument-declaration}
+	 \{ \TT{,} {\em qualifiers-type-argument-declaration} \}\STAR{} \TT{|)}
+\\[0.5ex]
+\emkey{qualifiers-type-argument-declaration} ::= \\
+\hspace*{0.2in}{\em qualifiers-argument-declaration}
+               $|$ {\em type-argument-declaration}
+\\[0.5ex]
+\emkey{qualifiers-argument-declaration} ::= \\
+\hspace*{0.2in}\TT{qualifiers} {\em variable-name}
+               \{ \TT{?=} {\em default-value} $|$
+	          \TT{==} {\em required-value} \}\QMARK{}
+\\[0.5ex]
+\emkey{type-argument-declaration} ::= \\
+\hspace*{0.2in}\TT{type} {\em variable-name}
+               \{ \TT{?=} {\em default-value} $|$
+	          \TT{==} {\em required-value} \}\QMARK{}
+\\[0.5ex]
+\emkey{conditioner}\label{CONDITIONER}
+    \begin{tabular}[t]{@{}rl@{}}
+    ::= & {\em logical-conditioner} \\
+    $|$ & {\em qualifiers-conditioner} \\
+    $|$ & {\em type-conditioner} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{logical-conditioner}\label{LOGICAL-CONDITIONER}
+    ::= {\em logical-expression} ~~~~~ [see \pagref{LOGICAL-EXPRESSION}]
+\\[0.5ex]
+\emkey{qualifiers-conditioner}\label{QUALIFIERS-CONDITIONER}
+    ::= \TT{qualifiers} {\em variable-name} \TT{=} {\em expression}
+\\[0.5ex]
+\emkey{type-conditioner}\label{TYPE-CONDITIONER}
+    ::= \TT{type} {\em variable-name} \TT{=} {\em expression}
+\\[0.5ex]
+{\em expression} ::= see \pagref{EXPRESSION}
+\\[4ex]
+\emkey{function-call}\label{FUNCTION-CALL}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em module-abbreviation}\QMARK{} ~ {\em first-call-term}
+          ~ {\em call-term}\STAR{} \\
+    $|$ & {\em module-abbreviation}\QMARK{}
+          {\em call-argument-list} {\em call-argument-list}\PLUS{}
+    \end{tabular}
+\\[0.5ex]
+\emkey{first-call-term} ::= {\em call-argument-list}\STAR{}
+				{\em call-term}
+\\[0.5ex]
+\emkey{call-term}
+    ::= {\em term-name} {\em call-argument-list}\STAR{}
+\\[1ex]
+\emkey{call-argument-list}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \TT{(} {\em actual-argument}
+                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[} {\em actual-argument}
+                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
+    $|$ & \TT{(|} {\em actual-argument}
+                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{|)} \\
+    $|$ & \TT{()} $|$ \TT{[]} $|$ \TT{(|~|)} \\
+    $|$ & {\em primary-argument}
+    \end{tabular}
+\\[0.5ex]
+\emkey{actual-argument} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
+\\[0.5ex]
+\emkey{primary-argument} ::= {\em primary-item}\PLUS{}
+                         $|$ {\em bracketed-constant}
+\\[0.5ex]
+{\em primary-item} ::= {\em word} $|$ {\em number}
+                   $|$ {\em quoted-string} ~~~~~ [see \pagref{PRIMARY-ITEM}]
+\\[0.5ex]
+{\em bracketed-constant} ::= see \pagref{BRACKETED-CONSTANT}
+
+\begin{itemize}
+\item
+A {\em prototype-pattern} or {\em function-call}
+must have either a {\em term-name}
+or at least two {\em argu\-ment-lists}.
+\item
+A {\em prototype-pattern} {\em term-name} must not be
+an initial segment of any other {\em term-name}
+in the same {\em prototype-pattern}.
+\item
+A {\em function-variable-name} (\pagref{FUNCTION-VARIABLE-NAME})
+should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
+See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
+\item
+A {\em prototype-result-variable-declaration} {\em variable-name}
+can have {\em member-selectors},
+unlike an {\em assignment-statement} {\em result-variable-name}
+(\pagref{RESULT-VARIABLE-NAME}).  See Clusters \itemref{CLUSTERS}.
+\item
+For a {\em prototype-result-variable-declaration} of the form `\TT{next} $v$',
+$v$ must be the {\em vari\-able-name} in an {\em argument-declaration}
+of the form `{\em qualifier-name}\STAR{} {\em type-name} $v$', and
+any actual argument associated to the {\em argument-declaration}
+must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
+{\em assignment-statement} {\em result-variable-declaration} in the
+\LSTAR-language (i.e., with {\em member-selectors} allowed for $v$ and
+$w$).  If $v$ or $w$ have {\em member-selectors}, these must be identical.
+\item
+\TT{"="} cannot be used as a {\em term-name}
+in a {\em prototype-pattern}.
+\item
+The first {\em argument-declaration} in an {\em input-variable-list}
+must not have a {\em default-value} or end in \TT{??}.
+\item
+All the result and argument {\em variable-names}
+in a {\em function-prototype} must
+be distinct.
+\item
+{\em Argument-declarations} appear inside `\TT{()}' or `\TT{[]}'
+bracketed {\em argument-lists} and are \underline{not}
+{\em qualifiers-type-argument-declarations} even if they have
+the same form.  {\em Qualifiers-type-argument-declarations} appear
+inside `\TT{(|\,|)}' bracketed {\em qualifiers-type-argument-lists}.
+\item
+The {\em variable-name} in a {\em qualifiers-argument-declaration}
+or a {\em qualifiers-conditioner} is treated syntactically
+as a {\em qualifier-name}
+within the rest of the {\em function-prototype}.  The value assigned to the
+{\em variable-name} must be computable at compile-time when the
+function is called.
+\item
+The {\em variable-name} in a {\em type-argument-declaration}
+or a {\em type-conditioner} is treated syntactically as a {\em type-name}
+within the rest of the {\em function-prototype}.  The value assigned to the
+{\em variable-name} must be computable at compile-time when the
+function is called.
+\item
+In a {\em pattern-argument-list} or {\em input-variable-list}
+an {\em argument-declaration} with no {\em de\-fault-value} cannot
+follow an {\em argument-declaration} with a {\em default-value}.
+An {\em argument-declaration} that ends with `\TT{??}' is considered
+to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
+\item
+Variable qualifiers (\pagref{VARIABLE-QUALIFIER}) can appear
+in {\em prototype-result-variable-declarations}, but
+cannot appear in {\em argument-declarations}.
+\item
+Note that prototype result variable names and argument variable names
+may have {\em mem\-ber-selectors} in the L-language, unlike
+variable names declared by {\em assignment-stat-ments}.  See
+Clusters, \itemref{CLUSTERS}.
+
+
+
+\end{itemize}
+\end{indpar}
 
 \section{Assembly Time}
 
