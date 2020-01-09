@@ -106,6 +106,8 @@
 \newcommand{\skey}[2]{{\rm \bfseries #1#2}}
 \newcommand{\ikey}[2]{{\rm \bfseries #1}}
 \newcommand{\tttkey}[1]{{\tt \bfseries <#1>}}
+\newcommand{\ttakey}[1]{{\tt \bfseries *#1*}}
+\newcommand{\ttdkey}[1]{{\tt \bfseries .#1}}
 
 \newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
@@ -2094,7 +2096,7 @@ int64 sum = loop:
 \hspace*{1in}\begin{tabular}[t]{rl}
     ::= & {\em qualifier-name}\STAR{} ~
           {\em type-name} ~ \TT{@}\QMARK{} ~ {\em variable-name} \\
-    $|$ & \ttkey{next} {\em variable-name} \\
+    $|$ & \ttkey{next} \TT{@}\QMARK{} {\em variable-name} \\
     \end{tabular}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
@@ -2113,153 +2115,73 @@ int64 sum = loop:
 \hspace*{1in}\begin{tabular}[t]{@{}rl@{}}
     ::= & {\em qualifier-name}\STAR{} {\em type-name}
           \TT{@}\QMARK{} {\em variable-name} \\
-    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
-          {\em variable-name} \TT{?=} {\em default-value} \\
-    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
+    $|$ & {\em qualifier-name}\STAR{} {\em type-name}
+          \TT{@}\QMARK{} {\em variable-name}
+          \TT{?=} {\em default-value} \\
+    $|$ & {\em qualifier-name}\STAR{} {\em type-name}
           {\em variable-name} \TT{??} \\
-    $|$ & {\em argument-qualifier-name}\STAR{} {\em type-name}
-          {\em variable-name} \TT{==} {\em required-value} \\
+    $|$ & {\em qualifier-name}\STAR{} {\em type-name}
+          \TT{@}\QMARK{} {\em variable-name}
+          \TT{==} {\em required-value} \\
     $|$ & \ttakey{UNUSED} {\em variable-name} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{argument-qualifier-name} ::= {\em qualifier-name} $|$ \ttakey{DEFERRED}
+\emkey{default-value} ::= {\em expression}
 \\[0.5ex]
-\emkey{default-value} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
+\emkey{required-value} ::= assembly-time {\em expression}
 \\[0.5ex]
-\emkey{required-value} ::= {\em expression} with compile time value
+{\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{FUNCTION-PATTERN}
     \begin{tabular}[t]{rl}
     ::= & {\em first-pattern-term} ~ {\em pattern-term}\STAR{} \\
-    $|$ & {\em pattern-argument-list} {\em pattern-argument-list}\PLUS{}
+    $|$ & {\em argument-list} {\em argument-list}\PLUS{}
     \end{tabular}
 \\[0.5ex]
-\emkey{first-pattern-term} ::= {\em pattern-argument-list}\STAR{} ~
+\emkey{first-pattern-term} ::= {\em argument-list}\STAR{} ~
 				{\em pattern-term}
 \\[0.5ex]
 \emkey{pattern-term}
-    ::= {\em term-name} ~ {\em pattern-argument-list}\STAR{}
+    ::= {\em function-term-name} ~ {\em argument-list}\STAR{}
 \\[0.5ex]
-\emkey{term-name} ::= {\em name} ~~~~~ [see \pagref{NAME}]
+\emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
     \begin{tabular}[t]{@{}p{4in}@{}}
-    {\em term-name} $N$ that appears in a {\em function-prototype}
+    {\em function-term-name} $N$ that appears in a {\em function-prototype}
     of the form `{\tt function $N$ = \ldots}'
     \end{tabular}
 \\[0.5ex]
-\emkey{pattern-argument-list} ::= {\em regular-argument-list}
-                              $|$ {\em qualifiers-type-argument-list}
-\\[0.5ex]
-\emkey{regular-argument-list}
+\emkey{argument-list}
     \begin{tabular}[t]{@{}rl}
     ::= & \TT{(} {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{)} \\
     $|$ & \TT{[} {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{]} \\
     \end{tabular}
-\\[0.5ex]
-\emkey{qualifiers-type-argument-list} ::= \\
-\hspace*{0.2in}\TT{(|} {\em qualifiers-type-argument-declaration}
-	 \{ \TT{,} {\em qualifiers-type-argument-declaration} \}\STAR{} \TT{|)}
-\\[0.5ex]
-\emkey{qualifiers-type-argument-declaration} ::= \\
-\hspace*{0.2in}{\em qualifiers-argument-declaration}
-               $|$ {\em type-argument-declaration}
-\\[0.5ex]
-\emkey{qualifiers-argument-declaration} ::= \\
-\hspace*{0.2in}\TT{qualifiers} {\em variable-name}
-               \{ \TT{?=} {\em default-value} $|$
-	          \TT{==} {\em required-value} \}\QMARK{}
-\\[0.5ex]
-\emkey{type-argument-declaration} ::= \\
-\hspace*{0.2in}\TT{type} {\em variable-name}
-               \{ \TT{?=} {\em default-value} $|$
-	          \TT{==} {\em required-value} \}\QMARK{}
-\\[0.5ex]
-\emkey{conditioner}\label{CONDITIONER}
-    \begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em logical-conditioner} \\
-    $|$ & {\em qualifiers-conditioner} \\
-    $|$ & {\em type-conditioner} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{logical-conditioner}\label{LOGICAL-CONDITIONER}
-    ::= {\em logical-expression} ~~~~~ [see \pagref{LOGICAL-EXPRESSION}]
-\\[0.5ex]
-\emkey{qualifiers-conditioner}\label{QUALIFIERS-CONDITIONER}
-    ::= \TT{qualifiers} {\em variable-name} \TT{=} {\em expression}
-\\[0.5ex]
-\emkey{type-conditioner}\label{TYPE-CONDITIONER}
-    ::= \TT{type} {\em variable-name} \TT{=} {\em expression}
-\\[0.5ex]
-{\em expression} ::= see \pagref{EXPRESSION}
-\\[4ex]
-\emkey{function-call}\label{FUNCTION-CALL}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em module-abbreviation}\QMARK{} ~ {\em first-call-term}
-          ~ {\em call-term}\STAR{} \\
-    $|$ & {\em module-abbreviation}\QMARK{}
-          {\em call-argument-list} {\em call-argument-list}\PLUS{}
-    \end{tabular}
-\\[0.5ex]
-\emkey{first-call-term} ::= {\em call-argument-list}\STAR{}
-				{\em call-term}
-\\[0.5ex]
-\emkey{call-term}
-    ::= {\em term-name} {\em call-argument-list}\STAR{}
-\\[1ex]
-\emkey{call-argument-list}
-    \begin{tabular}[t]{@{}rl}
-    ::= & \TT{(} {\em actual-argument}
-                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
-    $|$ & \TT{[} {\em actual-argument}
-                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
-    $|$ & \TT{(|} {\em actual-argument}
-                 \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{|)} \\
-    $|$ & \TT{()} $|$ \TT{[]} $|$ \TT{(|~|)} \\
-    $|$ & {\em primary-argument}
-    \end{tabular}
-\\[0.5ex]
-\emkey{actual-argument} ::= {\em expression} ~~~~~ [see \pagref{EXPRESSION}]
-\\[0.5ex]
-\emkey{primary-argument} ::= {\em primary-item}\PLUS{}
-                         $|$ {\em bracketed-constant}
-\\[0.5ex]
-{\em primary-item} ::= {\em word} $|$ {\em number}
-                   $|$ {\em quoted-string} ~~~~~ [see \pagref{PRIMARY-ITEM}]
-\\[0.5ex]
-{\em bracketed-constant} ::= see \pagref{BRACKETED-CONSTANT}
-
 \begin{itemize}
 \item
 A {\em prototype-pattern} or {\em function-call}
-must have either a {\em term-name}
+must have either a {\em function-term-name}
 or at least two {\em argu\-ment-lists}.
 \item
-A {\em prototype-pattern} {\em term-name} must not be
-an initial segment of any other {\em term-name}
+A {\em prototype-pattern} {\em function-term-name} must not be
+an initial segment of any other {\em function-term-name}
 in the same {\em prototype-pattern}.
 \item
 A {\em function-variable-name} (\pagref{FUNCTION-VARIABLE-NAME})
 should not have a {\em qualifier-name} or {\em type-name} as an initial segment.
 See Rule \ref{TYPE-NAME-RULE}, \pagref{TYPE-NAME-RULE}.
 \item
-A {\em prototype-result-variable-declaration} {\em variable-name}
-can have {\em member-selectors},
-unlike an {\em assignment-statement} {\em result-variable-name}
-(\pagref{RESULT-VARIABLE-NAME}).  See Clusters \itemref{CLUSTERS}.
-\item
 For a {\em prototype-result-variable-declaration} of the form `\TT{next} $v$',
 $v$ must be the {\em vari\-able-name} in an {\em argument-declaration}
 of the form `{\em qualifier-name}\STAR{} {\em type-name} $v$', and
 any actual argument associated to the {\em argument-declaration}
 must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
-{\em assignment-statement} {\em result-variable-declaration} in the
-\LSTAR-language (i.e., with {\em member-selectors} allowed for $v$ and
-$w$).  If $v$ or $w$ have {\em member-selectors}, these must be identical.
+{\em assignment-statement} {\em result-variable-declaration}.
+Similarly if $v$ is replaced in this paragraph by `\TT{@} $v$'.
 \item
-\TT{"="} cannot be used as a {\em term-name}
+\TT{"="} cannot be used as a {\em function-term-name}
 in a {\em prototype-pattern}.
 \item
 The first {\em argument-declaration} in an {\em input-variable-list}
@@ -2269,41 +2191,11 @@ All the result and argument {\em variable-names}
 in a {\em function-prototype} must
 be distinct.
 \item
-{\em Argument-declarations} appear inside `\TT{()}' or `\TT{[]}'
-bracketed {\em argument-lists} and are \underline{not}
-{\em qualifiers-type-argument-declarations} even if they have
-the same form.  {\em Qualifiers-type-argument-declarations} appear
-inside `\TT{(|\,|)}' bracketed {\em qualifiers-type-argument-lists}.
-\item
-The {\em variable-name} in a {\em qualifiers-argument-declaration}
-or a {\em qualifiers-conditioner} is treated syntactically
-as a {\em qualifier-name}
-within the rest of the {\em function-prototype}.  The value assigned to the
-{\em variable-name} must be computable at compile-time when the
-function is called.
-\item
-The {\em variable-name} in a {\em type-argument-declaration}
-or a {\em type-conditioner} is treated syntactically as a {\em type-name}
-within the rest of the {\em function-prototype}.  The value assigned to the
-{\em variable-name} must be computable at compile-time when the
-function is called.
-\item
-In a {\em pattern-argument-list} or {\em input-variable-list}
+In an {\em argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
 An {\em argument-declaration} that ends with `\TT{??}' is considered
 to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
-\item
-Variable qualifiers (\pagref{VARIABLE-QUALIFIER}) can appear
-in {\em prototype-result-variable-declarations}, but
-cannot appear in {\em argument-declarations}.
-\item
-Note that prototype result variable names and argument variable names
-may have {\em mem\-ber-selectors} in the L-language, unlike
-variable names declared by {\em assignment-stat-ments}.  See
-Clusters, \itemref{CLUSTERS}.
-
-
 
 \end{itemize}
 \end{indpar}
@@ -2323,17 +2215,19 @@ and maps.
 
 \key{Integers} are unbounded and can be arbitrarily long.
 Any sequence of lexemes that is a
-number representative\pagnote{NUMBER-REPRESENTATIVES}
+number representative
 that evaluates to an integer
 can be used to represent an integer {\tt const}.
 
 \key{Rationals} are pairs of unbounded integers, a numerator and a denominator.
-The later must be greater than zero.  The greatest common divisor
+The demoninator must be greater than or equal to 2.  The greatest common divisor
 of the numerator and denominator must be 1.
 Any sequence of lexemes that is a
-number representative\pagnote{NUMBER-REPRESENTATIVES}
+number representative
 that evaluates to a non-integer
-can be used to represent an rational {\tt const}.
+can be used to represent an rational {\tt const}, but not all
+rational {\tt const} value can be represented by lexeme sequences
+that are not {\em expressions}.
 
 \key{Strings} are character strings, represented by quoted string lexemes.
 
@@ -2348,7 +2242,7 @@ print.  Maps that have no non-hidden labels are called \key{lists}.
 Maps are represented by comma separated lists of elements inside
 {\tt [~]} brackets, with list elements being represented by
 just their value, and dictionary elements being represented
-by the syntax `label {\tt =>} value'.\pagnote{MAP-REPRESENTATIVES}
+by the syntax `label {\tt =>} value'.\pagnote{MAPS}
 
 The parser translates an input text into nested lists.  These
 lists have a {\tt .position} hidden label whose value specifies
@@ -2360,11 +2254,98 @@ indented paragraphs, and parenthesized subexpressions
 are lists with {\tt .initiator} and {\tt .terminator}
 hidden attributes.
 
-\subsubsection{Number Representatives}
-\label{NUMBER-REPRESENTATIVES}
+There are special {\em const} values \ttkey{TRUE} and
+\ttkey{FALSE}, which are used to denote boolean values.
 
-\subsubsection{Map Representatives}
-\label{MAP-REPRESENTATIVES}
+There is also a special {\tt const} value \ttkey{UNDEF},
+which denotes the `\key{undefined value}'.  Assembly time
+{\em expressions} that have `no value' actually have the
+value {\tt UNDEF}.
+
+\subsubsection{Maps}
+\label{MAPS}
+
+A \key{map} is an assembly time {\tt const} value that, unlike
+numbers and strings, is mutable.
+A {\em map-expression} computes a map value:
+
+\begin{indpar}
+\emkey{map-expression} ::=
+    \TT{[]} $|$
+    \TT{[} {\em map-element} \{ \TT{,} {\em map-element} \}\STAR{} \TT{]}
+\\[0.5ex]
+\emkey{map-element} ::=
+        {\em expression} $|$ {\em label} \TT{=>} {\em expression}
+	                 $|$ \TT{[} {\em map-index} \TT{]}
+			 	\TT{=>} {\em expression}
+\\[0.5ex]
+{\em label} ::= see \pagref{LABEL}
+\\[0.5ex]
+\emkey{map-index} ::=
+    {\em expression} evaluating to a {\tt const} integer or string
+\end{indpar}
+
+
+Elements of a map can be accessed by {\em map-element-expressions}, which
+are also {\em reference-expressions} (see \pagref{REFERENCE-EXPRESSIONS}):
+
+\begin{indpar}
+\emkey{map-element-expression}
+    \begin{tabular}[t]{rl}
+    ::= & {\em map-base} \TT{[} {\em map-index} \TT{]} \\
+    ::= & {\em map-base} {\em map-member} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{map-base} ::= {\em expression} evaluating to a map
+\\[0.5ex]
+\emkey{map-member} :::= \TT{.} {\em label} ~~~~[note :::= and not ::=]
+\end{indpar}
+
+A map is mutable in that its elements may be written as well as read.
+Note that hidden labels turn into {\em map-members} beginning with
+two dots: the {\tt .position} of {\tt x} is {\tt x..position}.
+
+The {\em label} of a map element, when represented as a string, can
+be used in a {\em map-index} to designate the element.  That is,
+given a map {\tt x} and a label {\tt y}, {\tt x.y} and {\tt x["y"]}
+are equivalent.
+
+There is a virtual hidden element of a map, \ttdkey{length}, which is
+the value of the largest integer index of any map element,
+plus 1.  So {\tt ["A", "B", "C"].length == 3}.  If a map has no
+integer indices, its {\tt .length} is 0.
+
+Values may be stored into map elements as well as read from the
+elements.  Storing into a non-existant element creates the element.
+
+Storing {\tt UNDEF} in an element deletes the element, and reading
+from a non-existant element returns {\tt UNDEF} without any other
+indication of there being an error.  Storing an integer into the
+{\tt .length} of a map deletes all elements with integer indices
+greater than or equal to the integer stored (but this may make
+the map {\tt .length} less than instead of equal to the integer stored).
+
+A simple assignment {\tt x = y} where {\tt y} is a map makes
+a copy of the map in {\tt x}, so that {\tt x} and {\tt y} hold
+\underline{different} maps (but they are {\tt ==}).  These two different maps
+can be alterred independently.
+
+A simple assignment {\tt @ x = @ y} where {\tt y} is a map makes
+{\tt x} and {\tt y} both designate the \underline{same} map.
+Altering the map designated by {\tt x} will alter the map
+designated by {\tt y} in the same way.
+
+A simple assignment such as {\tt @ x = @ y[z]} makes {\tt x} and
+{\tt y[z]} designate the \underline{same} element of the map {\tt y},
+so that storing into {\tt x} is the same as storing into
+{\tt y[z]}.
+
+Locations can be compared using {\tt ==} and {\tt @}.  So if {\tt y}
+is a map, {\tt @ x == @ y[z]} can be used to test whether {\tt x}
+and {\tt y[z]} both reference the same map element.
+
+There are no {\tt const} pointer values, so {\tt x = @ y[z]} is not
+legal when {\tt y} is a map.
 
 \subsection{Operators and Builtin Functions}
 
