@@ -1226,7 +1226,7 @@ Also the {\tt no-operand} value as if the operand did not exist
 by nomix operators.  I.e., it is treated as 0 by non-logical,
 non-multiplication nomix operators, as 1 by multiplication,
 as {\tt true} by \TT{AND}, and as {\tt false} by \TT{OR}.
-Unary operators return {tt no-operand} when their operand
+Unary operators return {\tt no-operand} when their operand
 has this value.
 
 \subsection{Primaries}
@@ -1355,6 +1355,14 @@ A {\em variable-name} may not begin with a {\em module-abbreviation},
 {\em pointer-type-name}, or {\em type-name}.
 \item
 A {\em function-term-name} may not begin with a {\em module-abbreviation}.
+\item
+A {\em function-term-name} may not be any of the following:
+{\tt "="},
+{\tt ","},
+{\tt "("},
+{\tt ")"},
+{\tt "["},
+{\tt "]"}.
 \end{enumerate}
 \end{indpar}
 
@@ -1629,7 +1637,7 @@ The syntax of function calls is:
     	                  {\em call-argument-list}\STAR{}
                           {\em call-term} {\em call-term}\STAR{}
 \\[0.5ex]
-\emkey{call-term} ::= {\em function-term-name} {\em call-argument-list}
+\emkey{call-term} ::= {\em call-term-name} {\em call-argument-list}
 \\[0.5ex]
 \emkey{call-argument-list}
     \begin{tabular}[t]{rl}
@@ -1645,6 +1653,12 @@ The syntax of function calls is:
 \\[0.5ex]
 \emkey{unparenthesized-actual-argument} ::=
     {\em constant} $|$ {\em reference-expression}
+\\[0.5ex]
+\emkey{call-term-name}\label{CALL-TERM-NAME} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em function-term-name} with quotes removed from \\
+    {\em quoted-marks} and {\em quoted-separators}
+    \end{tabular}
 \\[0.5ex]
 \emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
@@ -2067,6 +2081,9 @@ int64 sum = loop:
 \subsection{Function Declarations}
 \label{FUNCTION-DECLARATIONS}
 
+\subsubsection{Inline Function Declarations}
+\label{INLINE-FUNCTION-DECLARATIONS}
+
 The syntax of a function declaration is:
 
 \begin{indpar}
@@ -2120,12 +2137,14 @@ The syntax of a function declaration is:
     $|$ & {\em qualifier-name}\STAR{} {\em type-name}
           \TT{@}\QMARK{} {\em variable-name}
           \TT{?=} {\em default-value} \\
-    $|$ & {\em qualifier-name}\STAR{} {\em type-name}
-          {\em variable-name} \TT{??} \\
+    $|$ & {\em qualifier-name}\STAR{} \TT{bool}
+          {\em variable-name} \\
+    $|$ & {\em qualifier-name}\STAR{} \TT{bool}
+          {\em variable-name}
+          \TT{??} {\em default-value} \\
     $|$ & {\em qualifier-name}\STAR{} {\em type-name}
           \TT{@}\QMARK{} {\em variable-name}
           \TT{==} {\em required-value} \\
-    $|$ & \ttakey{UNUSED} {\em variable-name} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
@@ -2233,6 +2252,71 @@ list in the prototype to match an argument list in the call, both
 must be surrounded by the same brackets; either both have {\tt (~)}
 or both have {\tt [~]}.
 
+Note that {\em quoted-marks} and {\em quoted-separators}
+in {\em function-term-names} appear without quotes in {\em call-term-names}
+(see \pagref{CALL-TERM-NAME}).  Thus we have the example:
+\begin{indpar}\begin{verbatim}
+function int z = ( int x ) "@@" ( int y ):
+    . . . . . . . . . .
+int w = 5 @@ 6
+\end{verbatim}\end{indpar}
+
+A {\em prototype-pattern} with the syntax:
+\begin{indpar}
+\emkey{boolean-prototype-pattern} ::=
+    {\em function-term-name} \\
+\hspace*{1in}\TT{(} {\em qualifier-name}\STAR{}
+        \TT{bool} {\em variable-name}
+	\{ \TT{??} {\em default-value} \}\QMARK{} \TT{)}
+\end{indpar}
+
+triggers special syntax in a call that matches the prototype.
+In the call:
+\begin{center}
+\begin{tabular}{rcl}
+{\em function-term-name} & is equivalent to
+                         & {\em function-term-name} \tt ( true ) \\
+\TT{no} {\em function-term-name} & is equivalent to
+                         & {\em function-term-name} \tt ( false ) \\
+\TT{not} {\em function-term-name} & is equivalent to
+                         & {\em function-term-name} \tt ( false ) \\
+omitted {\em function-term-name} & is equivalent to
+                         & {\em function-term-name}
+			   \TT{(} {\em default-value} \TT{)} \\
+\end{tabular}
+\end{center}
+Thus the example:
+\begin{indpar}\begin{verbatim}
+function F ( int x ) OPTION ( bool y ?? true )
+    . . . . . . . . . .
+F ( 5 )            // Equivalent to F ( 5 ) OPTION ( true )
+F ( 5 ) OPTION     // Equivalent to F ( 5 ) OPTION ( true )
+F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( false )
+\end{verbatim}\end{indpar}
+
+If a {\em required-value} is given in a prototype, the call must
+have an {\tt ==} assembly-time value in order for the call to match
+the prototype.  Matches to prototypes with more {\em required-values}
+are preferred over matches to prototypes with less {\em required-values}.
+Thus the example:
+\begin{indpar}\begin{verbatim}
+function F ( int x ) G ( int y == 5 ):  // First F declaration
+    . . . . . . . . . .
+function F ( int x ) G ( int y ?= 5 ):  // Second F declaration
+    . . . . . . . . . .
+int z = 5
+F ( 8 )            // Matches only second F declaration
+F ( 8 ) G ( 5 )    // Matches preferred first F declaration
+F ( 8 ) G ( 6 )    // Matches only second F declaration
+F ( 8 ) G ( z )    // Matches only second F declaration
+                   // (z is not assembly-time).
+\end{verbatim}\end{indpar}
+
+\subsubsection{Inline Call-Prototype Matching}
+\label{INLINE-CALL-PROTOTYPE-MATCHING}
+
+\subsubsection{Out-of-Line Function Declarations}
+\label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
 
 \section{Assembly Time}
 
