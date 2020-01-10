@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 6, 2020
+January 10, 2020
 
 \bigskip
  
@@ -2067,6 +2067,8 @@ int64 sum = loop:
 \subsection{Function Declarations}
 \label{FUNCTION-DECLARATIONS}
 
+The syntax of a function declaration is:
+
 \begin{indpar}
 \emkey{function-declaration}\label{FUNCTION-DECLARATION}
     ::= \begin{tabular}[t]{l}
@@ -2199,6 +2201,38 @@ to have a \TT{bool} {\em default-value}: see \pagref{BOOL-DEFAULT}.
 
 \end{itemize}
 \end{indpar}
+
+An example of an inline function declaration and an inline function call is:
+\begin{indpar}\begin{verbatim}
+function F ( int x ?= 5 ) G ( int y ) H ( int z ):
+    . . . . . . . . . .
+F H ( 6 ) G ( 7 )    // Equivalent to F ( 5 ) G ( 7 ) H ( 6 )
+\end{verbatim}\end{indpar}
+
+The {\em function-term-names} in the declaration are matched to those
+in the call, but need not have the same order in the call, except for
+the first {\em function-term-name} which must be the same in the
+declaration and the call.  Thus the {\em call-terms} of the call
+are re-ordered to match the order of the {\em pattern-terms} of the
+declaration.  If one of the {\em pattern-terms} is omitted in the
+call, but its arguments have {\em default-values} (here {\tt 5}),
+the {\em pattern-term} with its
+{\em default-value} will be inserted into the call.
+
+An example containing an {\em input-variable-list} is:
+\begin{indpar}\begin{verbatim}
+function F [ int x ] = int y,  int z ?= 5:
+    . . . . . . . . . .
+F[10] = 6
+\end{verbatim}\end{indpar}
+which is treated as if {\tt =} were a {\em function-term-name}
+that must be the last such in the call, and the comma separated
+values in the call and {\em argument-declarations} in the prototype
+were surrounded by parentheses {\tt (~)}.  Note that for an argument
+list in the prototype to match an argument list in the call, both
+must be surrounded by the same brackets; either both have {\tt (~)}
+or both have {\tt [~]}.
+
 
 \section{Assembly Time}
 
