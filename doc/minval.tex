@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 10, 2020
+January 11, 2020
 
 \bigskip
  
@@ -2156,24 +2156,32 @@ The syntax of a function declaration is:
 \emkey{prototype-pattern}\label{FUNCTION-PATTERN}
     \begin{tabular}[t]{rl}
     ::= & {\em first-pattern-term} ~ {\em pattern-term}\STAR{} \\
-    $|$ & {\em argument-list} {\em argument-list}\PLUS{}
+    ::= & {\em only-pattern-term} \\
+    $|$ & {\em pattern-argument-list} {\em pattern-argument-list}\PLUS{}
     \end{tabular}
 \\[0.5ex]
-\emkey{first-pattern-term} ::= {\em argument-list}\STAR{} ~
+\emkey{first-pattern-term} ::= {\em pattern-argument-list}\STAR{} ~
 				{\em pattern-term}
 \\[0.5ex]
+\emkey{only-pattern-term} ::= \\
+\hspace*{1in}{\em pattern-argument-list}\STAR{} ~
+				{\em pattern-term} ~
+			      {\em pattern-argument-list}\STAR{}
+\\[0.5ex]
 \emkey{pattern-term}
-    ::= {\em function-term-name} ~ {\em argument-list}\STAR{}
+    ::= {\em function-term-name} ~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
 \emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
-\emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
-    \begin{tabular}[t]{@{}p{4in}@{}}
+\emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::= \\
+\hspace*{1in}
+    \begin{tabular}[t]{@{}p{5in}@{}}
     {\em function-term-name} $N$ that appears in a {\em function-prototype}
     of the form `{\tt function $N$ = \ldots}'
     \end{tabular}
 \\[0.5ex]
-\emkey{argument-list}
+\emkey{pattern-argument-list} \\
+\hspace*{1in}
     \begin{tabular}[t]{@{}rl}
     ::= & \TT{(} {\em argument-declaration}
                  \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{)} \\
@@ -2212,7 +2220,7 @@ All the result and argument {\em variable-names}
 in a {\em function-prototype} must
 be distinct.
 \item
-In an {\em argument-list} or {\em input-variable-list}
+In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
 An {\em argument-declaration} that ends with `\TT{??}' is considered
@@ -2314,6 +2322,90 @@ F ( 8 ) G ( z )    // Matches only second F declaration
 
 \subsubsection{Inline Call-Prototype Matching}
 \label{INLINE-CALL-PROTOTYPE-MATCHING}
+
+Function calls are matched to function prototypes.  It is
+an assembly error if a function call fails to match any
+prototype.  If the call matches more than one prototype, the
+matches are ranked according to the number of {\em required-values}
+in each prototype, and if there is just one with the maximum
+number of {\em required-values}, that match is used; otherwise
+it is an assembly error.
+
+Call-prototype matching is done as follows:
+
+\begin{enumerate}
+\item The {\em function-term-names} in the prototype are matched to
+{\em call-term-names} in the call.  To match, the names must be identical,
+except that quotes in prototype
+{\em quoted-marks} and {\em quoted-separators} are removed in the call
+(thus prototype {\tt "+"} matches call {\tt +}).
+
+If a {\em function-term-name} matches more than one {\em call-term-name},
+the prototype-call match fails.
+
+The first {\em function-term-name} in the prototype must match
+the first {\em call-term-name} in the call, else
+the prototype-call match fails.
+
+If a {\em function-term-name} in the prototype does not match
+any {\em call-term-name}, any {\em pattern-argument-lists} in the
+{\em pattern-term} of the {\em function-term-name} must have
+\TT{(~)} brackets, may \underline{not} have \TT{[~]} brackets,
+and must have {\em default-values} in all their
+{\em argument-declarations}.
+
+\item
+The {\em function-term-names} found in the call are used to determine
+the extent of {\em call-terms} in the call.  A {\em call-term}
+must match its corresponding prototype {\em pattern-term} according
+the rules that follow.  Failure of any call-prototype term match
+causes the prototype-call match to fail.
+
+In the case where the prototype has no {\em pattern-terms}, and just
+has two or more {\em pattern-argument-lists}, the situation is
+treated as if both prototype and call began with identical virtual
+{\em function-term-names}.
+
+\item For a {\em call-term} to match its corresponding {\em pattern-term},
+both must have the same number of {\em argument-lists}, the same
+brackets (either {\tt (~)} or {\tt [~]}) for corresponding
+{\em argument-lists}, and the same number of
+arguments in corresponding {\em argument-lists}, \underline{after}
+the {\em call-term} has been \key{adjusted}.  The following are
+permited adjustments.
+
+A {\em constant} or {\em reference-expression} in the {\em call-term}
+is adjusted by placing {\tt (~)} parentheses around it.
+
+If in a left-to-right scan
+a {\em call-argument-list} with {\tt (~)} is expected but none
+is found, the empty list {\tt ()} is inserted.
+Note that {\em argument-lists} with {\tt [~]} brackets cannot
+be omitted.
+
+Arguments if a {\em call-argument-list} is shorter than the
+corresponding {\em pattern-argument-list}, {\em default-values}
+in the {\em pattern-argument-list} are inserted in to corresponding
+positions in the {\em call-argument-list}.  If a position has
+no {\em default-value}, the call-prototype term match fails.
+
+A {\em pattern-term} that has no corresponding {\em call-term}
+(because its {\em function-term-name} was not found in the call),
+the {\em pattern-term} is treated as being matched to a
+virtual {\em call-term} consisting of only the {\em function-term-name}
+of the {\em pattern-term}.
+
+\item If all the above is successful, then {\em actual-arguments}
+in the call are matched to corresponding {\em argument-declarations}
+in the prototype according to the rules that follow.
+Failure of any call-prototype argument match causes
+the call-prototype match to fail.
+
+TBD
+
+
+
+\end{enumerate}
 
 \subsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
