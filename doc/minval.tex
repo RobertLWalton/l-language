@@ -2347,13 +2347,6 @@ The first {\em function-term-name} in the prototype must match
 the first {\em call-term-name} in the call, else
 the prototype-call match fails.
 
-If a {\em function-term-name} in the prototype does not match
-any {\em call-term-name}, any {\em pattern-argument-lists} in the
-{\em pattern-term} of the {\em function-term-name} must have
-\TT{(~)} brackets, may \underline{not} have \TT{[~]} brackets,
-and must have {\em default-values} in all their
-{\em argument-declarations}.
-
 \item
 The {\em function-term-names} found in the call are used to determine
 the extent of {\em call-terms} in the call.  A {\em call-term}
@@ -2383,7 +2376,7 @@ is found, the empty list {\tt ()} is inserted.
 Note that {\em argument-lists} with {\tt [~]} brackets cannot
 be omitted.
 
-Arguments if a {\em call-argument-list} is shorter than the
+If a {\em call-argument-list} is shorter than the
 corresponding {\em pattern-argument-list}, {\em default-values}
 in the {\em pattern-argument-list} are inserted in to corresponding
 positions in the {\em call-argument-list}.  If a position has
@@ -2400,6 +2393,11 @@ in the call are matched to corresponding {\em argument-declarations}
 in the prototype according to the rules that follow.
 Failure of any call-prototype argument match causes
 the call-prototype match to fail.
+
+\item An {\em argument-declaration} $AD$ matches an {\em actual-argument}
+$AA$ if and only if the statement `$AD$ = $AA$' successfuly compiles
+when the {\em variable-name} in $AA$ is replaced by a unique virtual
+{\em variable-name}.
 
 TBD
 
