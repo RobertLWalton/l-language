@@ -2269,9 +2269,9 @@ function int z = ( int x ) "@@" ( int y ):
 int w = 5 @@ 6
 \end{verbatim}\end{indpar}
 
-A {\em prototype-pattern} with the syntax:
+A {\em pattern-term} with the syntax:
 \begin{indpar}
-\emkey{boolean-prototype-pattern} ::=
+\emkey{boolean-pattern-term}\label{BOOLEAN-PATTERN-TERM} ::=
     {\em function-term-name} \\
 \hspace*{1in}\TT{(} {\em qualifier-name}\STAR{}
         \TT{bool} {\em variable-name}
@@ -2387,6 +2387,15 @@ A {\em pattern-term} that has no corresponding {\em call-term}
 the {\em pattern-term} is treated as being matched to a
 virtual {\em call-term} consisting of only the {\em function-term-name}
 of the {\em pattern-term}.
+
+Exceptions are made for
+a {\em boolean-pattern-term}\pagnote{BOOLEAN-PATTERN-TERM}.
+If its {\em call-term-name} is present and preceded by `\TT{no}' or `\TT{not}'
+and not followed by an
+{\em argument-list}, the {\em argument-list} `{\tt ( false )}' is appended
+and the `\TT{no}' or `\TT{not}' is deleted.
+Otherwise if its {\em call-term-name} is present but not followed by an
+{\em argument-list}, the {\em argument-list} `{\tt ( true )}' is appended.
 
 \item If all the above is successful, then {\em actual-arguments}
 in the call are matched to corresponding {\em argument-declarations}
