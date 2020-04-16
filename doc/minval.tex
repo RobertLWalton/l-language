@@ -316,20 +316,20 @@ packed uns32 my_type:
 my_type X = ...
 uns op = X.op_code
 int c = X.constant
-Y @=@ X.des
+uns @ Y = @ X.des
 \end{verbatim}\end{indpar}
 
 A packed number is a number ({\tt uns32} in the example)
 that contains fields.  Each field occupies a sequence of
 bits in the number ({\tt op\_code} occupies bits 0 through 7
-in the example), and this sequence is interpreted as a
-number, {\tt int}, {\tt uns}, or {\tt flt}, or as a {\tt bool},
+in the example), and this sequence is interpreted as an
+{\tt int}, {\tt uns}, or {\tt bool},
 and is given
 a name ({\tt op\_code}, {\tt has\_constant}, etc.~in the
 example).
 
 Notice that fields can overlap and a variable can be
-defines as having a location inside a packed number
+defined as having a location inside a packed number
 ({\tt Y} in the example).
 
 Examples of structures are:
@@ -381,12 +381,12 @@ structure (e.g. {\tt kind} is offset 0 and because it is
 packed, {\tt weight} has offset 1).  A {\tt label} is like
 a zero length member that has no value, and is used to
 position other members via the {\tt origin} statement.
-The {\tt include} statement copies members from another
-structure type.
+The {\tt include} statement copies members, {\tt align},
+and {\tt origin} declarations from another structure type.
 
 In this case {\tt extension} is aligned on a 64 bit boundary.
 A structure type has an
-alignment equal to the greatest common multiple of the
+alignment in bytes equal to the greatest common multiple of the
 alignments of its members.
 
 Structure types can be extended
@@ -395,7 +395,9 @@ A structure has a size in bytes just large enough to
 accommodate all its members.
 
 Structures \underline{cannot} be copied by {\tt =} assignments.
-The location of a structure can be copied by {\tt @=} assignments.
+Pointers can point at structures and structure members, and
+such pointers can be assigned to
+variable locations (as in {\tt @ V = {\em pointer-\EOL value}}).
 
 By default, functions in MINVAL are inline.  For example,
 
