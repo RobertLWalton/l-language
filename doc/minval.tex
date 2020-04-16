@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 11, 2020
+April 16, 2020
 
 \bigskip
  
@@ -196,13 +196,13 @@ A typical MINVAL statement is:
 \end{center}
 This allocates a new variable {\tt X} of type {\tt int}
 to the current function frame within the stack,
-and sets its value to that value of the
+and sets its value to the value of the
 variable {\tt Y} minus the constant {\tt C"0"} (which is
 the character code of the character {\tt 0}).
 
 The statement:
 \begin{center}
-\tt op uns8 Z @= Gobbledeegook
+\tt fv uns @ Z = @ Gobbledeegook
 \end{center}
 makes the variable {\tt Z} synonymous with the
 global variable {\tt Gobbledeegook} in the current
@@ -213,7 +213,7 @@ equal to the location of {\tt Gobbledeegook}.
 Variables in function frames and module memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z},
 and locations in memory where their values are stored.
-There variables have locations which designate the
+These variables have locations which designate the
 function frame or module memory they are located in,
 and their offset within that memory.
 These variables
@@ -223,81 +223,62 @@ several times that size: {\tt intd} is a two word (double) integer
 and {\tt intq} is a four word (quad) integer.
 
 According to its type,
-`{\tt op uns8}', the value of {\tt Gobbledeegook} is an
-offset pointer to a one byte unsigned integer, a.k.a., a character.
-An offset pointer is stored in two words, actually an {\tt intd},
-the first of which points at a word containing the base address of
-a memory block, and the second of which contains an offset within
-that memory block.  In this case the memory block might be
-the module memory to containing the variable {\tt Gobbledeegook}.
+`{\tt fv uns}', the value of {\tt Gobbledeegook} is a `field vector'
+pointer that is a quad integer ({\tt intq}) containing:
+\begin{itemize}
+\item A `base pointer' {\tt int} holding the byte address
+of an {\tt int} in memory
+that contains the `base (byte) address' of the vector.
+\item An `offset' {\tt int} whose high order bits contain
+the signed bit offset of the field being pointed at and whose
+low order bits contain the size of the field in bits minus 1.
+\item A `lower bound' {\tt int} which is the minimum allowed
+value of the offset {\tt int} (assuming the filed size does not
+change).
+\item An `upper bound' {\tt int} which is the maximum allowed
+value of the offset {\tt int} (assuming the filed size does not
+change).  Here the offset is allowed to point just beyond the
+end of the vector data, but no futher.
+\end{itemize}
+Fields can be signed or unsigned integers with sizes from 1 through
+the size of an {\tt int} (which is 32 or 64 bits depending on
+the computer architecture).
 
-The statement
+There are other types of pointer.  A {\tt nv} is like a field
+vector except that the offset is in bytes and the number type
+must specify the size of the number (e.g., {\tt int8}, {\tt flt64}
+for 64-bit IEEE floats).  The {\tt fp} and {\tt np} types are
+similar but do not have the bounds and cannot be indexed.  There
+is also a direct pointer, {\tt dp}, that is just a single {\tt int}
+containing the byte address; this is most useful for calling
+C language functions.
+New pointer types may be defined by the user.
+
+
+Assuming that {\tt Gobbledeegook} points at a vector of fields
+in module memory (perhaps a different module than the current
+module), the statement
 \begin{center}
-\tt uns8 Y @= Gobbledeegook[W]
+\tt uns @ Y = @ Gobbledeegook[W]
 \end{center}
-sets the location of {\tt Y} equal to the value of
+sets the location of {\tt Y} equal to the {\tt fv} value of
 {\tt Gobbledeegook} indexed by the variable {\tt W}.
 The value of {\tt W} must be an integer.
-Then the location of {\tt Y} is the offset
-pointer value of {\tt Gobbledeegook} with {\tt W}
-times the size of {\tt uns8} added to its offset.
+Then the location of {\tt Y} is, more specifically, an {\tt fp} field pointer 
+equal to the first two words of the value of {\tt Gobbledeegook}
+with {\tt W} times the field size added to its offset.
+It is a run-time error if the new offset is less than the lower
+bound of {\tt Gobbledeegook} or greater than \underline{or equal to}
+the upper bound.
 
 Now there is a very important difference between {\tt X} on one
-hand, and {\tt Y} on the other.  When we call an
+hand, and {\tt Y} and {\tt Z} on the other.  When we call an
 out-of-line function and then return, we can expect the value of
-{\tt X} to be the same as before the call, but the value of
-{\tt Y} may have changed.  This is because the out-of-line
-function and functions it calls can access the locations of {\tt Y} in
-module memory, but not the location of {\tt X} in the calling
+{\tt X} to be the same as before the call, but the values of
+{\tt Y} and {\tt Z} may have changed.  This is because the out-of-line
+function and functions it calls can access the locations of {\tt Y} and
+{\tt Z} in module memory, but not the location of {\tt X} in the calling
 function frame memory.
-
-
-The location of a variable is a pointer value.
-MINVAL has multiple pointer types.  The builtin ones are:
-\begin{itemize}
-\item[{\bf dp}] Direct Pointer.  An {\tt int} value holding
-the byte address of the bytes pointed at.
-\item[{\bf ip}] Indirect Pointer.  An {\tt int} value holding
-a byte address of a {\tt int} value holding the byte address
-of the bytes pointed at.
-\item[{\bf op}] Offset Pointer (a.k.a., indirect offset pointer).
-An {\tt intd} value half of which holds an {\tt int} offset $O$ and
-the other half of which holds the {\tt int}
-byte address of an {\tt int} base value $B$.  $B+O$ is the byte
-address of the bytes pointed at.
-\item[{\bf fp}] Field Pointer.  An {\tt intq} value, half of
-which is an offset pointer pointing at an {\tt int} in memory,
-and the other half of which holds the following which defines a field in that
-{\tt int}: (1) an {\tt int} mask for
-the bits of the field in the field's containing {\tt int},
-(2) the number of bits to the left (high order side) of the field in
-its {\tt int}, and
-(3) the number of bits to the right (low order side) of the field in
-its {\tt int}.
-
-\end{itemize}
-
-Any pointer value can be indexed by an integer.  For direct pointers,
-this adds the integer times the size in bytes of the type of value
-that the direct pointer points at.  For offset pointers the integer
-times the value size is added to the offset.  For indirect pointers,
-an offset pointer is returned with the offset equal to the integer
-times the value size.  For field pointers, a field pointer is returned
-that is calculated as if field pointers pointed at bits of memory
-in little endian order and the size of the value pointed at was
-determined by the size in bits of an {\tt int} minus the number
-of bits to the left or right of the value pointed at.
-
-Some pointer types can be converted to other pointer types.
-Indirect and offset pointer values can be converted to direct
-pointers, as is done when calling legacy library functions
-written in the C programming language.  Direct pointer values
-can be converted to offset pointer values by using a base ($B$)
-equal to zero and setting the offset ($O$) equal to the
-direct address.
-
-New pointer types may also be defined by the user.
-
 
 MINVAL has a full set of number types:
 {\tt int8}, {\tt uns8},
