@@ -213,10 +213,10 @@ equal to the location of {\tt Gobbledeegook}.
 Variables in function frames and module memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z},
 and locations in memory where their values are stored.
-These variables have locations which designate the
-function frame or module memory they are located in,
-and their offset within that memory.
-These variables
+These locations designate the
+function frame or module memory containing the location,
+and the offset of the location within that memory.
+Variables most frequently
 have a size equal to the natural
 word size of the computer (typically 32 or 64 bits), or
 several times that size: {\tt intd} is a two word (double) integer
@@ -231,40 +231,46 @@ of an {\tt int} in memory
 that contains the `base (byte) address' of the vector.
 \item An `offset' {\tt int} whose high order bits contain
 the signed bit offset of the field being pointed at and whose
-low order bits contain the size of the field in bits minus 1.
+low order bits contain the size of the field in bits.
+The offset is relative to the base address.
+The size is at most the size in bits of an {\tt int}
+minus 8 (the size of a byte).
+On a computer with 64 bit {\tt int} values, the offset is in the
+high order 58 bits, the size is in the low order 6 bits,
+and the range of sizes is 0 through 56.
 \item A `lower bound' {\tt int} which is the minimum allowed
-value of the offset {\tt int} (assuming the filed size does not
+value of the offset {\tt int} (assuming the field size does not
 change).
 \item An `upper bound' {\tt int} which is the maximum allowed
-value of the offset {\tt int} (assuming the filed size does not
+value of the offset {\tt int} (assuming the field size does not
 change).  Here the offset is allowed to point just beyond the
 end of the vector data, but no futher.
 \end{itemize}
-Fields can be signed or unsigned integers with sizes from 1 through
-the size of an {\tt int} (which is 32 or 64 bits depending on
-the computer architecture).
+Fields can be signed or unsigned integers, but cannot be
+floating point numbers or pointers.  A field can also have
+the {\tt bool} type, which is a 1-bit unsigned integer
+interpreted as `true' or `false'.
 
-There are other types of pointer.  A {\tt nv} is like a field
+There are other types of pointer.  An {\tt nv} is like a field
 vector except that the offset is in bytes and the number type
-must specify the size of the number (e.g., {\tt int8}, {\tt flt64}
+must specify the size of the number (e.g., {\tt flt64}
 for 64-bit IEEE floats).  The {\tt fp} and {\tt np} types are
-similar but do not have the bounds and cannot be indexed.  There
-is also a direct pointer, {\tt dp}, that is just a single {\tt int}
+similar but do not have the bounds and cannot be indexed.  Lastly
+there is the direct pointer, {\tt dp}, that is just a single {\tt int}
 containing the byte address; this is most useful for calling
 C language functions.
 New pointer types may be defined by the user.
 
 
 Assuming that {\tt Gobbledeegook} points at a vector of fields
-in module memory (perhaps a different module than the current
-module), the statement
+in the memory of some module or in the heap, the statement
 \begin{center}
 \tt uns @ Y = @ Gobbledeegook[W]
 \end{center}
 sets the location of {\tt Y} equal to the {\tt fv} value of
 {\tt Gobbledeegook} indexed by the variable {\tt W}.
 The value of {\tt W} must be an integer.
-Then the location of {\tt Y} is, more specifically, an {\tt fp} field pointer 
+Then, more specifically, the location of {\tt Y} is an {\tt fp} pointer 
 equal to the first two words of the value of {\tt Gobbledeegook}
 with {\tt W} times the field size added to its offset.
 It is a run-time error if the new offset is less than the lower
