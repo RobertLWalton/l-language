@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 16, 2020
+April 17, 2020
 
 \bigskip
  
@@ -297,64 +297,73 @@ types for twice (double) or four times (quad) the target machine word size.
 The {\tt bool} type is a single bit interpreted as {\tt true} if
 1 and {\tt false} if 0: it is in essence a 1-bit unsigned integer.
 
-There are also two kinds of user defined types: packed numbers
-and structures.
-
-An example packed number is:
+User defined types consist of a sequence of bytes containing fields.
+Fields in turn can contain subfields.
+An example is:
 
 \begin{indpar}\begin{verbatim}
-packed uns32 my_type:
-    [0-7]    uns op_code              // Operation
-    [0]      bool has_constant        // Format indicator
-    [8-31]   int constant             // Constant
-    [8-15]   uns src1                 // Source Register
-    [16-23]  uns src2                 // Source Register
-    [24-31]  uns des                  // Destination Register
+type my type:
+             uns32                    // Container for:
+    [0-7]    uns8 op_code             //   Operation
+    [0]      bool has_constant        //   Format indicator
+    [8-31]   int constant             //   Constant
+    [8-15]   uns8 src1                //   Source Register
+    [16-23]  uns8 src2                //   Source Register
+    [24-31]  uns8 des                 //   Destination Register
 
 . . . . . . . . . . . .
 
-my_type X = ...
+my type X = ...
 uns op = X.op_code
 int c = X.constant
-uns @ Y = @ X.des
+uns8 @ Y = @ X.des
+int @ Z = @ X.constant
 \end{verbatim}\end{indpar}
 
-A packed number is a number ({\tt uns32} in the example)
-that contains fields.  Each field occupies a sequence of
-bits in the number ({\tt op\_code} occupies bits 0 through 7
-in the example), and this sequence is interpreted as an
-{\tt int}, {\tt uns}, or {\tt bool},
-and is given
-a name ({\tt op\_code}, {\tt has\_constant}, etc.~in the
-example).
+In this example there is one the field in a {\tt my type} value
+that is an unlabeled 32 bit unsigned integer, that is, an {\tt uns32}
+value.  Inside this field there are 6 subfields, the first of which is
+an {\tt uns8} integer occupying bits 0-7 of the first field,
+where bits are numbers 0, 1, 2, \ldots{} from
+low to high order.  The second subfield is a 1-bit {\tt bool}
+value that occupies bit 0 of its containing field.
 
-Notice that fields can overlap and a variable can be
-defined as having a location inside a packed number
-({\tt Y} in the example).
+Defined type values are alignment on byte boundaries when
+they are stored in memory.  Therefore the {\tt des} subfield
+is on a byte boundary, and
+the location of {\tt Y} is an {\tt np} number pointer.  Although
+the {\tt constant} subfield is on a byte boundary, it is
+shorter than an {\tt uns} integer, and therefore the
+location of {\tt Z} must be an {\tt fp} field pointer.
+If {\tt des} where in bits 23-30 instead of 24-31, it would
+not be on a byte boundary and the location of {\tt Y} would
+also have to be an {\tt fp} field pointer.
 
-Examples of structures are:
+Another example is:
 
 \begin{indpar}\begin{verbatim}
-struct my type:
+type my type:
     pack
-    uns8    kind                     // Object Kind
-    flt64   weight                   // Object Weight
+    uns8    kind             // Object Kind
+        [0] bool animal      //   True if Animal
+        [1] bool vegetable   //   True if Vegetable
+    flt64   weight           // Object Weight
     align   64
     label   extension
 
-struct my type:
+type my type:
     origin  extension
     align
-    flt64   height                   // Object height
-    flt64   width                    // Object height
+    flt64   height           // Object Height
+    flt64   width            // Object Height
 
-struct my type:
+type my type:
     origin  extension
     align
-    flt64   volume                   // Object volume
+    flt64   volume           // Object Volume
 
-struct your type:
-    include my_type   // Copy members of my_type
+type your type:
+    include my type   // Copy members of my type
     dp uns8 name      // Direct pointer to name
                       // character string
 
@@ -373,31 +382,26 @@ Y.volume = 48
 Y.name = "John Doe"
 \end{verbatim}\end{indpar}
 
-A structure is a byte sequence that contains members
-(e.g., {\tt kind}, {\tt weight}, {\tt height}, etc. in
-the example).
-Each member has an offset in bytes from the beginning of the
-structure (e.g. {\tt kind} is offset 0 and because it is
-packed, {\tt weight} has offset 1).  A {\tt label} is like
-a zero length member that has no value, and is used to
-position other members via the {\tt origin} statement.
-The {\tt include} statement copies members, {\tt align},
-and {\tt origin} declarations from another structure type.
+Here the fields are {\tt kind}, {\tt weight}, {\tt height}, etc.
+Fields can be packed to aligned: here they are initially packed
+so that since {\tt kind} has offset 0 bytes and size 1 byte,
+{\tt weight} has offset 1 byte.  Subfields {\tt animal}
+and {\tt vegetable} are 1-bit values inside {\tt kind}.
 
-In this case {\tt extension} is aligned on a 64 bit boundary.
-A structure type has an
+A {\tt label} is like a zero length member that has no value, and is used to
+position other members via the {\tt origin} statement.
+The {\tt include} statement copies all the substatements
+from another user defined type.
+
+Here {\tt extension} is aligned on a 64 bit boundary.
+A defined type has an
 alignment in bytes equal to the greatest common multiple of the
 alignments of its members.
 
-Structure types can be extended
+Defined types can be extended
 (as per the example), and members can overlay each other.
-A structure has a size in bytes just large enough to
+A defined type value has a size in bytes just large enough to
 accommodate all its members.
-
-Structures \underline{cannot} be copied by {\tt =} assignments.
-Pointers can point at structures and structure members, and
-such pointers can be assigned to
-variable locations (as in {\tt @ V = {\em pointer-\EOL value}}).
 
 By default, functions in MINVAL are inline.  For example,
 
