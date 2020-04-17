@@ -297,7 +297,7 @@ types for twice (double) or four times (quad) the target machine word size.
 The {\tt bool} type is a single bit interpreted as {\tt true} if
 1 and {\tt false} if 0: it is in essence a 1-bit unsigned integer.
 
-User defined types consist of a sequence of bytes containing fields.
+User defined type values consist of a sequence of bytes containing fields.
 Fields in turn can contain subfields.
 An example is:
 
@@ -320,15 +320,15 @@ uns8 @ Y = @ X.des
 int @ Z = @ X.constant
 \end{verbatim}\end{indpar}
 
-In this example there is one the field in a {\tt my type} value
-that is an unlabeled 32 bit unsigned integer, that is, an {\tt uns32}
-value.  Inside this field there are 6 subfields, the first of which is
-an {\tt uns8} integer occupying bits 0-7 of the first field,
-where bits are numbers 0, 1, 2, \ldots{} from
+In this example there is one field in a {\tt my type} value,
+an unlabeled {\tt uns32} integer.
+Inside this field there are 6 subfields, the first of which is
+an {\tt uns8} integer occupying bits 0-7 of the one field,
+where bits are numbered 0, 1, 2, \ldots{} from
 low to high order.  The second subfield is a 1-bit {\tt bool}
-value that occupies bit 0 of its containing field.
+value that occupies bit 0 of the unlabelled field.
 
-Defined type values are alignment on byte boundaries when
+Defined type values are aligned on byte boundaries when
 they are stored in memory.  Therefore the {\tt des} subfield
 is on a byte boundary, and
 the location of {\tt Y} is an {\tt np} number pointer.  Although
@@ -383,20 +383,28 @@ Y.name = "John Doe"
 \end{verbatim}\end{indpar}
 
 Here the fields are {\tt kind}, {\tt weight}, {\tt height}, etc.
-Fields can be packed to aligned: here they are initially packed
+Fields can be packed or aligned: here they are initially packed
 so that since {\tt kind} has offset 0 bytes and size 1 byte,
 {\tt weight} has offset 1 byte.  Subfields {\tt animal}
 and {\tt vegetable} are 1-bit values inside {\tt kind}.
 
-A {\tt label} is like a zero length member that has no value, and is used to
-position other members via the {\tt origin} statement.
-The {\tt include} statement copies all the substatements
-from another user defined type.
-
-Here {\tt extension} is aligned on a 64 bit boundary.
+The {\tt align 64} substatement moves the current offset
+forward to a 64-bit boundary and causes fields beyond it
+to be aligned and not packed.  Alignment boundaries must
+be multiples of 8.
 A defined type has an
-alignment in bytes equal to the greatest common multiple of the
+alignment in bits equal to the least common multiple of the
 alignments of its members.
+Such alignments must also be multiples of 8.
+
+A {\tt label} is like a zero length member that has no value and
+is used to associate a label with the current offset.
+Here {\tt extension} has the offset value of 128 bits or
+16 bytes.
+The {\tt origin} substatement resets the current offset to the offset
+of a given label.
+The {\tt include} substatement copies all the substatements
+from another user defined type.
 
 Defined types can be extended
 (as per the example), and members can overlay each other.
