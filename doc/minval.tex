@@ -454,9 +454,11 @@ int v = max ( u, z / x + w * y )
 \end{verbatim}\end{indpar}
 
 Constant arithemtic is in effect infinite precision with unbounded
-numbers.  Constant numbers can be converted to any of the runtime
-number types, but if the result will not fit in a runtime integer,
-a compiler error occurs.  This happens, for example, if {\tt 1e20}
+integers and rational numbers that are ratios of such integers.
+Constant numbers can be converted to any of the runtime
+number types.  However it is a compiler error
+if the result will not fit into the runtime number.
+This happens, for example, if {\tt 1e20}
 is converted to an {\tt int32}.
 
 It is possible to define inline functions that execute at assembly
@@ -545,6 +547,29 @@ affect software cacheing.
 {\tt vo} variables are volatile, and may be changed asynchronously
 between any two reads of the variable.  {\tt vo} variables are
 \underline{not} cached in software registers.
+
+A pointer type of a variable
+has two places where a qualifier may appear, as in
+
+\begin{indpar}\begin{verbatim}
+ro np vo uns32 p = .....
+\end{verbatim}\end{indpar}
+in which {\tt p} is a read-only variable pointing at a volatile
+{\tt uns32} location.
+
+Pointer types cannot be cascaded, but there is a work-around
+using defined types:
+\begin{indpar}\begin{verbatim}
+np np flt64 p = .....         // Illegal!
+
+struct my pointer
+    np flt64 p
+
+. . . . . . . . . .
+
+my pointer p = ...            // OK
+flt64 v = p.p[0]              // OK
+\end{verbatim}\end{indpar}
 
 
 \section{Syntax}
@@ -653,6 +678,7 @@ do have an \key{indent}, which is the indent of
 the graphic character after the indent lexeme.
 The \key{indent} of a character is the number
 of columns that precede the character in the character's physical line.
+Tabs are set every 8 columns.
 Indent lexemes are used to form logical lines and blocks
 (\itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}).
 
