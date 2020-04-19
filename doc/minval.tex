@@ -678,7 +678,7 @@ do have an \key{indent}, which is the indent of
 the graphic character after the indent lexeme.
 The \key{indent} of a character is the number
 of columns that precede the character in the character's physical line.
-Tabs are set every 8 columns.
+A single space takes 1 column, and tabs are set every 8 columns.
 Indent lexemes are used to form logical lines and blocks
 (\itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}).
 
@@ -1014,7 +1014,7 @@ ignored.
 A logical line that contains {\em comments}, but no
 lexemes other than {\em comments}, {\em line-breaks}, {\em indents}
 and a possible {\em end-of-file}, is
-a `\key{comment line}', and is ignored.
+a `\key{comment line}'.
 
 It is an error to begin non-comment logical lines with
 a {\em comment}.
@@ -1094,9 +1094,6 @@ The MINVAL operators are listed in Table~\itemref{MINVAL-OPERATORS}.
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
 \ttkey{=} & assignment & infix & binary & L = 1 \\
-\ttkey{@=@} & overlay & infix & binary & 1 \\
-\ttkey{@=} & located at  & infix & binary & 1 \\
-\ttkey{=@} & points to & infix & binary & 1 \\
 \ttkey{+=} & increment & infix & binary & 1 \\
 \ttkey{-=} & decrement & infix & binary & 1 \\
 \hline
