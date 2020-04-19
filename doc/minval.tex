@@ -1184,15 +1184,16 @@ where N is any precedence in the range [L,H+1]
 Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
 and operators of precedence $P$.
+
+The operators in Figure \itemref{MINVAL-OPERATORS} have precedences in
+the range {\em [L,H]}.
+Precedence {\em (H+1)} is reserved for the `error operator' which is a
+nofix operator inserted by the parser to `fix up' parsing errors
+so parsing can continue.
 An {\em (H+2)-expression}, while it can be thought of as a sequence
 of zero or more prefix operators followed by a single {\em primary},
 is parsed so as to execute the prefix operators from right to left, each
 with a single operand.
-
-Precedence {\em (H+1)} is reserved for the `error operator' which is a
-nofix operator inserted by the parser to `fix up' parsing errors
-so parsing can continue.
-
 
 An \key{infix} operator must be surrounded by operands,
 but a \key{nofix} operator
@@ -1208,7 +1209,8 @@ but operands and identical operators (e.g., \TT{AND} and \TT{OR}
 cannot be outside parenthesized operands in the same expression).
 The comparison operators are \key{left associative}, e.g.,
 `\TT{x < y < z}' is the same as `\TT{(x < y) < z}'.
-The \key{separating} format inserts special \TT{no-operand} primaries
+The \key{separating} format for the comma operator (`\TT{,}')
+inserts special \TT{no-operand} primaries
 into the expression so the separating operator becomes an infix
 operator.  The \key{sum} format allows \TT{+} and \TT{-} to be mixed
 in the same expression, but not other operators of the same
@@ -1219,21 +1221,21 @@ prefix/unary.  This is done so it can have lower precedence than
 the comparison operators, as prefix operators effectively have highest
 precedence.
 
-An assembly language instruction can have only one non-prefix
+A statement that executes at run-time
+can have only one non-prefix
 operator that performs a computation on run-time values.
-Also not all operators can be used to compute run-time values.
+However arbitrary expressions computing with assembly-time {\tt const} values
+may occur in any statement.
 
-However arbitrary expressions computing with {\tt const} values
-may occur in an assembly language instruction and elsewhere.
 The following elaborates the meaning of some of the operators
-that can be used in these expressions:
+that are used in these expressions:
 
 \begin{indpar}
 \begin{tabular}{rp{5.0in}}
 \tt x \TT{if} y & evaluates to {\tt x} if {\tt y} evaluates to {\tt true},
                   and to {\tt no-operand} otherwise
 \\[0.5ex]
-\tt x \TT{else} y & evaluates to {\tt x} that is not {\tt no-operand}
+\tt x \TT{else} y & evaluates to {\tt x} if that is not {\tt no-operand}
                   and to {\tt y} otherwise
 \\[0.5ex]
 \tt x \TT{<} y \TT{<} z & evaluates to {\tt (x < y) AND (y < z)} where
@@ -1243,13 +1245,21 @@ that can be used in these expressions:
 \tt \TT{!} x & evaluates on signed integers as if they were represented
                in two's complement by binary values of unbounded size,
 	       and similarly for other bitwise operators
+\\[0.5ex]
+\tt x \TT{\textasciicircum} y
+	& becomes the function call {\tt x~"\textasciicircum"~y}; the
+	  user has to provide the function called
 \end{tabular}
 \end{indpar}
 
 Also the {\tt no-operand} value as if the operand did not exist
-by nomix operators.  I.e., it is treated as 0 by non-logical,
-non-multiplication nomix operators, as 1 by multiplication,
-as {\tt true} by \TT{AND}, and as {\tt false} by \TT{OR}.
+by nomix and sum operators.  I.e., it is treated as
+0 by {\tt +}, {\tt -}, {\tt |}, {\tt xor},
+as 1 by {\tt *},
+as -1 by {\tt \&},
+as {\tt true} by \TT{AND},
+as {\tt false} by \TT{OR},
+and as indicated above by {\tt else}.
 Unary operators return {\tt no-operand} when their operand
 has this value.
 
