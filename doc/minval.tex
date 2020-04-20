@@ -1346,8 +1346,8 @@ The MINVAL uses several kinds of names:
 \\[1ex]
 \emkey{basic-name}
 	::= \begin{tabular}[t]{@{}l@{}}
-	    {\em name} not containing a `\TT{.}', {\em quoted-mark}, \\
-	    {\em quoted-separator}, or {\em operator-name}
+	    {\em name} not containing a `\TT{.}', {\em quoted-mark}, or
+	    {\em quoted-separator}
 	    \end{tabular} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
     {\em basic-name} \\
@@ -1358,58 +1358,56 @@ The MINVAL uses several kinds of names:
 \emkey{include-name} ::= {\em basic-name}
     \label{INCLUDE-NAME}
 \\[1ex]
-\emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
-    \ttkey{ro} $|$ \ttkey{vo}
-\\[1ex]
 \emkey{member-name}\label{MEMBER-NAME}
 	::= \begin{tabular}[t]{@{}l@{}}
                         {\em name} beginning with a `\TT{.}', \\
-			but not containing a {\em quoted-mark},
+			but not containing a {\em quoted-mark} or
 			    {\em quoted-separator} \\
-			or {\em operator-name} \\
 			(note: all `\TT{.}'s in a {\em name} must be at
 			 the beginning of the {\em name})
 			\end{tabular} \\
 \emkey{label}\label{LABEL} ::=
-    {\em basic-name} $|$ {\em member-name} \\
+    {\em basic-name} $|$ {\em member-name}
+\\[1ex]
 \emkey{function-term-name} ::= {\em name}
     \label{FUNCTION-TERM-NAME}
 \\[1ex]
-\emkey{keyword}
+\emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
+    \ttkey{ro} $|$ \ttkey{vo}
+\\[1ex]
+\emkey{operator-name}
     \begin{tabular}[t]{rl}
-    ::= & \TT{ro} $|$ \TT{vo} $|$ \TT{if} $|$ \TT{else}
+    ::= & \TT{if} $|$ \TT{else}
                   $|$ \TT{xor} $|$ \TT{AND} $|$ \TT{OR}
 		  $|$ \TT{NOT} $|$ \TT{BUT}  \\
     $|$ & \TT{mod} $|$ \TT{div} $|$ \TT{rem}
-                   $|$ \TT{function} $|$ \TT{generic}
     \end{tabular}
 \\[1ex]
-where
+\emkey{function-keyword}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{no} $|$ \TT{not} $|$ \TT{function} $|$ \TT{generic} \\
+    $|$ & \TT{"="} $|$ \TT{","} $|$ \TT{"("} $|$ \TT{")"} $|$
+          \TT{"["} $|$ \TT{"]"}
+    \end{tabular}
+\\[1ex]
+where the following rules should be followed, least there be
+various confusing syntax or semantic errors:
 \begin{enumerate}
 \item
-{\em Names} must not contain keywords.
+A {\em type-name} should not begin with a {\em module-abbreviation},
+{\em qualifier-name}, or {\em pointer-type-name}.
 \item
-A {\em type-name} may not begin with a {\em module-abbreviation} or
-{\em pointer-type-name}.
+A {\em variable-name} should not begin with a {\em module-abbreviation},
+{\em qualifier-name}, {\em pointer-type-name}, or {\em type-name}.
 \item
-A {\em variable-name} may not begin with a {\em module-abbreviation},
-{\em pointer-type-name}, or {\em type-name}.
+A {\em function-term-name} should not begin with a {\em module-abbreviation}
+or contain {\em function-keywords}.
 \item
-A {\em function-term-name} may not begin with a {\em module-abbreviation}.
-\item
-A {\em function-term-name} may not be any of the following:
-{\tt "="},
-{\tt ","},
-{\tt "("},
-{\tt ")"},
-{\tt "["},
-{\tt "]"}.
+{\em Names} not used as operators should not contain {\em operator-names}.
 \end{enumerate}
 \end{indpar}
 
-Only the first rule is directly enforced, but not the other
-rules.  Violating the other
-rules may cause parsing errors, as, for example,
+For example,
 the parser treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
