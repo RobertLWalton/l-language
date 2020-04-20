@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 17, 2020
+April 20, 2020
 
 \bigskip
  
@@ -1270,7 +1270,8 @@ A \key{primary} is an {\em expression} that has no operators:
 \emkey{primary}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em constant}		& [\pagref{CONSTANTS}] \\
-    $|$ & {\em reference-expression}	& [\pagref{REFERENCE-EXPRESSIONS}] \\
+    $|$ & \TT{@}\QMARK{} {\em reference-expression}
+                                        & [\pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
     \end{tabular}
 \end{indpar}
@@ -1279,7 +1280,7 @@ A \key{primary} is an {\em expression} that has no operators:
 \label{NAMES}
 
 A \key{name} is a sequence of lexemes used to name things like
-variables and functions.
+variables and functions.  Names are building blocks of primaries.
 
 \begin{indpar}
 \emkey{name}\label{NAME} ::=
@@ -1290,6 +1291,8 @@ variables and functions.
     \begin{tabular}[t]{@{}rl}
     ::= & {\em word} containing no `\TT{.}' following a character
                      that is not a `\TT{.}' \\
+        & [i.e., `\TT{.}'s can only be at the \underline{beginning}
+	   of the {\em word}] \\
         & [see text about splitting words with embedded `\TT{.}'s] \\
     $|$ & {\em natural-number} \\
     $|$ & {\em quoted-mark} not containing `\TT{.}'s \\
@@ -1300,7 +1303,7 @@ variables and functions.
 \end{indpar}
 
 {\em Words} containing embedded `\TT{.}'s are split into
-{\em name-items} which can only contain `\TT{.}'s at their beginning.
+{\em name-items} which contain `\TT{.}'s only at their beginning.
 Thus
 \begin{center}
 \TT{bills.wife.1.weight..size}
@@ -1342,31 +1345,35 @@ The MINVAL uses several kinds of names:
     {\em simple-name}
 \\[1ex]
 \emkey{basic-name}
-	::= {\em name} not containing a `\TT{.}',
-			 {\em quoted-mark}, or {\em quoted-separator} \\
-\emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
-    \ttkey{ro} $|$ \ttkey{vo} \\
+	::= \begin{tabular}[t]{@{}l@{}}
+	    {\em name} not containing a `\TT{.}', {\em quoted-mark}, \\
+	    {\em quoted-separator}, or {\em operator-name}
+	    \end{tabular} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
     {\em basic-name} \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     {\em basic-name} \\
-\emkey{label}\label{LABEL} ::=
-    {\em basic-name}
-\\[1ex]
-\emkey{member-name}\label{MEMBER-NAME}
-	::= \begin{tabular}[t]{@{}l@{}}
-                        {\em name} beginning with a `\TT{.}', \\
-			but not containing a {\em quoted-mark}
-			    or {\em quoted-separator} \\
-			(note: all `\TT{.}'s in a {\em name} must be at
-			 the beginning of the {\em name})
-			\end{tabular} \\
-\emkey{function-term-name} ::= {\em name}
-    \label{FUNCTION-TERM-NAME} \\
 \emkey{block-name} ::= {\em basic-name}
     \label{BLOCK-NAME} \\
 \emkey{include-name} ::= {\em basic-name}
     \label{INCLUDE-NAME}
+\\[1ex]
+\emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
+    \ttkey{ro} $|$ \ttkey{vo}
+\\[1ex]
+\emkey{member-name}\label{MEMBER-NAME}
+	::= \begin{tabular}[t]{@{}l@{}}
+                        {\em name} beginning with a `\TT{.}', \\
+			but not containing a {\em quoted-mark},
+			    {\em quoted-separator} \\
+			or {\em operator-name} \\
+			(note: all `\TT{.}'s in a {\em name} must be at
+			 the beginning of the {\em name})
+			\end{tabular} \\
+\emkey{label}\label{LABEL} ::=
+    {\em basic-name} $|$ {\em member-name} \\
+\emkey{function-term-name} ::= {\em name}
+    \label{FUNCTION-TERM-NAME}
 \\[1ex]
 \emkey{keyword}
     \begin{tabular}[t]{rl}
