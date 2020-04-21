@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 20, 2020
+April 21, 2020
 
 \bigskip
  
@@ -1439,8 +1439,8 @@ A \emkey{number-constant} is a {\em number} lexeme or sequence of
 lexemes with specific syntax
 that is used to denote a number.  Numbers are stored either
 as unbounded integers, or as rational numbers whose numerator
-and denominator have no common divisor and whose denominator
-is equal to or greater that 2.  The syntax is:
+and denominator are unbounded integers that have no common divisor
+with the denominator being equal to or greater that 2.  The syntax is:
 
 \begin{indpar}
 \emkey{number-constant}\label{NUMBER-CONSTANT}
@@ -1474,16 +1474,11 @@ is equal to or greater that 2.  The syntax is:
 				 {\em decimal-fraction}\QMARK{} \TT{"}
 \\[0.5ex]
 \emkey{decimal-integer}
-    \begin{tabular}[t]{@{}cl}
-    :::= & {\em dit}\PLUS{} \\
-     $|$ & {\em dit}
-           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
-     $|$ & {\em dit} {\em dit}
-           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
-     $|$ & {\em dit} {\em dit} {\em dit}
-           \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
-    \end{tabular} \\
-\emkey{decimal-fraction} :::= \TT{.} {\em dit}\PLUS{} \\
+    :::= {\em dit}\PLUS{} 
+         \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
+\emkey{decimal-fraction} :::=
+    \TT{.} \{ {\em dit} {\em dit} {\em dit} \TT{,} \}\STAR{}
+           {\em dit}\PLUS{} \\
 \emkey{dit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
                      $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
  \\[0.5ex]
@@ -1497,18 +1492,11 @@ is equal to or greater that 2.  The syntax is:
 				{\em binary-fraction}\QMARK{} \TT{"}
 \\[0.5ex]
 \emkey{binary-integer}
-    \begin{tabular}[t]{@{}cl}
-    :::= & {\em bit}\PLUS{} \\
-     $|$ & {\em bit}
+    :::= {\em bit}\PLUS{}
            \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
-     $|$ & {\em bit} {\em bit}
-           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
-     $|$ & {\em bit} {\em bit} {\em bit}
-           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
-     $|$ & {\em bit} {\em bit} {\em bit} {\em bit}
-           \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
-    \end{tabular} \\
-\emkey{binary-fraction} :::= \TT{.} {\em bit}\PLUS{} \\
+\emkey{binary-fraction} :::=
+    \TT{.} \{ {\em bit} {\em bit} {\em bit} {\em bit} \TT{,} \}\STAR{}
+    {\em bit}\PLUS{} \\
 \emkey{bit} :::= \TT{0} $|$ \TT{1}
  \\[0.5ex]
 \emkey{hexadecimal-constant} ::= \\
@@ -1522,18 +1510,11 @@ is equal to or greater that 2.  The syntax is:
 				     {\em hexadecimal-fraction}\QMARK{} \TT{"}
 \\[0.5ex]
 \emkey{hexadecimal-integer}
-    \begin{tabular}[t]{@{}cl}
-    :::= & {\em hit}\PLUS{} \\
-     $|$ & {\em hit}
-           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\STAR{} \\
-     $|$ & {\em hit} {\em hit}
-           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\STAR{} \\
-     $|$ & {\em hit} {\em hit} {\em hit}
-           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\STAR{} \\
-     $|$ & {\em hit} {\em hit} {\em hit} {\em hit}
-           \{ \TT{,} {\em hit} {\em hit} {\em hit} {\em hit} \}\STAR{} \\
-    \end{tabular} \\
-\emkey{hexadecimal-fraction} :::= \TT{.} {\em hit}\PLUS{} \\
+    :::= {\em hit}\PLUS{}
+           \{ \TT{,} {\em hit} {\em hit} \}\STAR{} \\
+\emkey{hexadecimal-fraction} :::=
+    \TT{.} \{ {\em hit} {\em hit} \TT{,} \}\STAR{}
+    {\em hit}\PLUS{} \\
 \emkey{hit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
 	     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
 	     $|$ \TT{a} $|$ \TT{b} $|$ \TT{c} $|$ \TT{d} $|$ \TT{e} $|$ \TT{f}
@@ -1541,20 +1522,36 @@ is equal to or greater that 2.  The syntax is:
 \end{indpar}
 
 The integer part of decimal constants may have commas
-every 3 digits, and the integer part of binary and hexadecimal constants
-may have commas every 4 digits.
+every 3 digits from the end and the fractional part may have
+commas every 3 digits from the decimal point.
+Similarly for binary integers and fractions with commas every 4 binary
+digits,
+and with hexa-decimal integers and fractions with commas every 2
+hexa-decimal digits.
 If there is a decimal point, there \underline{must}
 be at least one integer digit and
 one fraction digit.
 
 \TT{NaN} denotes a canonical non-signaling NaN such
-at that produced by hardware on the target machine
+as that produced by hardware on the target machine
 (\pagref{NAN}).
 \TT{+Inf} denotes positive infinity; \TT{-Inf} denotes negative infinity.
+
+A number constant may be converted to a run-time type such as {\tt int32}.
+It is an assembly error to convert to an integer type that cannot
+hold the exact value of the number constant.
+Conversion to a run-time floating type, such as {\tt flt64}, is however
+never an assembly error: if necessary the converted value is
+{\tt +Inf} or {\tt -Inf}.
 
 A \emkey{string-constant} is just a {\em quoted-string} lexeme
 that denotes a character string: see
 \pagref{QUOTED-STRING} and \pagref{QUOTED-STRING-CONCATENATION}.
+
+String constants can be used to load run-time vectors
+with {\tt uns8}, {\tt uns16}, or {\tt uns32} type elements.
+UTf-8, UTF-16, or UTF-32 encodings are used according to element
+size.
 
 An \emkey{object-constant} has two parts, a list and a dictionary
 (either or both can be empty).  Its syntax is:
@@ -1578,14 +1575,15 @@ An \emkey{object-constant} has two parts, a list and a dictionary
 \emkey{label} ::= see \pagref{LABEL}
 \end{indpar}
 
-Most values that exist at assembly-time are {\em constants} or
-ratios of number {\em constants}.  One exception is types, which
-are both assembly-time and run-time values.  Some number values can
-be represented at run-time:
-sufficiently small integers
-may be represented exactly, while other numbers may be approximated
-using the IEEE floating point representation.  Objects \underline{cannot}
-be represented at run-time.
+Objects \underline{cannot} be represented at run-time.
+
+{\em Type-names} and {\em pointer-type-names} can be used at
+assembly time as if they were variables of type {\tt const}
+with object values.  These object values are partly read-only,
+with the read-only part including elements with labels like
+{\tt size} for the size in bits of run-time values of the type.
+The user can add their own elements if these do not conflict
+with the names of the read-only elements.  See \pagref{TYPE-OBJECTS}.
 
 \subsubsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
