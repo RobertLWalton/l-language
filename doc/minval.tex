@@ -1588,8 +1588,17 @@ with the names of the read-only elements.  See \pagref{TYPE-OBJECTS}.
 \subsubsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
-A \emkey{reference-expression} names a location in memory.  The
-most basic {\em reference-expression} is the name of a variable
+A \emkey{reference-expression} names a location in memory.
+The {\em reference-expression} by itself can be used to retrieve
+the value of that location.  The {\em reference-expression}
+preceeded by \TT{@} refers to the location, and not the value
+at the location, and for run-time locations can be used to retrieve
+a pointer to the location.  At assembly-time, only locations of
+{\tt const} variables and object elements are defined, and there
+are no pointers, but a {\tt const} variable can be given the
+same location an object element with a given label.
+
+The most basic {\em reference-expression} is the name of a variable
 in the current function frame or current module memory.  Other
 reference expressions are made by appending vector indices or structure
 member names to more basic {\em reference-expressions}.  The syntax
@@ -1598,7 +1607,7 @@ is:
 \begin{indpar}
 \emkey{reference-expression}
     \begin{tabular}[t]{rl}
-    ::= & \TT{@}\QMARK{} {\em variable-name} \\
+    ::= & {\em variable-name} \\
     $|$ & {\em reference-expression} \TT{[} {\em reference-index} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     \end{tabular}
@@ -1616,29 +1625,17 @@ is:
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
-A {\em member-name} may be used to select a field of a packed
-number (\pagref{PACKED-NUMBER}) referred to by the {\em reference-expression}
-to which the {\em member-name} is appended.
-
-Alternatively, a {\em member-name} may be used to select a member of a
-structure (\pagref{STRUCTURE}) referred to by the {\em reference-expression}
+A {\em member-name} may be used to select a field or subfield
+of a user defined type\pagnote{USER-DEFINED-TYPE} value referred
+to by a {\em reference-expression}
 to which the {\em member-name} is appended.
 
 A {\em reference-index} may be used to select an element of a vector
-pointed at by a pointer referred to by the {\em reference-expression}
+pointed at by a pointer referred to by the
+{\em reference-expression}
 to which the {\em reference-index} is appended.  The index may be
-possitive or negative.  There is no type-checking that ensures that
-the index is within range.
-
-A {\em reference-expression} with \underline{no} \TT{@}
-refers to the value referenced, whereas the same expression
-prefaced by \TT{@} refers to the location of this value.
-Although \TT{@} behaves somewhat like a prefix operator,
-it is really just a mark that can be prefixed to a
-{\em variable-name}, and only to a {\em variable-name}, and
-changes any {\em reference-experssion} begun with that
-{\em variable-name} so it refers to the location referenced
-and not the value at that location.
+positive or negative.  Bounds stored in the pointer are used to
+check that the index is within range.
 
 Inline functions may be defined that syntactically and semantically mimic
 {\em reference-\EOL expres\-sions}, and calls to such functions
@@ -1647,22 +1644,25 @@ can be used as {\em reference-expressions}.  An example is:
 
 \begin{indpar}\begin{verbatim}
 // In my vector X, a vector with flt64 elements is located at
-// X.offset from the address of X.
+// X.offset from the address of X and allows index range
+// from 0 through X.length-1.
 //
-struct my vector:
-    int offset;
+type my vector:
+    uns offset;
+    uns length;
     . . . .
-function flt64 @ x = ( my vector v ) [ uns index ]:
-    op my vector vp = @ v
+function flt64 @ x = ( my vector @ v ) [ uns index ]:
+    np my vector vp = @ v
         // Get pointer to v.
-    op flt64 fp = *UNCHECKED* ( vp )
-        // Convert vp to a pointer to a flt64 vector fp.
+    nv flt64 fp = *UNCHECKED* ( vp, 0, v.length )
+        // Convert vp to a pointer to an flt64 vector fp.
+        // The *UNCHECKED* function is a builtin function
+        // that performs a variety of conversions which
+        // violate type checking.
     @ x = @ fp[v.offset + index]
         // Return location of v.offset + index 'th element
         // of fp.
 \end{verbatim}\end{indpar}
-
-
 
 \subsubsection{Function Calls}
 \label{FUNCTION-CALLS}
