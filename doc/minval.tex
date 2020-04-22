@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 21, 2020
+April 22, 2020
 
 \bigskip
  
@@ -1674,7 +1674,12 @@ The syntax of function calls is:
     	                  {\em call-argument-list}\STAR{}
                           {\em call-term} {\em call-term}\STAR{}
 \\[0.5ex]
-\emkey{call-term} ::= {\em call-term-name} {\em call-argument-list}
+\emkey{call-term}
+    \begin{tabular}[t]{rl}
+    ::= & {\em call-term-name} {\em call-argument-list}\STAR{} \\
+    $|$ & \ttkey{no} {\em call-term-name} \\
+    $|$ & \ttkey{not} {\em call-term-name} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{call-argument-list}
     \begin{tabular}[t]{rl}
@@ -1709,8 +1714,7 @@ NOTE: Two {\em unparenthesized-actual-arguments} cannot be consecutive.
 \end{indpar}
 
 Thus a {\em function-call} is a sequence of {\em function-term-names}
-and {\em call-argument-lists} with no two {\em function-term-names}
-next to each other.
+and {\em call-argument-lists}.
 
 An {\em unparenthesized-actual-argument} is an {\em actual-argument}
 {\tt X} that would normally be in parentheses as {\tt (X)} but the
@@ -1720,6 +1724,19 @@ on page \pageref{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE},
 omitted, and then only if they surround exactly one {\em actual-argument}
 that is a {\em constant} or {\em reference-expression}.
 
+{\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
+equivalent to `{x ( false )}'.
+
+{\em Function-calls} are matched to function prototypes.  The
+{\em call-term-names} in a match are identical to the
+{\em function-term-names} taken from the prototype being matched.  The first
+step in matching is to scan the {\em function-call} to identify the
+{\em call-term-names}.  There is no parser backing up after this is
+done: if the results of this initial scan do not lead to a satisfying
+match, the entire call/prototype match fails.  Therefore caution
+is necessary in omitting parentheses around
+{\em unparenthesized-actual-arguments} when these share lexemes with
+{\em function-term-names} in some function prototypes.
 
 \subsection{Assembly Time}
 \label{ASSEMBLY-TIME}
