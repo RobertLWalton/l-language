@@ -1745,8 +1745,8 @@ Variables and values that exist during assembly are called
 \key{assembly-time}, while variables and values that exist during
 program execution are called {\em run-time}.  Assembly-time
 is actually an important syntactic concept, as run-time
-{\em expressions} cannot contain run-time subexpressions that are
-not {\em primaries}.
+{\em expressions} cannot contain more than one non-prefix operator
+and are only allowed prefix operators with limitations.
 
 Syntactically \key{assembly-time} is defined as follows:
 
@@ -1754,31 +1754,29 @@ Syntactically \key{assembly-time} is defined as follows:
 \item A variable (i.e., {\em variable-name})
 is assembly-time if and only if it is of type {\tt const}.
 (Assembly-time variables do \underline{not} exist at run-time.)
-\item A type (i.e., {\em type-name})
-is assembly-time (it is also run-time).
 \item A {\em constant} is assembly-time.
-\item An {\em expression} with operators
-      that is \underline{not} a {\em function-call}
-      is assembly-time if and only if all its subexpressions
-      are assembly-time.
+\item A {\em type-name} and a {\em pointer-type-name} are assembly-time
+and denote object constants describing the type or pointer type.
+(At run-time these are {\tt int} values used to distinguish types.)
+\item An {\em expression} with a lowest precedence operator is
+      assembly-time if this operator and its operands are assembly-time.
+      All the standard operators are assembly-time except exponentiation
+      ({\tt \textasciicircum}) which denotes a function call.
 \item A {\em function-call} is assembly-time if and only if all its
       arguments are assembly-time and the function called is
       assembly-time.
 \item A user-defined function is assembly-time if and only if all its
-      result and argument variables are assembly-time and all its
+      result and argument variables are assembly-time (i.e., have
+      {\tt const} type) and all its
       {\em statements} are assembly-time.
 \item Some builtin functions are specified as being assembly-time.
 \item A {\em statement} is assembly-time if and only if all its
       variables and expressions are assem\-bly-time.
 \end{itemize}
 
-A \key{run-time} {\em expression} is an {\em expression} that is
-\underline{not} assembly-time.  Run-time {\em expressions} are
-syntactically limited in that their subexpressions must be
-{\em reference-expressions} or assembly-time subexressions, with the
-exception that some operands may be a prefix operator followed
-by a variable, as in `{\tt - X + Y}' or `{\tt X \& !~Y}'
-(but `{\tt !~X + Y}' and `{\tt X \& - Y}' are \underline{not} allowed).
+A \key{run-time} {\em expression} or {\em statement}
+is an {\em expression} or {\em statement} that is
+\underline{not} assembly-time.
 
 \subsection{Statements}
 \label{STATEMENTS}
