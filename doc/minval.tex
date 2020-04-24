@@ -1353,10 +1353,8 @@ The MINVAL uses several kinds of names:
     {\em basic-name} \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     {\em basic-name} \\
-\emkey{block-name} ::= {\em basic-name}
-    \label{BLOCK-NAME} \\
-\emkey{include-name} ::= {\em basic-name}
-    \label{INCLUDE-NAME}
+\emkey{statement-label} ::= {\em basic-name}
+    \label{STATEMENT-LABEL} \\
 \\[1ex]
 \emkey{member-name}\label{MEMBER-NAME}
 	::= \begin{tabular}[t]{@{}l@{}}
@@ -1783,7 +1781,7 @@ is an {\em expression} or {\em statement} that is
 
 The following is a complete list of the kinds of statements:
 \begin{indpar}
-\emkey{statement}
+\emkey{statement}\label{STATEMENT}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em assignment-statement}
         & [\pagref{ASSIGNMENT-STATEMENTS}] \\
@@ -1884,14 +1882,14 @@ Thus an example using {\em assignment-operators} is:
 int x = 5
 int @ y = @ x  // Now x and y have the same locations.
 y = 6          // Now x and y both = 6.
-op int z = @ x // Now z points at x.
+np int z = @ x // Now z points at x.
 int @ w = z    // Now location of w is that pointed at by z.
 w = 7          // Now w, x, and y all = 7.
 \end{verbatim}\end{indpar}
 
 There are no assembly-time pointers, i.e., pointers to {\em const} values,
 so if {\tt int} were replaced by {\tt const} in this example
-it would not be possible to compute {\tt z}.
+it would not be possible to compute {\tt y}, {\tt z}, or {\tt w}.
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
@@ -1899,7 +1897,7 @@ it would not be possible to compute {\tt z}.
 The syntax of an {\em expression-assign\-ment-statement} is:
 \begin{indpar}
 \emkey{expression-assignment-statement} ::=
-    {\em assignment-left-side} ~ \TT{=} ~ {\em expression-list}
+    {\em assignment-left-side} ~\TT{=}~ {\em expression-list}
 \\[0.5ex]
 \emkey{expression-list}\label{EXPRESSION-LIST} ::=
 	      {\em expression} \{ \TT{,} {\em expression} \}\STAR{}
@@ -1921,15 +1919,19 @@ may be any run-time {\em expression}.
 \end{itemize}
 \end{indpar}
 
-All the left-side {\em assignment-result} locations
-and right-side {\em expression} values are
-evaluated first,
-and then the {\em assignment-operator} is applied
-to each matching {\em assignment-result} and {\em expression}.
+All the locations that are needed are evaluated first, then any right
+side operators are evaluated, then the right-side values are stored
+in the left-side locations.
 
-However, if the right-side is a single {\em function-call},
+If the right-side is a single {\em function-call},
 this may return more than one result, and must return
 at least as many results as there are {\em assignment-results}.
+
+Note that you can assign to a variable location but not a
+{\em reference-expression} location.  For example, `{\tt int @ x = \ldots}'
+is allowed but `{\tt int @ x[2] = \ldots}' is not.
+
+
 
 \subsubsubsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
@@ -1943,16 +1945,19 @@ The syntax of {\em block-assignment-statements} is:
 	~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
 	\TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}{\em exit subblock}\STAR{}
+	\TT{~~~~}{\em exit-subblock}\STAR{}
 	\end{tabular} \\
-\emkey{block-label} ::= {\em label} ~~~~~ [see \pagref{LABEL}]
+\emkey{block-label} ::= {\em statement-label}
 \\[0.5ex]
 \emkey{exit-subblock} ::=
     \begin{tabular}[t]{l}
     {\em exit-label} \ttkey{exit}\TT{:} \\
     \TT{~~~~}{\em statement}\STAR{} \\
     \end{tabular} \\
-\emkey{exit-label} ::= {\em label} ~~~~~ [see \pagref{LABEL}]
+\emkey{exit-label} ::= {\em statement-label}
+\\[0.5ex]
+\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL} \\
+\emkey{statement} ::= see \pagref{STATEMENT} \\
 \\[1ex]
 where
 \begin{itemize}
@@ -1968,7 +1973,7 @@ of the {\em block-assignment-statement} using {\em deferred-variable}
 names:
 \begin{indpar}
 \emkey{deferred-variable}\label{DEFERRED-VARIABLE} ::=
-    \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name}
+    \TT{next}\QMARK{} \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name}
 \end{indpar}
 A {\em deferred-variable} is just a copy of one of the
 block's {\em assignment-results} with any {\em qualifiers}
@@ -1987,8 +1992,8 @@ int u = z      // Now u = 7
 \end{verbatim}\end{indpar}
 
 There are scoping rules that prevent {\tt k} from being visible
-from outside the block in which it is defined, and would also
-prevent the location of {\tt k} from being stored in {\tt @ y}:
+outside the block in which it is defined, and would also
+prevent the location of {\tt k} from being stored in {\tt @ y}.
 see \itemref{SCOPING}.
 
 A {\em go-to-exit-statement} within a block may exit the block or
@@ -2000,17 +2005,24 @@ enter an {\em exit-subblock} of the block:
 \\[0.5ex]
 \emkey{go-to-label} ::= {\em block-label} $|$ {\em exit-label}
 \\[0.5ex]
-{\em condition-expression} ::= see \pagref{CONDITION-EXPRESSION}
+{\em condition-expression} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em expression} evaluating at run-time to a {\tt bool} \\
+    or at assembly-time to the {\em const} value {\tt "TRUE"} or {\tt "FALSE"}
+    \end{tabular}
 \end{indpar}
 
 Unless a {\em go-to-exit-statement} is executed,
-a block or exits after the last {\em statement} in the block,
-and a subblock exits its containing block after the last
-{\em statement} in the subblock.
+a block exits after the last {\em statement} in the block,
+and an {\em exit-subblock} exits its containing block after the last
+{\em statement} in the {\em exit-subblock}.
 A {\em go-to-exit-statement} in a subblock may only enter
 a \underline{subsequent} {\em exit-subblock}.  There are
 variable scoping requirements that must be met when using
-{\em go-to-exit-statements}: see \itemref{SCOPING}.
+{\em go-to-exit-statements}; roughly, a variable declared within
+the block is only visible to statements that can be
+arrived at only by execution paths that include the variable's
+declaration.  See \itemref{SCOPING} for details.
 
 
 \subsubsubsection{Conditional Assignment Statements}
