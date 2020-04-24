@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 22, 2020
+April 24, 2020
 
 \bigskip
  
@@ -1786,14 +1786,16 @@ The following is a complete list of the kinds of statements:
 \emkey{statement}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em assignment-statement}
-    	& [this section] \\
+        & [\pagref{ASSIGNMENT-STATEMENTS}] \\
     $|$ & {\em declaration}
-        & [\pagref{DECLARATION}] \\
+        & [\pagref{DECLARATIONS}] \\
     $|$ & {\em include-statement}
-        & [\pagref{INCLUDE-STATEMENT}] \\
-    $|$ & TBD
+        & [\pagref{INCLUDE-STATEMENTS}] \\
     \end{tabular}
 \end{indpar}
+
+\subsubsection{Assignment Statements}
+\label{ASSIGNMENT-STATEMENTS}
 
 Most non-{\em declaration}
 {\em statements} are {\em assignment-statements}, in the sense that
@@ -1889,7 +1891,7 @@ There are no assembly-time pointers, i.e., pointers to {\em const} values,
 so if {\tt int} were replaced by {\tt const} in this example
 it would not be possible to compute {\tt z}.
 
-\subsubsection{Expression Assignment Statements}
+\subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
 
 The syntax of an {\em expression-assignment-statement} is:
@@ -1926,7 +1928,7 @@ However, if the right-side is a single {\em function-call},
 this may return more than one result, and must return
 at least as many results as there are {\em assignment-results}.
 
-\subsubsection{Block Assignment Statements}
+\subsubsubsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
 
 The syntax of {\em block-assignment-statements} is:
@@ -2008,7 +2010,7 @@ variable scoping requirements that must be met when using
 {\em go-to-exit-statements}: see \itemref{SCOPING}.
 
 
-\subsubsection{Conditional Assignment Statements}
+\subsubsubsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
 
 {\em Conditional-assignment-statements}
@@ -2053,7 +2055,7 @@ int z =:
 // Now z = 6
 \end{verbatim}\end{indpar}
 
-\subsubsection{Loop Assignment Statements}
+\subsubsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
 
 A {\em loop-assignment-statement} has the syntax:
@@ -2130,10 +2132,13 @@ int64 sum = loop:
         sum = partial sum
 \end{verbatim}\end{indpar}
 
-\subsection{Function Declarations}
-\label{FUNCTION-DECLARATIONS}
+\subsubsection{Declarations}
+\label{DECLARATIONS}
 
-\subsubsection{Inline Function Declarations}
+\subsubsubsection{Type Declarations}
+\label{TYPE-DECLARATIONS}
+
+\subsubsubsection{Inline Function Declarations}
 \label{INLINE-FUNCTION-DECLARATIONS}
 
 The syntax of a function declaration is:
@@ -2372,7 +2377,7 @@ F ( 8 ) G ( z )    // Matches only second F declaration
                    // (z is not assembly-time).
 \end{verbatim}\end{indpar}
 
-\subsubsection{Inline Call-Prototype Matching}
+\subsubsubsection{Inline Call-Prototype Matching}
 \label{INLINE-CALL-PROTOTYPE-MATCHING}
 
 Function calls are matched to function prototypes.  It is
@@ -2495,7 +2500,7 @@ call-prototype match fails.
 
 \end{enumerate}
 
-\subsubsection{Out-of-Line Function Declarations}
+\subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
 
 \section{Assembly Time}
