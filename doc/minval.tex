@@ -1797,18 +1797,17 @@ The following is a complete list of the kinds of statements:
 \subsubsection{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
 
-Most non-{\em declaration}
-{\em statements} are {\em assignment-statements}, in the sense that
-they have a list of variables on the left side which receive
-values from a list of expressions or a block of code on the right
-side.  The left-side variables may be omitted if the values are
-not needed.  In some cases the right side produces no values,
-though the right side is never omitted.
+{\em Assignment-statements} have a list of variables on the
+left side which receive values from a list of expressions or
+a block of code on the right side.  The left-side variables
+may be omitted if the values are not needed and the right side
+is just a {\em function-call}.  In some cases
+the right side produces no values, though the right side is never omitted.
 
 The general form of an {\em assignment-statement} is:
 \begin{indpar}
 \emkey{assignment-statement} ::= \\
-\hspace*{0.5in} {\em assignment-left-side} \TT{=}
+\hspace*{0.5in} \{ {\em assignment-left-side} \TT{=} \}\QMARK{}
 	      {\em assignment-right-side}
 \\[0.5ex]
 \emkey{assignment-left-side} ::= \\
@@ -1827,18 +1826,23 @@ The general form of an {\em assignment-statement} is:
     		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em deferred-variable}
     		& [see \pagref{DEFERRED-VARIABLE}] \\
-    $|$ & {\em iteration-result-variable}
-    		& [see \pagref{ITERATION-RESULT-VARIABLE}] \\
+    $|$ & {\em iteration-variable}
+    		& [see \pagref{ITERATION-VARIABLE}] \\
     \end{tabular}
 \\[0.5ex]
-\emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION}
-    ::= {\em qualifier-name}\STAR{} {\em type-name}
+\emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
+\hspace*{0.5in}
+        \{ {\em qualifier-name}\STAR{} {\em pointer-type-name} \}\QMARK{} \\
+\hspace*{1.0in}
+        {\em qualifier-name}\STAR{} {\em type-name}
         \TT{@}\QMARK{} {\em variable-name}
 \\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
     ::= \ttkey{next} \TT{@}\QMARK{} {\em variable-name}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[0.5ex]
+\emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \\[0.5ex]
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
 \\[0.5ex]
@@ -1850,9 +1854,7 @@ The general form of an {\em assignment-statement} is:
         & {\em expression-list}
     		& [see \pagref{EXPRESSION-LIST}] \\
     $|$ & {\em function-call}
-    		& [see \pagref{FUNCTION-CALL}] \\
-    $|$ & {\em generic-call}
-    		& [see \pagref{GENERIC-CALL}] \\
+    		& [see \pagref{FUNCTION-CALLS}] \\
     $|$ & {\em block}
 	        & [see kinds of assignment statement below] \\
     \end{tabular}
@@ -1894,13 +1896,14 @@ it would not be possible to compute {\tt z}.
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
 
-The syntax of an {\em expression-assignment-statement} is:
+The syntax of an {\em expression-assign\-ment-statement} is:
 \begin{indpar}
-\emkey{expression-assignment-statement} ::= \\
-\hspace*{0.5in} {\em assignment-left-side} ~
-              {\em assignment-operator} ~
-	      {\em expression} \{ \TT{,} {\em expression} \}\STAR{}
+\emkey{expression-assignment-statement} ::=
+    {\em assignment-left-side} ~ \TT{=} ~ {\em expression-list}
 \\[0.5ex]
+\emkey{expression-list}\label{EXPRESSION-LIST} ::=
+	      {\em expression} \{ \TT{,} {\em expression} \}\STAR{}
+\\[2.0ex]
 where
 \begin{itemize}
 \item If there is more than one right-side {\em expression},
@@ -2013,11 +2016,11 @@ variable scoping requirements that must be met when using
 \subsubsubsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
 
-{\em Conditional-assignment-statements}
-are syntactic sugar for {\em block-assignment-statements}
+A {\em conditional-assignment-statement}
+is syntactic sugar for a {\em block-assignment-statement}
 with conditional {\em go-to-exit-statements}
-and {\em exit-subblocks} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}),
-and have the syntax:
+and {\em exit-subblocks} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
+{\em Conditional-assignment-statements} have the syntax:
 
 \begin{indpar}
 \emkey{conditional-assignment-statement} ::= \\
@@ -2085,6 +2088,8 @@ A {\em loop-assignment-statement} has the syntax:
     $|$ & \TT{next} \TT{@}\QMARK{} {\em iteration-variable-name} \\
     $|$ & \TT{next} \TT{next} \TT{@}\QMARK{} {\em iteration-variable-name} \\
     \end{tabular} \\
+\emkey{iteration-variable}\label{ITERATION-VARIABLE} ::= 
+    \TT{next} \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name} \\
 \emkey{iteration-variable-name} ::= {\em variable-name}
 \\[0.5ex]
 \emkey{iteration-subblock} ::= \\
