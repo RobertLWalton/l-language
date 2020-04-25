@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 24, 2020
+April 25, 2020
 
 \bigskip
  
@@ -2096,13 +2096,18 @@ A {\em loop-assignment-statement} has the syntax:
 	\end{tabular} \\
 \emkey{iteration-variable-declaration}
     \begin{tabular}[t]{rl}
-    ::= & {\em type-name} \TT{@}\QMARK{} {\em iteration-variable-name} \\
-    $|$ & \TT{next} \TT{@}\QMARK{} {\em iteration-variable-name} \\
-    $|$ & \TT{next} \TT{next} \TT{@}\QMARK{} {\em iteration-variable-name} \\
+    ::= & {\em result-variable-declaration} \\
+    $|$ & \TT{next} \TT{@}\QMARK{} {\em variable-name} \\
+    $|$ & \TT{next} \TT{next} \TT{@}\QMARK{} {\em variable-name} \\
     \end{tabular} \\
+{\em result-variable-declaration} ::=
+    see \pagref{RESULT-VARIABLE-DECLARATION}
+\\[0.5ex]
+\emkey{loop-variable} ::= variable declared by a
+			{\em result-variable-declaration}
+\\[0.5ex]
 \emkey{iteration-variable}\label{ITERATION-VARIABLE} ::= 
-    \TT{next} \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name} \\
-\emkey{iteration-variable-name} ::= {\em variable-name}
+    \TT{next} \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name}
 \\[0.5ex]
 \emkey{iteration-subblock} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
@@ -2120,12 +2125,13 @@ A {\em loop-assignment-statement} has the syntax:
 	\end{tabular}
 \end{indpar}
 
-The {\em initialization-subblock} declares the \skey{interation variable}s
+The {\em initialization-subblock} declares the \skey{loop variable}s
 of the loop and gives them initial values.  The {\em iteration-block}
-then executes repeatedly updating these iteration variables.  The
-variable declaration `{\tt next X}' can be used on the left-side of
-an assignment statement to assign the value {\tt X} will have in the
-next iteration.  It can also be used in the {\em initialization-subblock}
+then executes repeatedly updating these loop variables.  The
+{\em assignment-result} `{\tt next X}' can be used on the left-side of
+an assignment statement to assign the value that loop variable
+{\tt X} will have in the next iteration.
+It can also be used in the {\em initialization-subblock}
 to assign the value of {\tt X} in the second iteration, in which case
 `{\tt next next X}' can be used in the {\em iteration-subblock}
 to assign {\tt X}'s value in the second iteration after the current
