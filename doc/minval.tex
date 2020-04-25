@@ -2022,12 +2022,14 @@ a block exits after the last {\em statement} in the block,
 and an {\em exit-subblock} exits its containing block after the last
 {\em statement} in the {\em exit-subblock}.
 A {\em go-to-exit-statement} in a subblock may only enter
-a \underline{subsequent} {\em exit-subblock}.  There are
-variable scoping requirements that must be met when using
-{\em go-to-exit-statements}; roughly, a variable declared within
-the block is only visible to statements that can be
+a \underline{subsequent} {\em exit-subblock}.
+
+{\em Go-to-exit-statements} define various possible execution
+paths through a {\em block-assignment-statement}.
+A variable declared within the block is only visible to statements that can be
 arrived at only by execution paths that include the variable's
-declaration.  See \itemref{SCOPING} for details.
+declaration.  All the execution paths must set each of the
+block's {\em assignment-result} variables exactly once.
 
 
 \subsubsubsection{Conditional Assignment Statements}
@@ -2128,6 +2130,9 @@ A {\em loop-assignment-statement} has the syntax:
 	\TT{~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}{\em exit-subblock}\STAR{} \\
 	\end{tabular}
+\\[0.5ex]
+\emkey{break-statement}\label{BREAK-STATEMENT} ::=
+    \{ \TT{if} {\em condition-expression} \}\QMARK{} \ttkey{break}
 \end{indpar}
 
 The {\em initialization-subblock} declares the \skey{loop variable}s
@@ -2141,8 +2146,21 @@ to assign the value of {\tt X} in the second iteration, in which case
 `{\tt next next X}' can be used in the {\em iteration-subblock}
 to assign {\tt X}'s value in the second iteration after the current
 iteration.  After the last iteration, the {\em finalization-subblock}
-executes and must set the variables in the {\em loop-assignment-statement}'s
+executes and sets the variables in the {\em loop-assignment-statement}'s
 left-side.
+
+The {\em break-statement} is like a
+{\em go-to-exit-statement} (\pagref{GO-TO-STATEMENT}) that
+goes to the {\em finalization-subblock}.
+
+All possible execution paths through the {\em iteration-subblock}
+to the next iteration of the subblock
+must set each loop variable for subsequent iterations exactly once
+(i.e., must set `{\tt next X}' or `{\tt next next X}' for each
+loop variable {\tt X} exactly once).
+All possible execution paths through the
+{\em finalization-subblock} must set each variable
+in the {\em assignment-left-side} exactly once.
 
 An example is:
 \begin{indpar}\begin{verbatim}
