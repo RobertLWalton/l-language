@@ -574,6 +574,10 @@ flt64 v = p.p[0]              // OK
 
 \section{Syntax}
 
+In this section we describe the syntax of MINVAL programs
+and briefly indicate the associated semantics, which are
+described in detain in the next section.
+
 \subsection{Lexemes}
 \label{LEXEMES}
 
@@ -1477,8 +1481,9 @@ with the denominator being equal to or greater that 2.  The syntax is:
 \emkey{decimal-fraction} :::=
     \TT{.} \{ {\em dit} {\em dit} {\em dit} \TT{,} \}\STAR{}
            {\em dit}\PLUS{} \\
-\emkey{dit} :::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
-                     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
+\emkey{dit}\label{DIT}
+	:::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
+                    $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
  \\[0.5ex]
 \emkey{binary-constant} ::= {\em binary-constant-prefix} ~
                               {\em binary-quoted-body} ~
@@ -2158,8 +2163,83 @@ int64 sum = loop:
 \subsubsection{Declarations}
 \label{DECLARATIONS}
 
+The following is a complete list of the kinds of declarations:
+\begin{indpar}
+\emkey{declaration}\label{DECLARATION}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em type-declaration}
+        & [\pagref{TYPE-DECLARATIONS}] \\
+    $|$ & {\em inline-function-declaration}
+        & [\pagref{INLINE-FUNCTION-DECLARATIONS}] \\
+    $|$ & {\em out-of-line-function-declaration}
+        & [\pagref{OUT-OF-LINE-FUNCTION-DECLARATIONS}] \\
+    \end{tabular}
+\end{indpar}
+
 \subsubsubsection{Type Declarations}
 \label{TYPE-DECLARATIONS}
+
+The syntax of a type declaration is:
+
+\begin{indpar}
+\emkey{type-declaration}\label{TYPE-DECLARATION}
+    ::= \begin{tabular}[t]{l}
+        \ttkey{type} {\em defined-type-name} \TT{:} \\
+	\TT{~~~~~}{\em type-subdeclaration}\STAR{}
+	\end{tabular} \\
+\emkey{defined-type-name} ::= {\em type-name} \\
+\emkey{type-name} ::= see \pagref{TYPE-NAME}
+\\[2ex]
+\emkey{type-subdeclaration}
+    \begin{tabular}[t]{@{}rl}
+    ::= &  {\em field-declaration} \\
+    $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
+    $|$ &  \ttkey{pack} \\
+    $|$ &  \ttkey{label} {\em field-label} \\
+    $|$ &  \ttkey{origin} {\em field-label} \\
+    $|$ &  \ttkey{include} {\em defined-type-name} \\
+    \end{tabular}
+\\[2ex]
+\emkey{field-declaration}
+    \begin{tabular}[t]{@{}rl}
+    ::= &  {\em field-type-name} {\em field-label} \\
+    $|$ &  {\em number-type-name} {\em field-label}\QMARK{} \\
+	&  {\em subfield-declaration}\STAR{}
+    \end{tabular}
+\\[2ex]
+\emkey{field-type-name} ::= {\em number-type-name}
+                        $|$ {\em defined-type-name} \\
+\emkey{number-type-name}
+    \begin{tabular}[t]{@{}rl}
+    ::= &  \ttkey{int} $|$ \ttkey{int8} $|$ \ttkey{int16} $|$ \ttkey{int32}
+                       $|$ \ttkey{int64} $|$ \ttkey{int128} \\
+    $|$ &  \ttkey{uns} $|$ \ttkey{uns8} $|$ \ttkey{uns16} $|$ \ttkey{uns32}
+                       $|$ \ttkey{uns64} $|$ \ttkey{uns128} \\
+    $|$ &  \ttkey{flt16} $|$ \ttkey{flt32} $|$ \ttkey{flt64}
+                         $|$ \ttkey{flt128} \\
+    $|$ &  \ttkey{bool}
+    \end{tabular}
+\\[2ex]
+\emkey{field-label} ::=  {\em label} \\
+\emkey{label} ::=  see \pagref{LABEL}
+\\[2ex]
+\emkey{subfield-declaration}
+    ::= {\em bit-range} {\em number-type-name} {\em subfield-label} \\
+\emkey{subfield-label} ::=  {\em label}
+\\[2ex]
+\emkey{bit-range}
+    \begin{tabular}[t]{@{}rl}
+    ::= &  \TT{[} {\em onlybit} \TT{]} \\
+    $|$ &  \TT{[} {\em lowhighbits} \TT{]} \\
+    $|$ &  \TT{[} {\em lowbit} \TT{-} {\em highbit} \TT{]}
+    \end{tabular} \\
+\emkey{onlybit} ::= assembly-time {\em expression} \\
+\emkey{lowhighbits} :::= {\em dit}+ \TT{-} {\em dit}+
+           ~~~~~ [this is a single lexeme] \\
+\emkey{lowbit} ::= assembly-time {\em expression} \\
+\emkey{highbit} ::= assembly-time {\em expression} \\
+\emkey{dit} ::= see \pagref{DIT}
+\end{indpar}
 
 \subsubsubsection{Inline Function Declarations}
 \label{INLINE-FUNCTION-DECLARATIONS}
