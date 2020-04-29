@@ -1737,7 +1737,7 @@ equivalent to `{x ( false )}'.
 step in matching is to scan the {\em function-call} to identify the
 {\em call-term-names}.  There is no parser backing up after this is
 done: if the results of this initial scan do not lead to a satisfying
-match, the entire call/prototype match fails.  Therefore caution
+match, the entire call-prototype match fails.  Therefore caution
 is necessary in omitting parentheses around
 {\em unparenthesized-actual-arguments} when these share lexemes with
 {\em function-term-names} in some function prototypes.
@@ -2594,24 +2594,37 @@ except that quotes in prototype
 {\em quoted-marks} and {\em quoted-separators} are removed in the call
 (thus prototype {\tt "+"} matches call {\tt +}).
 
-If a {\em function-term-name} matches more than one {\em call-term-name},
-the prototype-call match fails.
-
-The first {\em function-term-name} in the prototype must match
-the first {\em call-term-name} in the call, else
-the prototype-call match fails.
+The match is made by scanning the call from left to
+right while identifying sequences of lexemes that match
+{\em function-term-names} in the prototype.  After identifying
+a name, the scan skips to just after the name.  If several
+names match at the same position, the longest is choosen.
+The scan may match a single prototype name to several points in the
+call, but if this happens, the call-prototype match fails.
+If the first prototype name fails to match the first call name,
+the call-prototype match fails, but otherwise names may be matched
+in any order.
 
 \item
 The {\em function-term-names} found in the call are used to determine
-the extent of {\em call-terms} in the call.  A {\em call-term}
+the extent of {\em call-terms} in the call.  For starters, each
+{\em call-term} consists of its {\em call-term-name} and everything
+following up to the next {\em call-term}.  If the prototype begins
+with {\em pattern-argument-lists}, the situtation is treated as
+if both prototype and call began with identical virtual
+{\em term-names}.
+
+Then if a {\em call-term-name} is matched to a {\em boolean-pattern-term}
+{\em function-term-name}, if its {\em call-term} has no
+{\em call-argument-lists}, and if the preceding {\em call-term}
+ends in `\TT{no}' or `\TT{not}', this last is removed from the
+preceeding {\em call-term} and pre-pended to the
+current {\em call-term}.
+
+A {\em call-term}
 must match its corresponding prototype {\em pattern-term} according
 the rules that follow.  Failure of any call-prototype term match
 causes the prototype-call match to fail.
-
-In the case where the prototype has no {\em pattern-terms}, and just
-has two or more {\em pattern-argument-lists}, the situation is
-treated as if both prototype and call began with identical virtual
-{\em function-term-names}.
 
 \item For a {\em call-term} to match its corresponding {\em pattern-term},
 both must have the same number of {\em argument-lists}, the same
@@ -2621,44 +2634,58 @@ arguments in corresponding {\em argument-lists}, \underline{after}
 the {\em call-term} has been \key{adjusted}.  The following are
 permited adjustments.
 
-A {\em constant} or {\em reference-expression} in the {\em call-term}
-is adjusted by placing {\tt (~)} parentheses around it.
+A {\em pattern-term} that has no corresponding {\em call-term}
+(because its {\em function-term-name} was not found in the call),
+a {\em call-term} consisting of just the {\em pattern-term}'s
+{\em function-term-name} is appended to the {\em function-call}.
+After this the {\em call-terms} are re-ordered so their order
+matches that of their associated {\em pattern-terms}.
 
-If in a left-to-right scan
-a {\em call-argument-list} with {\tt (~)} is expected but none
-is found, the empty list {\tt ()} is inserted.
+If in a left-to-right scan of a {\em call-term},
+a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
+is found, and instead a {\em constant} or {\em reference-expression}
+is found, {\tt (~)} parentheses are placed around the
+{\em constant} or {\em reference-expression}.  This cannot be
+done twice in succession.
+
+If in a left-to-right scan of a {\em call-term},
+a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
+is found, and instead a {\em call-argument-list} with {\tt [~]}
+or the end of the {\em call-term} is found,
+the empty list {\tt ()} is inserted.
+
+An exception to the above is made for a {\em call-term} of the
+form `\{\TT{no}$|$\TT{not}\}\QMARK{} {\em call-term-name}' which
+is matched to a {\em boolean-pattern-term}.  In this case if there
+is a `{\tt no}' or `{\tt not}' it is removed and
+`{\tt (false)}' is appended, and otherwise `{\tt (true)}' is appended.
+
 Note that {\em argument-lists} with {\tt [~]} brackets cannot
-be omitted.
+be omitted or have their {\tt [~]} brackets omitted.
 
 If a {\em call-argument-list} is shorter than the
 corresponding {\em pattern-argument-list}, {\em default-values}
 in the {\em pattern-argument-list} are inserted in to corresponding
-positions in the {\em call-argument-list}.  If a position has
-no {\em default-value}, the call-prototype term match fails.
+positions in the {\em call-argument-list}.
 
-A {\em pattern-term} that has no corresponding {\em call-term}
-(because its {\em function-term-name} was not found in the call),
-the {\em pattern-term} is treated as being matched to a
-virtual {\em call-term} consisting of only the {\em function-term-name}
-of the {\em pattern-term}.
-
-Exceptions are made for
-a {\em boolean-pattern-term}\pagnote{BOOLEAN-PATTERN-TERM}.
-If its {\em call-term-name} is present and preceded by `\TT{no}' or `\TT{not}'
-and not followed by an
-{\em argument-list}, the {\em argument-list} `{\tt ( false )}' is appended
-and the `\TT{no}' or `\TT{not}' is deleted.
-Otherwise if its {\em call-term-name} is present but not followed by an
-{\em argument-list}, the {\em argument-list} `{\tt ( true )}' is appended.
+At this point the {\em pattern-argument-lists} in the prototype
+must match in order all the {\em call-argument-lists} in the call, both in
+type of brackets (either `{\tt (~)}' or `{\tt [~]}') and in number
+of arguments, else the call-prototype match fails.
 
 \item If all the above is successful, then {\em actual-arguments}
 in the call are matched to corresponding {\em argument-declarations}
 in the prototype according to the rules that follow.
-Failure of any call-prototype argument match causes
+Failure of any of these matches causes
 the call-prototype match to fail.
 
-\item An {\em argument-declaration} $AD$ matches an {\em actual-argument}
-$AA$ if and only if the statement `$AD$ = $AA$' successfuly compiles
+\item If an {\em argument-declaration} has a {\em required-value},
+its matching {\em actual-argument} must be assembly-time with
+a value equal to the {\em required-value}, else the call-prototype
+match fails.
+
+\item If an {\em argument-declaration} $AD$ matches an {\em actual-argument}
+$AA$, the statement `$AD$ = $AA$' successfuly compiles
 when the {\em variable-name} in $AD$ is replaced by a unique virtual
 {\em variable-name}.
 
@@ -2670,30 +2697,31 @@ the number of {\em assignment-results} on the
 match fails.
 
 The {\em assignment-results} are matched to the
-{\em prototype-result-declarations} going from left to
-right according to the rules that follow.
-Failure of any call-prototype result match causes
-the call-prototype match to fail.
-
+{\em prototype-result-declarations} going from right to
+left according to the rules that follow.  Note, the order
+of matching is \underline{right-to-left} and \underline{not} left-to-right.
 Any unmatched {\em prototype-result-declarations}
 are ignored.  
 
-\item An {\em argument-result} $AR$ matches a
-{\em prototype-result-declaration}
-$RD$ if and only if the statement `$AR$ = $RD$' successfuly compiles
+\item If an {\em argument-result} $AR$ matches a
+{\em prototype-result-declaration} $RD$, the statement `$AR$ = $RD$'
+must successfully compile
 when the {\em variable-name} in $RD$ is replaced by a unique virtual
-{\em variable-name}.
+{\em variable-name}, else the call-prototype match fails.
 
 \item A {\em function-call} that is \underline{not} an
 {\em assignment-right-side}\pagnote{ASSIGNMENT-RIGHT-SIDE}
 must be assembly-time\pagnote{ASSEMBLY-TIME} else the
-call-prototype match fails.  This means all the
-{\em argument-declaration} and {\em prototype-result-declaration}
-types in the prototype must be {\tt const}.  The prototype must
+call-prototype match fails.
+The prototype must
 have at least one {\em prototype-result-declaration} (which
 will take on the value of the {\em expression} that consists of
 just the {\em function-call}), else the
 call-prototype match fails.
+
+Such calls are processed inside-out within a {\em statement},
+and upon being processed each call is replaced by its value computed
+at assembly-time.
 
 \end{enumerate}
 
