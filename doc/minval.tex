@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 29, 2020
+April 30, 2020
 
 \bigskip
  
@@ -2727,6 +2727,120 @@ at assembly-time.
 
 \subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
+
+\subsubsubsection{Module Declarations}
+\label{MODULE-DECLARATIONS}
+
+A \key{module} is a file whose first statement is a {\em module-declaration}:
+
+\begin{indpar}
+\emkey{module-declaration}\label{MODULE-DECLARATION}
+    \begin{tabular}[t]{rl}
+    ::= & {\em simple-module-declaration} \\
+    $|$ & {\em simple-module-declaration}\TT{:} \\
+	& \TT{~~~~}{\em import-clause}\STAR{} \\
+    \end{tabular} \\
+\emkey{simple-module-declaration} ::= \TT{module} {\em module-name}
+        \TT{as} {\em module-abbreviation} \\
+\emkey{module-name}\label{MODULE-NAME} ::= {\em quoted-string} \\
+\emkey{module-abbreviation}\label{MODULE-ABBREVIATION}
+	::= \TT{word} not containing any `\TT{.}'s \\
+\emkey{import-clause}\label{IMPORT-CLAUSE}
+    ::= \ttkey{import} {\em module-name} \TT{as} {\em module-abbreviation} \\
+
+\begin{itemize}
+
+\item
+A {\em module-declaration} may only appear as the first statement
+of a module file.
+
+\item
+In a {\em module-declaration} all {\em module-abbreviations} must be
+distinct, and all {\em module-names} must be distinct.
+\end{itemize}
+\end{indpar}
+
+A {\em module-name} is a POSIX file name.
+The {\em module-name} of a {\em module-declaration} must match the
+name of the file containing the
+{\em module-declaration}, relative to one of several directories
+specified separately to the compiler.
+
+The {\em module-abbreviation} associated with a {\em module-name}
+may differ in different files.  Specifically, the {\em module-abbreviation}
+for a module used in the module's own module file need not be the same
+as the {\em module-abbreviations} used for the module in files
+that import the module.
+
+The module \TT{"standard"}\index{standard@\TT{"standard"}} with
+module abbreviation \ttkey{std} is builtin and contains the builtin types and
+functions.  The {\em import-clause}
+\begin{center}
+{\tt import }\TT{"standard"}{\tt as \ttkey{std}}
+\end{center}
+is implied in every {\em module-declaration} and
+{\em body-declaration} (see \itemref{BODIES}).
+
+A \key{body} is a file whose first statement is a {\em body-declaration}:
+
+\begin{indpar}
+\emkey{body-declaration}\label{BODY-DECLARATION} ::=
+    \begin{tabular}[t]{l}
+    \TT{body }{\em body-name}\TT{ of }{\em module-name}\TT{:} \\
+    \TT{~~~~}{\em body-clause}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{body-name} ::= {\em quoted-string}
+\\[0.5ex]
+{\em module-name} ::= see \pagref{MODULE-NAME}
+\\[0.5ex]
+\emkey{body-clause} ::= {\em import-clause} $|$ {\em after-clause}
+\\[0.5ex]
+{\em import-clause} ::= see \pagref{IMPORT-CLAUSE}
+\\[0.5ex]
+\emkey{after-clause} ::= \ttkey{initialize after }{\em body-name}
+
+\begin{itemize}
+
+\item
+A {\em body-declaration} may only appear as the first statement
+of a body file.
+
+\item
+In a {\em body-declaration} the {\em module-abbreviations} of imported
+modules must be distinct and must be different from the
+{\em module-abbreviation} used by the body's module,
+and all {\em module-names} and {\em body-names} must be distinct.
+\end{itemize}
+
+\end{indpar}
+
+A {\em body-name} is a POSIX file name.
+The {\em body-name} of a {\em body-declaration} must match the
+name of the file containing the
+{\em body-declaration}, relative to one of several directories
+specified separately to the compiler.
+
+A \key{body} is an extension of the module named in the first
+line of the {\em body-declaration}.
+
+A body implicitly imports the module it extends.  Within the
+body that module has the same {\em module-abbreviation} that it
+had in the module's own file.  The other modules imported in the
+module's own file are \underline{not} implicitly imported
+to the body.  The body must import whatever other modules it uses
+explicitly.
+
+The {\em after-clauses} name other bodies that extend the same
+module, and determine the order in which bodies are initialized:
+see \itemref{PROGRAM-INITIALIZATION}.
+
+TBD
+
+The conceptual directed graph whose nodes are modules and whose
+arrows connect each module to the modules it or its bodies import is called
+the `\key{module graph}'.\label{MODULE-GRAPH}
+This graph \underline{must be acyclic}.
 
 \section{Assembly Time}
 
