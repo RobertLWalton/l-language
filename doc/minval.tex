@@ -200,15 +200,13 @@ and sets its value to the value of the
 variable {\tt Y} minus the constant {\tt C"0"} (which is
 the character code of the character {\tt 0}).
 
-The statement:
+If {\tt Gobbledeegook} is a global variable in the current
+module memory, the statement:
 \begin{center}
-\tt fv uns @ Z = @ Gobbledeegook
+\tt av uns8 Y = Gobbledeegook
 \end{center}
-makes the variable {\tt Z} synonymous with the
-global variable {\tt Gobbledeegook} in the current
-module memory.  It does not allocate any new memory.
-Instead it sets the location of {\tt Z}
-equal to the location of {\tt Gobbledeegook}.
+loads its value into the local variable
+{\tt Y} in the current function frame.
 
 Variables in function frames and module memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z},
@@ -223,38 +221,31 @@ several times that size: {\tt intd} is a two word (double) integer
 and {\tt intq} is a four word (quad) integer.
 
 According to its type,
-`{\tt fv uns}', the value of {\tt Gobbledeegook} is a `field vector'
+`{\tt av uns8}', the value of {\tt Gobbledeegook} is an `aligned vector'
+of 8-bit unsigned numbers.  This means it is a
 pointer that is a quad integer ({\tt intq}) containing:
 \begin{itemize}
 \item A `base pointer' {\tt int} holding the byte address
 of an {\tt int} in memory
 that contains the `base (byte) address' of the vector.
-\item An `offset' {\tt int} whose high order bits contain
-the signed bit offset of the field being pointed at and whose
-low order bits contain the size of the field in bits.
-The offset is relative to the base address.
-The size is at most the size in bits of an {\tt int}
-minus 8 (the size of a byte).
-On a computer with 64 bit {\tt int} values, the offset is in the
-high order 58 bits, the size is in the low order 6 bits,
-and the range of sizes is 0 through 56.
+Note that the {\tt av} value does \underline{not} contain
+the base address, but contains instead this pointer to where
+the base address is stored in memory.  This scheme allows
+the base address to be change without changing the {\tt av} value.
+\item An `offset' {\tt int} that is added to the base address
+to form the address of the {\tt uns8} type vector element
+which will have index {\tt 0} in the vector.
 \item A `lower bound' {\tt int} which is the minimum allowed
-value of the offset {\tt int} (assuming the field size does not
-change).
+value of the index {\tt int}.
 \item An `upper bound' {\tt int} which is the maximum allowed
-value of the offset {\tt int} (assuming the field size does not
-change).  Here the offset is allowed to point just beyond the
-end of the vector data, but no futher.
+value of the index {\tt int} plus 1.
 \end{itemize}
-Fields can be signed or unsigned integers, but cannot be
-floating point numbers or pointers.  A field can also have
-the {\tt bool} type, which is a 1-bit unsigned integer
-interpreted as `true' or `false'.
 
-There are other types of pointer.  An {\tt nv} is like a field
-vector except that the offset is in bytes and the number type
-must specify the size of the number (e.g., {\tt flt64}
-for 64-bit IEEE floats).  The {\tt fp} and {\tt np} types are
+There are other types of pointer.  An {\tt fv}, or `field vector',
+is like an {\tt av} aligned
+vector except that the offset {\tt int} has a bit address in its
+high order part and a field size in bits in its low order part.
+The {\tt ap} and {\tt fp} types are
 similar but do not have the bounds and cannot be indexed.  Lastly
 there is the direct pointer, {\tt dp}, that is just a single {\tt int}
 containing the byte address; this is most useful for calling
@@ -262,29 +253,44 @@ C language functions.
 New pointer types may be defined by the user.
 
 
-Assuming that {\tt Gobbledeegook} points at a vector of fields
+Assuming that {\tt Gobbledeegook} points at a vector of unsigned
+bytes ({\tt uns8} numbers)
 in the memory of some module or in the heap, the statement
 \begin{center}
-\tt uns @ Y = @ Gobbledeegook[W]
+\tt uns @ Z = @ Gobbledeegook[W]
 \end{center}
-sets the location of {\tt Y} equal to the {\tt fv} value of
+sets the location of {\tt Y} equal to the {\tt av} value of
 {\tt Gobbledeegook} indexed by the variable {\tt W}.
 The value of {\tt W} must be an integer.
-Then, more specifically, the location of {\tt Y} is an {\tt fp} pointer 
+Then, more specifically, the location of {\tt Z} is an {\tt ap} pointer 
 equal to the first two words of the value of {\tt Gobbledeegook}
-with {\tt W} times the field size added to its offset.
-It is a run-time error if the new offset is less than the lower
+with {\tt W} times the element size in bytes added to its offset.
+It is a run-time error if the {\tt W} is less than the lower
 bound of {\tt Gobbledeegook} or greater than \underline{or equal to}
 the upper bound.
 
-Now there is a very important difference between {\tt X} on one
-hand, and {\tt Y} and {\tt Z} on the other.  When we call an
-out-of-line function and then return, we can expect the value of
-{\tt X} to be the same as before the call, but the values of
-{\tt Y} and {\tt Z} may have changed.  This is because the out-of-line
-function and functions it calls can access the locations of {\tt Y} and
-{\tt Z} in module memory, but not the location of {\tt X} in the calling
-function frame memory.
+Now there is a very important difference between {\tt X} and {\tt Y} on one
+hand, and {\tt Z} on the other.  When we call an
+out-of-line function and then return, we can expect the values of
+{\tt X} and {\tt Y} to be the same as before the call, but the value of
+{\tt Z} may have changed.  This is because the out-of-line
+function and functions it calls can access the location of the value of
+{\tt Z} in memory, but not the locations of {\tt X} and {\tt Y}
+in the calling function frame memory.
+
+You \underline{cannot} compute locations of variables within the current
+function frame.  For example:
+\begin{indpar}\begin{verbatim}
+\tt int X = 100
+\tt int @ Y = @ X     // Illegal! Takes location of X.
+\tt av uns8 Z = Gobbledeegook
+\tt uns8 @ W = @ Gobbledeegook[X]
+\tt uns8 @ V = @ W    // Legal! Value of W is NOT in function frame,
+                      // instead @ W is stored in function frame
+                      // and its value can be copied to @ V.
+\tt ap uns8 P = @ V   // Legal! Copies location @ V stored in
+                      // function frame to P.
+\end{verbatim}\end{indpar}
 
 MINVAL has a full set of number types:
 {\tt int8}, {\tt uns8},
