@@ -328,8 +328,8 @@ int @ Z = @ X.constant
 
 In this example there is one field in a {\tt my type} value,
 an unlabeled {\tt uns32} integer.
-Inside this field there are 6 subfields, the first of which is
-an {\tt uns8} integer occupying bits 0-7 of the one field,
+Inside this unlabeled field there are 6 subfields, the first of which is
+an {\tt uns8} integer occupying bits 0-7 of the unlabeled field,
 where bits are numbered 0, 1, 2, \ldots{} from
 low to high order.  The second subfield is a 1-bit {\tt bool}
 value that occupies bit 0 of the unlabelled field.
@@ -354,14 +354,14 @@ type my type:
         [0] bool animal      //   True if Animal
         [1] bool vegetable   //   True if Vegetable
     flt64   weight           // Object Weight
-    align   64
+    align   8
     label   extension
 
 type my type:
     origin  extension
     align
     flt64   height           // Object Height
-    flt64   width            // Object Height
+    flt64   width            // Object Width
 
 type my type:
     origin  extension
@@ -369,7 +369,7 @@ type my type:
     flt64   volume           // Object Volume
 
 type your type:
-    include my type   // Copy members of my type
+    include my type   // Copy sub-declarations of my type
     dp uns8 name      // Direct pointer to name
                       // character string
 
@@ -385,37 +385,48 @@ your type Y
 Y.kind = BEER
 Y.weight = 0.45
 Y.volume = 48
-Y.name = "John Doe"
+Y.name = "John Doe's Lager"
 \end{verbatim}\end{indpar}
 
-Here the fields are {\tt kind}, {\tt weight}, {\tt height}, etc.
-Fields can be packed or aligned: here they are initially packed
+Her the definitions of {\tt my type} and {\tt your type} are each
+single statements called declarations.  Each of these two
+declarations contains a sequence of sub-declarations, e.g.,
+for {\tt my type} the first two sub-declarations are
+`{\tt pack}' and `{\tt uns8 kind}'.  There is a current
+offset in bytes that starts at {\tt 0} and is updated by each sub-declaration.
+A sub-declaration such as `{\tt uns8 kind}' allocates a field
+(i.e., {\tt kind})
+at the current offset and adds the size of the field to the
+current offset.
+
+In the example the fields are {\tt kind}, {\tt weight}, {\tt height}, etc.
+Fields can be packed or aligned.  An aligned number has an offset
+that is a multiple of the length of the number.
+Here fields are initially packed
 so that since {\tt kind} has offset 0 bytes and size 1 byte,
 {\tt weight} has offset 1 byte.  Subfields {\tt animal}
 and {\tt vegetable} are 1-bit values inside {\tt kind}.
 
-The {\tt align 64} substatement moves the current offset
-forward to a 64-bit boundary and causes fields beyond it
-to be aligned and not packed.  Alignment boundaries must
-be multiples of 8.
+The {\tt align 8} sub-declaration moves the current offset
+forward to a 8-byte boundary and causes fields beyond it
+to be aligned and not packed.  A number is aligned if
+its offset is a multiple of its length.  Alignments must be powers of two.
 A defined type has an
-alignment in bits equal to the least common multiple of the
-alignments of its members.
-Such alignments must also be multiples of 8.
+alignment equal to the least common multiple of the
+alignments of its fields.
 
-A {\tt label} is like a zero length member that has no value and
+A {\tt label} is like a zero length field that has no value and
 is used to associate a label with the current offset.
-Here {\tt extension} has the offset value of 128 bits or
-16 bytes.
-The {\tt origin} substatement resets the current offset to the offset
+Here {\tt extension} has the offset value of 16 bytes.
+The {\tt origin} sub-declaration resets the current offset to the offset
 of a given label.
-The {\tt include} substatement copies all the substatements
+The {\tt include} sub-declaration copies all the sub-declarations
 from another user defined type.
 
 Defined types can be extended
-(as per the example), and members can overlay each other.
+(as per the example), and fields can overlay each other.
 A defined type value has a size in bytes just large enough to
-accommodate all its members.
+accommodate all its fields.
 
 By default, functions in MINVAL are inline.  For example,
 
