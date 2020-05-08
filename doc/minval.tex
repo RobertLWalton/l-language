@@ -428,6 +428,18 @@ Defined types can be extended
 A defined type value has a size in bytes just large enough to
 accommodate all its fields.
 
+Values of {\tt const} type are assembly-time values, and are
+not available at run-time.  Number constants are such value,
+but they can be converted to run-time numbers during assembly.
+Quote strings denote string {\tt const} values that can be
+used to populate run-time vectors of unsigned integers.
+Lastly there are map {\tt const} values that can hold lists
+and dictionaries.  These last can be mutable at assembly time.
+
+Expressions and statements that use only {\tt const} values
+execute at assembly-time and can be used to compute run-time
+constants and other arbitrary code.
+
 By default, functions in MINVAL are inline.  For example,
 
 \begin{indpar}\begin{verbatim}
