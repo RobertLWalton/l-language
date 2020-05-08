@@ -290,8 +290,9 @@ if {\tt V} has changed.  An example is:
 int X = 100
 X = X + 1         // Illegal!  Cannot reset X.
 next X = X + 1    // Legal!  Now X == 101.
-uns8 @ Z = Gobbledeegook[X]
-Z = C"5"          // Legal! Gobbledeegook[X] is NOT in function frame.
+uns8 @ Z = @ Gobbledeegook[X]  // Copies location of Gobbledeegook[X]
+                               // to @ Z in function frame.
+Z = C"5"          // Legal! Z is NOT in function frame (@ Z is).
 Z = C"6"          // Ditto.
 int @ W = @ X     // Illegal!  Cannot take location of X as it is
                   // in the function frame.
