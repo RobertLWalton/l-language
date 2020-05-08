@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 30, 2020
+May 8, 2020
 
 \bigskip
  
@@ -257,7 +257,7 @@ Assuming that {\tt Gobbledeegook} points at a vector of unsigned
 bytes ({\tt uns8} numbers)
 in the memory of some module or in the heap, the statement
 \begin{center}
-\tt uns @ Z = @ Gobbledeegook[W]
+\tt uns8 @ Z = @ Gobbledeegook[W]
 \end{center}
 sets the location of {\tt Y} equal to the {\tt av} value of
 {\tt Gobbledeegook} indexed by the variable {\tt W}.
@@ -278,18 +278,28 @@ function and functions it calls can access the location of the value of
 {\tt Z} in memory, but not the locations of {\tt X} and {\tt Y}
 in the calling function frame memory.
 
-You \underline{cannot} compute locations of variables within the current
-function frame.  For example:
+A variable {\tt V} allocated in the stack cannot change its value after
+it is initialized.  If instead of memory for the location of
+{\tt V}'s is allocated instead of memory for a value, then the location
+cannot be changed after it is initialized.  However, `{\tt next V}'
+or `{\tt next @ V}' can be used to create a new variable with the same
+name, {\tt V}, and same type as the original {\tt V}, and this new
+{\tt V} will hide the previous {\tt V}, and thus make it appear as
+if {\tt V} has changed.  An example is:
 \begin{indpar}\begin{verbatim}
-\tt int X = 100
-\tt int @ Y = @ X     // Illegal! Takes location of X.
-\tt av uns8 Z = Gobbledeegook
-\tt uns8 @ W = @ Gobbledeegook[X]
-\tt uns8 @ V = @ W    // Legal! Value of W is NOT in function frame,
-                      // instead @ W is stored in function frame
-                      // and its value can be copied to @ V.
-\tt ap uns8 P = @ V   // Legal! Copies location @ V stored in
-                      // function frame to P.
+int X = 100
+X = X + 1         // Illegal!  Cannot reset X.
+next X = X + 1    // Legal!  Now X == 101.
+uns8 @ Z = Gobbledeegook[X]
+Z = C"5"          // Legal! Gobbledeegook[X] is NOT in function frame.
+Z = C"6"          // Ditto.
+int @ W = @ X     // Illegal!  Cannot take location of X as it is
+                  // in the function frame.
+uns8 @ V = @ Z    // Legal! Value of Z is NOT in function frame,
+                  // instead @ Z is stored in function frame
+                  // and its value can be copied to @ V.
+ap uns8 P = @ V   // Legal! Copies location @ V stored in
+                  // function frame to P.
 \end{verbatim}\end{indpar}
 
 MINVAL has a full set of number types:
