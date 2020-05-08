@@ -440,8 +440,15 @@ A defined type value has a size in bytes just large enough to
 accommodate all its fields.
 
 Values of {\tt const} type are assembly-time values, and are
-not available at run-time.  Number constants are such value,
-but they can be converted to run-time numbers during assembly.
+not available at run-time.  Number constants are infinite
+precision, with unbounded integers and rational numbers that
+are ratios of unbounded integers.  Number constants
+can be converted to run-time numbers during assembly.
+However it is an assembler error
+if the result will not fit into the runtime number.
+This happens, for example, if {\tt 1e20}
+is converted to an {\tt int32}.
+
 Quote strings denote string {\tt const} values that can be
 used to populate run-time vectors of unsigned integers.
 Lastly there are map {\tt const} values that can hold lists
@@ -465,7 +472,7 @@ int y = ...
 int z = max ( x, y )
 \end{verbatim}\end{indpar}
 
-An assignment statement can contain a single function call
+A run-time assignment statement can contain a single function call
 or a single operator, but not both, and not more than one.
 For example, given the definition of {\tt max} above:
 
@@ -478,31 +485,26 @@ int w1 = max ( y, z )              // OK
 int w2 = max ( x, w1 )             // OK
 \end{verbatim}\end{indpar}
 
-Although variables in assignment statement operands cannot be
-replaced by expressions involving variables, they can be replaced
-by expressions involving constants.  Constants are their own
-type, {\tt const}, and named constants can be created by assignment
-statements.  For example, using the definition of {\tt max} above:
+Run-time assignment statement operands can be variables, more
+complex reference expressions (e.g., {\tt Gobbledeegook[X]}),
+sub-expressions with only one operator that is a prefix operator,
+or {\tt const} subexpressions.
+For example, using the definition of {\tt max} above:
 
 \begin{indpar}\begin{verbatim}
 const x = 5
 const y = 1e8
 const z = x + y
-const w = z / x + y
-int u = ...
-int v = max ( u, z / x + w * y )
+const u = z / x + y
+    // Legal! x / y + z is a const sub-expression.
+int v = ...
+int w = max ( v, z / x + u * y )
+    // Legal! z / x + u * y is a const sub-expression.
+int b = max ( v, v + u ) 
+    // Illegal! v + u is a run-time sub-expression.
 \end{verbatim}\end{indpar}
 
-Constant arithemtic is in effect infinite precision with unbounded
-integers and rational numbers that are ratios of such integers.
-Constant numbers can be converted to any of the runtime
-number types.  However it is a compiler error
-if the result will not fit into the runtime number.
-This happens, for example, if {\tt 1e20}
-is converted to an {\tt int32}.
-
-It is possible to define inline functions that execute at assembly
-time:
+It is possible to define assembly-time functions:
 
 \begin{indpar}\begin{verbatim}
 function const r = max ( const x, const y ):
@@ -517,13 +519,17 @@ const z = 9e4
 const w = max ( x, max( y, z ) )  // Legal!
 \end{verbatim}\end{indpar}
 
+Such functions are not available at run-time, and
+are not really inline, as there is no
+distinction between inline and out-of-line assembly-time functions.
+
 Inline function definitions may make use of type wildcards.
-A name that consists of only an initial {\tt T\$}
-followed by one or more decimal digits is a type wildcard, that denotes
+A name that is a single word beginning with {\tt T\$}
+is a type wildcard that denotes
 an arbitary type.  Thus the example:
 
 \begin{indpar}\begin{verbatim}
-function T$1 r = max ( T$1 x, T$1 y ):
+function T$r r = max ( T$r x, T$r y ):
     if x < y:
         r = y
     else:
@@ -531,9 +537,9 @@ function T$1 r = max ( T$1 x, T$1 y ):
 
 const x = 2e5
 int y = 27e4
-int z = max ( x, y )      // Converts x to int.
+int z = max ( x, y )      // T$r is int, x converts to int.
 const w = 34e4
-const v = max ( x, w )    // All values are const.
+const v = max ( x, w )    // T$r is const, all values are const.
 \end{verbatim}\end{indpar}
 
 A wildcard type of a result variable gets its value from the
@@ -543,19 +549,18 @@ definition if and only if all type wildcards in the function definition
 are assigned the value {\tt const} and doing so makes
 all types in the function definition be {\tt const}
 (except for types that are not used as types, but are used as
-{\tt const} values, as in `{\tt sizeof ( int )}').
+{\tt const} values, as in `{\tt int..size}').
 
-Pointer types can be wildcards which must have names consisting
-of an initial {\tt P\$} followed by one or more decimal digits.
-An example is:
+Pointer types can be wildcards which must have names that are
+single words beginning with {\tt P\$}.  An example is:
 
 \begin{indpar}\begin{verbatim}
-function uns r = strlen ( P$1 uns8 s ):
+function uns r = strlen ( P$s uns8 s ):
     dp uns8 sdp = s
     r = LIBC strlen ( sdp )
 \end{verbatim}\end{indpar}
 
-which converts the point of type {\tt P\$1} to a pointer of
+which converts the point of type {\tt P\$s} to a pointer of
 type {\tt dp} (direct pointer) and calls the C programming
 language subroutine {\tt LIBC strlen} with the direct pointer.
 
@@ -564,15 +569,13 @@ than as temporaries during the execution of a single statement,
 and a pair of registers that hold the current function
 execution frame address and current module data address.
 However, registers can be used to cache data that exists in
-RAM memory, or that should exist in RAM memory but does not
-due to optimization.  We call such registers software
-caches.
+RAM memory, or that should exist in RAM memory but do not
+due to optimization.  We call such registers
+\skey{software cach}{es}.
 
 Software caches of a RAM memory location are flushed when an out-of-line
-function is called if (1) the location is not in the currently
-executing function frame, or (2) the location is part of a
-section of the currently executing function frame to which
-a pointer (direct, indirect, offset, etc.) has been computed.
+function is called if the location is not in the currently
+executing function frame.
 
 In addition to having a type and optionally a pointer type,
 variables may have qualifiers.  The only qualifiers are
@@ -592,7 +595,7 @@ A pointer type of a variable
 has two places where a qualifier may appear, as in
 
 \begin{indpar}\begin{verbatim}
-ro np vo uns32 p = .....
+ro np vo uns32 @ p = .....
 \end{verbatim}\end{indpar}
 in which {\tt p} is a read-only variable pointing at a volatile
 {\tt uns32} location.
