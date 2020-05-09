@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 8, 2020
+May 9, 2020
 
 \bigskip
  
@@ -1239,7 +1239,7 @@ nofix operator inserted by the parser to `fix up' parsing errors
 so parsing can continue.
 An {\em (H+2)-expression}, while it can be thought of as a sequence
 of zero or more prefix operators followed by a single {\em primary},
-is parsed so as to execute the prefix operators from right to left, each
+is parsed so as to execute the prefix operators from right-to-left, each
 with a single operand.
 
 An \key{infix} operator must be surrounded by operands,
@@ -1364,10 +1364,10 @@ be part of a legal {\em name}.
 
 Name items beginning with more than one `\TT{.}' are reserved
 for use by systems and compilers (e.g., \TT{..size} in the example).
-Name items that are words containing `\TT{\$}' or
-beginning and ending with `\TT{*}' are
-similarly reserved.  For example, words of the form `\TT{T\$$n$}'
-for a natural number $n$ are reserved for use as type wildcards.
+Name items that are words containing `\TT{\$}' or that both
+begin and end with `\TT{*}' are
+similarly reserved.  For example, words of the form `\TT{T\$}\ldots'
+are reserved for use as type wildcards.
 
 A name can abbreviate another name, using the statement:
 \begin{indpar}
@@ -1376,14 +1376,17 @@ A name can abbreviate another name, using the statement:
 \end{indpar}
 For example:
 \begin{center}
-\tt std bool \ABV{} bool
+\tt bool \ABV{} std bool
 \end{center}
 
+Note that it is whole names that are abbreviated, and not parts of
+names.
+
 A name may begin with a {\em word} that is a {\em module-abbreviation}
-that designates a code module: see~\itemref{MODULES}.
+that designates a code module: see~\itemref{MODULE-DECLARATIONS}.
 For example {\tt std} abbreviates the builtin standard module.
 
-The MINVAL uses several kinds of names:
+MINVAL uses several kinds of names:
 
 \begin{indpar}
 \emkey{simple-name} ::= \TT{word} not containing any `\TT{.}'s \\
@@ -1411,7 +1414,7 @@ The MINVAL uses several kinds of names:
 			(note: all `\TT{.}'s in a {\em name} must be at
 			 the beginning of the {\em name})
 			\end{tabular} \\
-\emkey{label}\label{LABEL} ::=
+\emkey{data-label}\label{DATA-LABEL} ::=
     {\em basic-name} $|$ {\em member-name}
 \\[1ex]
 \emkey{function-term-name} ::= {\em name}
@@ -1580,15 +1583,15 @@ be at least one integer digit and
 one fraction digit.
 
 \TT{NaN} denotes a canonical non-signaling NaN such
-as that produced by hardware on the target machine
-(\pagref{NAN}).
+as that produced by hardware on the target machine.
 \TT{+Inf} denotes positive infinity; \TT{-Inf} denotes negative infinity.
 
 A number constant may be converted to a run-time type such as {\tt int32}.
 It is an assembly error to convert to an integer type that cannot
 hold the exact value of the number constant.
-Conversion to a run-time floating type, such as {\tt flt64}, is however
-never an assembly error: if necessary the converted value is
+Conversion of a number constant
+to a run-time floating type, such as {\tt flt64}, is however
+never an assembly error.  If necessary the converted value is
 {\tt +Inf} or {\tt -Inf}.
 
 A \emkey{string-constant} is just a {\em quoted-string} lexeme
@@ -1600,33 +1603,33 @@ with {\tt uns8}, {\tt uns16}, or {\tt uns32} type elements.
 UTf-8, UTF-16, or UTF-32 encodings are used according to element
 size.
 
-An \emkey{object-constant} has two parts, a list and a dictionary
+An \emkey{map-constant} has two parts, a list and a dictionary
 (either or both can be empty).  Its syntax is:
 
 \begin{indpar}
-\emkey{object-constant}
+\emkey{map-constant}
     \begin{tabular}[t]{rl}
     ::= & \TT{\{} \TT{\}} \\
-    $|$ & \TT{\{} {\em object-list} \TT{\}} \\
-    $|$ & \TT{\{} {\em object-dictionary} \TT{\}} \\
-    $|$ & \TT{\{} {\em object-list}\TT{,} {\em object-dictionary} \TT{\}} \\
+    $|$ & \TT{\{} {\em map-list} \TT{\}} \\
+    $|$ & \TT{\{} {\em map-dictionary} \TT{\}} \\
+    $|$ & \TT{\{} {\em map-list}\TT{,} {\em map-dictionary} \TT{\}} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{object-list} ::= {\em constant} \{ \TT{,} {\em constant} \}\STAR{}
+\emkey{map-list} ::= {\em constant} \{ \TT{,} {\em constant} \}\STAR{}
 \\[0.5ex]
-\emkey{object-dictionary} ::= {\em label-value-pair}
+\emkey{map-dictionary} ::= {\em label-value-pair}
                               \{ \TT{,} {\em label-value-pair} \}\STAR{}
 \\[0.5ex]
-\emkey{label-value-pair} ::= {\em label} \TT{=>} {\em constant}
+\emkey{label-value-pair} ::= {\em data-label} \TT{=>} {\em constant}
 \\[0.5ex]
-\emkey{label} ::= see \pagref{LABEL}
+\emkey{data-label} ::= see \pagref{DATA-LABEL}
 \end{indpar}
 
 Objects \underline{cannot} be represented at run-time.
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 assembly time as if they were variables of type {\tt const}
-with object values.  These object values are partly read-only,
+with map values.  These map values are partly read-only,
 with the read-only part including elements with labels like
 {\tt size} for the size in bits of run-time values of the type.
 The user can add their own elements if these do not conflict
@@ -1640,10 +1643,9 @@ The {\em reference-expression} by itself can be used to retrieve
 the value of that location.  The {\em reference-expression}
 preceeded by \TT{@} refers to the location, and not the value
 at the location, and for run-time locations can be used to retrieve
-a pointer to the location.  At assembly-time, only locations of
-{\tt const} variables and object elements are defined, and there
+a pointer to the location.  At assembly-time there
 are no pointers, but a {\tt const} variable can be given the
-same location an object element with a given label.
+same location as an map or map element.
 
 The most basic {\em reference-expression} is the name of a variable
 in the current function frame or current module memory.  Other
@@ -1673,7 +1675,7 @@ is:
 \end{indpar}
 
 A {\em member-name} may be used to select a field or subfield
-of a user defined type\pagnote{USER-DEFINED-TYPE} value referred
+of a user defined type\pagnote{TYPE-DECLARATIONS} value referred
 to by a {\em reference-expression}
 to which the {\em member-name} is appended.
 
@@ -1684,9 +1686,26 @@ to which the {\em reference-index} is appended.  The index may be
 positive or negative.  Bounds stored in the pointer are used to
 check that the index is within range.
 
+At assembly time a map is considered to be immutable unless
+\TT{@} is used to save its location when it is created.  For example:
+\begin{indpar}\begin{verbatim}
+const X = ["A", "B"]         // Value of X is immutable.
+X[0] = "C"                   // Illegal!  Value of X is immutable.
+const @ Y = ["A", "B"]       // Value of Y is mutable.
+Y[0] = "C"                   // Legal!  Value of Y is mutable.
+const Z = Y                  // Z is now an immutable copy of Y,
+                             // and == ["C", "B"].
+const @ W = @ Y              // W is now synonomous with Y.
+W[0] = "D"                   // Now Y[0] == W[0] == "D".
+                             // Z[0] == "C" still.
+\end{verbatim}\end{indpar}
+
+
 Inline functions may be defined that syntactically and semantically mimic
 {\em reference-\EOL expres\-sions}, and calls to such functions
-can be used as {\em reference-expressions}.  An example is:
+can be used as {\em reference-expressions} (this is an exception
+to the rule that a run-time statement can contain at most one function
+call).  An example is:
 \label{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE}
 
 \begin{indpar}\begin{verbatim}
@@ -1699,14 +1718,14 @@ type my vector:
     uns length;
     . . . .
 function flt64 @ x = ( my vector @ v ) [ uns index ]:
-    np my vector vp = @ v
+    ap my vector vp = @ v
         // Get pointer to v.
-    nv flt64 fp = *UNCHECKED* ( vp, 0, v.length )
+    av flt64 fp = *UNCHECKED* ( vp, v.offset, 0, v.length )
         // Convert vp to a pointer to an flt64 vector fp.
         // The *UNCHECKED* function is a builtin function
         // that performs a variety of conversions which
         // violate type checking.
-    @ x = @ fp[v.offset + index]
+    @ x = @ fp[index]
         // Return location of v.offset + index 'th element
         // of fp.
 \end{verbatim}\end{indpar}
@@ -2284,12 +2303,12 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{bool}
     \end{tabular}
 \\[2ex]
-\emkey{field-label} ::=  {\em label} \\
-\emkey{label} ::=  see \pagref{LABEL}
+\emkey{field-label} ::=  {\em data-label} \\
+\emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
 \emkey{subfield-declaration}
     ::= {\em bit-range} {\em number-type-name} {\em subfield-label} \\
-\emkey{subfield-label} ::=  {\em label}
+\emkey{subfield-label} ::=  {\em data-label}
 \\[2ex]
 \emkey{bit-range}
     \begin{tabular}[t]{@{}rl}
@@ -2305,8 +2324,8 @@ The syntax of a type declaration is:
 \emkey{dit} ::= see \pagref{DIT}
 \\[2ex]
 \emkey{alignment} ::= assembly-time {\em expression} \\
-\emkey{offset} ::= assembly-time {\em expression} \\
-\\[2ex]
+\emkey{offset} ::= assembly-time {\em expression}
+
 \begin{itemize}
 \item All the assembly-time {\em expressions} must evaluate to an integer.
 \end{itemize}
@@ -2637,8 +2656,8 @@ except that quotes in prototype
 {\em quoted-marks} and {\em quoted-separators} are removed in the call
 (thus prototype {\tt "+"} matches call {\tt +}).
 
-The match is made by scanning the call from left to
-right while identifying sequences of lexemes that match
+The match is made by scanning the call from left-to-right
+while identifying sequences of lexemes that match
 {\em function-term-names} in the prototype.  After identifying
 a name, the scan skips to just after the name.  If several
 names match at the same position, the longest is choosen.
@@ -2740,9 +2759,9 @@ the number of {\em assignment-results} on the
 match fails.
 
 The {\em assignment-results} are matched to the
-{\em prototype-result-declarations} going from right to
-left according to the rules that follow.  Note, the order
-of matching is \underline{right-to-left} and \underline{not} left-to-right.
+{\em prototype-result-declarations} going from \underline{right-to-left}
+according to the rules that follow.  Note that
+this matching is \underline{not} left-to-right.
 Any unmatched {\em prototype-result-declarations}
 are ignored.  
 
@@ -2789,7 +2808,7 @@ A \key{module} is a file whose first statement is a {\em module-declaration}:
 \emkey{module-abbreviation}\label{MODULE-ABBREVIATION}
 	::= \TT{word} not containing any `\TT{.}'s \\
 \emkey{import-clause}\label{IMPORT-CLAUSE}
-    ::= \ttkey{import} {\em module-name} \TT{as} {\em module-abbreviation} \\
+    ::= \ttkey{import} {\em module-name} \TT{as} {\em module-abbreviation}
 
 \begin{itemize}
 
@@ -2822,7 +2841,7 @@ functions.  The {\em import-clause}
 {\tt import }\TT{"standard"}{\tt as \ttkey{std}}
 \end{center}
 is implied in every {\em module-declaration} and
-{\em body-declaration} (see \itemref{BODIES}).
+{\em body-declaration}.
 
 A \key{body} is a file whose first statement is a {\em body-declaration}:
 
@@ -2960,11 +2979,11 @@ A {\em map-expression} computes a map value:
     \TT{[} {\em map-element} \{ \TT{,} {\em map-element} \}\STAR{} \TT{]}
 \\[0.5ex]
 \emkey{map-element} ::=
-        {\em expression} $|$ {\em label} \TT{=>} {\em expression}
+        {\em expression} $|$ {\em data-label} \TT{=>} {\em expression}
 	                 $|$ \TT{[} {\em map-index} \TT{]}
 			 	\TT{=>} {\em expression}
 \\[0.5ex]
-{\em label} ::= see \pagref{LABEL}
+{\em data-label} ::= see \pagref{DATA-LABEL}
 \\[0.5ex]
 \emkey{map-index} ::=
     {\em expression} evaluating to a {\tt const} integer or string
