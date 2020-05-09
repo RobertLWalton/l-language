@@ -1201,19 +1201,19 @@ have precedence equal to or greater than P:
 \begin{indpar}\begin{minipage}{6in}
 \emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
 \\[0.5ex]
-\emkey{N-expression}
+\emkey{P-expression}
     \begin{tabular}[t]{@{}rl}
-    ::= & \{ {\em (N+1)-expression} $|$ {\em N-operator)} \}\PLUS{} \\
-        & where no two {\em (N+1)-expressions} may be adjacent \\ 
-        & and each {\em infix-N-operator} must be surrounded by \\
-	& {\em (N+1)-expressions} \\
+    ::= & \{ {\em (P+1)-expression} $|$ {\em P-operator)} \}\PLUS{} \\
+        & where no two {\em (P+1)-expressions} may be adjacent \\ 
+        & and each {\em infix-P-operator} must be surrounded by \\
+	& {\em (P+1)-expressions} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{N-operator} ::= {\em nofix-N-operator} $|$ {\em infix-N-operator}
+\emkey{P-operator} ::= {\em nofix-P-operator} $|$ {\em infix-P-operator}
 \\[0.5ex]
-\emkey{nofix-N-operator} ::= nofix operator of precedence N
+\emkey{nofix-P-operator} ::= nofix operator of precedence P
 \\[0.5ex]
-\emkey{infix-N-operator} ::= infix operator of precedence N
+\emkey{infix-P-operator} ::= infix operator of precedence P
 \\[0.5ex]
 \emkey{(H+2)-expression}
     \begin{tabular}[t]{@{}rl}
@@ -1224,7 +1224,7 @@ have precedence equal to or greater than P:
 \emkey{primary} ::= {\em non-operator}\PLUS{}
 \\[2.0ex]
 \hspace*{3em}\begin{tabular}{l}
-where N is any precedence in the range [L,H+1]
+where P is any precedence in the range [L,H+1]
 \end{tabular}
 \end{minipage}\end{indpar}
 
@@ -1299,7 +1299,7 @@ that are used in these expressions:
 \end{tabular}
 \end{indpar}
 
-Also the {\tt no-operand} value as if the operand did not exist
+Also the {\tt no-operand} value is treated as if the operand did not exist
 by nomix and sum operators.  I.e., it is treated as
 0 by {\tt +}, {\tt -}, {\tt |}, {\tt xor},
 as 1 by {\tt *},
