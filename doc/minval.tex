@@ -1791,7 +1791,7 @@ omitted, and then only if they surround exactly one {\em actual-argument}
 that is a {\em constant} or {\em reference-expression}.
 
 {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
-equivalent to `{x ( false )}'.
+equivalent to `{\tt x(false)}'.
 
 {\em Function-calls} are matched to function prototypes.  The
 {\em call-term-names} in a match are identical to the
@@ -1822,10 +1822,14 @@ is assembly-time if and only if it is of type {\tt const}.
 (Assembly-time variables do \underline{not} exist at run-time.)
 \item A {\em constant} is assembly-time.
 \item A {\em type-name} and a {\em pointer-type-name} are assembly-time
-and denote object constants describing the type or pointer type.
-(At run-time these are {\tt int} values used to distinguish types.)
-\item An {\em expression} with a lowest precedence operator is
-      assembly-time if this operator and its operands are assembly-time.
+and denote maps describing the type or pointer type.
+(At run-time type {\tt T} is declared by the
+equivalent of {\tt type @ T = \ldots}, where `{\tt type}' is a
+defined type that is
+used to distinguish types and contain type parameters.)
+\item An {\em expression} with an operator is
+      assembly-time if its lowest precedence operator
+      and its operands are assembly-time.
       All the standard operators are assembly-time except exponentiation
       ({\tt \textasciicircum}) which denotes a function call.
 \item A {\em function-call} is assembly-time if and only if all its
@@ -1835,13 +1839,14 @@ and denote object constants describing the type or pointer type.
       result and argument variables are assembly-time (i.e., have
       {\tt const} type) and all its
       {\em statements} are assembly-time.
-\item Some builtin functions are specified as being assembly-time.
+\item Builtin functions are assembly-time if their arguments and/or
+      results are of {\tt const} type.
 \item A {\em statement} is assembly-time if and only if all its
       variables and expressions are assem\-bly-time.
 \end{itemize}
 
-A \key{run-time} {\em expression} or {\em statement}
-is an {\em expression} or {\em statement} that is
+A \key{run-time} {\em variable}, {\em expression}, or {\em statement}
+is a {\em variable}, {\em expression}, or {\em statement} that is
 \underline{not} assembly-time.
 
 \subsection{Statements}
