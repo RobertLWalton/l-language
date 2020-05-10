@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 9, 2020
+May 10, 2020
 
 \bigskip
  
@@ -194,11 +194,16 @@ A typical MINVAL statement is:
 \begin{center}
 \tt int X = Y - C"0"
 \end{center}
-This allocates a new variable {\tt X} of type {\tt int}
-to the current function frame within the stack,
+This allocates a new variable {\tt X} of type {\tt int} and
 and sets its value to the value of the
 variable {\tt Y} minus the constant {\tt C"0"} (which is
 the character code of the character {\tt 0}).
+If this statement occurs outside a function declaration,
+the variable is allocated to the current module memory, and
+may be both read and written.  If this statement occurs
+inside a function declaration, the variable is allocated to the
+current function frame, and after being initialized
+can be read but not written.
 
 If {\tt Gobbledeegook} is a global variable in the current
 module memory, the statement:
