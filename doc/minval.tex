@@ -191,27 +191,55 @@ Assembly Language.
 \section{Overview}
 
 A typical MINVAL statement is:
-\begin{center}
-\tt int X = Y - C"0"
-\end{center}
+\begin{indpar}\begin{verbatim}
+int X = Y - C"0"
+\end{verbatim}\end{indpar}
 This allocates a new variable {\tt X} of type {\tt int} and
 and sets its value to the value of the
 variable {\tt Y} minus the constant {\tt C"0"} (which is
 the character code of the character {\tt 0}).
-If this statement occurs outside a function declaration,
-the variable is allocated to the current module memory, and
-may be both read and written.  If this statement occurs
-inside a function declaration, the variable is allocated to the
-current function frame, and after being initialized
-can be read but not written.
+In this case the variable {\tt X} is readable, but after it is
+initialized it is not writable.
 
-If {\tt Gobbledeegook} is a global variable in the current
-module memory, the statement:
-\begin{center}
-\tt av uns8 Y = Gobbledeegook
-\end{center}
-loads its value into the local variable
-{\tt Y} in the current function frame.
+The following is another example:
+\begin{indpar}\begin{verbatim}
+uns8 buffer[81]
+av *WRITABLE* uns8 bp = buffer
+av uns8 cp = "Hello!"
+loop:
+    int i = 0
+    while ( i < cp.upper ):
+        bp[i] = cp[i]
+	next i = i + 1
+    finally:
+        bp[cp.upper] = 0
+\end{verbatim}\end{indpar}
+
+Here {\tt buffer} is a vector of 81 {\tt uns8} (8-bit unsigned) numbers.
+The label {\tt buffer} denotes an aligned vector pointer, or {\tt av},
+and this is stored in the variable {\tt bp}.  Both {\tt buffer}
+and {\tt bp} attach the {\tt *WRITABLE*} qualifier to the vector elements,
+to indicate these elements can be written as well as read.
+The variable {\tt cp} is
+similar to {\tt bp}, except it is set to a vector pointer pointing at
+a constant string, and therefore its {\tt uns8} vector elements have
+the default qualifier {\tt co} which promises that they are constants that will
+\underline{never} be written.  Vector pointers can be used with indices
+to reference elements of their vectors, and have {\tt upper} and
+{\tt lower} bounds on these indices.  Here the {\tt lower} bounds
+are their defaults, which are {\tt 0}.
+
+The qualifier {\tt *WRITABLE*} says that a value can be written by code
+using the variable name given,
+and the default qualifier {\tt co}
+says a value will \underline{never} be written
+no matter what.
+The qualifier {\tt ro}, or read-only, says that
+the value cannot be written using the variable name given, but might be
+written by some other piece of code that accesses the value under another
+name.
+The qualifier {\tt *VOLATILE*} says a value may be
+written by some device other than the processor at any time.
 
 Variables in function frames and module memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z},
@@ -225,10 +253,14 @@ word size of the computer (typically 32 or 64 bits), or
 several times that size: {\tt intd} is a two word (double) integer
 and {\tt intq} is a four word (quad) integer.
 
-According to its type,
-`{\tt av uns8}', the value of {\tt Gobbledeegook} is an `aligned vector'
-of 8-bit unsigned numbers.  This means it is a
-pointer that is a quad integer ({\tt intq}) containing:
+Vectors can be created by statements such as `{\tt uns8 buffer[81]}'
+if they have an assembly time determined number of elements.
+Unlike variables, vector elements have the default qualifier
+{\tt *WRITABLE*}, though string constants elements have the
+default {\tt co}.
+
+The name of the vector is an aligned vector pointer.  This is a
+quad integer ({\tt intq}) containing:
 \begin{itemize}
 \item A `base pointer' {\tt int} holding the byte address
 of an {\tt int} in memory
@@ -258,54 +290,16 @@ C language functions.
 New pointer types may be defined by the user.
 
 
-Assuming that {\tt Gobbledeegook} points at a vector of unsigned
-bytes ({\tt uns8} numbers)
-in the memory of some module or in the heap, the statement
-\begin{center}
-\tt uns8 @ Z = @ Gobbledeegook[W]
-\end{center}
-sets the location of {\tt Y} equal to the {\tt av} value of
-{\tt Gobbledeegook} indexed by the variable {\tt W}.
-The value of {\tt W} must be an integer.
-Then, more specifically, the location of {\tt Z} is an {\tt ap} pointer 
-equal to the first two words of the value of {\tt Gobbledeegook}
-with {\tt W} times the element size in bytes added to its offset.
-It is a run-time error if the {\tt W} is less than the lower
-bound of {\tt Gobbledeegook} or greater than \underline{or equal to}
-the upper bound.
-
-Now there is a very important difference between {\tt X} and {\tt Y} on one
-hand, and {\tt Z} on the other.  When we call an
-out-of-line function and then return, we can expect the values of
-{\tt X} and {\tt Y} to be the same as before the call, but the value of
-{\tt Z} may have changed.  This is because the out-of-line
-function and functions it calls can access the location of the value of
-{\tt Z} in memory, but not the locations of {\tt X} and {\tt Y}
-in the calling function frame memory.
-
-A variable {\tt V} allocated in the stack cannot change its value after
-it is initialized.  If instead of memory for the location of
-{\tt V}'s is allocated instead of memory for a value, then the location
-cannot be changed after it is initialized.  However, `{\tt next V}'
-or `{\tt next @ V}' can be used to create a new variable with the same
-name, {\tt V}, and same type as the original {\tt V}, and this new
-{\tt V} will hide the previous {\tt V}, and thus make it appear as
-if {\tt V} has changed.  An example is:
+Instead of setting the value of a new variable {\tt V}, you can 
+set its location {\tt @ V}.  For example:
 \begin{indpar}\begin{verbatim}
-int X = 100
-X = X + 1         // Illegal!  Cannot reset X.
-next X = X + 1    // Legal!  Now X == 101.
-uns8 @ Z = @ Gobbledeegook[X]  // Copies location of Gobbledeegook[X]
-                               // to @ Z in function frame.
-Z = C"5"          // Legal! Z is NOT in function frame (@ Z is).
-Z = C"6"          // Ditto.
-int @ W = @ X     // Illegal!  Cannot take location of X as it is
-                  // in the function frame.
-uns8 @ V = @ Z    // Legal! Value of Z is NOT in function frame,
-                  // instead @ Z is stored in function frame
-                  // and its value can be copied to @ V.
-ap uns8 P = @ V   // Legal! Copies location @ V stored in
-                  // function frame to P.
+int X = 5
+int @ Y = @ X            // Now Y == 5
+*WRITABLE* @ Z = @ X     // Illegal!  X is co.
+*WRITABLE* B = 6
+int @ C = @ B            // Illegal!  C defaults to co.
+ro int @ D = @ B         // Legal!  D is just read-only.
+B = 7                    // Now D == 7
 \end{verbatim}\end{indpar}
 
 MINVAL has a full set of number types:
@@ -361,6 +355,9 @@ If {\tt des} where in bits 23-30 instead of 24-31, it would
 not be on a byte boundary and the location of {\tt Y} would
 also have to be an {\tt fp} field pointer.
 
+Since {\tt X} is not writable, {\tt Y} and {\tt Z} have
+the {\tt co} qualifier to indicate their values are constant.
+
 Another example is:
 
 \begin{indpar}\begin{verbatim}
@@ -391,20 +388,20 @@ type your type:
 
 . . . . . . . . . . . .
 
-my type X
+*WRITABLE* my type X
 X.kind = BOX
 X.weight = 55
 X.height = 1023
 X.width = 572
 
-your type Y
+*WRITABLE* your type Y
 Y.kind = BEER
 Y.weight = 0.45
 Y.volume = 48
 Y.name = "John Doe's Lager"
 \end{verbatim}\end{indpar}
 
-Her the definitions of {\tt my type} and {\tt your type} are each
+Here the definitions of {\tt my type} and {\tt your type} are each
 single statements called declarations.  Each of these two
 declarations contains a sequence of sub-declarations, e.g.,
 for {\tt my type} the first two sub-declarations are
@@ -579,28 +576,15 @@ due to optimization.  We call such registers
 \skey{software cach}{es}.
 
 Software caches of a RAM memory location are flushed when an out-of-line
-function is called if the location is not in the currently
-executing function frame.
-
-In addition to having a type and optionally a pointer type,
-variables may have qualifiers.  The only qualifiers are
-{\tt ro} and {\tt vo}.
-
-{\tt ro} variables are read-only and
-cannot be written.  However, they may be writable by
-code located elsewhere, so it cannot be assumed they will
-never change.  Therefore the {\tt ro} qualifier does not
-affect software cacheing.
-
-{\tt vo} variables are volatile, and may be changed asynchronously
-between any two reads of the variable.  {\tt vo} variables are
-\underline{not} cached in software registers.
+function is called if the location does not have the {\tt co} qualifier.
+Attaching the {\tt *VOLATILE*} qualifier to a location
+flushes software caches of the location between statements.
 
 A pointer type of a variable
 has two places where a qualifier may appear, as in
 
 \begin{indpar}\begin{verbatim}
-ro np vo uns32 @ p = .....
+ro ap *VOLATILE* uns32 @ p = .....
 \end{verbatim}\end{indpar}
 in which {\tt p} is a read-only variable pointing at a volatile
 {\tt uns32} location.
@@ -608,10 +592,10 @@ in which {\tt p} is a read-only variable pointing at a volatile
 Pointer types cannot be cascaded, but there is a work-around
 using defined types:
 \begin{indpar}\begin{verbatim}
-np np flt64 p = .....         // Illegal!
+ap ap flt64 p = .....         // Illegal!
 
 struct my pointer
-    np flt64 p
+    ap flt64 p
 
 . . . . . . . . . .
 
@@ -1638,7 +1622,7 @@ with map values.  These map values are partly read-only,
 with the read-only part including elements with labels like
 {\tt size} for the size in bits of run-time values of the type.
 The user can add their own elements if these do not conflict
-with the names of the read-only elements.  See \pagref{TYPE-OBJECTS}.
+with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 
 \subsubsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
