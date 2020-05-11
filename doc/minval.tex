@@ -488,7 +488,7 @@ int w2 = max ( x, w1 )             // OK
 \end{verbatim}\end{indpar}
 
 Run-time assignment statement operands can be variables, more
-complex reference expressions (e.g., {\tt Gobbledeegook[X]}),
+complex reference expressions (e.g., {\tt buffer[i]}),
 sub-expressions with only one operator that is a prefix operator,
 or {\tt const} subexpressions.
 For example, using the definition of {\tt max} above:
@@ -584,7 +584,7 @@ A pointer type of a variable
 has two places where a qualifier may appear, as in
 
 \begin{indpar}\begin{verbatim}
-ro ap *VOLATILE* uns32 @ p = .....
+ro ap *VOLATILE* uns32 p = .....
 \end{verbatim}\end{indpar}
 in which {\tt p} is a read-only variable pointing at a volatile
 {\tt uns32} location.
@@ -599,8 +599,8 @@ struct my pointer
 
 . . . . . . . . . .
 
-my pointer p = ...            // OK
-flt64 v = p.p[0]              // OK
+my pointer q = ...            // OK
+flt64 v = q.p[0]              // OK
 \end{verbatim}\end{indpar}
 
 
