@@ -2062,9 +2062,9 @@ block's {\em assignment-results} with any {\em qualifiers}
 and {\em types} omitted (these are inferred within the block
 from the associated {\em assignment-result}).  An example is:
 \begin{indpar}\begin{verbatim}
-int x = 5
-int @ y, int z =:
-    @ y = @x
+*WRITABLE* int x = 5
+*WRITABLE* int @ y, int z =:
+    @ y = @ x
     y = 6
     z = 7
     int k = 8
@@ -2098,7 +2098,7 @@ Unless a {\em go-to-exit-statement} is executed,
 a block exits after the last {\em statement} in the block,
 and an {\em exit-subblock} exits its containing block after the last
 {\em statement} in the {\em exit-subblock}.
-A {\em go-to-exit-statement} in a subblock may only enter
+A {\em go-to-exit-statement} in an {\em exit-subblock} may only enter
 a \underline{subsequent} {\em exit-subblock}.
 
 {\em Go-to-exit-statements} define various possible execution
@@ -2129,7 +2129,7 @@ and {\em exit-subblocks} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
 	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
 	\TT{~~~~}\ttkey{else}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}{\em exit subblock}\STAR{}
+	\TT{~~~~}{\em exit-subblock}\STAR{}
 	\end{tabular}
 \end{indpar}
 
@@ -2163,35 +2163,30 @@ A {\em loop-assignment-statement} has the syntax:
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em assignment-left-side} \TT{=} \}\QMARK{} \ttkey{loop}\TT{:} \\
-	\TT{~~~~}{\em initialization-subblock}\QMARK{} \\
+	\TT{~~~~}{\em loop-variable-assignment-statement}\PLUS{} \\
 	\TT{~~~~}{\em iteration-subblock} \\
 	\TT{~~~~}{\em finalization-subblock}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{initialization-subblock} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \ttkey{initially}\TT{:} \\
-	\TT{~~~~}{\em iteration-variable-assignment-statement}\PLUS{} \\
-	\end{tabular} \\
-\emkey{iteration-variable-assignment-statement} ::= \\
+\emkey{loop-variable-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
 	{\em assignment-statement} with one or more \\
-	{\em iteration-variable-declarations} and nothing else on its left-side
+	{\em iteration-results} and nothing else on its left-side
 	\end{tabular} \\
-\emkey{iteration-variable-declaration}
+\emkey{iteration-result}
     \begin{tabular}[t]{rl}
-    ::= & {\em result-variable-declaration} \\
-    $|$ & \TT{next} \TT{@}\QMARK{} {\em variable-name} \\
-    $|$ & \TT{next} \TT{next} \TT{@}\QMARK{} {\em variable-name} \\
+    ::= & {\em loop-variable-declaration} \\
+    $|$ & {\em iteration-variable} \\
     \end{tabular} \\
+{\em loop-variable-declaration} ::= {\em result-variable-declaration} \\
 {\em result-variable-declaration} ::=
     see \pagref{RESULT-VARIABLE-DECLARATION}
 \\[0.5ex]
-\emkey{loop-variable} ::= variable declared by a
-			{\em result-variable-declaration}
+\emkey{loop-variable} ::=
+    {\em variable-name} declared by an {\em loop-variable-declaration}
 \\[0.5ex]
 \emkey{iteration-variable}\label{ITERATION-VARIABLE} ::= 
-    \TT{next} \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name}
+    \TT{next} \TT{next}\QMARK{} \TT{@}\QMARK{} {\em loop-variable}
 \\[0.5ex]
 \emkey{iteration-subblock} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
@@ -2212,19 +2207,26 @@ A {\em loop-assignment-statement} has the syntax:
     \{ \TT{if} {\em condition-expression} \}\QMARK{} \ttkey{break}
 \end{indpar}
 
-The {\em initialization-subblock} declares the \skey{loop variable}s
+The {\em loop-variable-assignment-statements} declare the \skey{loop variable}s
 of the loop and gives them initial values.  The {\em iteration-block}
 then executes repeatedly updating these loop variables.  The
-{\em assignment-result} `{\tt next X}' can be used on the left-side of
-an assignment statement to assign the value that loop variable
+{\em iteration-result} `{\tt next X}' can be used on the left-side of
+an assignment statement in the {\em iteration-subblock}
+to assign the value that loop variable
 {\tt X} will have in the next iteration.
-It can also be used in the {\em initialization-subblock}
-to assign the value of {\tt X} in the second iteration, in which case
+
+`{\tt next X}' can also be used in a {\em loop-variable-assignment-statement}
+to assign the value of {\tt X} in the \underline{second} iteration,
+in which case
 `{\tt next next X}' can be used in the {\em iteration-subblock}
 to assign {\tt X}'s value in the second iteration after the current
-iteration.  After the last iteration, the {\em finalization-subblock}
+iteration.
+
+After the last iteration, the {\em finalization-subblock}
 executes and sets the variables in the {\em loop-assignment-statement}'s
-left-side.
+left-side.  The loop variable values during the {\em finalization-subblock}
+are those of the next iteration that would execute if the
+{\em condition-expression} allowed.
 
 The {\em break-statement} is like a
 {\em go-to-exit-statement} (\pagref{GO-TO-STATEMENT}) that
@@ -2245,9 +2247,8 @@ An example is:
 //
 int64 n = . . .
 int64 sum = loop:
-    initially:
-        int64 i = 1
-        int64 partial sum = 0
+    int64 i = 1
+    int64 partial sum = 0
     while i <= n:
         next partial sum = partial sum + i
         next i = i + 1
