@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 10, 2020
+May 11, 2020
 
 \bigskip
  
@@ -240,6 +240,8 @@ written by some other piece of code that accesses the value under another
 name.
 The qualifier {\tt *VOLATILE*} says a value may be
 written by some device other than the processor at any time.
+A {\tt *VOLATILE*} value must also be either {\tt *WRITABLE*}
+or {\tt ro}, with {\tt ro} being the default.
 
 Variables in function frames and module memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z},
@@ -289,7 +291,6 @@ containing the byte address; this is most useful for calling
 C language functions.
 New pointer types may be defined by the user.
 
-
 Instead of setting the value of a new variable {\tt V}, you can 
 set its location {\tt @ V}.  For example:
 \begin{indpar}\begin{verbatim}
@@ -301,6 +302,24 @@ int @ C = @ B            // Illegal!  C defaults to co.
 ro int @ D = @ B         // Legal!  D is just read-only.
 B = 7                    // Now D == 7
 \end{verbatim}\end{indpar}
+
+Instead of making a variable {\tt *WRITABLE*} you can update
+it using the {\tt next} construct:
+\begin{indpar}\begin{verbatim}
+int X = 5
+int @ Y = @ X
+next X = X + 1
+// From now on X refers to `next X' and NOT the original X.
+int @ Z = @ X
+    // Now Y == 5 and Z == 6
+\end{verbatim}\end{indpar}
+Here `{\tt next X}' is a new variable, distinct from {\tt X},
+but with the same type, pointer type, qualifiers, and name `{\tt X}',
+which hides the previous variable of the same name.
+The advantage of doing this is that it makes compilation more
+efficient by keeping variables constant (i.e., {\tt co}), and
+it improves debuggability by retaining the different values of
+the variable for inspection by a debugger.
 
 MINVAL has a full set of number types:
 {\tt int8}, {\tt uns8},
@@ -320,8 +339,8 @@ An example is:
 \begin{indpar}\begin{verbatim}
 type my type:
              uns32                    // Container for:
-    [0-7]    uns8 op_code             //   Operation
-    [0]      bool has_constant        //   Format indicator
+    [0-7]    uns8 op code             //   Operation
+    [0]      bool has constant        //   Format indicator
     [8-31]   int constant             //   Constant
     [8-15]   uns8 src1                //   Source Register
     [16-23]  uns8 src2                //   Source Register
@@ -330,7 +349,7 @@ type my type:
 . . . . . . . . . . . .
 
 my type X = ...
-uns op = X.op_code
+uns op = X.op code
 int c = X.constant
 uns8 @ Y = @ X.des
 int @ Z = @ X.constant
@@ -355,8 +374,10 @@ If {\tt des} where in bits 23-30 instead of 24-31, it would
 not be on a byte boundary and the location of {\tt Y} would
 also have to be an {\tt fp} field pointer.
 
-Since {\tt X} is not writable, {\tt Y} and {\tt Z} have
-the {\tt co} qualifier to indicate their values are constant.
+Note that names in MINVAL can have multiple lexemes, as in
+the subfield name `{\tt op code}' and what MINVAL calls the
+associated member name `{\tt .op code}' that is used to access
+the field.
 
 Another example is:
 
@@ -1410,7 +1431,7 @@ MINVAL uses several kinds of names:
     \label{FUNCTION-TERM-NAME}
 \\[1ex]
 \emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
-    \ttkey{ro} $|$ \ttkey{vo}
+    \ttkey{co} $|$ \ttkey{ro} $|$ \ttkey{*WRITABLE*} $|$ \ttkey{*VOLATILE*}
 \\[1ex]
 \emkey{operator-name}
     \begin{tabular}[t]{rl}
@@ -1454,8 +1475,9 @@ names in certain contexts as having the form:
 \MA {\em variable-name}
 \end{center}
 where \MA denotes an optional {\em module-abbreviation},
-and the parser does \underline{not} back up after idenfifying
-one of the components of this sequence.
+and while scanning this sequence from left to right,
+the parser does \underline{not} back up after identifying
+one of the components of the sequence.
 
 \subsubsection{Constants}
 \label{CONSTANTS}
@@ -1680,7 +1702,7 @@ At assembly time a map is considered to be immutable unless
 \begin{indpar}\begin{verbatim}
 const X = ["A", "B"]         // Value of X is immutable.
 X[0] = "C"                   // Illegal!  Value of X is immutable.
-const @ Y = ["A", "B"]       // Value of Y is mutable.
+const @ Y = @ ["A", "B"]     // Value of Y is mutable.
 Y[0] = "C"                   // Legal!  Value of Y is mutable.
 const Z = Y                  // Z is now an immutable copy of Y,
                              // and == ["C", "B"].
@@ -1713,10 +1735,10 @@ function flt64 @ x = ( my vector @ v ) [ uns index ]:
         // Convert vp to a pointer to an flt64 vector fp.
         // The *UNCHECKED* function is a builtin function
         // that performs a variety of conversions which
-        // violate type checking.
+        // violate type checking.  Here it takes vp, adds
+        // v.offset to its offset, and returns this as an
+        // av with bounds 0 and v.length.
     @ x = @ fp[index]
-        // Return location of v.offset + index 'th element
-        // of fp.
 \end{verbatim}\end{indpar}
 
 \subsubsection{Function Calls}
@@ -1872,11 +1894,8 @@ The general form of an {\em assignment-statement} is:
 \\[0.5ex]
 \emkey{assignment-left-side} ::= \\
 \hspace*{0.5in}
-    \{ {\em assignment-secondary-result} \TT{,} \}\STAR{}
-    {\em assignment-primary-result}
-\\[0.5ex]
-\emkey{assignment-secondary-result} ::= {\em assignment-result} \\
-\emkey{assignment-primary-result} ::= {\em assignment-result}
+    \{ {\em assignment-result} \TT{,} \}\STAR{}
+    {\em assignment-result}
 \\[0.5ex]
 \emkey{assignment-result}
     \begin{tabular}[t]{@{}rll}
@@ -1941,17 +1960,18 @@ value of the variable while {\tt @ x} refers to the location of
 the value of {\tt x }.
 Thus an example using {\em assignment-operators} is:
 \begin{indpar}\begin{verbatim}
-int x = 5
-int @ y = @ x  // Now x and y have the same locations.
-y = 6          // Now x and y both = 6.
-np int z = @ x // Now z points at x.
-int @ w = z    // Now location of w is that pointed at by z.
-w = 7          // Now w, x, and y all = 7.
+*WRITABLE* int x = 5
+*WRITABLE* int @ y = @ x  // Now x and y have the same locations.
+y = 6                     // Now x and y both == 6.
+ap *WRITABLE* int z = @ x // Now z points at x.
+*WRITABLE* int @ w = z    // Now location of w is that pointed at by z.
+w = 7                     // Now w, x, and y all == 7.
 \end{verbatim}\end{indpar}
 
-There are no assembly-time pointers, i.e., pointers to {\em const} values,
-so if {\tt int} were replaced by {\tt const} in this example
-it would not be possible to compute {\tt y}, {\tt z}, or {\tt w}.
+For a variable {\tt v} of {\tt const} type, `{\tt @ v}'
+can be used only if it denotes the location of a mutable map or
+element of a mutable map.
+There are no assembly-time pointers analogous to {\tt ap}.
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
