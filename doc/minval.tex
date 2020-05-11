@@ -2300,8 +2300,10 @@ The syntax of a type declaration is:
 \\[2ex]
 \emkey{field-declaration}
     \begin{tabular}[t]{@{}rl}
-    ::= &  {\em field-type-name} {\em field-label} \\
-    $|$ &  {\em number-type-name} {\em field-label}\QMARK{} \\
+    ::= &  {\em field-type-name} {\em field-label}
+                {\em field-dimension}\QMARK{} \\
+    $|$ &  {\em number-type-name}
+                {\em field-dimension}\QMARK{} \\
 	&  {\em subfield-declaration}\STAR{}
     \end{tabular}
 \\[2ex]
@@ -2320,6 +2322,9 @@ The syntax of a type declaration is:
 \\[2ex]
 \emkey{field-label} ::=  {\em data-label} \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
+\\[2ex]
+\emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
+\emkey{dimension-size} ::=  assembly-time {\em expression} with non-negative integer value
 \\[2ex]
 \emkey{subfield-declaration}
     ::= {\em bit-range} {\em number-type-name} {\em subfield-label} \\
