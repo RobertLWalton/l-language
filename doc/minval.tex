@@ -170,7 +170,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 11, 2020
+May 12, 2020
 
 \bigskip
  
@@ -1401,8 +1401,9 @@ MINVAL uses several kinds of names:
 \begin{indpar}
 \emkey{simple-name} ::= \TT{word} not containing any `\TT{.}'s \\
 \emkey{module-abbreviation} ::= {\em simple-name} \\
+\emkey{ma} ::= {\em module-abbreviation} \\
 \emkey{pointer-type-name}\label{POINTER-TYPE-NAME} ::=
-    {\em simple-name}
+    \MA{} {\em simple-name}
 \\[1ex]
 \emkey{basic-name}
 	::= \begin{tabular}[t]{@{}l@{}}
@@ -1410,9 +1411,9 @@ MINVAL uses several kinds of names:
 	    {\em quoted-separator}
 	    \end{tabular} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
-    {\em basic-name} \\
+    \MA{} {\em basic-name} \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
-    {\em basic-name} \\
+    \MA{} {\em basic-name} \\
 \emkey{statement-label} ::= {\em basic-name}
     \label{STATEMENT-LABEL} \\
 \\[1ex]
@@ -2300,14 +2301,26 @@ The syntax of a type declaration is:
 \\[2ex]
 \emkey{field-declaration}
     \begin{tabular}[t]{@{}rl}
-    ::= &  {\em field-type-name} {\em field-label}
-                {\em field-dimension}\QMARK{} \\
-    $|$ &  {\em number-type-name}
-                {\em field-dimension}\QMARK{} \\
-	&  {\em subfield-declaration}\STAR{}
+    ::= &  {\em field-without-subfields-declaration} \\
+    $|$ &  {\em field-with-subfields-declaration} \\
     \end{tabular}
 \\[2ex]
-\emkey{field-type-name} ::= {\em number-type-name}
+\emkey{field-without-subfields-declaration} ::= \\
+\hspace*{0.5in}
+        \{ {\em qualifier-name}\STAR{} {\em pointer-type-name} \}\QMARK{} \\
+\hspace*{1.0in}
+        {\em qualifier-name}\STAR{} {\em type-name}~
+        \TT{@}\QMARK{} {\em field-label}~ {\em field-dimension}\QMARK{}
+\\[2ex]
+\emkey{field-with-subfields-declaration} ::= \\
+\hspace*{0.5in}
+    {\em qualifier-name}\STAR{}
+    \TT{std}\QMARK{} {\em number-type-name}~ {\em field-label}\QMARK{}
+                {\em field-dimension}\QMARK{} \\
+\hspace*{0.5in}
+    {\em subfield-declaration}\PLUS{}
+\\[2ex]
+\emkey{field-type-name} ::= \TT{std}\QMARK{} {\em number-type-name}
                         $|$ {\em defined-type-name} \\
 \emkey{number-type-name}
     \begin{tabular}[t]{@{}rl}
@@ -2324,7 +2337,8 @@ The syntax of a type declaration is:
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
-\emkey{dimension-size} ::=  assembly-time {\em expression} with non-negative integer value
+\emkey{dimension-size} ::=  assembly-time {\em expression}
+			    with non-negative integer value
 \\[2ex]
 \emkey{subfield-declaration}
     ::= {\em bit-range} {\em number-type-name} {\em subfield-label} \\
@@ -2336,14 +2350,18 @@ The syntax of a type declaration is:
     $|$ &  \TT{[} {\em lowhighbits} \TT{]} \\
     $|$ &  \TT{[} {\em lowbit} \TT{-} {\em highbit} \TT{]}
     \end{tabular} \\
-\emkey{onlybit} ::= assembly-time {\em expression} \\
+\emkey{onlybit} ::= assembly-time {\em expression}
+		    with non-negative integer value \\
 \emkey{lowhighbits} :::= {\em dit}+ \TT{-} {\em dit}+
            ~~~~~ [this is a single lexeme] \\
-\emkey{lowbit} ::= assembly-time {\em expression} \\
-\emkey{highbit} ::= assembly-time {\em expression} \\
+\emkey{lowbit} ::= assembly-time {\em expression}
+		   with non-negative integer value \\
+\emkey{highbit} ::= assembly-time {\em expression}
+		    with non-negative integer value \\
 \emkey{dit} ::= see \pagref{DIT}
 \\[2ex]
-\emkey{alignment} ::= assembly-time {\em expression} \\
+\emkey{alignment} ::= assembly-time {\em expression}
+		      with power of 2 integer value \\
 \emkey{offset} ::= assembly-time {\em expression}
 
 \begin{itemize}
