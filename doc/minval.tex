@@ -112,6 +112,7 @@
 \newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 \newcommand{\pagnote}[1]{$\,^{p\pageref{#1}}$}
+\newcommand{\stack}[1]{\begin{tabular}[t]{@{}l@{}}#1\end{tabular}}
 
 \newcommand{\EOL}{\penalty \exhyphenpenalty}
 
@@ -170,7 +171,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 12, 2020
+July 13, 2020
 
 \bigskip
  
@@ -736,6 +737,8 @@ the graphic character after the indent lexeme.
 The \key{indent} of a character is the number
 of columns that precede the character in the character's physical line.
 A single space takes 1 column, and tabs are set every 8 columns.
+Other horizontal space characters (e.g., {\tt <NBSP>}) take up 1 column and also
+produce a warning message.
 Indent lexemes are used to form logical lines and blocks
 (\itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}).
 
@@ -1146,57 +1149,58 @@ The MINVAL operators are listed in Table~\itemref{MINVAL-OPERATORS}.
 
 \begin{boxedfigure}[!p]
 \begin{center}
-\begin{tabular}{|llllr|}
+\begin{tabular}{|lllllr|}
 \hline
-Operator & Meaning & Fixity & Format & Precedence \\
+Operator & Meaning & Class & Fixity & Format & Precedence \\
 \hline
-\ttkey{=} & assignment & infix & binary & L = 1 \\
-\ttkey{+=} & increment & infix & binary & 1 \\
-\ttkey{-=} & decrement & infix & binary & 1 \\
+\ttkey{=} & assignment & & infix & binary & L = 1 \\
+$AOP$\ttkey{=} & see text & A & infix & binary & 1 \\
+$BOP$\ttkey{=} & see text & B & infix & binary & 1 \\
 \hline
-\ttkey{,} & separator & nofix & separating & 2 \\
+\ttkey{,} & separator & & nofix & separating & 2 \\
 \hline
-\ttkey{else} & selection & infix & nomix & 3 \\
+\ttkey{else} & selection & L & infix & nomix & 3 \\
 \hline
-\ttkey{if} & condition & infix & binary & 4 \\
+\ttkey{if} & condition & L & infix & binary & 4 \\
 \hline
-\ttkey{BUT NOT} & logical and not & infix & binary & 5 \\
+\ttkey{BUT NOT} & logical and not & L & infix & binary & 5 \\
 \hline
-\ttkey{AND} & logical and & infix & nomix & 6 \\
-\ttkey{OR} & logical or & infix & nomix & 6 \\
+\ttkey{AND} & logical and & L & infix & nomix & 6 \\
+\ttkey{OR} & logical or & L & infix & nomix & 6 \\
 \hline
-\ttkey{NOT} & logical not & nofix & unary & 7 \\
+\ttkey{NOT} & logical not & L & nofix & unary & 7 \\
 \hline
-\ttkey{==} & equal & infix & left associative & 8 \\
-\ttkey{!=} & not equal & infix & left associative & 8 \\
-\ttkey{<} & less than & infix & left associative & 8 \\
-\ttkey{<=} & less than or equal & infix & left associative & 8 \\
-\ttkey{>} & greater than & infix & left associative & 8 \\
-\ttkey{>=} & greater than or equal & infix & left associative & 8 \\
+\ttkey{==} & equal & L & infix & left associative & 8 \\
+\ttkey{!=} & not equal & L & infix & left associative & 8 \\
+\ttkey{<} & less than & L & infix & left associative & 8 \\
+\ttkey{<=} & \stack{less than\\or equal} & L & infix & left associative & 8 \\
+\ttkey{>} & greater than & L & infix & left associative & 8 \\
+\ttkey{>=} & \stack{greater than\\or equal} & L & infix & left associative & 8 \\
 \hline
-\ttkey{+} & addition & infix & sum & 9 \\
-\ttkey{-} & subtraction & infix & sum & 9 \\
-\ttkey{|} & bitwise or & infix & nomix & 9 \\
-\ttkey{\&} & bitwise and & infix & nomix & 9 \\
-\ttkey{xor} & bitwise exclusive or & infix & nomix & 9 \\
-\ttkey{<{}<} & left shift & infix & left associative & 9 \\
-\ttkey{>{}>} & right shift & infix & left associative & 9 \\
+\ttkey{+} & addition & A & infix & sum & 9 \\
+\ttkey{-} & subtraction & A & infix & sum & 9 \\
+\ttkey{|} & bitwise or & B & infix & nomix & 9 \\
+\ttkey{\&} & bitwise and & B & infix & nomix & 9 \\
+\ttkey{\textasciicircum} & \stack{bitwise\\exclusive or} & B & infix & nomix & 9 \\
+\ttkey{<{}<} & left shift & B & infix & left associative & 9 \\
+\ttkey{>{}>} & right shift & B & infix & left associative & 9 \\
 \hline
-\ttkey{/} & division & infix & binary & 10 \\
-\ttkey{mod} & modulo & infix & binary & 10 \\
-\ttkey{div} & divide and round toward zero & infix & binary & 10 \\
-\ttkey{rem} & remainder of \TT{div} & infix & binary & 10 \\
+\ttkey{/} & division & A & infix & binary & 10 \\
+\ttkey{\%} & modulo & A & infix & binary & 10 \\
 \hline
-\ttkey{*} & multiplication & infix & nomix & 11 \\
+\ttkey{*} & multiplication & A & infix & nomix & 11 \\
 \hline
-\ttkey{\textasciicircum} & exponentiation & infix & binary & H = 12 \\
+\ttkey{**} & exponentiation & A & infix & binary & H = 12 \\
 \hline
-\ttkey{+} & no operation & prefix & unary & \\
-\ttkey{-} & sign change & prefix & unary & \\
-\ttkey{!} & bitwise complement & prefix & unary & \\
+\ttkey{+} & no operation & A & prefix & unary & \\
+\ttkey{-} & sign change & A & prefix & unary & \\
+\ttkey{!} & \stack{bitwise\\complement} & B & prefix & unary & \\
 \hline
 
 \end{tabular}
+\\[2ex]
+$AOP$ denotes any class A binary operator \\
+$BOP$ denotes any class B binary operator
 \end{center}
 
 \caption{MINVAL OPERATORS}
@@ -1271,18 +1275,27 @@ inserts special \TT{no-operand} primaries
 into the expression so the separating operator becomes an infix
 operator.  The \key{sum} format allows \TT{+} and \TT{-} to be mixed
 in the same expression, but not other operators of the same
-precedence.
+precedence.  In this format, \TT{- x} is rewritten as \TT{+ (- x)}
+and then \TT{+} is treated as a left associative binary infix operator.
 
 The \TT{NOT} operator is odd in that it is nofix/unary instead of
 prefix/unary.  This is done so it can have lower precedence than
 the comparison operators, as prefix operators effectively have highest
 precedence.
 
+The classes are
+\begin{center}
+\begin{tabular}{ll}
+\ikey{L}{class} & means `logical' \\
+\ikey{A}{class} & means `arithmetic' \\
+\ikey{B}{class} & means `bitwise' \\
+\end{tabular}
+\end{center}
 A statement that executes at run-time
-can have only one non-prefix
-operator that performs a computation on run-time values.
-However arbitrary expressions computing with assembly-time {\tt const} values
-may occur in any statement.
+cannot have operators of different classes outside
+subexpressions that evaluate at assembly-time to a {\tt const} value.
+Thus a run-time statement may not mix arithmetic and logical,
+arithmetic and bitwise, or bitwise and logical operators.
 
 The following elaborates the meaning of some of the operators
 that are used in these expressions:
@@ -1293,7 +1306,8 @@ that are used in these expressions:
                   and to {\tt no-operand} otherwise
 \\[0.5ex]
 \tt x \TT{else} y & evaluates to {\tt x} if that is not {\tt no-operand}
-                  and to {\tt y} otherwise
+                  and to {\tt y} otherwise; {\tt no-operand} is only
+		  allowed as a first operand to {\tt else}
 \\[0.5ex]
 \tt x \TT{<} y \TT{<} z & evaluates to {\tt (x < y) AND (y < z)} where
                   {\tt y} is evaluated only once, and similarly for
@@ -1303,22 +1317,13 @@ that are used in these expressions:
                in two's complement by binary values of unbounded size,
 	       and similarly for other bitwise operators
 \\[0.5ex]
-\tt x \TT{\textasciicircum} y
-	& becomes the function call {\tt x~"\textasciicircum"~y}; the
-	  user has to provide the function called
+\tt x \TT{**} y & requires that {\tt y} be a {\tt const} non-negative integer
+\\[0.5ex]
+\tt x $AOP$\TT{=} y & means {\tt x = x $AOP$ y}
+\\[0.5ex]
+\tt x $BOP$\TT{=} y & means {\tt x = x $BOP$ y}
 \end{tabular}
 \end{indpar}
-
-Also the {\tt no-operand} value is treated as if the operand did not exist
-by nomix and sum operators.  I.e., it is treated as
-0 by {\tt +}, {\tt -}, {\tt |}, {\tt xor},
-as 1 by {\tt *},
-as -1 by {\tt \&},
-as {\tt true} by \TT{AND},
-as {\tt false} by \TT{OR},
-and as indicated above by {\tt else}.
-Unary operators return {\tt no-operand} when their operand
-has this value.
 
 \subsection{Primaries}
 
