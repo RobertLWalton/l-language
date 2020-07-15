@@ -1198,9 +1198,6 @@ $BOP$\ttkey{=} & see text & B & infix & binary & 1 \\
 \hline
 
 \end{tabular}
-\\[2ex]
-$AOP$ denotes any class A binary operator \\
-$BOP$ denotes any class B binary operator
 \end{center}
 
 \caption{MINVAL OPERATORS}
@@ -1291,11 +1288,18 @@ The classes are
 \ikey{B}{class} & means `bitwise' \\
 \end{tabular}
 \end{center}
+
 A statement that executes at run-time
 cannot have operators of different classes outside
-subexpressions that evaluate at assembly-time to a {\tt const} value.
+reference subexpressions (\pagref{REFERENCE-EXPRESSIONS}) and
+subexpressions that evaluate at assembly-time to a {\tt const} value
+(\itemref{ASSEMBLY-TIME}).
 Thus a run-time statement may not mix arithmetic and logical,
-arithmetic and bitwise, or bitwise and logical operators.
+arithmetic and bitwise, or bitwise and logical run-time
+operators outside reference expressions.  The part of a
+{\em reference-expression} in which operators may appear is
+the {\em reference-index}, and within it only class A operators
+are allowed.
 
 The following elaborates the meaning of some of the operators
 that are used in these expressions:
@@ -1319,9 +1323,13 @@ that are used in these expressions:
 \\[0.5ex]
 \tt x \TT{**} y & requires that {\tt y} be a {\tt const} non-negative integer
 \\[0.5ex]
-\tt x $AOP$\TT{=} y & means {\tt x = x $AOP$ y}
+\tt x $AOP$\TT{=} y & means {\tt next x = x $AOP$ y} if {\tt x}
+is a {\tt co} frame variable, and {\tt x = x $AOP$ y} otherise,
+where $AOP$ is any class A binary operator of precedence above 1
 \\[0.5ex]
-\tt x $BOP$\TT{=} y & means {\tt x = x $BOP$ y}
+\tt x $BOP$\TT{=} y & means {\tt next x = x $BOP$ y} if {\tt x}
+is a {\tt co} frame variable, and {\tt x = x $BOP$ y} otherise,
+where $BOP$ is any class B binary operator of precedence above 1
 \end{tabular}
 \end{indpar}
 
@@ -1438,7 +1446,7 @@ MINVAL uses several kinds of names:
 \\[1ex]
 \emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
     \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE} $|$
-    \ttakey{WRITE-ONLY} $|$ \ttakey{VOLATILE}
+    \ttakey{WRITE-ONLY} $|$ \ttakey{VOLATILE} $|$ \ttakey{ATOMIC}
 \\[1ex]
 \emkey{operator-name}
     \begin{tabular}[t]{rl}
@@ -1535,7 +1543,7 @@ with the denominator being equal to or greater that 2.  The syntax is:
 			    {\em decimal-fraction}\QMARK{} ~
                             {\em exponent}\QMARK{}
 \\[0.5ex]
-\emkey{decimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{D}
+\emkey{decimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{D\#}
 \\[0.5ex]
 \emkey{decimal-quoted-body} :::= \TT{"} {\em decimal-integer} ~
 				 {\em decimal-fraction}\QMARK{} \TT{"}
@@ -1554,7 +1562,7 @@ with the denominator being equal to or greater that 2.  The syntax is:
                               {\em binary-quoted-body} ~
 			      {\em exponent}\QMARK{}
 \\[0.5ex]
-\emkey{binary-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{B}
+\emkey{binary-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{B\#}
 \\[0.5ex]
 \emkey{binary-quoted-body} :::= \TT{"} {\em binary-integer} ~
 				{\em binary-fraction}\QMARK{} \TT{"}
@@ -1572,7 +1580,7 @@ with the denominator being equal to or greater that 2.  The syntax is:
                {\em hexadecimal-quoted-body} ~
 	       {\em exponent}\QMARK{}
 \\[0.5ex]
-\emkey{hexadecimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{X}
+\emkey{hexadecimal-constant-prefix} :::= {\em sign}\QMARK{} ~ \TT{X\#}
 \\[0.5ex]
 \emkey{hexadecimal-quoted-body} :::= \TT{"} {\em hexadecimal-integer} ~
 				     {\em hexadecimal-fraction}\QMARK{} \TT{"}
@@ -1633,14 +1641,20 @@ An \emkey{map-constant} has two parts, a list and a dictionary
     $|$ & \TT{\{} {\em map-list}\TT{,} {\em map-dictionary} \TT{\}} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{map-list} ::= {\em constant} \{ \TT{,} {\em constant} \}\STAR{}
+\emkey{map-list} ::= {\em constant-expression}
+                     \{ \TT{,} {\em constant-expression} \}\STAR{}
 \\[0.5ex]
 \emkey{map-dictionary} ::= {\em label-value-pair}
                               \{ \TT{,} {\em label-value-pair} \}\STAR{}
 \\[0.5ex]
-\emkey{label-value-pair} ::= {\em data-label} \TT{=>} {\em constant}
+\emkey{label-value-pair} ::=
+    {\em data-label} \TT{=>} {\em constant-expression}
 \\[0.5ex]
 \emkey{data-label} ::= see \pagref{DATA-LABEL}
+\\[0.5ex]
+\emkey{constant-expression} ::= {\em expression} evaluating at assembly time to a {\tt const} value
+\\[0.5ex]
+\emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 Maps \underline{cannot} be represented at run-time.
@@ -1650,7 +1664,7 @@ assembly time as if they were variables of type {\tt const}
 with map values.  These map values are partly read-only,
 with the read-only part including elements with labels like
 {\tt size} for the size in bits of run-time values of the type.
-The user can add their own elements if these do not conflict
+Users can add their own elements if these do not conflict
 with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 
 \subsubsection{Reference Expressions}
@@ -1658,7 +1672,7 @@ with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 
 A \emkey{reference-expression} names a location in memory.
 The {\em reference-expression} by itself can be used to retrieve
-the value of that location.  The {\em reference-expression}
+the value at that location.  The {\em reference-expression}
 preceeded by \TT{@} refers to the location, and not the value
 at the location, and for run-time locations can be used to retrieve
 a pointer to the location.  At assembly-time there
@@ -1679,7 +1693,7 @@ is:
     $|$ & {\em reference-expression} {\em member-name} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{reference-index}
+\emkey{reference-index}\label{REFERENCE-INDEX}
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
     $|$ & {\em expression} evaluating to a {\tt const} integer
