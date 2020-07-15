@@ -171,7 +171,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-July 13, 2020
+July 15, 2020
 
 \bigskip
  
@@ -205,7 +205,7 @@ initialized it is not writable.
 The following is another example:
 \begin{indpar}\begin{verbatim}
 uns8 buffer[81]
-av *WRITABLE* uns8 bp = buffer
+av *READ-WRITE* uns8 bp = buffer
 av uns8 cp = "Hello!"
 loop:
     int i = 0
@@ -219,7 +219,7 @@ loop:
 Here {\tt buffer} is a vector of 81 {\tt uns8} (8-bit unsigned) numbers.
 The label {\tt buffer} denotes an aligned vector pointer, or {\tt av},
 and this is stored in the variable {\tt bp}.  Both {\tt buffer}
-and {\tt bp} attach the {\tt *WRITABLE*} qualifier to the vector elements,
+and {\tt bp} attach the {\tt *READ-WRITE*} qualifier to the vector elements,
 to indicate these elements can be written as well as read.
 The variable {\tt cp} is
 similar to {\tt bp}, except it is set to a vector pointer pointing at
@@ -230,7 +230,7 @@ to reference elements of their vectors, and have {\tt upper} and
 {\tt lower} bounds on these indices.  Here the {\tt lower} bounds
 are their defaults, which are {\tt 0}.
 
-The qualifier {\tt *WRITABLE*} says that a value can be written by code
+The qualifier {\tt *READ-WRITE*} says that a value can be written by code
 using the variable name given,
 and the default qualifier {\tt co}
 says a value will \underline{never} be written
@@ -241,7 +241,7 @@ written by some other piece of code that accesses the value under another
 name.
 The qualifier {\tt *VOLATILE*} says a value may be
 written by some device other than the processor at any time.
-A {\tt *VOLATILE*} value must also be either {\tt *WRITABLE*}
+A {\tt *VOLATILE*} value must also be either {\tt *READ-WRITE*}
 or {\tt ro}, with {\tt ro} being the default.
 
 Variables in function frames and module memory
@@ -259,7 +259,7 @@ and {\tt intq} is a four word (quad) integer.
 Vectors can be created by statements such as `{\tt uns8 buffer[81]}'
 if they have an assembly time determined number of elements.
 Unlike variables, vector elements have the default qualifier
-{\tt *WRITABLE*}, though string constants elements have the
+{\tt *READ-WRITE*}, though string constants elements have the
 default {\tt co}.
 
 The name of the vector is an aligned vector pointer.  This is a
@@ -297,14 +297,14 @@ set its location {\tt @ V}.  For example:
 \begin{indpar}\begin{verbatim}
 int X = 5
 int @ Y = @ X            // Now Y == 5
-*WRITABLE* @ Z = @ X     // Illegal!  X is co.
-*WRITABLE* B = 6
+*READ-WRITE* @ Z = @ X   // Illegal!  X is co.
+*READ-WRITE* B = 6
 int @ C = @ B            // Illegal!  C defaults to co.
 ro int @ D = @ B         // Legal!  D is just read-only.
 B = 7                    // Now D == 7
 \end{verbatim}\end{indpar}
 
-Instead of making a variable {\tt *WRITABLE*} you can update
+Instead of making a variable {\tt *READ-WRITE*} you can update
 it using the {\tt next} construct:
 \begin{indpar}\begin{verbatim}
 int X = 5
@@ -410,17 +410,17 @@ type your type:
 
 . . . . . . . . . . . .
 
-*WRITABLE* my type X
-X.kind = BOX
-X.weight = 55
-X.height = 1023
-X.width = 572
+my type X:
+    X.kind = BOX
+    X.weight = 55
+    X.height = 1023
+    X.width = 572
 
-*WRITABLE* your type Y
-Y.kind = BEER
-Y.weight = 0.45
-Y.volume = 48
-Y.name = "John Doe's Lager"
+your type Y:
+    Y.kind = BEER
+    Y.weight = 0.45
+    Y.volume = 48
+    Y.name = "John Doe's Lager"
 \end{verbatim}\end{indpar}
 
 Here the definitions of {\tt my type} and {\tt your type} are each
@@ -1332,7 +1332,7 @@ A \key{primary} is an {\em expression} that has no operators:
 \emkey{primary}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em constant}		& [\pagref{CONSTANTS}] \\
-    $|$ & \TT{@}\QMARK{} {\em reference-expression}
+    $|$ & {\em reference-expression}
                                         & [\pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
     \end{tabular}
@@ -1437,7 +1437,8 @@ MINVAL uses several kinds of names:
     \label{FUNCTION-TERM-NAME}
 \\[1ex]
 \emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
-    \ttkey{co} $|$ \ttkey{ro} $|$ \ttkey{*WRITABLE*} $|$ \ttkey{*VOLATILE*}
+    \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE} $|$
+    \ttakey{WRITE-ONLY} $|$ \ttakey{VOLATILE}
 \\[1ex]
 \emkey{operator-name}
     \begin{tabular}[t]{rl}
@@ -1496,7 +1497,7 @@ assembly time.  There are three kinds of constants:
     \begin{tabular}[t]{rl}
     ::= & {\em number-constant} \\
     $|$ & {\em string-constant} \\
-    $|$ & {\em object-constant} \\
+    $|$ & {\em map-constant} \\
     \end{tabular} \\
 \emkey{string-constant} ::= {\em quoted-string}
 \end{indpar}
@@ -1642,7 +1643,7 @@ An \emkey{map-constant} has two parts, a list and a dictionary
 \emkey{data-label} ::= see \pagref{DATA-LABEL}
 \end{indpar}
 
-Objects \underline{cannot} be represented at run-time.
+Maps \underline{cannot} be represented at run-time.
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 assembly time as if they were variables of type {\tt const}
@@ -1966,12 +1967,12 @@ value of the variable while {\tt @ x} refers to the location of
 the value of {\tt x }.
 Thus an example using {\em assignment-operators} is:
 \begin{indpar}\begin{verbatim}
-*WRITABLE* int x = 5
-*WRITABLE* int @ y = @ x  // Now x and y have the same locations.
-y = 6                     // Now x and y both == 6.
-ap *WRITABLE* int z = @ x // Now z points at x.
-*WRITABLE* int @ w = z    // Now location of w is that pointed at by z.
-w = 7                     // Now w, x, and y all == 7.
+*READ-WRITE* int x = 5
+*READ-WRITE* int @ y = @ x  // Now x and y have the same locations.
+y = 6                       // Now x and y both == 6.
+ap *READ-WRITE* int z = @ x // Now z points at x.
+*READ-WRITE* int @ w = z    // Now location of w is that pointed at by z.
+w = 7                       // Now w, x, and y all == 7.
 \end{verbatim}\end{indpar}
 
 For a variable {\tt v} of {\tt const} type, `{\tt @ v}'
@@ -2068,8 +2069,8 @@ block's {\em assignment-results} with any {\em qualifiers}
 and {\em types} omitted (these are inferred within the block
 from the associated {\em assignment-result}).  An example is:
 \begin{indpar}\begin{verbatim}
-*WRITABLE* int x = 5
-*WRITABLE* int @ y, int z =:
+*READ-WRITE* int x = 5
+*READ-WRITE* int @ y, int z =:
     @ y = @ x
     y = 6
     z = 7
