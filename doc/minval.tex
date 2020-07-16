@@ -171,7 +171,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-July 15, 2020
+July 16, 2020
 
 \bigskip
  
@@ -1497,7 +1497,7 @@ one of the components of the sequence.
 \subsubsection{Constants}
 \label{CONSTANTS}
 
-A \key{constant} is a value of type {\tt const} computed at
+A \key{constant} is a value of type \ttkey{const} computed at
 assembly time.  There are three kinds of constants:
 
 \begin{indpar}
@@ -1508,6 +1508,11 @@ assembly time.  There are three kinds of constants:
     $|$ & {\em map-constant} \\
     \end{tabular} \\
 \emkey{string-constant} ::= {\em quoted-string}
+\\[0.5ex]
+\emkey{constant-expression}\label{CONSTANT-EXPRESSION}
+    ::= {\em expression} evaluating at assembly time to a {\tt const} value
+\\[0.5ex]
+\emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 A \emkey{number-constant} is a {\em number} lexeme or sequence of
@@ -1648,13 +1653,11 @@ An \emkey{map-constant} has two parts, a list and a dictionary
                               \{ \TT{,} {\em label-value-pair} \}\STAR{}
 \\[0.5ex]
 \emkey{label-value-pair} ::=
-    {\em data-label} \TT{=>} {\em constant-expression}
+    {\em map-label} \TT{=>} {\em constant-expression}
+\\[0.5ex]
+\emkey{map-label}\label{MAP-LABEL} ::= {\em data-label}
 \\[0.5ex]
 \emkey{data-label} ::= see \pagref{DATA-LABEL}
-\\[0.5ex]
-\emkey{constant-expression} ::= {\em expression} evaluating at assembly time to a {\tt const} value
-\\[0.5ex]
-\emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 Maps \underline{cannot} be represented at run-time.
@@ -1689,34 +1692,50 @@ is:
 \emkey{reference-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
-    $|$ & {\em reference-expression} \TT{[} {\em reference-index} \TT{]} \\
+    $|$ & {\em reference-expression} \TT{[} {\em index-list} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{reference-index}\label{REFERENCE-INDEX}
+\emkey{index-list} ::= {\em index} \{ \TT{,} {\em index} \}\STAR{}
+\\[0.5ex]
+\emkey{index}\label{REFERENCE-INDEX}
+    ::= {\em sign}\QMARK{} {\em index-term}
+        \{ {\em sign} {\em index-term} \}\STAR{}
+\\[0.5ex]
+\emkey{sign} ::= \TT{+} $|$ \TT{-}
+\\[0.5ex]
+\emkey{index-term}
     \begin{tabular}[t]{rl}
-    ::= & {\em variable-name} \\
-    $|$ & {\em expression} evaluating to a {\tt const} integer
+    ::= & {\em constant-expression} \\
+    $|$ & {\em variable-name} \\
+    $|$ & {\em constant-expression} \TT{*} {\em variable-name} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
 \emkey{member-name} ::= see \pagref{MEMBER-NAME}
-\\[0.5ex]
-\emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
-A {\em member-name} may be used to select a field or subfield
-of a user defined type\pagnote{TYPE-DECLARATIONS} value referred
-to by a {\em reference-expression}
-to which the {\em member-name} is appended.
+A {\em member-name} of the form `\TT{.}{\em data-label}\,'
+may be used to select a field or subfield
+of a user defined type\pagnote{TYPE-DECLARATIONS} value or
+an element of a {\em map-dictionary}.
 
-A {\em reference-index} may be used to select an element of a vector
-pointed at by a pointer referred to by the
-{\em reference-expression}
-to which the {\em reference-index} is appended.  The index may be
-positive or negative.  Bounds stored in the pointer are used to
+An {\em index} may be used to select an element of a vector
+or array in a
+user defined type value, or the
+element of a vector pointed at by a pointer, or an element
+of a {\em map}.  When used to select a {\em map-dictionary}
+element, the {\em index} must be a string.  Otherwise the
+index is a positive or negative integer.  Bounds imposed
+by user defined types or stored in a pointer are used to
 check that the index is within range.
+
+Within an {\em index-list} the comma (\TT{,}) is treated
+as equivalent to \TT{][}, so, for example, `{\tt [x,y]}'
+is equivalent to {\tt [x][y]}.
 
 At assembly time a map is considered to be immutable unless
 \TT{@} is used to save its location when it is created.  For example:
@@ -2353,7 +2372,7 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{bool}
     \end{tabular}
 \\[2ex]
-\emkey{field-label} ::=  {\em data-label} \\
+\emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
@@ -2362,7 +2381,7 @@ The syntax of a type declaration is:
 \\[2ex]
 \emkey{subfield-declaration}
     ::= {\em bit-range} {\em number-type-name} {\em subfield-label} \\
-\emkey{subfield-label} ::=  {\em data-label}
+\emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em data-label}
 \\[2ex]
 \emkey{bit-range}
     \begin{tabular}[t]{@{}rl}
