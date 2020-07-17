@@ -1289,6 +1289,7 @@ The classes are
 \end{tabular}
 \end{center}
 
+\label{RUN-TIME-EXPRESSION-LIMITS}
 A statement that executes at run-time
 cannot have operators of different classes outside
 reference subexpressions (\pagref{REFERENCE-EXPRESSIONS}) and
@@ -1821,7 +1822,7 @@ The syntax of function calls is:
 \\[0.5ex]
 \emkey{call-term-name}\label{CALL-TERM-NAME} ::=
     \begin{tabular}[t]{@{}l}
-    {\em function-term-name} with quotes removed from \\
+    {\em function-term-name} with quotes \underline{optionally} removed from \\
     {\em quoted-marks} and {\em quoted-separators}
     \end{tabular}
 \\[0.5ex]
@@ -1852,24 +1853,29 @@ equivalent to `{\tt x(false)}'.
 
 {\em Function-calls} are matched to function prototypes.  The
 {\em call-term-names} in a match are identical to the
-{\em function-term-names} taken from the prototype being matched.  The first
+{\em function-term-names} taken from the prototype being matched, except
+that quotes (\TT{"}) in a prototype {\em quoted-mark} or
+{\em quoted-separator} may (or may not) be omitted in the
+{\em function-call}.  The first
 step in matching is to scan the {\em function-call} to identify the
 {\em call-term-names}.  There is no parser backing up after this is
 done: if the results of this initial scan do not lead to a satisfying
 match, the entire call-prototype match fails.  Therefore caution
 is necessary in omitting parentheses around
 {\em unparenthesized-actual-arguments} when these share lexemes with
-{\em function-term-names} in some function prototypes.
+{\em function-term-names} in function prototypes that might be
+matched to the {\em function-call}.
 
-\subsection{Assembly Time}
+\subsection{Assembly-Time}
 \label{ASSEMBLY-TIME}
 
 Variables and values that exist during assembly are called
 \key{assembly-time}, while variables and values that exist during
 program execution are called {\em run-time}.  Assembly-time
 is actually an important syntactic concept, as run-time
-{\em expressions} cannot contain more than one non-prefix operator
-and are only allowed prefix operators with limitations.
+{\em expressions} cannot contain operators of different
+classes or both operators and function calls: see
+\pagref{RUN-TIME-EXPRESSION-LIMITS}.
 
 Syntactically \key{assembly-time} is defined as follows:
 
@@ -1880,15 +1886,15 @@ is assembly-time if and only if it is of type {\tt const}.
 \item A {\em constant} is assembly-time.
 \item A {\em type-name} and a {\em pointer-type-name} are assembly-time
 and denote maps describing the type or pointer type.
-(At run-time type {\tt T} is declared by the
+(At run-time a type {\tt T} is declared by the
 equivalent of {\tt type @ T = \ldots}, where `{\tt type}' is a
 defined type that is
-used to distinguish types and contain type parameters.)
+used to distinguish types and contain type parameters, and
+similarly for pointer types.)
 \item An {\em expression} with an operator is
       assembly-time if its lowest precedence operator
       and its operands are assembly-time.
-      All the standard operators are assembly-time except exponentiation
-      ({\tt \textasciicircum}) which denotes a function call.
+      All the standard operators are assembly-time.
 \item A {\em function-call} is assembly-time if and only if all its
       arguments are assembly-time and the function called is
       assembly-time.
@@ -1896,8 +1902,8 @@ used to distinguish types and contain type parameters.)
       result and argument variables are assembly-time (i.e., have
       {\tt const} type) and all its
       {\em statements} are assembly-time.
-\item Builtin functions are assembly-time if their arguments and/or
-      results are of {\tt const} type.
+\item Builtin functions are assembly-time if their arguments and
+      results are all of {\tt const} type.
 \item A {\em statement} is assembly-time if and only if all its
       variables and expressions are assem\-bly-time.
 \end{itemize}
