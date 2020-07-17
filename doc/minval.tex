@@ -1296,15 +1296,17 @@ subexpressions that evaluate at assembly-time to a {\tt const} value
 (\itemref{ASSEMBLY-TIME}).
 Thus a run-time statement may not mix arithmetic and logical,
 arithmetic and bitwise, or bitwise and logical run-time
-operators outside reference expressions.  The part of a
-{\em reference-expression} in which operators may appear is
-the {\em reference-index}, and within it only class A operators
-are allowed.
+operators outside reference expressions and expressions with
+{\tt const} value.
+
+A statement that executes at run-time cannot have class L, A, or B
+operators and a call of an inline function,
+except it can have reference expression
+calls and/or operators inside a reference expression.
 
 The following elaborates the meaning of some of the operators
 that are used in these expressions:
 
-\begin{indpar}
 \begin{tabular}{rp{5.0in}}
 \tt x \TT{if} y & evaluates to {\tt x} if {\tt y} evaluates to {\tt true},
                   and to {\tt no-operand} otherwise
@@ -1321,17 +1323,17 @@ that are used in these expressions:
                in two's complement by binary values of unbounded size,
 	       and similarly for other bitwise operators
 \\[0.5ex]
-\tt x \TT{**} y & requires that {\tt y} be a {\tt const} non-negative integer
+\tt x \TT{**} y & requires that {\tt y} be a {\tt const} non-negative integer;
+{\tt x ** 0 == 1} for all {\tt x}
 \\[0.5ex]
 \tt x $AOP$\TT{=} y & means {\tt next x = x $AOP$ y} if {\tt x}
-is a {\tt co} frame variable, and {\tt x = x $AOP$ y} otherise,
+is a {\tt co} frame variable, and {\tt x = x $AOP$ y} otherwise,
 where $AOP$ is any class A binary operator of precedence above 1
 \\[0.5ex]
 \tt x $BOP$\TT{=} y & means {\tt next x = x $BOP$ y} if {\tt x}
-is a {\tt co} frame variable, and {\tt x = x $BOP$ y} otherise,
+is a {\tt co} frame variable, and {\tt x = x $BOP$ y} otherwise,
 where $BOP$ is any class B binary operator of precedence above 1
 \end{tabular}
-\end{indpar}
 
 \subsection{Primaries}
 
@@ -1734,7 +1736,7 @@ by user defined types or stored in a pointer are used to
 check that the index is within range.
 
 Within an {\em index-list} the comma (\TT{,}) is treated
-as equivalent to \TT{][}, so, for example, `{\tt [x,y]}'
+as equivalent to \TT{][}, so, for example, {\tt [x,y]}
 is equivalent to {\tt [x][y]}.
 
 At assembly time a map is considered to be immutable unless
