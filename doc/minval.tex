@@ -171,7 +171,7 @@ MINVAL
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-July 16, 2020
+July 17, 2020
 
 \bigskip
  
@@ -1758,13 +1758,17 @@ Inline functions may be defined that syntactically and semantically mimic
 {\em reference-\EOL expres\-sions}, and calls to such functions
 can be used as {\em reference-expressions} (this is an exception
 to the rule that a run-time statement can contain at most one function
-call).  An example is:
+call).  If the inline function returns a value, a call to the function
+can only be used to read a value from an apparent
+location.  However if the inline function returns a location whose
+value has writable qualifiers, a call to the function can be used
+to write the location.  An example of the latter is:
 \label{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE}
 
 \begin{indpar}\begin{verbatim}
-// In my vector X, a vector with flt64 elements is located at
-// X.offset from the address of X and allows index range
-// from 0 through X.length-1.
+// In my vector X, a writable vector with flt64 elements is
+// located at X.offset from the address of X and allows index
+// range from 0 through X.length-1.
 //
 type my vector:
     uns offset;
