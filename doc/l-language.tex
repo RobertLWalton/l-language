@@ -1,6 +1,6 @@
-% Minimal Runtime System Virtual Assembly Language
+% Layered Languages Low Level Language (L-Language)
 %
-% File:         minval.tex
+% File:         l-language.tex
 % Author:       Bob Walton (walton@acm.org)
 % Date:		See \date below.
   
@@ -164,14 +164,14 @@
 Minimal Runtime System\\
 Virtual Assembly Language\\[0.5ex]
 \huge \bf
-MINVAL
+L-LANGUAGE
 \end{center}
 \begin{center}
 \large \bf
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-July 17, 2020
+October 4, 2020
 
 \bigskip
  
@@ -186,12 +186,12 @@ Table of Contents
 
 \section{Introduction}
 
-This document describes \key{MINVAL}, the Minimal Runtime System Virtual
-Assembly Language.
+This document describes \key{L-LANGUAGE}, the Layered Language
+System Low Level Language.
 
 \section{Overview}
 
-A typical MINVAL statement is:
+A typical L-LANGUAGE statement is:
 \begin{indpar}\begin{verbatim}
 int X = Y - C"0"
 \end{verbatim}\end{indpar}
@@ -322,7 +322,7 @@ efficient by keeping variables constant (i.e., {\tt co}), and
 it improves debuggability by retaining the different values of
 the variable for inspection by a debugger.
 
-MINVAL has a full set of number types:
+L-LANGUAGE has a full set of number types:
 {\tt int8}, {\tt uns8},
 {\tt int16}, {\tt uns16}, {\tt flt16}, \ldots,
 {\tt int128}, {\tt uns128}, {\tt flt128}.
@@ -375,8 +375,8 @@ If {\tt des} where in bits 23-30 instead of 24-31, it would
 not be on a byte boundary and the location of {\tt Y} would
 also have to be an {\tt fp} field pointer.
 
-Note that names in MINVAL can have multiple lexemes, as in
-the subfield name `{\tt op code}' and what MINVAL calls the
+Note that names in L-LANGUAGE can have multiple lexemes, as in
+the subfield name `{\tt op code}' and what L-LANGUAGE calls the
 associated member name `{\tt .op code}' that is used to access
 the field.
 
@@ -482,7 +482,7 @@ Expressions and statements that use only {\tt const} values
 execute at assembly-time and can be used to compute run-time
 constants and other arbitrary code.
 
-By default, functions in MINVAL are inline.  For example,
+By default, functions in L-LANGUAGE are inline.  For example,
 
 \begin{indpar}\begin{verbatim}
 function int r = max ( int x, int y ):
@@ -588,7 +588,7 @@ which converts the point of type {\tt P\$s} to a pointer of
 type {\tt dp} (direct pointer) and calls the C programming
 language subroutine {\tt LIBC strlen} with the direct pointer.
 
-MINVAL does not necessarily make any use of registers, other
+L-LANGUAGE does not necessarily make any use of registers, other
 than as temporaries during the execution of a single statement,
 and a pair of registers that hold the current function
 execution frame address and current module data address.
@@ -628,14 +628,14 @@ flt64 v = q.p[0]              // OK
 
 \section{Syntax}
 
-In this section we describe the syntax of MINVAL programs
+In this section we describe the syntax of L-LANGUAGE programs
 and briefly indicate the associated semantics, which is
 described in detail in following sections.
 
 \subsection{Lexemes}
 \label{LEXEMES}
 
-A MINVAL source file is a sequence of bytes that is a UTF-8 encoding
+A L-LANGUAGE source file is a sequence of bytes that is a UTF-8 encoding
 of a sequence of UNICODE characters.  This is scanned into a sequence
 of \skey{lexeme}s.
 
@@ -893,12 +893,12 @@ warning messages.
 {\em end-of-file} ::= see \pagref{END-OF-FILE}
 
 \end{indpar}
-\caption{MINVAL Program Lexemes}
-\label{MINVAL-PROGRAM-LEXEMES}
+\caption{L-LANGUAGE Program Lexemes}
+\label{L-LANGUAGE-PROGRAM-LEXEMES}
 \end{boxedfigure}
 
-The lexemes in a MINVAL program are specified in
-Figure~\itemref{MINVAL-PROGRAM-LEXEMES}.  This specification assumes there
+The lexemes in a L-LANGUAGE program are specified in
+Figure~\itemref{L-LANGUAGE-PROGRAM-LEXEMES}.  This specification assumes there
 are no illegal characters in the input; see page \pageref{ILLEGAL-CHARACTERS}
 above to account for such characters.
 
@@ -1130,7 +1130,7 @@ lexemes in the logical line
 are removed from the logical line.  If the result is
 empty, e.g., the logical line is a comment line, it is discarded.
 Otherwise the
-modified logical line becomes a MINVAL `\emkey{statement}'.
+modified logical line becomes a L-LANGUAGE `\emkey{statement}'.
 
 Therefore a file is a sequence of top-level statements.
 
@@ -1145,7 +1145,7 @@ Expressions are built from operators, such as \TT{+} and \TT{*},
 and primaries, such as variable names and function calls.
 
 Operators are characterized by fixity, precedence, and format.
-The MINVAL operators are listed in Table~\itemref{MINVAL-OPERATORS}.
+The L-LANGUAGE operators are listed in Table~\itemref{L-LANGUAGE-OPERATORS}.
 
 \begin{boxedfigure}[!p]
 \begin{center}
@@ -1200,8 +1200,8 @@ $BOP$\ttkey{=} & see text & B & infix & binary & 1 \\
 \end{tabular}
 \end{center}
 
-\caption{MINVAL OPERATORS}
-\label{MINVAL-OPERATORS}
+\caption{L-LANGUAGE OPERATORS}
+\label{L-LANGUAGE-OPERATORS}
 \end{boxedfigure}
 
 Given this, expressions have the following syntax,
@@ -1243,7 +1243,7 @@ Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
 and operators of precedence $P$.
 
-The operators in Figure \itemref{MINVAL-OPERATORS} have precedences in
+The operators in Figure \itemref{L-LANGUAGE-OPERATORS} have precedences in
 the range {\em [L,H]}.
 Precedence {\em (H+1)} is reserved for the `error operator' which is a
 nofix operator inserted by the parser to `fix up' parsing errors
@@ -1412,7 +1412,7 @@ A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULE-DECLARATIONS}.
 For example {\tt std} abbreviates the builtin standard module.
 
-MINVAL uses several kinds of names:
+L-LANGUAGE uses several kinds of names:
 
 \begin{indpar}
 \emkey{simple-name} ::= \TT{word} not containing any `\TT{.}'s \\
