@@ -171,7 +171,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 4, 2020
+October 5, 2020
 
 \bigskip
  
@@ -1343,7 +1343,7 @@ A \key{primary} is an {\em expression} that has no operators:
 \emkey{primary}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em constant}		& [\pagref{CONSTANTS}] \\
-    $|$ & {\em reference-expression}
+    $|$ & \TT{@}\QMARK{} {\em reference-expression}
                                         & [\pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
     \end{tabular}
@@ -1450,7 +1450,10 @@ L-LANGUAGE uses several kinds of names:
 \emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
     \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE} $|$
     \ttakey{WRITE-ONLY} $|$ \ttakey{VOLATILE} $|$ \ttakey{ATOMIC}
-\\[1ex]
+\begin{indpar}
+{\tt co} abbreviates `constant' meaning `never changes' \\
+{\tt ro} abbreviates `read-only' meaning `other code may change'
+\end{indpar}
 \emkey{operator-name}
     \begin{tabular}[t]{rl}
     ::= & \TT{if} $|$ \TT{else}
@@ -1458,7 +1461,13 @@ L-LANGUAGE uses several kinds of names:
 		  $|$ \TT{NOT} $|$ \TT{BUT}  \\
     $|$ & \TT{mod} $|$ \TT{div} $|$ \TT{rem}
     \end{tabular}
-\\[1ex]
+\begin{indpar}
+{\tt xor} abbreviates `exclusive or' \\
+{\tt mod} abbreviates `modulo' as per mathematics \\
+{\tt div} abbreviates `divided by' as per elementary integer arithmetic \\
+{\tt rem} abbreviates `remainder' as per elementary integer arithmetic
+\end{indpar}
+
 \emkey{function-keyword}
     \begin{tabular}[t]{rl}
     ::= & \TT{no} $|$ \TT{not} $|$ \TT{function} $|$ \TT{generic} \\
@@ -1921,6 +1930,8 @@ The following is a complete list of the kinds of statements:
     \begin{tabular}[t]{@{}rll}
     ::= & {\em assignment-statement}
         & [\pagref{ASSIGNMENT-STATEMENTS}] \\
+    $|$ & {\em control-statement}
+        & [\pagref{CONTROL-STATEMENT}] \\
     $|$ & {\em declaration}
         & [\pagref{DECLARATIONS}] \\
     $|$ & {\em include-statement}
@@ -2006,6 +2017,22 @@ The following are the different kinds of {\em assignment-statements}:
     \end{tabular}
 \end{indpar}
 
+Associated with each of the more complex types of
+{\em assignment-statement} there are {\em control-statements}
+to control the flow of execution within an
+{\em assignment-statement}:
+\begin{indpar}
+\emkey{control-statement}\label{CONTROL-STATEMENT}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em block-control-statement}
+        & [\pagref{BLOCK-CONTROL-STATEMENTS}] \\
+    $|$ & {\em conditional-control-statement}
+        & [\pagref{CONDITIONAL-CONTROL-STATEMENTS}] \\
+    $|$ & {\em loop-control-statement}
+        & [\pagref{LOOP-CONTROL-STATEMENTS}] \\
+    \end{tabular}
+\end{indpar}
+
 
 Given a variable {\tt x}, the variable name {\tt x} refers to the
 value of the variable while {\tt @ x} refers to the location of
@@ -2024,6 +2051,19 @@ For a variable {\tt v} of {\tt const} type, `{\tt @ v}'
 can be used only if it denotes the location of a mutable map or
 element of a mutable map.
 There are no assembly-time pointers analogous to {\tt ap}.
+
+While a variable {\tt v} may have qualifier {\tt co}, {\tt ro},
+or {\tt *READ-WRITE*}, the location `{\tt @ v}' of the variable
+can only be set once (it is implicitly {\tt co}).
+
+Note that you can assign to a variable location but not a
+{\em reference-expression} location.  For example, `{\tt int @ x = \ldots}'
+is allowed (and if {\tt x} is a deferred or iteration variable
+`{\tt @ x = \ldots}' is allowed), but `{\tt @ x[2] = \ldots}' is never
+allowed.  More specifically, you can use {\tt @} to assign a location
+that will itself be stored in a function frame, but \underline{not}
+to assign a location that itself will be stored outside any function
+frame.
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
@@ -2044,27 +2084,30 @@ of left-side {\em assignment-results}.
 \item For run-time {\em expression-assignment-statements}, if
 there is \underline{more than one} right-side {\em expression}, all these
 {\em expressions} must be {\em reference-expressions} or
-assembly-time {\em expressions} (i.e., operators and
-{\em function-calls} are not allowed outside assem\-bly-time
-{\em expressions}).
+assembly-time {\em expressions} (thus run-time computation cannot
+be done on the right-side except for {\em reference-expression}
+indices).
 \item For run-time {\em expression-assignment-statements} with
 a \underline{single} right-side {\em expression}, this {\em expression}
-may be any run-time {\em expression}.
+may be a single run-time {\em function-call},
+in which case there may any number of {\em assignment-results}
+consistent with the called function (see \pagref{FUNCTION-CALLS}).
+\item For run-time {\em expression-assignment-statements} with
+a \underline{single} right-side {\em expression} containing
+\underline{no} run-time {\em function-calls}, 
+there must be a single {\em assignment-result}, and the right-side
+{\em expression} may only contain operators that operate on
+the data type specified by this {\em assignment-result}.
+Furthermore the parenthesis depth of the right-side {\em expression}
+must not be greater then 4 (i.e., {\tt ((((\ldots))))} is the
+maximum depth allowed).
 \end{itemize}
 \end{indpar}
 
-All the locations that are needed are evaluated first, then any right
+For cases not involving a run-time {\em function-call},
+all variable locations are evaluated first, then any right
 side operators are evaluated, then the right-side values are stored
 in the left-side locations.
-
-If the right-side is a single {\em function-call},
-this may return more than one result, and must return
-at least as many results as there are {\em assignment-results}.
-
-Note that you can assign to a variable location but not a
-{\em reference-expression} location.  For example, `{\tt int @ x = \ldots}'
-is allowed but `{\tt int @ x[2] = \ldots}' is not.
-
 
 
 \subsubsubsection{Block Assignment Statements}
