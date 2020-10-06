@@ -9,15 +9,9 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{makeidx}
-% \usepackage{pictex} (obsolete? not available under CentOS 7)
-\usepackage{upquote} % (imported to local directory
-                     % ; not available under CentOS 7)
-    % Modifies \verb and \verbatim to print ' with
-    % the Computer Modern Typewrite font.
-    % Also includes the textcomp package.
-    % Modifies \verb and \verbatim to print ' with
-    % the Computer Modern Typewrite font.
-    % Also includes the textcomp package.
+\usepackage{upquote}
+     % (import to local directory for CentOS 8)
+     % Available on CentOS 8.
 
 \makeindex
 
@@ -171,7 +165,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 5, 2020
+October 6, 2020
 
 \bigskip
  
@@ -2017,17 +2011,15 @@ The following are the different kinds of {\em assignment-statements}:
     \end{tabular}
 \end{indpar}
 
-Associated with each of the more complex types of
+Associated with some of the more complex types of
 {\em assignment-statement} there are {\em control-statements}
-to control the flow of execution within an
+to control the flow of execution within the more complex
 {\em assignment-statement}:
 \begin{indpar}
 \emkey{control-statement}\label{CONTROL-STATEMENT}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em block-control-statement}
         & [\pagref{BLOCK-CONTROL-STATEMENTS}] \\
-    $|$ & {\em conditional-control-statement}
-        & [\pagref{CONDITIONAL-CONTROL-STATEMENTS}] \\
     $|$ & {\em loop-control-statement}
         & [\pagref{LOOP-CONTROL-STATEMENTS}] \\
     \end{tabular}
@@ -2043,7 +2035,8 @@ Thus an example using {\em assignment-operators} is:
 *READ-WRITE* int @ y = @ x  // Now x and y have the same locations.
 y = 6                       // Now x and y both == 6.
 ap *READ-WRITE* int z = @ x // Now z points at x.
-*READ-WRITE* int @ w = z    // Now location of w is that pointed at by z.
+*READ-WRITE* int @ w = z    // Now location of w is that
+                            // pointed at by z.
 w = 7                       // Now w, x, and y all == 7.
 \end{verbatim}\end{indpar}
 
@@ -2135,6 +2128,9 @@ The syntax of {\em block-assignment-statements} is:
 \\[0.5ex]
 \emkey{statement-label} ::= see \pagref{STATEMENT-LABEL} \\
 \emkey{statement} ::= see \pagref{STATEMENT} \\
+\emkey{block-control-statements}\label{BLOCK-CONTROL-STATEMENTS}
+	::= {\em goto-exit-statement} \\
+{\em go-to-exit-statement} ::= see \pagref{GO-TO-STATEMENT} \\
 \\[1ex]
 where
 \begin{itemize}
@@ -2200,7 +2196,9 @@ a \underline{subsequent} {\em exit-subblock}.
 paths through a {\em block-assignment-statement}.
 A variable declared within the block is only visible to statements that can be
 arrived at only by execution paths that include the variable's
-declaration.  All the execution paths must set each of the
+declaration.  An execution path cannot include
+two {\em result-variable-declarations} of the same variable.
+All the execution paths must set each of the
 block's {\em assignment-result} variables exactly once.
 
 
@@ -2217,8 +2215,10 @@ and {\em exit-subblocks} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
 \emkey{conditional-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em assignment-left-side} \TT{=} \}\QMARK{} \ttkey{if}\TT{:} \\
+	\TT{~~~~}{\em expression-assignment-statement}\STAR{} \\
 	\TT{~~~~}{\em condition-expression}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
+	\TT{~~~~}{\em expression-assignment-statement}\STAR{} \\
 	\TT{~~~~}{\em condition-expression}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
@@ -2233,21 +2233,30 @@ An example is:
 int x = 5
 int y = 6
 int z = if:
-    x < y:
-        z = y    // Sets z = 6
+    int sum = x + y         // Sets sum = 11
+    int product = x * y     // Sets product = 30
+    sum < product:
+        z = sum             // Sets z = 11
     else:
-        z = x    // Is NOT executed
-// Now z = 6
+        z = product         // Is NOT executed
+// Now z = 11
 \end{verbatim}\end{indpar}
 in which the {\em conditional-assignment-statement} is equivalent to:
 \begin{indpar}\begin{verbatim}
 int z =:
-    if x < y go to E exit   // goes to E exit
-    z = x        // Is NOT executed
-    E exit:
-        z = y    // Sets z = 6
-// Now z = 6
+    int sum = x + y                 // Sets sum = 11
+    int product = x * y             // Sets product = 30
+    if sum < product go to E1 exit  // goes to E1 exit
+    z = product                     // Is NOT executed
+    E1 exit:
+        z = sum                     // Sets z = 11
+// Now z = 11
 \end{verbatim}\end{indpar}
+
+In words, each {\em condition-expression} turns into a
+{\em go-to-exit-statement}, and the subblock of {\em statements}
+after the {\em condition-expression} become the {\em statements}
+of the corresponding {\em exit-subblock}.
 
 \subsubsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
