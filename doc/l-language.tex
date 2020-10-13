@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 6, 2020
+October 13, 2020
 
 \bigskip
  
@@ -2146,7 +2146,7 @@ of the {\em block-assignment-statement} using {\em deferred-variable}
 names:
 \begin{indpar}
 \emkey{deferred-variable}\label{DEFERRED-VARIABLE} ::=
-    \TT{next}\QMARK{} \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name}
+    \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name}
 \end{indpar}
 A {\em deferred-variable} is just a copy of one of the
 block's {\em assignment-results} with any {\em qualifiers}
@@ -2173,12 +2173,12 @@ A {\em go-to-exit-statement} within a block may exit the block or
 enter an {\em exit-subblock} of the block:
 \begin{indpar}
 \emkey{go-to-exit-statement}\label{GO-TO-STATEMENT} ::=
-    \{ \TT{if} {\em condition-expression} \}\QMARK{}
+    \{ \TT{if} {\em bool-expression} \}\QMARK{}
     \ttkey{go to} {\em go-to-label} \TT{exit}
 \\[0.5ex]
 \emkey{go-to-label} ::= {\em block-label} $|$ {\em exit-label}
 \\[0.5ex]
-{\em condition-expression} ::=
+{\em bool-expression}\label{BOOL-EXPRESSION} ::=
     \begin{tabular}[t]{@{}l}
     {\em expression} evaluating at run-time to a {\tt bool} \\
     or at assembly-time to the {\em const} value {\tt "TRUE"} or {\tt "FALSE"}
@@ -2198,8 +2198,13 @@ A variable declared within the block is only visible to statements that can be
 arrived at only by execution paths that include the variable's
 declaration.  An execution path cannot include
 two {\em result-variable-declarations} of the same variable.
+
 All the execution paths must set each of the
-block's {\em assignment-result} variables exactly once.
+block's {\em assignment-result} variables exactly once, except for
+{\em assignment-results} of the form
+`{\tt next} {\tt @}\QMARK{} {\em variable}', which if not set at all will
+automatically be given the value {\em variable} had at the beginning
+of the {\em block-assignment-statement}.
 
 
 \subsubsubsection{Conditional Assignment Statements}
@@ -2216,10 +2221,10 @@ and {\em exit-subblocks} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
 \hspace*{0.5in}\begin{tabular}[t]{l}
         \{ {\em assignment-left-side} \TT{=} \}\QMARK{} \ttkey{if}\TT{:} \\
 	\TT{~~~~}{\em expression-assignment-statement}\STAR{} \\
-	\TT{~~~~}{\em condition-expression}\TT{:} \\
+	\TT{~~~~}{\em bool-expression}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}{\em expression-assignment-statement}\STAR{} \\
-	\TT{~~~~}{\em condition-expression}\TT{:} \\
+	\TT{~~~~}{\em bool-expression}\TT{:} \\
 	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
 	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
 	\TT{~~~~}\ttkey{else}\TT{:} \\
@@ -2253,9 +2258,9 @@ int z =:
 // Now z = 11
 \end{verbatim}\end{indpar}
 
-In words, each {\em condition-expression} turns into a
+In words, each {\em bool-expression} turns into a
 {\em go-to-exit-statement}, and the subblock of {\em statements}
-after the {\em condition-expression} become the {\em statements}
+after the {\em bool-expression} become the {\em statements}
 of the corresponding {\em exit-subblock}.
 
 \subsubsubsection{Loop Assignment Statements}
@@ -2266,99 +2271,109 @@ A {\em loop-assignment-statement} has the syntax:
 \begin{indpar}
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em assignment-left-side} \TT{=} \}\QMARK{} \ttkey{loop}\TT{:} \\
-	\TT{~~~~}{\em loop-variable-assignment-statement}\PLUS{} \\
-	\TT{~~~~}{\em iteration-subblock} \\
-	\TT{~~~~}{\em finalization-subblock}\QMARK{} \\
-	\end{tabular}
-\\[0.5ex]
-\emkey{loop-variable-assignment-statement} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-	{\em assignment-statement} with one or more \\
-	{\em iteration-results} and nothing else on its left-side
-	\end{tabular} \\
-\emkey{iteration-result}
-    \begin{tabular}[t]{rl}
-    ::= & {\em loop-variable-declaration} \\
-    $|$ & {\em iteration-variable} \\
-    \end{tabular} \\
-{\em loop-variable-declaration} ::= {\em result-variable-declaration} \\
-{\em result-variable-declaration} ::=
-    see \pagref{RESULT-VARIABLE-DECLARATION}
-\\[0.5ex]
-\emkey{loop-variable} ::=
-    {\em variable-name} declared by an {\em loop-variable-declaration}
-\\[0.5ex]
-\emkey{iteration-variable}\label{ITERATION-VARIABLE} ::= 
-    \TT{next} \TT{next}\QMARK{} \TT{@}\QMARK{} {\em loop-variable}
-\\[0.5ex]
-\emkey{iteration-subblock} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ \ttkey{while} $|$ \ttkey{until} \}
-	    {\em condition-expression} \TT{:} \\
+        \{ {\em iteration-result} \{ \TT{,} {\em iteration-result} \}
+	   \TT{=} \}\QMARK{} {\em iteration-control}\TT{:} \\
 	\TT{~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}{\em exit-subblock}\STAR{} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{finalization-subblock} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \ttkey{finally}\TT{:} \\
-	\TT{~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}{\em exit-subblock}\STAR{} \\
-	\end{tabular}
+\emkey{iteration-result}\label{ITERATION-VARIABLE} ::= 
+    \TT{next} \TT{@}\QMARK{} {\em iteration-variable}
+\\[0.5ex]
+\emkey{iteration-control} \begin{tabular}[t]{rl}
+	             ::= & \ttkey{loop}
+		           \{ {\em int-expression} \ttkey{times} \}\QMARK{} \\
+		     $|$ & \ttkey{while} {\em bool-expression} \\
+		     $|$ & \ttkey{until} {\em bool-expression} \\
+		     \end{tabular}
+\\[0.5ex]
+\emkey{int-expression} ::= {\em expression} evaluating to an {\tt int}
+\\[0.5ex]
+\emkey{bool-expression} ::= see \pagref{BOOL-EXPRESSION}
+\\[0.5ex]
+\emkey{loop-control-statement}\label{LOOP-CONTROL-STATEMENTS} ::=
+    {\em break-statement} $|$ {\em continue-statement}
 \\[0.5ex]
 \emkey{break-statement}\label{BREAK-STATEMENT} ::=
-    \{ \TT{if} {\em condition-expression} \}\QMARK{} \ttkey{break}
+    \{ \TT{if} {\em bool-expression} \}\QMARK{} \ttkey{break}
+\\[0.5ex]
+\emkey{contine-statement}\label{CONTINUE-STATEMENT} ::=
+    \{ \TT{if} {\em bool-expression} \}\QMARK{} \ttkey{continue}
 \end{indpar}
 
-The {\em loop-variable-assignment-statements} declare the \skey{loop variable}s
-of the loop and gives them initial values.  The {\em iteration-block}
-then executes repeatedly updating these loop variables.  The
-{\em iteration-result} `{\tt next X}' can be used on the left-side of
-an assignment statement in the {\em iteration-subblock}
-to assign the value that loop variable
-{\tt X} will have in the next iteration.
+A {\em loop-assignment-statement} is the semantic equivalent of
+a sequence of zero or more copies of the statement with
+its {\em iteration-control} replaced by `{\tt do}', making it
+a {\em block-assignment-statement}.  Each copy is called an
+\key{iteration} of the {\em loop-assignment-statement}.
+The number of iterations is
+determined at run-time according by the {\em iteration-control}
+and {\em loop-control-statements}.
 
-`{\tt next X}' can also be used in a {\em loop-variable-assignment-statement}
-to assign the value of {\tt X} in the \underline{second} iteration,
-in which case
-`{\tt next next X}' can be used in the {\em iteration-subblock}
-to assign {\tt X}'s value in the second iteration after the current
-iteration.
-
-After the last iteration, the {\em finalization-subblock}
-executes and sets the variables in the {\em loop-assignment-statement}'s
-left-side.  The loop variable values during the {\em finalization-subblock}
-are those of the next iteration that would execute if the
-{\em condition-expression} allowed.
-
-The {\em break-statement} is like a
-{\em go-to-exit-statement} (\pagref{GO-TO-STATEMENT}) that
-goes to the {\em finalization-subblock}.
-
-All possible execution paths through the {\em iteration-subblock}
-to the next iteration of the subblock
-must set each loop variable for subsequent iterations exactly once
-(i.e., must set `{\tt next X}' or `{\tt next next X}' for each
-loop variable {\tt X} exactly once).
-All possible execution paths through the
-{\em finalization-subblock} must set each variable
-in the {\em assignment-left-side} exactly once.
-
-An example is:
+A simple example is:
 \begin{indpar}\begin{verbatim}
-// Calculate the sum of i for i == 1 to i == n.
-//
-int64 n = . . .
-int64 sum = loop:
-    int64 i = 1
-    int64 partial sum = 0
-    while i <= n:
-        next partial sum = partial sum + i
-        next i = i + 1
-    finally:
-        sum = partial sum
+int sum = 0
+int i = 1;
+next sum, next i = while sum < 4
+    next sum = sum + i
+    next i = i + 1
 \end{verbatim}\end{indpar}
+which is semantically equivalent to:
+\begin{indpar}\begin{verbatim}
+int sum = 0
+int i = 1;
+next sum, next i = do sum < 4
+    next sum = sum + i
+    next i = i + 1
+next sum, next i = do sum < 4
+    next sum = sum + i
+    next i = i + 1
+next sum, next i = do sum < 4
+    next sum = sum + i
+    next i = i + 1
+// Now sum == 6 and i == 4
+\end{verbatim}\end{indpar}
+
+However the variable values of all but the
+last 4 iterations of the {\em loop-assignment-statement}
+are discarded, which would not be the case if the compiler
+actually inserted iterations in the source code. 
+This only affects debugging.
+
+The {\em break-statement} exits the current iteration of the
+{\em loop-assignment-statement} and prevents further iterations.
+A {\em continue-statement} exits the current iteration of the
+{\em loop-assignment-statement} but lets the
+{\em iteration-control} determine whether there will be any
+more iterations.
+
+As a special feature, {\em iteration-results} of a
+{\em loop-assignment-statement} will be automatically
+added if they are missing.  Thus the above example
+could be written as:
+\begin{indpar}\begin{verbatim}
+int sum = 0
+int i = 1;
+next sum = while sum < 4
+    next sum = sum + i
+    next i = i + 1
+\end{verbatim}\end{indpar}
+or
+\begin{indpar}\begin{verbatim}
+int sum = 0
+int i = 1;
+while sum < 4
+    next sum = sum + i
+    next i = i + 1
+\end{verbatim}\end{indpar}
+In order for an {\em iteration-result} to be automatically
+added, it need merely be an {\em assignment-result} in a
+{\em substatement} of the {\em loop-assignment-statement}
+for a {\em variable} that is \underline{not} given in a
+{\em result-variable-declaration} of any {\em substatement}.
+
+Note that an {\em iteration-variable} is just a
+{\em deferred-variable} used in a specific syntactic
+context.
 
 \subsubsection{Declarations}
 \label{DECLARATIONS}
