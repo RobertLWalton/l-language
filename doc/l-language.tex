@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 13, 2020
+October 14, 2020
 
 \bigskip
  
@@ -180,12 +180,12 @@ Table of Contents
 
 \section{Introduction}
 
-This document describes \key{L-LANGUAGE}, the Layered Language
+This document describes \key{L-Language}, the Layered Language
 System Low Level Language.
 
 \section{Overview}
 
-A typical L-LANGUAGE statement is:
+A typical L-Language statement is:
 \begin{indpar}\begin{verbatim}
 int X = Y - C"0"
 \end{verbatim}\end{indpar}
@@ -198,65 +198,51 @@ initialized it is not writable.
 
 The following is another example:
 \begin{indpar}\begin{verbatim}
-uns8 buffer[81]
-av *READ-WRITE* uns8 bp = buffer
+av *READ-WRITE* uns8 bp = local uns8[81]
 av uns8 cp = "Hello!"
-loop:
-    int i = 0
-    while ( i < cp.upper ):
-        bp[i] = cp[i]
-	next i = i + 1
-    finally:
-        bp[cp.upper] = 0
+int i = 0
+while ( i < cp.upper ):
+    bp[i] = cp[i]
+    next i = i + 1
+bp[cp.upper] = 0
 \end{verbatim}\end{indpar}
 
-Here {\tt buffer} is a vector of 81 {\tt uns8} (8-bit unsigned) numbers.
-The label {\tt buffer} denotes an aligned vector pointer, or {\tt av},
-and this is stored in the variable {\tt bp}.  Both {\tt buffer}
-and {\tt bp} attach the {\tt *READ-WRITE*} qualifier to the vector elements,
-to indicate these elements can be written as well as read.
-The variable {\tt cp} is
-similar to {\tt bp}, except it is set to a vector pointer pointing at
-a constant string, and therefore its {\tt uns8} vector elements have
-the default qualifier {\tt co} which promises that they are constants that will
-\underline{never} be written.  Vector pointers can be used with indices
+Here `{\tt local uns8[81]}' creats an aligned vector of
+81 {\tt uns8} (8-bit unsigned) numbers in the current function
+frame and returns an aligned vector pointer, or {\tt av}, to
+the vector, marking the vector elements as {\tt *READ-WRITE*}.
+{\tt "Hello!"} is a constant vector of {\tt uns8} numbers
+and is similar except that it marks the vector elements
+{\tt co}, for `constant', which is the implied default and therefore
+is not explicitly given.
+Vector pointers can be used with indices
 to reference elements of their vectors, and have {\tt upper} and
 {\tt lower} bounds on these indices.  Here the {\tt lower} bounds
 are their defaults, which are {\tt 0}.
 
-The qualifier {\tt *READ-WRITE*} says that a value can be written by code
-using the variable name given,
-and the default qualifier {\tt co}
-says a value will \underline{never} be written
-no matter what.
-The qualifier {\tt ro}, or read-only, says that
+The qualifier {\tt *READ-WRITE*} says that a value can be written,
+the default qualifier {\tt co}, or `constant',
+says a value will \underline{never} be written no matter what,
+the qualifier {\tt ro}, or read-only, says that
 the value cannot be written using the variable name given, but might be
 written by some other piece of code that accesses the value under another
-name.
-The qualifier {\tt *VOLATILE*} says a value may be
+name, and the qualifier {\tt *VOLATILE*} says a value may be
 written by some device other than the processor at any time.
 A {\tt *VOLATILE*} value must also be either {\tt *READ-WRITE*}
 or {\tt ro}, with {\tt ro} being the default.
 
 Variables in function frames and module memory
-have names, like {\tt X}, {\tt Y}, and {\tt Z},
-and locations in memory where their values are stored.
-These locations designate the
-function frame or module memory containing the location,
-and the offset of the location within that memory.
-Variables most frequently
+have names, like {\tt X}, {\tt Y}, and {\tt Z}, and values
+that are constants.
+These values most frequently
 have a size equal to the natural
 word size of the computer (typically 32 or 64 bits), or
 several times that size: {\tt intd} is a two word (double) integer
 and {\tt intq} is a four word (quad) integer.
+Although the value of a variable is constant, the value may point
+at a memory location that is read-write.
 
-Vectors can be created by statements such as `{\tt uns8 buffer[81]}'
-if they have an assembly time determined number of elements.
-Unlike variables, vector elements have the default qualifier
-{\tt *READ-WRITE*}, though string constants elements have the
-default {\tt co}.
-
-The name of the vector is an aligned vector pointer.  This is a
+An aligned vector pointer is a
 quad integer ({\tt intq}) containing:
 \begin{itemize}
 \item A `base pointer' {\tt int} holding the byte address
@@ -286,37 +272,39 @@ containing the byte address; this is most useful for calling
 C language functions.
 New pointer types may be defined by the user.
 
-Instead of setting the value of a new variable {\tt V}, you can 
-set its location {\tt @ V}.  For example:
+If the value of a variable {\tt V} is a pointer and {\tt V} is
+preceeded in its declaration by `{\tt @}', then {\tt V} refers
+to the value pointed at, and not to the pointer value.  For example:
+
 \begin{indpar}\begin{verbatim}
 int X = 5
-int @ Y = @ X            // Now Y == 5
-*READ-WRITE* @ Z = @ X   // Illegal!  X is co.
-*READ-WRITE* B = 6
-int @ C = @ B            // Illegal!  C defaults to co.
-ro int @ D = @ B         // Legal!  D is just read-only.
-B = 7                    // Now D == 7
+ap *READ-WRITE* int @ Y = local int
+Y = X + 2                // Now Y == 7
+Y = Y - 4                // Now Y == 3
+X = X + 1                // Illegal!  X is co
 \end{verbatim}\end{indpar}
+
+Here `{\tt local int}' allocates an {\tt int} to the current
+function frame, zeros it, and returns an `{\tt ap *READ-WRITE* int}'
+pointer to its location.
 
 Instead of making a variable {\tt *READ-WRITE*} you can update
 it using the {\tt next} construct:
 \begin{indpar}\begin{verbatim}
 int X = 5
-int @ Y = @ X
-next X = X + 1
-// From now on X refers to `next X' and NOT the original X.
-int @ Z = @ X
-    // Now Y == 5 and Z == 6
+int Y = X + 2           // Now Y == 7
+next Y = Y - 4          // Now Y == 3
+Y = Y + 1               // Illegal!  Y is co
 \end{verbatim}\end{indpar}
-Here `{\tt next X}' is a new variable, distinct from {\tt X},
-but with the same type, pointer type, qualifiers, and name `{\tt X}',
+Here `{\tt next Y}' is a new variable, distinct from {\tt Y},
+but with the same type, pointer type, qualifiers, and name `{\tt Y}',
 which hides the previous variable of the same name.
 The advantage of doing this is that it makes compilation more
 efficient by keeping variables constant (i.e., {\tt co}), and
 it improves debuggability by retaining the different values of
 the variable for inspection by a debugger.
 
-L-LANGUAGE has a full set of number types:
+L-Language has a full set of number types:
 {\tt int8}, {\tt uns8},
 {\tt int16}, {\tt uns16}, {\tt flt16}, \ldots,
 {\tt int128}, {\tt uns128}, {\tt flt128}.
@@ -343,11 +331,16 @@ type my type:
 
 . . . . . . . . . . . .
 
-my type X = ...
-uns op = X.op code
-int c = X.constant
-uns8 @ Y = @ X.des
-int @ Z = @ X.constant
+my type X:
+    X.op = 5
+    X.src1 = 2
+    X.src2 = 3
+    X.des = 3
+uns op = X.op code      // Now op == 5
+int d = X.des           // Now d == 3
+ap *READ-WRITE* my type @ Y = local my type
+Y.op code = X.op code
+Y.des = X.des
 \end{verbatim}\end{indpar}
 
 In this example there is one field in a {\tt my type} value,
@@ -369,8 +362,8 @@ If {\tt des} where in bits 23-30 instead of 24-31, it would
 not be on a byte boundary and the location of {\tt Y} would
 also have to be an {\tt fp} field pointer.
 
-Note that names in L-LANGUAGE can have multiple lexemes, as in
-the subfield name `{\tt op code}' and what L-LANGUAGE calls the
+Note that names in L-Language can have multiple lexemes, as in
+the subfield name `{\tt op code}' and what L-Language calls the
 associated member name `{\tt .op code}' that is used to access
 the field.
 
@@ -476,7 +469,7 @@ Expressions and statements that use only {\tt const} values
 execute at assembly-time and can be used to compute run-time
 constants and other arbitrary code.
 
-By default, functions in L-LANGUAGE are inline.  For example,
+By default, functions in L-Language are inline.  For example,
 
 \begin{indpar}\begin{verbatim}
 function int r = max ( int x, int y ):
@@ -582,7 +575,7 @@ which converts the point of type {\tt P\$s} to a pointer of
 type {\tt dp} (direct pointer) and calls the C programming
 language subroutine {\tt LIBC strlen} with the direct pointer.
 
-L-LANGUAGE does not necessarily make any use of registers, other
+L-Language does not necessarily make any use of registers, other
 than as temporaries during the execution of a single statement,
 and a pair of registers that hold the current function
 execution frame address and current module data address.
@@ -622,14 +615,14 @@ flt64 v = q.p[0]              // OK
 
 \section{Syntax}
 
-In this section we describe the syntax of L-LANGUAGE programs
+In this section we describe the syntax of L-Language programs
 and briefly indicate the associated semantics, which is
 described in detail in following sections.
 
 \subsection{Lexemes}
 \label{LEXEMES}
 
-A L-LANGUAGE source file is a sequence of bytes that is a UTF-8 encoding
+A L-Language source file is a sequence of bytes that is a UTF-8 encoding
 of a sequence of UNICODE characters.  This is scanned into a sequence
 of \skey{lexeme}s.
 
@@ -887,11 +880,11 @@ warning messages.
 {\em end-of-file} ::= see \pagref{END-OF-FILE}
 
 \end{indpar}
-\caption{L-LANGUAGE Program Lexemes}
+\caption{L-Language Program Lexemes}
 \label{L-LANGUAGE-PROGRAM-LEXEMES}
 \end{boxedfigure}
 
-The lexemes in a L-LANGUAGE program are specified in
+The lexemes in a L-Language program are specified in
 Figure~\itemref{L-LANGUAGE-PROGRAM-LEXEMES}.  This specification assumes there
 are no illegal characters in the input; see page \pageref{ILLEGAL-CHARACTERS}
 above to account for such characters.
@@ -1124,7 +1117,7 @@ lexemes in the logical line
 are removed from the logical line.  If the result is
 empty, e.g., the logical line is a comment line, it is discarded.
 Otherwise the
-modified logical line becomes a L-LANGUAGE `\emkey{statement}'.
+modified logical line becomes a L-Language `\emkey{statement}'.
 
 Therefore a file is a sequence of top-level statements.
 
@@ -1139,7 +1132,7 @@ Expressions are built from operators, such as \TT{+} and \TT{*},
 and primaries, such as variable names and function calls.
 
 Operators are characterized by fixity, precedence, and format.
-The L-LANGUAGE operators are listed in Table~\itemref{L-LANGUAGE-OPERATORS}.
+The L-Language operators are listed in Table~\itemref{L-LANGUAGE-OPERATORS}.
 
 \begin{boxedfigure}[!p]
 \begin{center}
@@ -1406,7 +1399,7 @@ A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULE-DECLARATIONS}.
 For example {\tt std} abbreviates the builtin standard module.
 
-L-LANGUAGE uses several kinds of names:
+L-Language uses several kinds of names:
 
 \begin{indpar}
 \emkey{simple-name} ::= \TT{word} not containing any `\TT{.}'s \\
@@ -1958,12 +1951,10 @@ The general form of an {\em assignment-statement} is:
     \begin{tabular}[t]{@{}rll}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
-    $|$ & {\em reference-expression}
-    		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em deferred-variable}
     		& [see \pagref{DEFERRED-VARIABLE}] \\
-    $|$ & {\em iteration-variable}
-    		& [see \pagref{ITERATION-VARIABLE}] \\
+    $|$ & {\em reference-expression}
+    		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
     \end{tabular}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
@@ -2057,6 +2048,15 @@ allowed.  More specifically, you can use {\tt @} to assign a location
 that will itself be stored in a function frame, but \underline{not}
 to assign a location that itself will be stored outside any function
 frame.
+
+A {\em next-variable-declaration} for a {\em variable} {\tt v}
+must occur in the scope of either a {\em result-variable-declaration}
+for {\tt v} or another {\em next-variable-declaration} for {\tt v}.
+The {\em next-variable-declaration} re-declares {\tt v} making a new
+variable that hides the previously declared {\tt v}.  The new variable
+has the same types and qualifiers as the previous variable named {\tt v},
+and the new {\em next-variable-declaration} must contain {\tt @} if and
+only if the previous declaration contains {\tt @}.
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
