@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 14, 2020
+October 15, 2020
 
 \bigskip
  
@@ -213,7 +213,8 @@ frame and returns an aligned vector pointer, or {\tt av}, to
 the vector, marking the vector elements as {\tt *READ-WRITE*}.
 {\tt "Hello!"} is a constant vector of {\tt uns8} numbers
 and is similar except that it marks the vector elements
-{\tt co}, for `constant', which is the implied default and therefore
+{\tt co}, for `constant', which is the implied default for the type
+of {\tt cp}, and therefore
 is not explicitly given.
 Vector pointers can be used with indices
 to reference elements of their vectors, and have {\tt upper} and
@@ -227,7 +228,8 @@ the qualifier {\tt ro}, or read-only, says that
 the value cannot be written using the variable name given, but might be
 written by some other piece of code that accesses the value under another
 name, and the qualifier {\tt *VOLATILE*} says a value may be
-written by some device other than the processor at any time.
+written by some device other than the processor, or by some process
+independent of the current process, at any time.
 A {\tt *VOLATILE*} value must also be either {\tt *READ-WRITE*}
 or {\tt ro}, with {\tt ro} being the default.
 
@@ -274,7 +276,8 @@ New pointer types may be defined by the user.
 
 If the value of a variable {\tt V} is a pointer and {\tt V} is
 preceeded in its declaration by `{\tt @}', then {\tt V} refers
-to the value pointed at, and not to the pointer value.  For example:
+to the value pointed at, and not to the pointer value, while
+`{\tt @ V}' may be used to refer to the pointer value.  For example:
 
 \begin{indpar}\begin{verbatim}
 int X = 5
@@ -282,18 +285,19 @@ ap *READ-WRITE* int @ Y = local int
 Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
+ap ro int Z = @ Y        // Copies pointer value of Y
 \end{verbatim}\end{indpar}
 
 Here `{\tt local int}' allocates an {\tt int} to the current
 function frame, zeros it, and returns an `{\tt ap *READ-WRITE* int}'
 pointer to its location.
 
-Instead of making a variable {\tt *READ-WRITE*} you can update
-it using the {\tt next} construct:
+Instead of making a variable point at a {\tt *READ-WRITE*} location you
+can update the constant variable using the {\tt next} construct:
 \begin{indpar}\begin{verbatim}
 int X = 5
-int Y = X + 2           // Now Y == 7
-next Y = Y - 4          // Now Y == 3
+int Y = X + 2           // Now Y == 7; Y is co
+next Y = Y - 4          // Now Y == 3; Y is co
 Y = Y + 1               // Illegal!  Y is co
 \end{verbatim}\end{indpar}
 Here `{\tt next Y}' is a new variable, distinct from {\tt Y},
@@ -332,15 +336,17 @@ type my type:
 . . . . . . . . . . . .
 
 my type X:
-    X.op = 5
-    X.src1 = 2
+    X.op code = 5       // This is an initialization block
+    X.src1 = 2          // for X in which X is write-only.
     X.src2 = 3
     X.des = 3
 uns op = X.op code      // Now op == 5
 int d = X.des           // Now d == 3
 ap *READ-WRITE* my type @ Y = local my type
-Y.op code = X.op code
-Y.des = X.des
+fp *READ-WRITE* int @ C = @ Y.constant
+ap *READ-WRITE* int @ D = @ Y.des
+C = -2
+D = X.des
 \end{verbatim}\end{indpar}
 
 In this example there is one field in a {\tt my type} value,
@@ -354,17 +360,18 @@ value that occupies bit 0 of the unlabelled field.
 Defined type values are aligned on byte boundaries when
 they are stored in memory.  Therefore the {\tt des} subfield
 is on a byte boundary, and
-the location of {\tt Y} is an {\tt ap} aligned pointer.  Although
+the location of {\tt D} is an {\tt ap} aligned pointer.  Although
 the {\tt constant} subfield is on a byte boundary, it is
 shorter than an {\tt uns} integer, and therefore the
-location of {\tt Z} must be an {\tt fp} field pointer.
+location of {\tt C} must be an {\tt fp} field pointer.
 If {\tt des} where in bits 23-30 instead of 24-31, it would
-not be on a byte boundary and the location of {\tt Y} would
+not be on a byte boundary and the location of {\tt D} would
 also have to be an {\tt fp} field pointer.
 
 Note that names in L-Language can have multiple lexemes, as in
-the subfield name `{\tt op code}' and what L-Language calls the
-associated member name `{\tt .op code}' that is used to access
+the type name `{\tt my type}', the subfield name `{\tt op code}',
+and what L-Language calls the
+associated member name `{\tt .op code}' which is used to access
 the field.
 
 Another example is:
@@ -460,10 +467,14 @@ if the result will not fit into the runtime number.
 This happens, for example, if {\tt 1e20}
 is converted to an {\tt int32}.
 
-Quote strings denote string {\tt const} values that can be
+Quoted strings denote string {\tt const} values that can be
 used to populate run-time vectors of unsigned integers.
+Quoted strings can also be converted to run-time vectors
+with constant elements during assembly.
+
 Lastly there are map {\tt const} values that can hold lists
-and dictionaries.  These last can be mutable at assembly time.
+and dictionaries.  These last can be mutable at assembly time,
+but cannot be converted to run-time values.
 
 Expressions and statements that use only {\tt const} values
 execute at assembly-time and can be used to compute run-time
@@ -484,35 +495,36 @@ int z = max ( x, y )
 \end{verbatim}\end{indpar}
 
 A run-time assignment statement can contain a single function call
-or a single operator, but not both, and not more than one.
+or can contain operators on non-{\tt const} data
+outside reference expessions, but not both.
 For example, given the definition of {\tt max} above:
 
 \begin{indpar}\begin{verbatim}
 int x = ...
 int y = ...
 int z = ...
+int u = 5 + max ( x, y )           // Illegal
 int w = max ( x, max ( y, z ) )    // Illegal
 int w1 = max ( y, z )              // OK
 int w2 = max ( x, w1 )             // OK
+const c1 = 100
+const c2 = 1000
+int v = max ( x, c1 + c2 )         // OK
 \end{verbatim}\end{indpar}
 
-Run-time assignment statement operands can be variables, more
-complex reference expressions (e.g., {\tt buffer[i]}),
-sub-expressions with only one operator that is a prefix operator,
-or {\tt const} subexpressions.
-For example, using the definition of {\tt max} above:
+A run-time statement with operators on non-{\tt const} data
+that are outside reference expressions must be a variable
+assignment, and all operators must operate on data of the
+type of that variable.  For example:
 
 \begin{indpar}\begin{verbatim}
-const x = 5
-const y = 1e8
-const z = x + y
-const u = z / x + y
-    // Legal! x / y + z is a const sub-expression.
-int v = ...
-int w = max ( v, z / x + u * y )
-    // Legal! z / x + u * y is a const sub-expression.
-int b = max ( v, v + u ) 
-    // Illegal! v + u is a run-time sub-expression.
+// Assume intq is 4*64 bits and so can hold a 1e60 number.
+int x = 5
+int y = 1e8
+int d = 3
+const e = 1e60
+intq z = x + y / d + e
+    // All 3 operators operate on intq data
 \end{verbatim}\end{indpar}
 
 It is possible to define assembly-time functions:
