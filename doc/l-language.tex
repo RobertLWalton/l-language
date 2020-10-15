@@ -601,22 +601,24 @@ function is called if the location does not have the {\tt co} qualifier.
 Attaching the {\tt *VOLATILE*} qualifier to a location
 flushes software caches of the location between statements.
 
-A pointer type of a variable
+A pointer type
 has two places where a qualifier may appear, as in
 
 \begin{indpar}\begin{verbatim}
-ro ap *VOLATILE* uns32 p = .....
+type my control block:
+    co ap *VOLATILE* uns32 @ cr
+    ....
 \end{verbatim}\end{indpar}
-in which {\tt p} is a read-only variable pointing at a volatile
-{\tt uns32} location.
+in which {\tt @ cr} is a constant pointing at a volatile
+{\tt uns32} location {\tt cr}.
 
 Pointer types cannot be cascaded, but there is a work-around
 using defined types:
 \begin{indpar}\begin{verbatim}
-ap ap flt64 p = .....         // Illegal!
+ap av flt64 p = .....         // Illegal!
 
 struct my pointer
-    ap flt64 p
+    av flt64 p
 
 . . . . . . . . . .
 
