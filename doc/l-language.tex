@@ -2031,28 +2031,20 @@ to control the flow of execution within the more complex
 \end{indpar}
 
 
-Given a variable {\tt x}, the variable name {\tt x} refers to the
-value of the variable while {\tt @ x} refers to the location of
-the value of {\tt x }.
-Thus an example using {\em assignment-operators} is:
+If a variable of pointer type has a name beginning with
+`{\tt @}', the name without the beginning `{\tt @}' can
+be used to refer to the value pointed at.  An example is:
 \begin{indpar}\begin{verbatim}
-*READ-WRITE* int x = 5
-*READ-WRITE* int @ y = @ x  // Now x and y have the same locations.
-y = 6                       // Now x and y both == 6.
-ap *READ-WRITE* int z = @ x // Now z points at x.
-*READ-WRITE* int @ w = z    // Now location of w is that
-                            // pointed at by z.
-w = 7                       // Now w, x, and y all == 7.
+fp *READ-WRITE* int @x = local int    // x is initialized to 0
+x = x + 12                            // now x == 12
 \end{verbatim}\end{indpar}
 
-For a variable {\tt v} of {\tt const} type, `{\tt @ v}'
-can be used only if it denotes the location of a mutable map or
+TBD
+
+For a variable of {\tt const} type, the variable may begin with
+`{\tt @}' only if it denotes the location of a mutable map or
 element of a mutable map.
 There are no assembly-time pointers analogous to {\tt ap}.
-
-While a variable {\tt v} may have qualifier {\tt co}, {\tt ro},
-or {\tt *READ-WRITE*}, the location `{\tt @ v}' of the variable
-can only be set once (it is implicitly {\tt co}).
 
 Note that you can assign to a variable location but not a
 {\em reference-expression} location.  For example, `{\tt int @ x = \ldots}'
@@ -2520,7 +2512,7 @@ An `\ttkey{align} $N$' sub-declaration behaves like an unnamed
 field of alignment $N$, and in addition sets the align/pack switch
 to `align'.
 
-An \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
+A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
 An \ttkey{origin} sub-declaration changes the current offset to that
 of the given {\em field-label} plus or minus the value of the
@@ -2544,10 +2536,10 @@ The bits occupied
 by a subfield are given by its {\em bit-range}, where bits are numbered
 0, 1, \ldots{} from the low order end of numbers.
 
-A subfield value may have fewer bits that the number-type of the subfield.
+A subfield value may have fewer bits than the number-type of the subfield.
 For integer types, the value is the low order bits of the integer, with
 the high order bits added when the value is read by with adding 0 bits
-for unsigned integer or copies of the highest order bit for signed integers.
+for unsigned integers or copies of the highest order bit for signed integers.
 For floating types, the value is missing low order mantissa bits, which
 are added as zeros.  If a value outside the representable range is stored,
 it is not an error.  Integer values are truncated, and floating values
@@ -2560,6 +2552,8 @@ an assembly error to have a floating type whose exponent part plus
 Both have associated {\em member-names} made by adding a single
 `\TT{.}' to the beginning of the {\em field-label} or {\em subfield-label}.
 For example:
+
+TBD
 
 \begin{indpar}\begin{verbatim}
 type my type:
@@ -3079,7 +3073,8 @@ This graph \underline{must be acyclic}.
 Statements and functions, all of whose variables are of {\tt const}
 type, execute solely during assembly, and never at run time
 (when the assembled program is running).  Constants are all of
-type {\tt const}.
+type {\tt const}, and cannot exist at run-time, though number
+and quoted string {\tt const} values can be converted to run-time values.
 
 \subsection{Assembly Time Data}
 
@@ -3132,9 +3127,7 @@ There are special {\em const} values \ttkey{TRUE} and
 \ttkey{FALSE}, which are used to denote boolean values.
 
 There is also a special {\tt const} value \ttkey{UNDEF},
-which denotes the `\key{undefined value}'.  Assembly time
-{\em expressions} that have `no value' actually have the
-value {\tt UNDEF}.
+which denotes the `\key{undefined value}'.
 
 \subsubsection{Maps}
 \label{MAPS}
@@ -3186,7 +3179,7 @@ are equivalent.
 
 There is a virtual hidden element of a map, \ttdkey{length}, which is
 the value of the largest integer index of any map element,
-plus 1.  So {\tt ["A", "B", "C"].length == 3}.  If a map has no
+plus 1.  So {\tt ["A", "B", "C"]..length == 3}.  If a map has no
 integer indices, its {\tt .length} is 0.
 
 Values may be stored into map elements as well as read from the
