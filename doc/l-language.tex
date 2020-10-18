@@ -1356,8 +1356,7 @@ A \key{primary} is an {\em expression} that has no operators:
 \emkey{primary}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em constant}		& [\pagref{CONSTANTS}] \\
-    $|$ & \TT{@}\QMARK{} {\em reference-expression}
-                                        & [\pagref{REFERENCE-EXPRESSIONS}] \\
+    $|$ & {\em reference-expression}    & [\pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
     \end{tabular}
 \end{indpar}
@@ -1698,14 +1697,8 @@ with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 \subsubsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
-A \emkey{reference-expression} names a location in memory.
-The {\em reference-expression} by itself can be used to retrieve
-the value at that location.  The {\em reference-expression}
-preceeded by \TT{@} refers to the location, and not the value
-at the location, and for run-time locations can be used to retrieve
-a pointer to the location.  At compile-time there
-are no pointers, but a {\tt const} variable can be given the
-same location as an map or map element.
+A \emkey{reference-expression} names either a pointer to a location in memory
+or names the value of such a location.
 
 The most basic {\em reference-expression} is the name of a variable
 in the current function frame or current module memory.  Other
@@ -1761,6 +1754,25 @@ check that the index is within range.
 Within an {\em index-list} the comma (\TT{,}) is treated
 as equivalent to \TT{][}, so, for example, {\tt [x,y]}
 is equivalent to {\tt [x][y]}.
+
+A {\em reference-expression} begins with a {\em variable-name}.
+If the variable is declared to have a pointer value,
+the {\em reference-expression} computes a pointer.
+When the {\em reference-expression} selects a member or element,
+a pointer to the member or element is designated.
+
+A variable whose name begins with `{\tt @}' and which names a pointer
+value has an associated \key{indirect variable} whose name is made
+by removing the initial `{\tt @}' from the variable name (e.g.,
+the indirect variable associated with {\tt @V} is {\tt V}).  The
+associated indirect variable names the value pointed at.
+When the {\em reference-expression} selects a member or element,
+the value of the member or element is designated.
+
+TBD
+
+Compile-time maps may be mutable (i.e., read-write) or immutable
+(i.e., constant and never changed).
 
 At compile-time a map is considered to be immutable unless
 \TT{@} is used to save its location when it is created.  For example:
