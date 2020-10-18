@@ -155,8 +155,7 @@
         
 \begin{center}
 \Large \bf
-Minimal Runtime System\\
-Virtual Assembly Language\\[0.5ex]
+Low Level Layered Language\\[0.5ex]
 \huge \bf
 L-LANGUAGE
 \end{center}
@@ -165,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 15, 2020
+October 18, 2020
 
 \bigskip
  
@@ -189,11 +188,11 @@ A typical L-Language statement is:
 \begin{indpar}\begin{verbatim}
 int X = Y - C"0"
 \end{verbatim}\end{indpar}
-This allocates a new variable {\tt X} of type {\tt int} and
+This allocates a new variable {\tt X} of type {\tt int}
 and sets its value to the value of the
 variable {\tt Y} minus the constant {\tt C"0"} (which is
 the character code of the character {\tt 0}).
-In this case the variable {\tt X} is readable, but after it is
+The `variable' {\tt X} is readable, but after it is
 initialized it is not writable.
 
 The following is another example:
@@ -213,8 +212,8 @@ frame and returns an aligned vector pointer, or {\tt av}, to
 the vector, marking the vector elements as {\tt *READ-WRITE*}.
 {\tt "Hello!"} is a constant vector of {\tt uns8} numbers
 and is similar except that it marks the vector elements
-{\tt co}, for `constant', which is the implied default for the type
-of {\tt cp}, and therefore
+{\tt co}, for `constant', which is the implied default qualifier
+for {\tt cp}, and therefore
 is not explicitly given.
 Vector pointers can be used with indices
 to reference elements of their vectors, and have {\tt upper} and
@@ -274,18 +273,22 @@ containing the byte address; this is most useful for calling
 C language functions.
 New pointer types may be defined by the user.
 
-If the value of a variable {\tt V} is a pointer and {\tt V} is
-preceeded in its declaration by `{\tt @}', then {\tt V} refers
-to the value pointed at, and not to the pointer value, while
-`{\tt @ V}' may be used to refer to the pointer value.  For example:
+If the value of a variable {\tt @V} is a pointer and the name of
+the variable begins with an `{\tt @}', the variable's name with the
+initial `{\tt @}' removed, in this case {\tt V}, is called the
+\key{indirect variable} associated to {\tt @V}
+and names the value pointed at by {\tt @V}.
+For example:
 
 \begin{indpar}\begin{verbatim}
 int X = 5
-ap *READ-WRITE* int @ Y = local int
+ap *READ-WRITE* int @Y = local int
 Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
-ap ro int Z = @ Y        // Copies pointer value of Y
+ap ro int Z = @Y         // Copies pointer value of Y
+                         // Conversion from *READ-WRITE*
+                         // to ro is legal.
 \end{verbatim}\end{indpar}
 
 Here `{\tt local int}' allocates an {\tt int} to the current
@@ -326,12 +329,12 @@ An example is:
 \begin{indpar}\begin{verbatim}
 type my type:
              uns32                    // Container for:
-    [0-7]    uns8 op code             //   Operation
-    [0]      bool has constant        //   Format indicator
-    [8-31]   int constant             //   Constant
-    [8-15]   uns8 src1                //   Source Register
-    [16-23]  uns8 src2                //   Source Register
-    [24-31]  uns8 des                 //   Destination Register
+    [24-31]  uns8 op code             //   Operation
+    [31]     bool has constant        //   Format indicator
+    [0-23]   int constant             //   Constant
+    [16-23]  uns8 src1                //   Source Register
+    [8-15]   uns8 src2                //   Source Register
+    [0-7]    uns8 des                 //   Destination Register
 
 . . . . . . . . . . . .
 
@@ -342,31 +345,39 @@ my type X:
     X.des = 3
 uns op = X.op code      // Now op == 5
 int d = X.des           // Now d == 3
-ap *READ-WRITE* my type @ Y = local my type
-fp *READ-WRITE* int @ C = @ Y.constant
-ap *READ-WRITE* int @ D = @ Y.des
-C = -2
-D = X.des
+ap *READ-WRITE* my type @Y = local my type
+Y.op code = 129
+fp *READ-WRITE* int @C = @Y.constant
+ap *READ-WRITE* int @OP = @Y.op code
+next op = OP            // Now op == 129
+bool B = Y.has constant // Now B == 1
+C = -1234               // Now Y.constant = -1234
 \end{verbatim}\end{indpar}
 
 In this example there is one field in a {\tt my type} value,
 an unlabeled {\tt uns32} integer.
 Inside this unlabeled field there are 6 subfields, the first of which is
-an {\tt uns8} integer occupying bits 0-7 of the unlabeled field,
+an {\tt uns8} integer occupying the highest order 8
+bits of the unlabeled field, bits 24-31,
 where bits are numbered 0, 1, 2, \ldots{} from
 low to high order.  The second subfield is a 1-bit {\tt bool}
-value that occupies bit 0 of the unlabelled field.
+value that occupies the high order bit, bit 31, of the unlabelled field.
+Note that subfields can overlap.
 
 Defined type values are aligned on byte boundaries when
-they are stored in memory.  Therefore the {\tt des} subfield
+they are stored in memory.  Therefore the `{\tt op code}' subfield
 is on a byte boundary, and
-the location of {\tt D} is an {\tt ap} aligned pointer.  Although
+the location of {\tt OP} is an {\tt ap} aligned pointer.  Although
 the {\tt constant} subfield is on a byte boundary, it is
 shorter than an {\tt uns} integer, and therefore the
 location of {\tt C} must be an {\tt fp} field pointer.
-If {\tt des} where in bits 23-30 instead of 24-31, it would
-not be on a byte boundary and the location of {\tt D} would
+If `{\tt op code}' where in bits 23-30 instead of 24-31, it would
+not be on a byte boundary and the location of {\tt OP} would
 also have to be an {\tt fp} field pointer.
+
+Note that `{\tt Y.op code}' is a {\tt *READ-WRITE*}
+integer while `{\tt @Y.op code}' is a {\tt co} pointer to
+a {\tt *READ-WRITE*} integer.
 
 Note that names in L-Language can have multiple lexemes, as in
 the type name `{\tt my type}', the subfield name `{\tt op code}',
@@ -380,8 +391,8 @@ Another example is:
 type my type:
     pack
     uns8    kind             // Object Kind
-        [0] bool animal      //   True if Animal
-        [1] bool vegetable   //   True if Vegetable
+    [7] bool animal          // True if Animal
+    [6] bool vegetable       // True if Vegetable
     flt64   weight           // Object Weight
     align   8
     label   extension
@@ -441,7 +452,8 @@ forward to a 8-byte boundary and causes fields beyond it
 to be aligned and not packed.  A number is aligned if
 its offset is a multiple of its length.  Alignments must be powers of two.
 A defined type has an
-alignment equal to the least common multiple of the
+alignment equal to the least common multiple (in this case just the
+largest) of the
 alignments of its fields.
 
 A {\tt label} is like a zero length field that has no value and
@@ -457,11 +469,11 @@ Defined types can be extended
 A defined type value has a size in bytes just large enough to
 accommodate all its fields.
 
-Values of {\tt const} type are assembly-time values, and are
+Values of {\tt const} type are compile-time values, and are
 not available at run-time.  Number constants are infinite
 precision, with unbounded integers and rational numbers that
 are ratios of unbounded integers.  Number constants
-can be converted to run-time numbers during assembly.
+can be converted to run-time numbers during compilation.
 However it is an assembler error
 if the result will not fit into the runtime number.
 This happens, for example, if {\tt 1e20}
@@ -470,14 +482,14 @@ is converted to an {\tt int32}.
 Quoted strings denote string {\tt const} values that can be
 used to populate run-time vectors of unsigned integers.
 Quoted strings can also be converted to run-time vectors
-with constant elements during assembly.
+with constant elements during compilation.
 
 Lastly there are map {\tt const} values that can hold lists
-and dictionaries.  These last can be mutable at assembly time,
+and dictionaries.  These last can be mutable at compile-time,
 but cannot be converted to run-time values.
 
-Expressions and statements that use only {\tt const} values
-execute at assembly-time and can be used to compute run-time
+Expressions, statements, and functions that use only {\tt const} values
+execute at compile-time and can be used to compute run-time
 constants and other arbitrary code.
 
 By default, functions in L-Language are inline.  For example,
@@ -518,7 +530,7 @@ assignment, and all operators must operate on data of the
 type of that variable.  For example:
 
 \begin{indpar}\begin{verbatim}
-// Assume intq is 4*64 bits and so can hold a 1e60 number.
+// Assume intq is 4*64 bits and so it can hold a 1e60 number.
 int x = 5
 int y = 1e8
 int d = 3
@@ -527,7 +539,7 @@ intq z = x + y / d + e
     // All 3 operators operate on intq data
 \end{verbatim}\end{indpar}
 
-It is possible to define assembly-time functions:
+It is possible to define compile-time functions:
 
 \begin{indpar}\begin{verbatim}
 function const r = max ( const x, const y ):
@@ -544,7 +556,7 @@ const w = max ( x, max( y, z ) )  // Legal!
 
 Such functions are not available at run-time, and
 are not really inline, as there is no
-distinction between inline and out-of-line assembly-time functions.
+distinction between inline and out-of-line compile-time functions.
 
 Inline function definitions may make use of type wildcards.
 A name that is a single word beginning with {\tt T\$}
@@ -606,10 +618,10 @@ has two places where a qualifier may appear, as in
 
 \begin{indpar}\begin{verbatim}
 type my control block:
-    co ap *VOLATILE* uns32 @ cr
+    co ap *VOLATILE* uns32 @cr
     ....
 \end{verbatim}\end{indpar}
-in which {\tt @ cr} is a constant pointing at a volatile
+in which {\tt @cr} is a constant pointing at a volatile
 {\tt uns32} location {\tt cr}.
 
 Pointer types cannot be cascaded, but there is a work-around
@@ -622,7 +634,7 @@ struct my pointer
 
 . . . . . . . . . .
 
-my pointer q = ...            // OK
+ap my pointer @q = ...        // OK
 flt64 v = q.p[0]              // OK
 \end{verbatim}\end{indpar}
 
@@ -1294,8 +1306,8 @@ The classes are
 A statement that executes at run-time
 cannot have operators of different classes outside
 reference subexpressions (\pagref{REFERENCE-EXPRESSIONS}) and
-subexpressions that evaluate at assembly-time to a {\tt const} value
-(\itemref{ASSEMBLY-TIME}).
+subexpressions that evaluate at compile-time to a {\tt const} value
+(\itemref{COMPILE-TIME}).
 Thus a run-time statement may not mix arithmetic and logical,
 arithmetic and bitwise, or bitwise and logical run-time
 operators outside reference expressions and expressions with
@@ -1511,7 +1523,7 @@ one of the components of the sequence.
 \label{CONSTANTS}
 
 A \key{constant} is a value of type \ttkey{const} computed at
-assembly time.  There are three kinds of constants:
+compile-time.  There are three kinds of constants:
 
 \begin{indpar}
 \emkey{constant}
@@ -1523,7 +1535,7 @@ assembly time.  There are three kinds of constants:
 \emkey{string-constant} ::= {\em quoted-string}
 \\[0.5ex]
 \emkey{constant-expression}\label{CONSTANT-EXPRESSION}
-    ::= {\em expression} evaluating at assembly time to a {\tt const} value
+    ::= {\em expression} evaluating at compile-time to a {\tt const} value
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
@@ -1631,11 +1643,11 @@ as that produced by hardware on the target machine.
 \TT{+Inf} denotes positive infinity; \TT{-Inf} denotes negative infinity.
 
 A number constant may be converted to a run-time type such as {\tt int32}.
-It is an assembly error to convert to an integer type that cannot
+It is a compile error to convert to an integer type that cannot
 hold the exact value of the number constant.
 Conversion of a number constant
 to a run-time floating type, such as {\tt flt64}, is however
-never an assembly error.  If necessary the converted value is
+never a compile error.  If necessary the converted value is
 {\tt +Inf} or {\tt -Inf}.
 
 A \emkey{string-constant} is just a {\em quoted-string} lexeme
@@ -1676,7 +1688,7 @@ An \emkey{map-constant} has two parts, a list and a dictionary
 Maps \underline{cannot} be represented at run-time.
 
 {\em Type-names} and {\em pointer-type-names} can be used at
-assembly time as if they were variables of type {\tt const}
+compile-time as if they were variables of type {\tt const}
 with map values.  These map values are partly read-only,
 with the read-only part including elements with labels like
 {\tt size} for the size in bits of run-time values of the type.
@@ -1691,7 +1703,7 @@ The {\em reference-expression} by itself can be used to retrieve
 the value at that location.  The {\em reference-expression}
 preceeded by \TT{@} refers to the location, and not the value
 at the location, and for run-time locations can be used to retrieve
-a pointer to the location.  At assembly-time there
+a pointer to the location.  At compile-time there
 are no pointers, but a {\tt const} variable can be given the
 same location as an map or map element.
 
@@ -1750,7 +1762,7 @@ Within an {\em index-list} the comma (\TT{,}) is treated
 as equivalent to \TT{][}, so, for example, {\tt [x,y]}
 is equivalent to {\tt [x][y]}.
 
-At assembly time a map is considered to be immutable unless
+At compile-time a map is considered to be immutable unless
 \TT{@} is used to save its location when it is created.  For example:
 \begin{indpar}\begin{verbatim}
 const X = ["A", "B"]         // Value of X is immutable.
@@ -1876,25 +1888,25 @@ is necessary in omitting parentheses around
 {\em function-term-names} in function prototypes that might be
 matched to the {\em function-call}.
 
-\subsection{Assembly-Time}
-\label{ASSEMBLY-TIME}
+\subsection{Compile-Time}
+\label{COMPILE-TIME}
 
-Variables and values that exist during assembly are called
-\key{assembly-time}, while variables and values that exist during
-program execution are called {\em run-time}.  Assembly-time
+Variables and values that exist during compilation are called
+\key{compile-time}, while variables and values that exist during
+program execution are called {\em run-time}.  Compile-time
 is actually an important syntactic concept, as run-time
 {\em expressions} cannot contain operators of different
 classes or both operators and function calls: see
 \pagref{RUN-TIME-EXPRESSION-LIMITS}.
 
-Syntactically \key{assembly-time} is defined as follows:
+Syntactically \key{compile-time} is defined as follows:
 
 \begin{itemize}
 \item A variable (i.e., {\em variable-name})
-is assembly-time if and only if it is of type {\tt const}.
-(Assembly-time variables do \underline{not} exist at run-time.)
-\item A {\em constant} is assembly-time.
-\item A {\em type-name} and a {\em pointer-type-name} are assembly-time
+is compile-time if and only if it is of type {\tt const}.
+(Compile-time variables do \underline{not} exist at run-time.)
+\item A {\em constant} is compile-time.
+\item A {\em type-name} and a {\em pointer-type-name} are compile-time
 and denote maps describing the type or pointer type.
 (At run-time a type {\tt T} is declared by the
 equivalent of {\tt type @ T = \ldots}, where `{\tt type}' is a
@@ -1902,25 +1914,25 @@ defined type that is
 used to distinguish types and contain type parameters, and
 similarly for pointer types.)
 \item An {\em expression} with an operator is
-      assembly-time if its lowest precedence operator
-      and its operands are assembly-time.
-      All the standard operators are assembly-time.
-\item A {\em function-call} is assembly-time if and only if all its
-      arguments are assembly-time and the function called is
-      assembly-time.
-\item A user-defined function is assembly-time if and only if all its
-      result and argument variables are assembly-time (i.e., have
+      compile-time if its lowest precedence operator
+      and its operands are compile-time.
+      All the standard operators are compile-time.
+\item A {\em function-call} is compile-time if and only if all its
+      arguments are compile-time and the function called is
+      compile-time.
+\item A user-defined function is compile-time if and only if all its
+      result and argument variables are compile-time (i.e., have
       {\tt const} type) and all its
-      {\em statements} are assembly-time.
-\item Builtin functions are assembly-time if their arguments and
+      {\em statements} are compile-time.
+\item Builtin functions are compile-time if their arguments and
       results are all of {\tt const} type.
-\item A {\em statement} is assembly-time if and only if all its
+\item A {\em statement} is compile-time if and only if all its
       variables and expressions are assem\-bly-time.
 \end{itemize}
 
 A \key{run-time} {\em variable}, {\em expression}, or {\em statement}
 is a {\em variable}, {\em expression}, or {\em statement} that is
-\underline{not} assembly-time.
+\underline{not} compile-time.
 
 \subsection{Statements}
 \label{STATEMENTS}
@@ -2044,7 +2056,7 @@ TBD
 For a variable of {\tt const} type, the variable may begin with
 `{\tt @}' only if it denotes the location of a mutable map or
 element of a mutable map.
-There are no assembly-time pointers analogous to {\tt ap}.
+There are no compile-time pointers analogous to {\tt ap}.
 
 Note that you can assign to a variable location but not a
 {\em reference-expression} location.  For example, `{\tt int @ x = \ldots}'
@@ -2083,7 +2095,7 @@ of left-side {\em assignment-results}.
 \item For run-time {\em expression-assignment-statements}, if
 there is \underline{more than one} right-side {\em expression}, all these
 {\em expressions} must be {\em reference-expressions} or
-assembly-time {\em expressions} (thus run-time computation cannot
+compile-time {\em expressions} (thus run-time computation cannot
 be done on the right-side except for {\em reference-expression}
 indices).
 \item For run-time {\em expression-assignment-statements} with
@@ -2187,7 +2199,7 @@ enter an {\em exit-subblock} of the block:
 {\em bool-expression}\label{BOOL-EXPRESSION} ::=
     \begin{tabular}[t]{@{}l}
     {\em expression} evaluating at run-time to a {\tt bool} \\
-    or at assembly-time to the {\em const} value {\tt "TRUE"} or {\tt "FALSE"}
+    or at compile-time to the {\em const} value {\tt "TRUE"} or {\tt "FALSE"}
     \end{tabular}
 \end{indpar}
 
@@ -2461,7 +2473,7 @@ The syntax of a type declaration is:
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
-\emkey{dimension-size} ::=  assembly-time {\em expression}
+\emkey{dimension-size} ::=  compile-time {\em expression}
 			    with non-negative integer value
 \\[2ex]
 \emkey{subfield-declaration}
@@ -2474,22 +2486,22 @@ The syntax of a type declaration is:
     $|$ &  \TT{[} {\em lowhighbits} \TT{]} \\
     $|$ &  \TT{[} {\em lowbit} \TT{-} {\em highbit} \TT{]}
     \end{tabular} \\
-\emkey{onlybit} ::= assembly-time {\em expression}
+\emkey{onlybit} ::= compile-time {\em expression}
 		    with non-negative integer value \\
 \emkey{lowhighbits} :::= {\em dit}+ \TT{-} {\em dit}+
            ~~~~~ [this is a single lexeme] \\
-\emkey{lowbit} ::= assembly-time {\em expression}
+\emkey{lowbit} ::= compile-time {\em expression}
 		   with non-negative integer value \\
-\emkey{highbit} ::= assembly-time {\em expression}
+\emkey{highbit} ::= compile-time {\em expression}
 		    with non-negative integer value \\
 \emkey{dit} ::= see \pagref{DIT}
 \\[2ex]
-\emkey{alignment} ::= assembly-time {\em expression}
+\emkey{alignment} ::= compile-time {\em expression}
 		      with power of 2 integer value \\
-\emkey{offset} ::= assembly-time {\em expression}
+\emkey{offset} ::= compile-time {\em expression}
 
 \begin{itemize}
-\item All the assembly-time {\em expressions} must evaluate to an integer.
+\item All the compile-time {\em expressions} must evaluate to an integer.
 \end{itemize}
 \end{indpar}
 
@@ -2544,7 +2556,7 @@ For floating types, the value is missing low order mantissa bits, which
 are added as zeros.  If a value outside the representable range is stored,
 it is not an error.  Integer values are truncated, and floating values
 have low order mantissa bits dropped (there is no rounding).  However, it is
-an assembly error to have a floating type whose exponent part plus
+a compile error to have a floating type whose exponent part plus
 1 mantissa bit cannot be stored in the subfield value.
 
 {\em Subfield-labels} and {\em field-labels} have the same standing within
@@ -2558,8 +2570,8 @@ TBD
 \begin{indpar}\begin{verbatim}
 type my type:
     uns8    kind             // Object Kind
-        [0] bool animal      //   True if Animal
-        [1] bool vegetable   //   True if Vegetable
+        [0] bool animal      // True if Animal
+        [1] bool vegetable   // True if Vegetable
     flt weight
 
 my type X = . . .
@@ -2634,7 +2646,7 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
-\emkey{required-value} ::= assembly-time {\em expression}
+\emkey{required-value} ::= compile-time {\em expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
@@ -2780,10 +2792,10 @@ F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( false )
 \end{verbatim}\end{indpar}
 
 If a {\em required-value} is given in a prototype, the call must
-have an equal assembly-time actual argument value
+have an equal compile-time actual argument value
 in order for the call to match the prototype.
-Note that the argument variable type need not be assembly-time,
-as assembly-time values can be converted to run-time values.
+Note that the argument variable type need not be compile-time,
+as compile-time values can be converted to run-time values.
 Matches to prototypes with more {\em required-values}
 are preferred over matches to prototypes with less {\em required-values}.
 Thus the example:
@@ -2797,19 +2809,19 @@ F ( 8 )            // Matches only second F declaration
 F ( 8 ) G ( 5 )    // Matches preferred first F declaration
 F ( 8 ) G ( 6 )    // Matches only second F declaration
 F ( 8 ) G ( z )    // Matches only second F declaration
-                   // (z is not assembly-time).
+                   // (z is not compile-time).
 \end{verbatim}\end{indpar}
 
 \subsubsubsection{Inline Call-Prototype Matching}
 \label{INLINE-CALL-PROTOTYPE-MATCHING}
 
 Function calls are matched to function prototypes.  It is
-an assembly error if a function call fails to match any
+a compile error if a function call fails to match any
 prototype.  If the call matches more than one prototype, the
 matches are ranked according to the number of {\em required-values}
 in each prototype, and if there is just one with the maximum
 number of {\em required-values}, that match is used; otherwise
-it is an assembly error.
+it is a compile error.
 
 Call-prototype matching is done as follows:
 
@@ -2906,7 +2918,7 @@ Failure of any of these matches causes
 the call-prototype match to fail.
 
 \item If an {\em argument-declaration} has a {\em required-value},
-its matching {\em actual-argument} must be assembly-time with
+its matching {\em actual-argument} must be compile-time with
 a value equal to the {\em required-value}, else the call-prototype
 match fails.
 
@@ -2937,7 +2949,7 @@ when the {\em variable-name} in $RD$ is replaced by a unique virtual
 
 \item A {\em function-call} that is \underline{not} an
 {\em assignment-right-side}\pagnote{ASSIGNMENT-RIGHT-SIDE}
-must be assembly-time\pagnote{ASSEMBLY-TIME} else the
+must be compile-time\pagnote{COMPILE-TIME} else the
 call-prototype match fails.
 The prototype must
 have at least one {\em prototype-result-declaration} (which
@@ -2947,7 +2959,7 @@ call-prototype match fails.
 
 Such calls are processed inside-out within a {\em statement},
 and upon being processed each call is replaced by its value computed
-at assembly-time.
+at compile-time.
 
 \end{enumerate}
 
@@ -3068,17 +3080,17 @@ arrows connect each module to the modules it or its bodies import is called
 the `\key{module graph}'.\label{MODULE-GRAPH}
 This graph \underline{must be acyclic}.
 
-\section{Assembly Time}
+\section{Compile Time}
 
 Statements and functions, all of whose variables are of {\tt const}
-type, execute solely during assembly, and never at run time
+type, execute solely during compilation, and never at run time
 (when the assembled program is running).  Constants are all of
 type {\tt const}, and cannot exist at run-time, though number
 and quoted string {\tt const} values can be converted to run-time values.
 
-\subsection{Assembly Time Data}
+\subsection{Compile Time Data}
 
-Assembly time data consists of {\tt const} values.
+Compile time data consists of {\tt const} values.
 There are 4 types of {\tt const} values: integers, rationals, strings,
 and maps.
 
@@ -3132,7 +3144,7 @@ which denotes the `\key{undefined value}'.
 \subsubsection{Maps}
 \label{MAPS}
 
-A \key{map} is an assembly time {\tt const} value that, unlike
+A \key{map} is a compile time {\tt const} value that, unlike
 numbers and strings, is mutable.
 A {\em map-expression} computes a map value:
 
