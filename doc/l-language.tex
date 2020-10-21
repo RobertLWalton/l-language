@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 20, 2020
+October 21, 2020
 
 \bigskip
  
@@ -197,10 +197,10 @@ initialized it is not writable.
 
 The following is another example:
 \begin{indpar}\begin{verbatim}
-av *READ-WRITE* uns8 bp = local uns8[81]
-av uns8 cp = "Hello!"
+av *READ-WRITE* uns8 @bp = local uns8[81]
+av uns8 @cp = "Hello!"
 int i = 0
-while ( i < cp.upper ):
+while ( i < @cp.upper ):
     bp[i] = cp[i]
     next i = i + 1
 bp[cp.upper] = 0
@@ -213,12 +213,24 @@ the vector, marking the vector elements as {\tt *READ-WRITE*}.
 {\tt "Hello!"} is a constant vector of {\tt uns8} numbers
 and is similar except that it marks the vector elements
 {\tt co}, for `constant', which is the implied default qualifier
-for {\tt cp}, and therefore
+for {\tt @cp}, and therefore
 is not explicitly given.
 Vector pointers can be used with indices
 to reference elements of their vectors, and have {\tt upper} and
 {\tt lower} bounds on these indices.  Here the {\tt lower} bounds
 are their defaults, which are {\tt 0}.
+
+Here {\tt @bp} is a variable whose name begins with `{\tt @}' and
+whose value is a pointer.  Such a variable has an associated
+indirect variable {\tt bp} whose name is missing the initial `{\tt @}'.
+The expression {\tt @bp[i]} designates a pointer to the {\tt i}+1'st
+element of the vector pointed at by {\tt @bp}, but the expression
+{\tt bp[i]} designates the value of the element.  Similarly for
+{\tt @cp[i]} and {\tt cp[i]}.\footnote{`{\tt @}' is analogous to
+C++ `{\tt \&}' used in a variable declaration, but here `{\tt @}'
+can be used with different types of pointers, can be used
+without restrictions for structure members, and can be used
+with mutable pointers.}
 
 The qualifier {\tt *READ-WRITE*} says that a value can be written,
 the default qualifier {\tt co}, or `constant',
@@ -276,7 +288,7 @@ New pointer types may be defined by the user.
 If the value of a variable {\tt @V} is a pointer and the name of
 the variable begins with an `{\tt @}', the variable's name with the
 initial `{\tt @}' removed, in this case {\tt V}, is called the
-\key{indirect variable} associated to {\tt @V}
+indirect variable associated to {\tt @V}
 and names the value pointed at by {\tt @V}.
 For example:
 
@@ -1755,28 +1767,29 @@ Within an {\em index-list} the comma (\TT{,}) is treated
 as equivalent to \TT{][}, so, for example, {\tt [x,y]}
 is equivalent to {\tt [x][y]}.
 
-A {\em reference-expression} begins with a {\em variable-name}.
-If the variable is declared to have a pointer value,
-the {\em reference-expression} computes a pointer.
-When the {\em reference-expression} selects a member or element,
-a pointer to the member or element is designated.
-
-A variable whose name begins with `{\tt @}' and which names a pointer
-value has an associated \key{indirect variable} whose name is made
+A run-time (non-{\tt const})
+variable whose name begins with `{\tt @}' and which names a pointer
+value has an associated \key{indirect variable}\label{INDIRECT-VARIABLE}
+whose name is made
 by removing the initial `{\tt @}' from the variable name (e.g.,
-the indirect variable associated with {\tt @V} is {\tt V}).  The
-associated indirect variable names the value pointed at.
-When a {\em reference-expression} beginning with an indirect
-variable selects a member or element,
-the value of the member or element is designated.
+the indirect variable associated with {\tt @V} is {\tt V}).
+A run-time variable that is not indirect is called a
+\key{direct variable}\label{DIRECT-VARIABLE}.
 
-A variable that is not indirect is called a \key{direct variable}.
-When a {\em reference-expression} beginning with an direct
-variable selects a member or element, if the direct variable names
-a value that is not a pointer,
-the value of the member or element is designated, but if the
-direct variable names a value that is a pointer, a pointer to the
-member or element is designated.
+A {\em reference-expression} that is just a direct variable name
+can only be used to read the value of the variable.
+If a {\em reference-expression} selects members or vector elements
+and begins with a direct variable name, the direct variable value
+must be a pointer, and the reference expression computes a pointer
+to the selected member or element.
+
+A {\em reference-expression} that is just an indirect variable name
+can be used to read or write (if qualifiers allow) the value pointed
+at by the associated direct variable.
+If a {\em reference-expression} selects members or vector elements
+and begins with an indirect variable name, the value of the vector
+element or member is designated, and may be read and written
+(if qualifiers allow).
 
 Compile-time maps are represented interally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
@@ -1817,17 +1830,15 @@ type my vector:
     uns offset;
     uns length;
     . . . .
-function flt64 @ x = ( my vector @ v ) [ uns index ]:
-    ap my vector vp = @ v
-        // Get pointer to v.
-    av flt64 fp = *UNCHECKED* ( vp, v.offset, 0, v.length )
-        // Convert vp to a pointer to an flt64 vector fp.
+function ap *READ_WRITE* flt64 @x = ( ap my vector @v ) [ uns index ]:
+    av *READ-WRITE* flt64 @p = *UNCHECKED*
+            ( @v, v.offset, 0, v.length )
         // The *UNCHECKED* function is a builtin function
         // that performs a variety of conversions which
-        // violate type checking.  Here it takes vp, adds
-        // v.offset to its offset, and returns this as an
+        // violate type checking.  Here it takes @v, adds
+        // v.offset to its offset, and returns this ap as an
         // av with bounds 0 and v.length.
-    @ x = @ fp[index]
+    @x = @p[index]
 \end{verbatim}\end{indpar}
 
 \subsubsection{Function Calls}
@@ -1929,7 +1940,7 @@ is compile-time if and only if it is of type {\tt const}.
 \item A {\em type-name} and a {\em pointer-type-name} are compile-time
 and denote maps describing the type or pointer type.
 (At run-time a type {\tt T} is declared by the
-equivalent of {\tt type @ T = \ldots}, where `{\tt type}' is a
+equivalent of {\tt type @T = \ldots}, where `{\tt type}' is a
 defined type that is
 used to distinguish types and contain type parameters, and
 similarly for pointer types.)
@@ -1997,27 +2008,29 @@ The general form of an {\em assignment-statement} is:
     \begin{tabular}[t]{@{}rll}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
-    $|$ & {\em deferred-variable}
-    		& [see \pagref{DEFERRED-VARIABLE}] \\
     $|$ & {\em reference-expression}
     		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
+    $|$ & {\em deferred-result}
+    		& [see \pagref{DEFERRED-RESULT}] \\
     \end{tabular}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}
         \{ {\em qualifier-name}\STAR{} {\em pointer-type-name} \}\QMARK{} \\
 \hspace*{1.0in}
-        {\em qualifier-name}\STAR{} {\em type-name}
-        \TT{@}\QMARK{} {\em variable-name}
+        {\em qualifier-name}\STAR{} {\em type-name} {\em direct-variable-name}
 \\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
-    ::= \ttkey{next} \TT{@}\QMARK{} {\em variable-name}
+    ::= \ttkey{next} {\em direct-variable-name}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
 \emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \\[0.5ex]
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+\emkey{direct-variable-name} ::= {\em variable-name} of a direct variable
+				  (\pagref{DIRECT-VARIABLE})
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
@@ -2063,38 +2076,12 @@ to control the flow of execution within the more complex
 \end{indpar}
 
 
-If a variable of pointer type has a name beginning with
-`{\tt @}', the name without the beginning `{\tt @}' can
-be used to refer to the value pointed at.  An example is:
-\begin{indpar}\begin{verbatim}
-fp *READ-WRITE* int @x = local int    // x is initialized to 0
-x = x + 12                            // now x == 12
-\end{verbatim}\end{indpar}
-
-TBD
-
-For a variable of {\tt const} type, the variable may begin with
-`{\tt @}' only if it denotes the location of a mutable map or
-element of a mutable map.
-There are no compile-time pointers analogous to {\tt ap}.
-
-Note that you can assign to a variable location but not a
-{\em reference-expression} location.  For example, `{\tt int @ x = \ldots}'
-is allowed (and if {\tt x} is a deferred or iteration variable
-`{\tt @ x = \ldots}' is allowed), but `{\tt @ x[2] = \ldots}' is never
-allowed.  More specifically, you can use {\tt @} to assign a location
-that will itself be stored in a function frame, but \underline{not}
-to assign a location that itself will be stored outside any function
-frame.
-
 A {\em next-variable-declaration} for a {\em variable} {\tt v}
 must occur in the scope of either a {\em result-variable-declaration}
 for {\tt v} or another {\em next-variable-declaration} for {\tt v}.
 The {\em next-variable-declaration} re-declares {\tt v} making a new
 variable that hides the previously declared {\tt v}.  The new variable
-has the same types and qualifiers as the previous variable named {\tt v},
-and the new {\em next-variable-declaration} must contain {\tt @} if and
-only if the previous declaration contains {\tt @}.
+has the same types and qualifiers as the previous variable named {\tt v}.
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
@@ -2180,13 +2167,15 @@ where
 
 The result variables of a {\em block-assignment-statement}
 are given values by the {\em statements} within the block
-of the {\em block-assignment-statement} using {\em deferred-variable}
+of the {\em block-assignment-statement} using {\em deferred-result}
 names:
 \begin{indpar}
-\emkey{deferred-variable}\label{DEFERRED-VARIABLE} ::=
-    \TT{next}\QMARK{} \TT{@}\QMARK{} {\em variable-name}
+\emkey{deferred-result}\label{DEFERRED-RESULT} ::=
+    {\em next-variable-declaration} $|$
+    {\em reference-expression} $|$
+    {\em deferred-result}
 \end{indpar}
-A {\em deferred-variable} is just a copy of one of the
+A {\em deferred-result} is just a copy of one of the
 block's {\em assignment-results} with any {\em qualifiers}
 and {\em types} omitted (these are inferred within the block
 from the associated {\em assignment-result}).  An example is:
@@ -2410,7 +2399,7 @@ for a {\em variable} that is \underline{not} given in a
 {\em result-variable-declaration} of any {\em substatement}.
 
 Note that an {\em iteration-variable} is just a
-{\em deferred-variable} used in a specific syntactic
+{\em deferred-result} used in a specific syntactic
 context.
 
 \subsubsection{Declarations}
