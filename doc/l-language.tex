@@ -2331,14 +2331,19 @@ A {\em loop-assignment-statement} has the syntax:
 	\end{tabular}
 \\[0.5ex]
 \emkey{iteration-result}\label{ITERATION-VARIABLE} ::= 
-    \TT{next} \TT{@}\QMARK{} {\em iteration-variable}
+    \TT{next} {\em iteration-variable}
 \\[0.5ex]
 \emkey{iteration-control} \begin{tabular}[t]{rl}
-	             ::= & \ttkey{loop}
-		           \{ {\em int-expression} \ttkey{times} \}\QMARK{} \\
+	             ::= & {\em loop-label}\QMARK{} \ttkey{loop}
+		           \{ \{ \ttkey{at most} \}\QMARK{}
+			   {\em int-expression} \ttkey{times} \}\QMARK{} \\
 		     $|$ & \ttkey{while} {\em bool-expression} \\
 		     $|$ & \ttkey{until} {\em bool-expression} \\
 		     \end{tabular}
+\\[0.5ex]
+\emkey{loop-label} ::= {\em statement-label}
+\\[0.5ex]
+\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL} \\
 \\[0.5ex]
 \emkey{int-expression} ::= {\em expression} evaluating to an {\tt int}
 \\[0.5ex]
@@ -2349,15 +2354,17 @@ A {\em loop-assignment-statement} has the syntax:
 \\[0.5ex]
 \emkey{break-statement}\label{BREAK-STATEMENT} ::=
     \{ \TT{if} {\em bool-expression} \}\QMARK{} \ttkey{break}
+    {\em loop-label}\QMARK{}
 \\[0.5ex]
 \emkey{contine-statement}\label{CONTINUE-STATEMENT} ::=
     \{ \TT{if} {\em bool-expression} \}\QMARK{} \ttkey{continue}
+    {\em loop-label}\QMARK{}
 \end{indpar}
 
 A {\em loop-assignment-statement} is the semantic equivalent of
 a sequence of zero or more copies of the statement with
-its {\em iteration-control} replaced by `{\tt do}', making it
-a {\em block-assignment-statement}.  Each copy is called an
+its {\em iteration-control} replaced by `{\tt do}', making these copies into
+{\em block-assignment-statements}.  Each copy is called an
 \key{iteration} of the {\em loop-assignment-statement}.
 The number of iterations is
 determined at run-time according by the {\em iteration-control}
@@ -2367,7 +2374,7 @@ A simple example is:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
-next sum, next i = while sum < 4
+next sum, next i = while sum < 4:
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
@@ -2375,19 +2382,19 @@ which is semantically equivalent to:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
-next sum, next i = do sum < 4
+next sum, next i = do:
     next sum = sum + i
     next i = i + 1
-next sum, next i = do sum < 4
+next sum, next i = do:
     next sum = sum + i
     next i = i + 1
-next sum, next i = do sum < 4
+next sum, next i = do:
     next sum = sum + i
     next i = i + 1
 // Now sum == 6 and i == 4
 \end{verbatim}\end{indpar}
 
-However the variable values of all but the
+However at run-time the variable values of all but the
 last 4 iterations of the {\em loop-assignment-statement}
 are discarded, which would not be the case if the compiler
 actually inserted iterations in the source code. 
@@ -2398,12 +2405,15 @@ The {\em break-statement} exits the current iteration of the
 A {\em continue-statement} exits the current iteration of the
 {\em loop-assignment-statement} but lets the
 {\em iteration-control} determine whether there will be any
-more iterations.
+more iterations.  If there are nested loops, a {\em loop-label}
+may be used with these statements to designate which nested iteration
+is being exited.
 
-As a special feature, {\em iteration-results} of a
-{\em loop-assignment-statement} will be automatically
-added if they are missing.  Thus the above example
-could be written as:
+{\em Assignment-results} of the form `{\tt next} {\em variable}'
+within the loop {\em statements} will be automatically added
+to the list of {\em iteration-results} according to the rules
+for doing so given at the end of \itemref{BLOCK-ASSIGNMENT-STATEMENTS}.
+Thus the above example could be written as:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
@@ -2419,15 +2429,11 @@ while sum < 4
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
-In order for an {\em iteration-result} to be automatically
-added, it need merely be an {\em assignment-result} in a
-{\em substatement} of the {\em loop-assignment-statement}
-for a {\em variable} that is \underline{not} given in a
-{\em result-variable-declaration} of any {\em substatement}.
 
-Note that an {\em iteration-variable} is just a
-{\em deferred-result} used in a specific syntactic
-context.
+Note that an {\em iteration-result} is just a
+{\em next-variable-declaration} used in a specific syntactic
+context.  As a consequence, {\em iteration-variables} cannot
+be indirect variables (see \pagref{INDIRECT-VARIABLE}).
 
 \subsubsection{Declarations}
 \label{DECLARATIONS}
