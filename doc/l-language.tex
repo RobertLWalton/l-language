@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 18, 2020
+October 20, 2020
 
 \bigskip
  
@@ -1766,26 +1766,34 @@ value has an associated \key{indirect variable} whose name is made
 by removing the initial `{\tt @}' from the variable name (e.g.,
 the indirect variable associated with {\tt @V} is {\tt V}).  The
 associated indirect variable names the value pointed at.
-When the {\em reference-expression} selects a member or element,
+When a {\em reference-expression} beginning with an indirect
+variable selects a member or element,
 the value of the member or element is designated.
 
-TBD
+A variable that is not indirect is called a \key{direct variable}.
+When a {\em reference-expression} beginning with an direct
+variable selects a member or element, if the direct variable names
+a value that is not a pointer,
+the value of the member or element is designated, but if the
+direct variable names a value that is a pointer, a pointer to the
+member or element is designated.
 
-Compile-time maps may be mutable (i.e., read-write) or immutable
-(i.e., constant and never changed).
-
-At compile-time a map is considered to be immutable unless
-\TT{@} is used to save its location when it is created.  For example:
+Compile-time maps are represented interally by pointers to where
+the map is stored, so that if {\tt X} is a variable equal to,
+i.e., pointing at, a map, then {\tt Y = X} copies the pointer
+to the map to the variable {\tt Y}.  By default compile-time
+maps can be changed, but it is possible to mark dictionary members
+of a map
+as unchangeable constants.  The following example illustrates
+computation with compile-time maps:
 \begin{indpar}\begin{verbatim}
-const X = ["A", "B"]         // Value of X is immutable.
-X[0] = "C"                   // Illegal!  Value of X is immutable.
-const @ Y = @ ["A", "B"]     // Value of Y is mutable.
-Y[0] = "C"                   // Legal!  Value of Y is mutable.
-const Z = Y                  // Z is now an immutable copy of Y,
-                             // and == ["C", "B"].
-const @ W = @ Y              // W is now synonomous with Y.
-W[0] = "D"                   // Now Y[0] == W[0] == "D".
-                             // Z[0] == "C" still.
+const X = {"A", "B"}
+X[0] = "C"                   // Now X is {"C", "B"}.
+const Y = X                  // Now X and Y are both {"C", "B"}. 
+Y[1] = "D"                   // Now X and Y are both {"C", "D"}. 
+const Z = { Y, "M" }         // Now Z is {{"C", "D"}, "M"}.
+Z[0].W = "N"                 // Now Z is {{"C", "D", W => "N"}, "M"},
+                             // X and Y are both {"C", "D", W => "N"}.
 \end{verbatim}\end{indpar}
 
 
