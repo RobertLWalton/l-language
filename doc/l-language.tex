@@ -2096,20 +2096,25 @@ The syntax of an {\em expression-assign\-ment-statement} is:
 \\[2.0ex]
 where
 \begin{itemize}
-\item If there is more than one right-side {\em expression},
+
+\item If there is \underline{more than one} right-side {\em expression},
 the number of right-side {\em expressions} must equal the number
 of left-side {\em assignment-results}.
+
 \item For run-time {\em expression-assignment-statements}, if
 there is \underline{more than one} right-side {\em expression}, all these
 {\em expressions} must be {\em reference-expressions} or
 compile-time {\em expressions} (thus run-time computation cannot
 be done on the right-side except for {\em reference-expression}
 indices).
+
 \item For run-time {\em expression-assignment-statements} with
 a \underline{single} right-side {\em expression}, this {\em expression}
 may be a single run-time {\em function-call},
 in which case there may any number of {\em assignment-results}
-consistent with the called function (see \pagref{FUNCTION-CALLS}).
+consistent with the called function
+(see \pagref{INLINE-CALL-PROTOTYPE-MATCHING}).
+
 \item For run-time {\em expression-assignment-statements} with
 a \underline{single} right-side {\em expression} containing
 \underline{no} run-time {\em function-calls}, 
@@ -2119,13 +2124,14 @@ the data type specified by this {\em assignment-result}.
 Furthermore the parenthesis depth of the right-side {\em expression}
 must not be greater then 4 (i.e., {\tt ((((\ldots))))} is the
 maximum depth allowed).
+
 \end{itemize}
 \end{indpar}
 
 For cases not involving a run-time {\em function-call},
-all variable locations are evaluated first, then any right
-side operators are evaluated, then the right-side values are stored
-in the left-side locations.
+all {\em reference-expression} locations are evaluated first,
+then any other operators are evaluated,
+then the right-side values are stored in the left-side locations.
 
 
 \subsubsubsection{Block Assignment Statements}
@@ -2180,20 +2186,20 @@ block's {\em assignment-results} with any {\em qualifiers}
 and {\em types} omitted (these are inferred within the block
 from the associated {\em assignment-result}).  An example is:
 \begin{indpar}\begin{verbatim}
-*READ-WRITE* int x = 5
-*READ-WRITE* int @ y, int z =:
-    @ y = @ x
+ap *READ-WRITE* int @x = local int
+x = 5
+ap *READ-WRITE* int @y, int z =:
+    @y = @x
     y = 6
     z = 7
     int k = 8
-int w = x      // Now w = 6.
-int u = z      // Now u = 7
+int w = x      // Now w == 6.
+int u = z      // Now u == 7
 // k is not visible here
 \end{verbatim}\end{indpar}
 
 There are scoping rules that prevent {\tt k} from being visible
-outside the block in which it is defined, and would also
-prevent the location of {\tt k} from being stored in {\tt @ y}.
+outside the block in which it is defined;
 see \itemref{SCOPING}.
 
 A {\em go-to-exit-statement} within a block may exit the block or
@@ -2217,7 +2223,8 @@ a block exits after the last {\em statement} in the block,
 and an {\em exit-subblock} exits its containing block after the last
 {\em statement} in the {\em exit-subblock}.
 A {\em go-to-exit-statement} in an {\em exit-subblock} may only enter
-a \underline{subsequent} {\em exit-subblock}.
+a \underline{subsequent} {\em exit-subblock} or exit its containing
+{\em block-assignment-statement}.
 
 {\em Go-to-exit-statements} define various possible execution
 paths through a {\em block-assignment-statement}.
@@ -2229,9 +2236,29 @@ two {\em result-variable-declarations} of the same variable.
 All the execution paths must set each of the
 block's {\em assignment-result} variables exactly once, except for
 {\em assignment-results} of the form
-`{\tt next} {\tt @}\QMARK{} {\em variable}', which if not set at all will
+`{\tt next} {\em variable}', which if not set at all will
 automatically be given the value {\em variable} had at the beginning
 of the {\em block-assignment-statement}.
+
+Also, if `{\tt next} {\em variable}' is used as an
+{\em assignment-result} of some {\em statement} within a
+{\em block-assignment-statement} that is not within the scope of
+a {\em result-variable-declaration} for the {\em variable}
+that is also within the {\em block-assignment-statement},
+then `{\tt next} {\em variable}' will be automatically added
+to the {\em assignment-left-side} of the {\em block-assignment-statement},
+if it is not already there.  For example:
+\begin{indpar}\begin{verbatim}
+int x = 5
+do:
+    next x = x + 1
+\end{verbatim}\end{indpar}
+is equivalent to:
+\begin{indpar}\begin{verbatim}
+int x = 5
+next x = do:
+    next x = x + 1
+\end{verbatim}\end{indpar}
 
 
 \subsubsubsection{Conditional Assignment Statements}
