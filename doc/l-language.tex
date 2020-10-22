@@ -2646,6 +2646,25 @@ bool line feed is graphic = X.is graphic [C "\n"]
 bool A is graphic = X.is graphic [C "A"]
 \end{verbatim}\end{indpar}
 
+A {\em field-label} may be direct with associated indirect
+{\em field-label} if the field has a pointer type.
+However, if the {\em field-label} is a {\em member-name}
+beginning with `{\tt .}'s, the `{\tt @}' is placed immediately
+after any initial `{\tt .}'s. 
+For example:
+
+\begin{indpar}\begin{verbatim}
+type my type:
+    ap *READ-WRITE* int @x;
+    ap *READ-WRITE* flt .@y;
+
+my type X:
+    X.@x = local int
+    X..@y = local flt
+X.x = 5
+X..y = 6.6
+\end{verbatim}\end{indpar}
+
 
 \subsubsubsection{Inline Function Declarations}
 \label{INLINE-FUNCTION-DECLARATIONS}
