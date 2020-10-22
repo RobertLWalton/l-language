@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 21, 2020
+October 22, 2020
 
 \bigskip
  
@@ -2487,8 +2487,8 @@ The syntax of a type declaration is:
 \hspace*{0.5in}
         \{ {\em qualifier-name}\STAR{} {\em pointer-type-name} \}\QMARK{} \\
 \hspace*{1.0in}
-        {\em qualifier-name}\STAR{} {\em type-name}~
-        \TT{@}\QMARK{} {\em field-label}~ {\em field-dimension}\QMARK{}
+        {\em qualifier-name}\STAR{} {\em field-type-name}~
+        {\em field-label}~ {\em field-dimension}\QMARK{}
 \\[2ex]
 \emkey{field-with-subfields-declaration} ::= \\
 \hspace*{0.5in}
@@ -2508,7 +2508,6 @@ The syntax of a type declaration is:
                        $|$ \ttkey{uns64} $|$ \ttkey{uns128} \\
     $|$ &  \ttkey{flt} $|$ \ttkey{flt16} $|$ \ttkey{flt32} $|$ \ttkey{flt64}
                          $|$ \ttkey{flt128} \\
-    $|$ &  \ttkey{bool}
     \end{tabular}
 \\[2ex]
 \emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
@@ -2519,7 +2518,9 @@ The syntax of a type declaration is:
 			    with non-negative integer value
 \\[2ex]
 \emkey{subfield-declaration}
-    ::= {\em bit-range} {\em number-type-name} {\em subfield-label} \\
+    ::= {\em bit-range} {\em subfield-type-name} {\em subfield-label} \\
+\emkey{subfield-type-name}\label{SUBFIELD-TYPE-NAME} ::=
+    {\em number-type-name} $|$ \TT{bool} \\
 \emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em data-label}
 \\[2ex]
 \emkey{bit-range}
@@ -2552,6 +2553,8 @@ beginning of each, there is a align/pack switch value and an
 offset-in-bits integer that determine the offset, relative to the
 beginning of each datum of the new data type being declared, of the next
 {\em field-declaration} field encountered.  These offsets are in bits.
+Initially the align/pack switch is set to align and the offset is
+set to zero.
 
 If the align/pack switch is in the \key{align} position and the
 next {\em type-subdeclaration} is a {\em field-declaration}, the
@@ -2563,8 +2566,8 @@ of a defined type is the least common multiple of the alignment of
 any of its fields.
 
 An `\ttkey{align} $N$' sub-declaration behaves like an unnamed
-field of alignment $N$, and in addition sets the align/pack switch
-to `align'.
+field of alignment $N$ and zero length,
+and in addition sets the align/pack switch to `align'.
 
 A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
@@ -2607,26 +2610,41 @@ Both have associated {\em member-names} made by adding a single
 `\TT{.}' to the beginning of the {\em field-label} or {\em subfield-label}.
 For example:
 
-TBD
-
 \begin{indpar}\begin{verbatim}
 type my type:
-    uns8    kind             // Object Kind
-        [0] bool animal      // True if Animal
-        [1] bool vegetable   // True if Vegetable
+    uns8    kind         // Object Kind
+    [0] bool animal      // True if Animal
+    [1] bool vegetable   // True if Vegetable
     flt weight
 
-my type X = . . .
+my type X:
+    // Within this block X is write-only.
+    X.kind = HIPPOPOTAMUS
+        // Also sets animal and vegetable bits.
+    X.weight = 152.34
 uns8 kind = X.kind
 bool animal = X.animal
 bool vegetable = X.vegetable
 flt weight = X.weight
-X.kind = HIPPOPOTAMUS
-X.animal = true 
-X.vegetable = false
-X.weight = 152.34
 \end{verbatim}\end{indpar}
 
+If a {\em field-with-subfields-declaration} contains a
+{\em field-dimension} the subfields can be indexed
+as an alternative to indexed the field.  For example:
+
+\begin{indpar}\begin{verbatim}
+type character attributes:
+    uns8 [128]
+    [0] bool is graphic
+
+character attributes X:
+    int i = 0;
+    while i < 128:
+        X.is graphic[i] = 32 < i && i < 127
+	next i = i + 1
+bool line feed is graphic = X.is graphic [C "\n"]
+bool A is graphic = X.is graphic [C "A"]
+\end{verbatim}\end{indpar}
 
 
 \subsubsubsection{Inline Function Declarations}
