@@ -2641,7 +2641,7 @@ character attributes X:
     int i = 0;
     while i < 128:
         X.is graphic[i] = 32 < i && i < 127
-	next i = i + 1
+        next i = i + 1
 bool line feed is graphic = X.is graphic [C "\n"]
 bool A is graphic = X.is graphic [C "A"]
 \end{verbatim}\end{indpar}
@@ -2683,6 +2683,12 @@ declared, and in addition newly allocated values are
 always zeroed.  Use as a pointer target is does not require
 declaration until the pointer is used to access a value.
 
+Some uses of a {\em defined-type-name} require the type's
+size and alignment be known at the compile-time point of usage.
+One of these is use
+as the {\em type-name} in a {\em result-variable-declaration}
+that has \underline{no} {\em pointer-type-name}.
+
 An example is:
 
 \begin{indpar}\begin{verbatim}
@@ -2697,6 +2703,16 @@ X.I = 55            // Legal, .I has been declared.
 type my type:       // Extension of my type
     int J           // Now X.J == 0
 X.J = 66            // Legal, .J has been declared.
+
+my type W:          // my type cannot be extended after this
+    W.I = 2         // except by overlays.
+    W.J = 10
+type my type:       // Legal, does not change size or
+    offset 0        // alignment.
+    int K1
+    int K2
+type my type:       // Illegal, increases size.
+    int K3
 \end{verbatim}\end{indpar}
 
 
