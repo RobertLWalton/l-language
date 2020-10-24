@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 22, 2020
+October 24, 2020
 
 \bigskip
  
@@ -2663,6 +2663,40 @@ my type X:
     X..@y = local flt
 X.x = 5
 X..y = 6.6
+\end{verbatim}\end{indpar}
+
+If a {\em defined-type-name} appears in several {\em type-declarations},
+the subsequent declarations extend the previous ones: that is, their
+lists of {\em type-subdeclarations} are concatenated.
+
+Some uses of a {\em defined-type-name} do not require it to have
+been previously declared, or do not require all its extensions to have
+been previously declared.  These uses include the builtin {\tt local}
+and {\tt global} allocators, and use as a {\em type-name} in a
+{\em result-variable-declaration} that also has
+a {\em pointer-type-name} (i.e., as a target of a pointer).
+
+The allocators work because the size and alignment of a defined
+type are computed as run-time constants initialized when the
+program is linked, which is after all extensions of the type have been
+declared, and in addition newly allocated values are
+always zeroed.  Use as a pointer target is does not require
+declaration until the pointer is used to access a value.
+
+An example is:
+
+\begin{indpar}\begin{verbatim}
+ap *READ-WRITE* @X = local my type
+                    // Legal, my type need not be declared
+ap ro @Y = @X       // Legal, only ap copied.
+my type Z = X       // Illegal, my type must be declared.
+type my type:
+    int I
+X.I = 55            // Legal, .I has been declared.
+
+type my type:       // Extension of my type
+    int J           // Now X.J == 0
+X.J = 66            // Legal, .J has been declared.
 \end{verbatim}\end{indpar}
 
 
