@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 24, 2020
+October 26, 2020
 
 \bigskip
  
@@ -2444,6 +2444,8 @@ The following is a complete list of the kinds of declarations:
     \begin{tabular}[t]{@{}rll}
     ::= & {\em type-declaration}
         & [\pagref{TYPE-DECLARATIONS}] \\
+    $|$ & {\em pointer-type-declaration}
+        & [\pagref{POINTER-TYPE-DECLARATIONS}] \\
     $|$ & {\em inline-function-declaration}
         & [\pagref{INLINE-FUNCTION-DECLARATIONS}] \\
     $|$ & {\em out-of-line-function-declaration}
@@ -2714,6 +2716,83 @@ type my type:       // Legal, does not change size or
 type my type:       // Illegal, increases size.
     int K3
 \end{verbatim}\end{indpar}
+
+\subsubsubsection{Pointer Type Declarations}
+\label{POINTER-TYPE-DECLARATIONS}
+
+A pointer type has an associated data type specified by
+a pointer type declaration.  The syntax is:
+
+\begin{indpar}
+\emkey{pointer-type-declaration}\label{POINTER-TYPE-DECLARATION} ::= \\
+\hspace*{0.5in}\ttkey{pointer type} {\em defined-pointer-type-name}
+	       \TT{is} {\em type-name}
+\\[0.5ex]
+\emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
+\\[0.5ex]
+\emkey{type-name} ::= see \pagref{TYPE-NAME}
+\end{indpar}
+An {\tt *UNCHECKED*} conversion is defined from the associated data
+type to data with the given pointer type, and an normal conversion
+is defined in the other direction.
+
+For example, the following are builtin:
+
+\begin{indpar}\begin{verbatim}
+pointer type dp is int
+pointer type ap is data for ap
+type data for ap:
+    dp ro int @base
+    int offset
+
+function ap Q$1 T$1 r = *UNCHECKED* ( data for ap dap )
+function data for ap r = pointer to data ( ap Q$1 T$1 ptr )
+    // These functions just copy the argument value to the
+    // result value changing the type of the value.
+
+// Implicitely convert a dp to an ap whose base is the
+// constant 0 and whose offset is the dp.
+// 
+function ap Q$1 T$1 r = *IMPLIED* *CONVERSION* ( dp Q$1 T$1 ptr ):
+    int ptr data = pointer to data ( ptr )
+    dp int @zero = constant int 0
+        // constant int 0 allocates an int equal to 0 to read-only
+        // memory whose location is constant during execution
+    data for ap dap:
+        dap.@base  = @zero
+        dap.offset = ptr data
+    r = *UNCHECKED* ( data for ap )
+
+// Unchecked conversion of an ap to a dp that is the sum of
+// the base and offset of the ap.
+//
+function dp Q$1 T$1 r = *UNCHECKED* ( ap Q$1 T$1 ptr ):
+    data for ap dap = pointer to data ( ptr )
+    int ptr = dap.base + dap.offset
+    r = *UNCHECKED* ( ptr )
+\end{verbatim}\end{indpar}
+
+In the above {\tt Q\$1} is a qualifier wild-card that matches
+any list of {\em qualifier-names}, and {\tt T\$1} is a type wild-card that
+matches any {\em type-name}.
+
+A {\em pointer-type-declaration} `{\tt pointer type $P$ is $D$}'
+implicitly declares the functions:
+\begin{indpar} \tt
+function $P$ Q\$1 T\$1 r = *UNCHECKED* ( $D$ data ) \\
+function $D$ r = pointer to data ( $P$ Q\$1 T\$1 ptr )
+\end{indpar}
+These just copy values changing type.
+
+In order to access the value pointed at by a pointer of a defined
+pointer type, an {\tt *UNCHECKED*} function
+from the defined pointer type to a buitin pointer type must
+be declared.
+
+TBD
+
+
+
 
 
 \subsubsubsection{Inline Function Declarations}
