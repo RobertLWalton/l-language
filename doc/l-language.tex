@@ -2748,33 +2748,32 @@ type data for ap:
 function ap Q$1 T$1 r = *UNCHECKED* ( data for ap dap )
 function data for ap r = pointer to data ( ap Q$1 T$1 ptr )
     // These functions just copy the argument value to the
-    // result value changing the type of the value.
+    // result value changing the type of the value.  Here
+    // Q$1 is a wild-card that matches any list of qualifier-names,
+    // and T$1 is a wild-card that matches any type-name.
 
-// Implicitely convert a dp to an ap whose base is the
-// constant 0 and whose offset is the dp.
+// This function enables implicit conversion of `dp ...' to
+// `ap ...', where the latter has the constant 0 for a base
+// and the dp value for its offset.
 // 
-function ap Q$1 T$1 r = *IMPLIED* *CONVERSION* ( dp Q$1 T$1 ptr ):
-    int ptr data = pointer to data ( ptr )
+function data for ap r = *IMPLIED* *POINTER* *CONVERSION*
+        ( int d ):
     dp int @zero = constant int 0
         // constant int 0 allocates an int equal to 0 to read-only
         // memory whose location is constant during execution
     data for ap dap:
         dap.@base  = @zero
-        dap.offset = ptr data
-    r = *UNCHECKED* ( data for ap )
+        dap.offset = d
+    r = dap
 
-// Unchecked conversion of an ap to a dp that is the sum of
-// the base and offset of the ap.
+// This function enables *UNCHECKED* conversion of `ap ...' to
+// `dp ...' where the latter is the sum of the base and offset
+// of the ap.
 //
-function dp Q$1 T$1 r = *UNCHECKED* ( ap Q$1 T$1 ptr ):
-    data for ap dap = pointer to data ( ptr )
-    int ptr = dap.base + dap.offset
-    r = *UNCHECKED* ( ptr )
+function int r = *UNCHECKED* *POINTER* *CONVERSION*
+        ( data for ap d ):
+    r = d.base + d.offset
 \end{verbatim}\end{indpar}
-
-In the above {\tt Q\$1} is a qualifier wild-card that matches
-any list of {\em qualifier-names}, and {\tt T\$1} is a type wild-card that
-matches any {\em type-name}.
 
 A {\em pointer-type-declaration} `{\tt pointer type $P$ is $D$}'
 implicitly declares the functions:
@@ -2785,10 +2784,24 @@ function $D$ r = pointer to data ( $P$ Q\$1 T\$1 ptr )
 These just copy values changing type.
 
 In order to access the value pointed at by a pointer of a defined
-pointer type, an {\tt *UNCHECKED*} function
-from the defined pointer type to a buitin pointer type must
-be declared.
+pointer type, one of several approaches may be taken.  The easiest
+is to define a function with the prototype:
+\begin{indpar} \tt
+function data for $BIP$ r = *ACCESS* *POINTER* *CONVERSION* ( $D$ data )
+\end{indpar}
+which converts the data for $P$ to the data for a builtin pointer type
+$BIP$ ({\tt dp}, {\tt ap}, {\tt fp}, {\tt av}, or {\tt fv}).  If this
+is defined, whenever a pointer of type $P$ is to be used as
+the address of the value pointed at or a member or vector element
+of this value,
+the pointer of type $P$ is converted to a pointer of type $BIP$.
 
+A second more limited way to provide for use of $P$ is to define
+the two functions:
+\begin{indpar} \tt
+function Q\$1 T\$1 r = *POINTER* *ACCESS* ( $D$ data ) \\
+function *POINTER* *ACCESS* ( $D$ data ) = Q\$1 T\$1 r \\
+\end{indpar}
 TBD
 
 
