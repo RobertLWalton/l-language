@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 26, 2020
+October 27, 2020
 
 \bigskip
  
@@ -2802,8 +2802,38 @@ the two functions:
 function Q\$1 T\$1 r = *POINTER* *ACCESS* ( $D$ data ) \\
 function *POINTER* *ACCESS* ( $D$ data ) = Q\$1 T\$1 r \\
 \end{indpar}
-TBD
 
+This allows the pointer to be used to read a copy of the
+value pointed at, or write the value.  It does not allow
+members or elements of the value to be accessed
+(members and elements of the copy may be accessed).
+
+An example is:
+
+\begin{indpar}\begin{verbatim}
+type file:
+    *READ-WRITE* av uns8 name
+    . . . . .
+av *READ-WRITE* file @files = global file[1000];
+ap *READ-WRITE* int @next file = global int
+
+pointer type file descriptor is int
+function data for ap r = *ACCESS* *POINTER* *CONVERSION*
+        ( int data ):
+    ap file @f = @files[data]
+    r = pointer to data ( @f )
+        // Qualifiers of @f are ignored by pointer to data.
+
+function file descriptor *READ-WRITE* r = allocate file desciptor:
+    r = *UNCHECKED* ( next file )
+    next file = next file + 1
+
+file descriptor *READ-WRITE* @fd = allocate file descriptor
+fd.name = ...
+. . . . .
+av uns8 n = fd.name
+. . . . .
+\end{verbatim}\end{indpar}
 
 
 
