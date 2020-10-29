@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 27, 2020
+October 29, 2020
 
 \bigskip
  
@@ -1498,7 +1498,16 @@ L-Language uses several kinds of names:
     $|$ & \TT{"="} $|$ \TT{","} $|$ \TT{"("} $|$ \TT{")"} $|$
           \TT{"["} $|$ \TT{"]"}
     \end{tabular}
-\\[1ex]
+
+\emkey{wild-card}\label{WILD-CARD}
+    ::= {\em simple-name} beginning with \TT{T\$}, \TT{P\$}, or \TT{Q\$}
+\begin{indpar}
+Each {\tt T\$} name is assigned a {\em type-name} \\
+Each {\tt P\$} name is assigned a {\em pointer-type-name} \\
+Each {\tt Q\$} name is assigned a sequence of zero or more
+               {\em qualifier-names}
+\end{indpar}
+
 where the following rules should be followed, least there be
 various confusing syntax or semantic errors:
 \begin{enumerate}
@@ -2951,7 +2960,6 @@ of the form `\dots{} {\em type-name} $v$', and
 any actual argument associated to the {\em argument-declaration}
 must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
 {\em assignment-statement} {\em next-variable-declaration}.
-Similarly if $v$ is replaced in this paragraph by `\TT{@} $v$'.
 \item
 All the result and argument {\em variable-names}
 in a {\em function-prototype} must
@@ -2963,6 +2971,15 @@ must not have a {\em default-value}.
 In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
+\item
+A wild-card (\pagref{WILD-CARD}) name of the form {\tt T\$\ldots}
+is treated in a {\em function-prototype} as a {\em type-name}.
+A wild-card name of the form {\tt P\$\ldots} is treated as a
+{\em pointer-type-name}.
+A wild-card name of the form {\tt Q\$\ldots} is treated as a
+{\em qualifier-name} and \underline{must not} be combined with
+other {\em qualifier-names} in the same {\em result-variable-declaration}
+or {\em argument-declaration}.
 
 \end{itemize}
 \end{indpar}
@@ -3104,10 +3121,11 @@ if both prototype and call began with identical virtual
 {\em term-names}.
 
 Then if a {\em call-term-name} is matched to a {\em boolean-pattern-term}
-{\em function-term-name}, if its {\em call-term} has no
-{\em call-argument-lists}, and if the preceding {\em call-term}
+{\em function-term-name} and if its {\em call-term} has no
+{\em call-argument-lists}, then if the preceding {\em call-term}
 ends in `\TT{no}' or `\TT{not}', this last is removed from the
-preceeding {\em call-term} and pre-pended to the
+preceeding {\em call-term} and `{\tt (false)}' is appended to the
+current {\em call-term}, and otherwise `{\tt (true)}' is appended to the
 current {\em call-term}.
 
 A {\em call-term}
@@ -3123,7 +3141,7 @@ arguments in corresponding {\em argument-lists}, \underline{after}
 the {\em call-term} has been \key{adjusted}.  The following are
 permited adjustments.
 
-A {\em pattern-term} that has no corresponding {\em call-term}
+For every {\em pattern-term} that has no corresponding {\em call-term}
 (because its {\em function-term-name} was not found in the call),
 a {\em call-term} consisting of just the {\em pattern-term}'s
 {\em function-term-name} is appended to the {\em function-call}.
@@ -3142,12 +3160,6 @@ a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
 is found, and instead a {\em call-argument-list} with {\tt [~]}
 or the end of the {\em call-term} is found,
 the empty list {\tt ()} is inserted.
-
-An exception to the above is made for a {\em call-term} of the
-form `\{\TT{no}$|$\TT{not}\}\QMARK{} {\em call-term-name}' which
-is matched to a {\em boolean-pattern-term}.  In this case if there
-is a `{\tt no}' or `{\tt not}' it is removed and
-`{\tt (false)}' is appended, and otherwise `{\tt (true)}' is appended.
 
 Note that {\em argument-lists} with {\tt [~]} brackets cannot
 be omitted or have their {\tt [~]} brackets omitted.
@@ -3173,11 +3185,6 @@ its matching {\em actual-argument} must be compile-time with
 a value equal to the {\em required-value}, else the call-prototype
 match fails.
 
-\item If an {\em argument-declaration} $AD$ matches an {\em actual-argument}
-$AA$, the statement `$AD$ = $AA$' successfuly compiles
-when the {\em variable-name} in $AD$ is replaced by a unique virtual
-{\em variable-name}.
-
 \item If the {\em function-call} is an
 {\em assignment-right-side}\pagnote{ASSIGNMENT-RIGHT-SIDE},
 the number of {\em assignment-results} on the
@@ -3186,9 +3193,8 @@ the number of {\em assignment-results} on the
 match fails.
 
 The {\em assignment-results} are matched to the
-{\em prototype-result-declarations} going from \underline{right-to-left}
-according to the rules that follow.  Note that
-this matching is \underline{not} left-to-right.
+{\em prototype-result-declarations} going from left to right
+according to the rules that follow.
 Any unmatched {\em prototype-result-declarations}
 are ignored.  
 
@@ -3198,17 +3204,36 @@ must successfully compile
 when the {\em variable-name} in $RD$ is replaced by a unique virtual
 {\em variable-name}, else the call-prototype match fails.
 
+The statements `$AR$ = $RD$' are processed in left to right order of
+{\em prototype-result-declarations}.
+and any unassigned wild-cards (\pagref{WILD-CARD})
+in $RD$ are assigned the corresponding
+values in $AR$ (e.g., `{\tt int x = T\$1 y}' would assign `{\tt int}'
+to {\tt T\$1} if {\tt T\$1} were unassigned).
+
+\item If an {\em argument-declaration} $AD$ matches an {\em actual-argument}
+$AA$, the statement `$AD$ = $AA$' must successfully compile
+when the {\em variable-name} in $AD$ is replaced by a unique virtual
+{\em variable-name}, else the call-prototype match fails.
+
+The statements `$AD$ = $AA$' are processed in left to right order
+of prototype {\em argument-declarations},
+and any unassigned wild-cards (\pagref{WILD-CARD})
+in $AD$ are assigned the corresponding
+values in $AA$ (e.g., `{\tt T\$1 x = int y}' would assign `{\tt int}'
+to {\tt T\$1} if {\tt T\$1} were unassigned).
+
 \item A {\em function-call} that is \underline{not} an
 {\em assignment-right-side}\pagnote{ASSIGNMENT-RIGHT-SIDE}
 must be compile-time\pagnote{COMPILE-TIME} else the
 call-prototype match fails.
-The prototype must
+The prototype of such a call must
 have at least one {\em prototype-result-declaration} (which
 will take on the value of the {\em expression} that consists of
 just the {\em function-call}), else the
 call-prototype match fails.
 
-Such calls are processed inside-out within a {\em statement},
+Compile-time calls are processed inside-out within a {\em statement},
 and upon being processed each call is replaced by its value computed
 at compile-time.
 
