@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 29, 2020
+November 3, 2020
 
 \bigskip
  
@@ -2809,7 +2809,7 @@ A second more limited way to provide for use of $P$ is to define
 the two functions:
 \begin{indpar} \tt
 function Q\$1 T\$1 r = *POINTER* *ACCESS* ( $D$ data ) \\
-function *POINTER* *ACCESS* ( $D$ data ) = Q\$1 T\$1 r \\
+function *POINTER* *ACCESS* ( $D$ data ) = Q\$1 T\$1 r
 \end{indpar}
 
 This allows the pointer to be used to read a copy of the
@@ -2873,7 +2873,7 @@ The syntax of a function declaration is:
                            {\em input-variable-list} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{prototype-result-list} ::= \\
+\emkey{prototype-result-list}\label{PROTOTYPE-RESULT-LIST} ::= \\
 \hspace*{0.5in}
     {\em prototype-result-declaration}
     \{ \TT{,} {\em prototype-result-declaration} \}\STAR{}
@@ -2931,7 +2931,7 @@ The syntax of a function declaration is:
     of the form `{\tt function $N$ = \ldots}'
     \end{tabular}
 \\[0.5ex]
-\emkey{pattern-argument-list} \\
+\emkey{pattern-argument-list}\label{PATTERN-ARGUMENT-LIST} \\
 \hspace*{1in}
     \begin{tabular}[t]{@{}rl}
     ::= & \TT{(} {\em argument-declaration}~
@@ -3241,6 +3241,50 @@ at compile-time.
 
 \subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
+
+An out-of-line function prototype is a limited subset of
+an inline function prototype which ensures that there is
+a single ordered list of arguments.  To obtain a more
+flexible interface, an out-of-line function call should
+be embedded in an inline function that pre-processes the
+arguments.
+
+The syntax of an out-of-line function declaration is:
+
+\begin{indpar}
+\emkey{out-of-line-function-declaration}%
+	\label{OUT-OF-LINEFUNCTION-DECLARATION}
+    ::= \begin{tabular}[t]{l}
+        {\em out-of-line-function-prototype} \TT{:} \\
+	\TT{~~~~~}{\em statement}\PLUS{}
+	\end{tabular}
+\\[2ex]
+\emkey{out-of-line-function-prototype}%
+	\label{OUT-OF-LINE-FUNCTION-PROTOTYPE} ::= \\
+\hspace*{0.25in} \ttkey{out-of-line function}~
+          \{ {\em prototype-result-list}~ \TT{=}~ \}\QMARK{} \\
+\hspace*{0.5in}{\em module-abbreviation}\QMARK{}~
+	      {\em out-of-line-function-name}~
+	      {\em pattern-argument-list}\QMARK{}
+\\[0.5ex]
+\emkey{out-of-line-function-name} ::= {\em basic-name} $|$ {\em quoted-string}
+\\[0.5ex]
+{\em prototype-result-list} ::= see \pagref{PROTOTYPE-RESULT-LIST}
+\\[0.5ex]
+{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
+\\[0.5ex]
+{\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
+
+\begin{itemize}
+\item
+The rules for inline {\em function-declarations} on
+\pagref{FUNCTION-DECLARATION} must be followed where applicable.
+\item
+`{\tt ??}' {\tt bool} defaults are not allowed.
+\item
+Wild-cards are not allowed.
+\end{itemize}
+\end{indpar}
 
 \subsubsubsection{Module Declarations}
 \label{MODULE-DECLARATIONS}
