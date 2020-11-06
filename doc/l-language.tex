@@ -3375,7 +3375,7 @@ The module \TT{"standard"}\index{standard@\TT{"standard"}} with
 module abbreviation \ttkey{std} is builtin and contains the builtin types and
 functions.  The {\em import-clause}
 \begin{center}
-{\tt import }\TT{"standard"}{\tt as \ttkey{std}}
+{\tt import }\TT{"standard"}{\tt{} as \ttkey{std}}
 \end{center}
 is implied in every {\em module-declaration} and
 {\em body-declaration}.
@@ -3434,12 +3434,12 @@ The {\em after-clauses} name other bodies that extend the same
 module, and determine the order in which bodies are initialized:
 see \itemref{PROGRAM-INITIALIZATION}.
 
-TBD
-
-The conceptual directed graph whose nodes are modules and whose
-arrows connect each module to the modules it or its bodies import is called
-the `\key{module graph}'.\label{MODULE-GRAPH}
-This graph \underline{must be acyclic}.
+The conceptual directed graph whose nodes are modules and bodies
+and whose arrows connect each module or body to the modules it imports
+and for a body to the bodies it is `{\tt initialized after}'
+is called
+the `\key{initialization graph}'\label{INITIALIZATION-GRAPH}
+and \underline{must be acyclic}.
 
 \section{Compile Time}
 
