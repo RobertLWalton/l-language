@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 3, 2020
+November 6, 2020
 
 \bigskip
  
@@ -599,17 +599,19 @@ all types in the function definition be {\tt const}
 {\tt const} values, as in `{\tt int..size}').
 
 Pointer types can be wildcards which must have names that are
-single words beginning with {\tt P\$}.  An example is:
+single words beginning with {\tt P\$}.  A list of qualifiers
+can also be a wild card named by a single word beginning with
+{\tt Q\$}.  An example is:
 
 \begin{indpar}\begin{verbatim}
-function uns r = strlen ( P$s uns8 s ):
-    dp uns8 sdp = s
-    r = LIBC strlen ( sdp )
+function uns r = strlen ( P$s Q$s uns8 s ):
+    dp ro uns8 sdp = s
+    r = call "strlen" ( sdp )
 \end{verbatim}\end{indpar}
 
-which converts the point of type {\tt P\$s} to a pointer of
-type {\tt dp} (direct pointer) and calls the C programming
-language subroutine {\tt LIBC strlen} with the direct pointer.
+which converts the pointer of type {\tt P\$s} to a pointer of
+type {\tt dp} (direct pointer) and calls the external C programming
+language subroutine {\tt strlen} with the direct pointer.
 
 L-Language does not necessarily make any use of registers, other
 than as temporaries during the execution of a single statement,
@@ -1445,11 +1447,9 @@ L-Language uses several kinds of names:
 \emkey{pointer-type-name}\label{POINTER-TYPE-NAME} ::=
     \MA{} {\em simple-name}
 \\[1ex]
-\emkey{basic-name}
-	::= \begin{tabular}[t]{@{}l@{}}
+\emkey{basic-name}\label{BASIC-NAME} ::=
 	    {\em name} not containing a `\TT{.}', {\em quoted-mark}, or
-	    {\em quoted-separator}
-	    \end{tabular} \\
+	    {\em quoted-separator} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
     \MA{} {\em basic-name} \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
@@ -1782,8 +1782,12 @@ value has an associated \key{indirect variable}\label{INDIRECT-VARIABLE}
 whose name is made
 by removing the initial `{\tt @}' from the variable name (e.g.,
 the indirect variable associated with {\tt @V} is {\tt V}).
-A run-time variable that is not indirect is called a
-\key{direct variable}\label{DIRECT-VARIABLE}.
+The indirect variable is automatically declared when the direct
+variable is declared.
+A run-time variable that has not been declared as an indirect variable
+is called a \key{direct variable}\label{DIRECT-VARIABLE}.
+Note that syntactically direct variable are must arbitrary
+{\em variable-names}.
 
 A {\em reference-expression} that is just a direct variable name
 can only be used to read the value of the variable.
@@ -1856,9 +1860,10 @@ function ap *READ_WRITE* flt64 @x = ( ap my vector @v ) [ uns index ]:
 The syntax of function calls is:
 
 \begin{indpar}
-\emkey{function-call} ::= {\em module-abreviation}\QMARK{}
-    	                  {\em call-argument-list}\STAR{}
-                          {\em call-term} {\em call-term}\STAR{}
+\emkey{function-call}\label{FUNCTION-CALL} ::=
+    {\em module-abreviation}\QMARK{}
+    {\em call-argument-list}\STAR{}
+    {\em call-term} {\em call-term}\STAR{}
 \\[0.5ex]
 \emkey{call-term}
     \begin{tabular}[t]{rl}
@@ -1867,7 +1872,7 @@ The syntax of function calls is:
     $|$ & \ttkey{not} {\em call-term-name} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{call-argument-list}
+\emkey{call-argument-list}\label{CALL-ARGUMENT-LIST}
     \begin{tabular}[t]{rl}
     ::= & \TT{(} {\em actual-argument}
           \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
@@ -2025,21 +2030,18 @@ The general form of an {\em assignment-statement} is:
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}
-        \{ {\em qualifier-name}\STAR{} {\em pointer-type-name} \}\QMARK{} \\
+        \{ {\em pointer-type-name} {\em qualifier-name}\STAR{} \}\QMARK{} \\
 \hspace*{1.0in}
-        {\em qualifier-name}\STAR{} {\em type-name} {\em direct-variable-name}
+        {\em type-name} {\em variable-name}
 \\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
-    ::= \ttkey{next} {\em direct-variable-name}
+    ::= \ttkey{next} {\em variable-name}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
 \emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \\[0.5ex]
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
-\\[0.5ex]
-\emkey{direct-variable-name} ::= {\em variable-name} of a direct variable
-				  (\pagref{DIRECT-VARIABLE})
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
@@ -2084,10 +2086,24 @@ to control the flow of execution within the more complex
     \end{tabular}
 \end{indpar}
 
+If a {\em result-variable-declaration} declares a {\em variable-name}
+that begins with a `{\tt @}' and has a pointer type,
+an indirect variable is implicitly declared at the same time
+whose name is the {\em variable-name} with the `{\tt @}' removed.
+A {\em variable-name} that is not indirect is called a direct variable.
+See \pagref{INDIRECT-VARIABLE}.
+
+Note that a {\em result-variable-declaration} does not allow
+qualifiers on anything but the target of a pointer.  The implicit
+qualifier of a declared direct variable is {\tt co}, meaning the
+the value of the variable once initially set is never changed.
+The qualifiers of an indirect variable are those of the target of
+its associated pointer.
 
 A {\em next-variable-declaration} for a {\em variable} {\tt v}
 must occur in the scope of either a {\em result-variable-declaration}
 for {\tt v} or another {\em next-variable-declaration} for {\tt v}.
+Furthermore, {\tt v} cannot be an indirect variable name.
 The {\em next-variable-declaration} re-declares {\tt v} making a new
 variable that hides the previously declared {\tt v}.  The new variable
 has the same types and qualifiers as the previous variable named {\tt v}.
@@ -3253,7 +3269,7 @@ The syntax of an out-of-line function declaration is:
 
 \begin{indpar}
 \emkey{out-of-line-function-declaration}%
-	\label{OUT-OF-LINEFUNCTION-DECLARATION}
+	\label{OUT-OF-LINE-FUNCTION-DECLARATION}
     ::= \begin{tabular}[t]{l}
         {\em out-of-line-function-prototype} \TT{:} \\
 	\TT{~~~~~}{\em statement}\PLUS{}
@@ -3263,15 +3279,21 @@ The syntax of an out-of-line function declaration is:
 	\label{OUT-OF-LINE-FUNCTION-PROTOTYPE} ::= \\
 \hspace*{0.25in} \ttkey{out-of-line function}~
           \{ {\em prototype-result-list}~ \TT{=}~ \}\QMARK{} \\
-\hspace*{0.5in}{\em module-abbreviation}\QMARK{}~
-	      {\em out-of-line-function-name}~
+\hspace*{0.5in}{\em out-of-line-function-name}~
 	      {\em pattern-argument-list}\QMARK{}
 \\[0.5ex]
-\emkey{out-of-line-function-name} ::= {\em basic-name} $|$ {\em quoted-string}
+\emkey{out-of-line-function-name} ::= \\
+\hspace*{0.25in}
+    {\em module-abbreviation}\QMARK{} {\em basic-name}
+    $|$ {\em external-function-name}
+\\[0.5ex]
+{\em external-function-name} ::= {\em quoted-string}
 \\[0.5ex]
 {\em prototype-result-list} ::= see \pagref{PROTOTYPE-RESULT-LIST}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
+\\[0.5ex]
+{\em basic-name} ::= see \pagref{BASIC-NAME}
 \\[0.5ex]
 {\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
 
@@ -3285,6 +3307,25 @@ The rules for inline {\em function-declarations} on
 Wild-cards are not allowed.
 \end{itemize}
 \end{indpar}
+
+An out-of-line function with a {\em quoted-string} as its
+{\em out-of-line-function-name} is \key{external}.  Other
+out-of-line functions are \key{internal}.
+
+An internal out-of-line function can be called with a normal
+{\em function-call} (\pagref{FUNCTION-CALL}).  An external
+out-of-line function must be called with an:
+\begin{indpar}
+\emkey{out-of-line-function-call}%
+	\label{OUT-OF-LINE-FUNCTION-CALL} ::= \\
+\hspace*{0.25in}
+	\ttkey{call} {\em external-function-name}
+	     {\em call-argument-list}\QMARK{}
+\\[0.5ex]
+{\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
+\end{indpar}
+
+
 
 \subsubsubsection{Module Declarations}
 \label{MODULE-DECLARATIONS}
