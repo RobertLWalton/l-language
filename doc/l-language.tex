@@ -486,7 +486,7 @@ not available at run-time.  Number constants are infinite
 precision, with unbounded integers and rational numbers that
 are ratios of unbounded integers.  Number constants
 can be converted to run-time numbers during compilation.
-However it is an assembler error
+However it is an compiler error
 if the result will not fit into the runtime number.
 This happens, for example, if {\tt 1e20}
 is converted to an {\tt int32}.
@@ -1972,7 +1972,7 @@ similarly for pointer types.)
 \item Builtin functions are compile-time if their arguments and
       results are all of {\tt const} type.
 \item A {\em statement} is compile-time if and only if all its
-      variables and expressions are assem\-bly-time.
+      variables and expressions are compile-time.
 \end{itemize}
 
 A \key{run-time} {\em variable}, {\em expression}, or {\em statement}
@@ -3445,15 +3445,15 @@ and \underline{must be acyclic}.
 
 Statements and functions, all of whose variables are of {\tt const}
 type, execute solely during compilation, and never at run time
-(when the assembled program is running).  Constants are all of
+(when the compiled program is running).  Constants are all of
 type {\tt const}, and cannot exist at run-time, though number
 and quoted string {\tt const} values can be converted to run-time values.
 
 \subsection{Compile Time Data}
 
 Compile time data consists of {\tt const} values.
-There are 4 types of {\tt const} values: integers, rationals, strings,
-and maps.
+There are 5 types of {\tt const} values: integers, rationals, strings,
+special values, and maps.
 
 \key{Integers} are unbounded and can be arbitrarily long.
 Any sequence of lexemes that is a
@@ -3467,11 +3467,15 @@ of the numerator and denominator must be 1.
 Any sequence of lexemes that is a
 number representative
 that evaluates to a non-integer
-can be used to represent an rational {\tt const}, but not all
-rational {\tt const} value can be represented by lexeme sequences
+can be used to represent a rational {\tt const}, but not all
+rational {\tt const} values can be represented by lexeme sequences
 that are not {\em expressions}.
 
 \key{Strings} are character strings, represented by quoted string lexemes.
+
+The \key{special values} defined at compile-time are the booleans
+\ttkey{TRUE} and \ttkey{FALSE}, and the value \ttkey{UNDEF},
+which denotes the `\key{undefined value}'.
 
 \key{Maps} have two parts.  The \key{vector} part maps small
 natural numbers in the range $[0,n-1]$ to values, where $n$
@@ -3482,9 +3486,9 @@ Labels that begin with '{\tt .}' are \key{hidden} and do not
 print.  Maps that have no non-hidden labels are called \key{lists}.
 
 Maps are represented by comma separated lists of elements inside
-{\tt [~]} brackets, with list elements being represented by
+{\tt [~]} brackets, with vector elements being represented by
 just their value, and dictionary elements being represented
-by the syntax `label {\tt =>} value'.\pagnote{MAPS}
+by the syntax `label {\tt =>} value'.
 
 The parser translates an input text into nested lists.  These
 lists have a {\tt .position} hidden label whose value specifies
@@ -3495,12 +3499,6 @@ been moved to the beginning of the list.  Logical lines,
 indented paragraphs, and parenthesized subexpressions
 are lists with {\tt .initiator} and {\tt .terminator}
 hidden attributes.
-
-There are special {\em const} values \ttkey{TRUE} and
-\ttkey{FALSE}, which are used to denote boolean values.
-
-There is also a special {\tt const} value \ttkey{UNDEF},
-which denotes the `\key{undefined value}'.
 
 \subsubsection{Maps}
 \label{MAPS}
