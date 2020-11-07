@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 6, 2020
+November 7, 2020
 
 \bigskip
  
@@ -197,7 +197,7 @@ initialized it is not writable.
 
 The following is another example:
 \begin{indpar}\begin{verbatim}
-av *READ-WRITE* uns8 @bp = local uns8[81]
+av *READ-WRITE* uns8 @bp =@ local[81]
 av uns8 @cp = "Hello!"
 int i = 0
 while ( i < @cp.upper ):
@@ -206,7 +206,7 @@ while ( i < @cp.upper ):
 bp[cp.upper] = 0
 \end{verbatim}\end{indpar}
 
-Here `{\tt local uns8[81]}' creats an aligned vector of
+Here `{\tt local[81]}' creats an aligned vector of
 81 {\tt uns8} (8-bit unsigned) numbers in the current function
 frame and returns an aligned vector pointer, or {\tt av}, to
 the vector, marking the vector elements as {\tt *READ-WRITE*}.
@@ -294,7 +294,7 @@ For example:
 
 \begin{indpar}\begin{verbatim}
 int X = 5
-ap *READ-WRITE* int @Y = local int
+ap *READ-WRITE* int @Y =@ local
 Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
@@ -303,7 +303,7 @@ ap ro int Z = @Y         // Copies pointer value of Y
                          // to ro is legal.
 \end{verbatim}\end{indpar}
 
-Here `{\tt local int}' allocates an {\tt int} to the current
+Here `{\tt =@ local}' allocates an {\tt int} to the current
 function frame, zeros it, and returns an `{\tt ap *READ-WRITE* int}'
 pointer to its location.
 
@@ -357,7 +357,7 @@ my type X:
     X.des = 3
 uns op = X.op code      // Now op == 5
 int d = X.des           // Now d == 3
-ap *READ-WRITE* my type @Y = local my type
+ap *READ-WRITE* my type @Y =@ local
 Y.op code = 129
 fp *READ-WRITE* int @C = @Y.constant
 ap *READ-WRITE* int @OP = @Y.op code
@@ -1990,6 +1990,8 @@ The following is a complete list of the kinds of statements:
         & [\pagref{ASSIGNMENT-STATEMENTS}] \\
     $|$ & {\em control-statement}
         & [\pagref{CONTROL-STATEMENT}] \\
+    $|$ & {\em allocation-statement}
+        & [\pagref{ALLOCATION-STATEMENTS}] \\
     $|$ & {\em declaration}
         & [\pagref{DECLARATIONS}] \\
     $|$ & {\em include-statement}
@@ -2211,7 +2213,7 @@ block's {\em assignment-results} with any {\em qualifiers}
 and {\em types} omitted (these are inferred within the block
 from the associated {\em assignment-result}).  An example is:
 \begin{indpar}\begin{verbatim}
-ap *READ-WRITE* int @x = local int
+ap *READ-WRITE* int @x =@ local
 x = 5
 ap *READ-WRITE* int @y, int z =:
     @y = @x
@@ -2686,8 +2688,8 @@ type my type:
     ap *READ-WRITE* flt .@y;
 
 my type X:
-    X.@x = local int
-    X..@y = local flt
+    X.@x =@ local
+    X..@y =@ local
 X.x = 5
 X..y = 6.6
 \end{verbatim}\end{indpar}
@@ -2719,7 +2721,7 @@ that has \underline{no} {\em pointer-type-name}.
 An example is:
 
 \begin{indpar}\begin{verbatim}
-ap *READ-WRITE* @X = local my type
+ap *READ-WRITE* @X =@ local
                     // Legal, my type need not be declared
 ap ro @Y = @X       // Legal, only ap copied.
 my type Z = X       // Illegal, my type must be declared.
@@ -2926,7 +2928,7 @@ The syntax of a function declaration is:
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
-\emkey{prototype-pattern}\label{FUNCTION-PATTERN}
+\emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
     \begin{tabular}[t]{rl}
     ::= & {\em first-pattern-term}~ {\em pattern-term}\STAR{} \\
     $|$ & {\em pattern-argument-list}~ {\em pattern-argument-list}\PLUS{}
@@ -3440,6 +3442,72 @@ and for a body to the bodies it is `{\tt initialized after}'
 is called
 the `\key{initialization graph}'\label{INITIALIZATION-GRAPH}
 and \underline{must be acyclic}.
+
+\subsubsection{Allocation Statements}
+\label{ALLOCATION-STATEMENTS}
+
+The syntax of {\em allocation-statements} is:
+
+\begin{indpar}
+\emkey{allocation-statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & {\em assignment-left-side}~
+	  \ttkey{=@}~ {\em function-call} \\
+    $|$ & {\em assignment-left-side}~
+	  \{ \ttkey{=@}~ {\em function-call} \}\QMARK{}
+	\TT{:} \\
+	& \TT{~~~~}{\em statement}\STAR{} \\
+	\end{tabular} \\
+\\[0.5ex]
+\emkey{function-call} ::= see \pagref{FUNCTION-CALL} \\
+\emkey{statement} ::= see \pagref{STATEMENT} \\
+\\[1ex]
+where
+\begin{itemize}
+\item The {\em assignment-left-side} may \underline{not} contain
+{\em reference-expressions} or {\em deferred-results}.
+\item If there is a {\em function-call}, all the {\em assignment-left-side}
+variables must have pointer types.
+\end{itemize}
+\end{indpar}
+
+The statement allocates memory for the left side variables and
+zeros that memory.  Then any {\em statements} are executed with
+the allocated memory being write-only.
+
+More specifically, if there is no {\em function-call}, the
+{\em assignment-left-side} variables are allocated to the
+current function frame and zeroed, and then the {\em statements}
+are executed with these variables being treated as {\tt *WRITE-ONLY*}.
+After the {\em allocation-assignment-statement} if finished, these
+variables will be treated as {\tt co} (constant, never changed).
+
+If there is a {\em function-call}, the {\em function-call} will be
+executed with a pre-pended argument list separately for each
+{\em assignment-left-side} variable.  The variable must have pointer
+type.  The {\em prototype-pattern} of the called function's prototype
+(see \pagref{PROTOTYPE-PATTERN}) must begin with: \\
+\centerline{\tt ( uns length, uns alignment )} \\
+and when called a {\tt ()} {\em call-argument-list} is pre-pended to
+the {\em function-call} giving two {\tt uns} arguments: first the
+number of bytes to be allocated, and second the alignment required
+of the first byte.  The called function must allocate a block of
+memory with the required number of bytes and alignment, zero that
+block, and return a pointer to the block.  The prototype must have
+exactly one result variable which is a pointer.
+
+If there is both a {\em function-call} and {\em statements},
+the {\em statements} are executed after all {\em assigment-left-side}
+variables have been set.  Within the block containing
+these {\em statements},
+the target qualifiers of these pointer variables are effectively changed to
+{\tt *WRITE-ONLY*}.
+
+As a general rule, allocator functions have a {\tt []} argument list
+with a single argument giving a vector size {\tt N} that defaults to {\tt 1}.
+The allocator then allocates not a single block of the given length
+and alignment, but instead a vector of {\tt N} such blocks.  However,
+this is by convention and is not a builtin feature of the L-Language.
 
 \section{Compile Time}
 
