@@ -610,7 +610,7 @@ function uns r = strlen ( P$s Q$s uns8 s ):
 \end{verbatim}\end{indpar}
 
 which converts the pointer of type {\tt P\$s} to a pointer of
-type {\tt dp} (direct pointer) and calls the external C programming
+type {\tt dp} (direct pointer) and calls the `foreign' C programming
 language subroutine {\tt strlen} with the direct pointer.
 
 L-Language does not necessarily make any use of registers, other
@@ -3287,9 +3287,9 @@ The syntax of an out-of-line function declaration is:
 \emkey{out-of-line-function-name} ::= \\
 \hspace*{0.25in}
     {\em module-abbreviation}\QMARK{} {\em basic-name}
-    $|$ {\em external-function-name}
+    $|$ {\em foreign-function-name}
 \\[0.5ex]
-{\em external-function-name} ::= {\em quoted-string}
+{\em foreign-function-name} ::= {\em quoted-string}
 \\[0.5ex]
 {\em prototype-result-list} ::= see \pagref{PROTOTYPE-RESULT-LIST}
 \\[0.5ex]
@@ -3311,17 +3311,16 @@ Wild-cards are not allowed.
 \end{indpar}
 
 An out-of-line function with a {\em quoted-string} as its
-{\em out-of-line-function-name} is \key{external}.  Other
-out-of-line functions are \key{internal}.
+{\em out-of-line-function-name} is \key{foreign}.
 
-An internal out-of-line function can be called with a normal
-{\em function-call} (\pagref{FUNCTION-CALL}).  An external
+A non-foreign out-of-line function can be called with a normal
+{\em function-call} (\pagref{FUNCTION-CALL}).  A foreign
 out-of-line function must be called with an:
 \begin{indpar}
 \emkey{out-of-line-function-call}%
 	\label{OUT-OF-LINE-FUNCTION-CALL} ::= \\
 \hspace*{0.25in}
-	\ttkey{call} {\em external-function-name}
+	\ttkey{call} {\em foreign-function-name}
 	     {\em call-argument-list}\QMARK{}
 \\[0.5ex]
 {\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
@@ -3511,6 +3510,167 @@ The allocator allocates not a single block of the given length
 and alignment, but instead a vector of {\tt N} such blocks, with zero padding
 between the blocks if necessary to obtain proper alignment.  However,
 this is by convention and is not a builtin requirement of the L-Language.
+
+\subsection{Scope}
+\label{SCOPE}
+
+TBD
+
+
+A {\em declaration} has a \key{scope},
+that is the set of statements in which any
+names or prototypes defined by the {\em declaration}
+are recognized.  The scope of a {\em declaration}
+begins just after the {\em declaration}
+itself, and
+lasts to the end of smallest block containing the {\em declaration},%
+\footnote{Recall that subblocks of
+{\em abbreviation-declarations},
+{\em type-declarations},
+and {\em in\-clude-statements} not considered to be blocks for
+this purpose: see \ref{NON-BLOCKS} on \pagref{NON-BLOCKS}.}
+or until the end of the file containing the {\em declaration} if
+the {\em declaration} is top level.
+The scope of top level {\em declarations} in a module
+is extended to include all the bodies of that
+module.
+If the {\em declaration} is external, the declaration must be
+top level in a module and not in a body, and the scope of the
+{\em declaration} is extended to include all modules and
+bodies that import the module containing the {\em declaration}.
+
+
+The scope of a {\em name}, {\em function-prototype}, or
+{\em generic-prototype}
+is the scope of the declaration that defines it.
+
+The scope of a {\em block-name} is the block it names
+(see \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).  Block names are
+internal.
+
+The \key{context}\label{CONTEXT} of a statement is the set of declarations
+whose scope the statement is in.
+
+When a {\em function-call} to an inline function
+or a {\em generic-call} to a generic is compiled,
+the context of the compilation is \underline{not} the current context but
+rather the context of the inline function or generic
+declaration.
+Also the context in which any {\em default-value} expression
+provided by a declaration
+is compiled is the \underline{not} the current context but
+rather the context of that declaration.
+
+Code produced by {\em include-statements} executed during a call to a generic
+(\itemref{GENERICS}), however, \underline{is} compiled in the current context.
+
+If two different declarations of the same {\em name} have overlapping
+scope, one of these scopes must include the other,
+and the declaration with the smaller scope is said to 
+`\key{hide}'\label{HIDE} the other declaration.
+Such hiding is a compiler error unless the smaller scope
+is within one of the following kinds of statements, and
+the larger scope includes the whole statement:
+\begin{center}
+\begin{tabular}{ll}
+{\em function-type-declaration}
+    & [see \pagref{FUNCTION-TYPE-DECLARATION}] \\
+{\em out-of-line-function-assignment}
+    & [see \pagref{OUT-OF-LINE-FUNCTION-ASSIGNMENT}] \\
+{\em out-of-line-function-declaration}
+    & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
+{\em function-declaration}
+    & [see \pagref{FUNCTION-DECLARATION}] \\
+{\em generic-declaration}
+    & [see \pagref{GENERIC-DECLARATION}] \\
+{\em block-assignment-statement} with context option
+    & [see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
+{\em compile-and-run-assignment-statement} with context option
+    & [see \pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}] \\
+\end{tabular}\label{HIDING-EXCEPTIONS}
+\end{center}
+
+As an exception to the last rule, the declaration with the
+smaller scope may be an assignment statement declaring
+a variable name `\TT{next} {\tt v}' when the declaration
+with the larger scope is an assignment statement
+declaring `{\tt v}', and the two declarations have the
+same smallest containing block.
+Within the smaller scope `{\tt v}' refers to the
+`\TT{next} {\tt v}' declaration: see \pagref{NEXT}.
+
+By the last rule,
+`\TT{next} {\tt v}' cannot be declared inside a block $B$ if `{\tt v}' was
+declared outside $B$ and $B$ is completely within
+the scope of `{\tt v}', so the smallest containing block of
+`{\tt v}' is not the same as the smallest containing block of
+`\TT{next} {\tt v}'.
+
+However, if `{\tt v}' is an external variable,
+`\TT{next} {\tt v}' may not be declared.%
+\footnote{This rule is not logically necessary, but is made to
+avoid confusion while reading code.}
+
+Prototypes cannot hide each other.  If the
+current scope contains two declarations whose prototypes
+both match a {\em function-call} or {\em generic-call},
+the call is ambiguous and
+in error, even if the scope of one declaration is within
+a subblock of the scope of the other.
+As a consequence, it may be unwise to place {\em function-declarations}
+or {\em generic-declarations}
+within statements that have the context option.
+
+A call that is a statement by itself
+is matched against both {\em generic-prototypes}
+and {\em function-proto\-types}, and will be ambiguous if it matches
+one of each kind.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+module "my_own_module" as mom:
+    // `import "standard" as std' is implied
+    import "George's_own_module" as gom
+    // gom contains:
+    //    function int32 z = gom ( int32 x ) "+" ( int32 y )
+
+int32 mom my external constant = ...
+int32 my internal constant = ...
+
+function int32 y = mom my external function ( int32 x ):
+    ... function body omitted ...
+function int32 y = my internal function ( int32 x ):
+    ... function body omitted ...
+
+function int32 z = my inline function ( int32 x, int32 y ):
+    int32 z1 = gom ( x + y )
+        // Uses gom's + operator.
+        // Compiles as as `gom (x) "+" (y)'.
+    int32 z2 = std ( x + y )
+        // Uses builtin std's + operator.
+        // Compiles as as `std (x) "+" (y)'.
+    z  = z1 + z2 
+        // Compiles as `z = ( (x) "+" (y) )'.
+        // Compile error, ambiguous: both std + operator
+        // and gom's + operator match the call to "+".
+\end{verbatim}\end{indpar}\label{EXTERNAL-INTERNAL-EXAMPLE}
+
+More specifically,
+when a function declaration is used, the {\em module-abbreviation}
+beginning the function call may be omitted if the function declaration is
+the only function declaration within scope that matches the usage,
+according to the module deficiency rules of
+section~\itemref{MATCHING-CALLS-TO-PROTOTYPES}.
+Thus in the context of the above example the lines:
+\begin{indpar}\begin{verbatim}
+int32 y = mom my external function ( x )
+int32 y = my external function ( x )
+\end{verbatim}\end{indpar}
+are equivalent if no {\em function-prototype}
+\begin{center}
+\tt function int32 r = $ma$\QMARK{} my external function ( int32 v )
+\end{center}
+is in scope, where $ma$ is a module abbreviation other than `{\tt mom}'.
 
 \section{Compile Time}
 
