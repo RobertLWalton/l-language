@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 7, 2020
+November 9, 2020
 
 \bigskip
  
@@ -3499,15 +3499,18 @@ exactly one result variable which is a pointer.
 If there is both a {\em function-call} and {\em statements},
 the {\em statements} are executed after all {\em assigment-left-side}
 variables have been set.  Within the block containing
-these {\em statements},
-the target qualifiers of these pointer variables are effectively changed to
+these {\em statements}, the qualifiers of these variables, and of the members
+and elements of their values, and of the members and elements of the members and
+elements, and so forth recursively, are effectively changed to
 {\tt *WRITE-ONLY*}.
 
-As a general rule, allocator functions have a {\tt []} argument list
-with a single argument giving a vector size {\tt N} that defaults to {\tt 1}.
-The allocator then allocates not a single block of the given length
-and alignment, but instead a vector of {\tt N} such blocks.  However,
-this is by convention and is not a builtin feature of the L-Language.
+As a general rule, allocator functions that return a {\tt av} or {\tt fv}
+pointer have a {\tt []} argument list
+with a single argument giving a vector size {\tt N}.
+The allocator allocates not a single block of the given length
+and alignment, but instead a vector of {\tt N} such blocks, with zero padding
+between the blocks if necessary to obtain proper alignment.  However,
+this is by convention and is not a builtin requirement of the L-Language.
 
 \section{Compile Time}
 
