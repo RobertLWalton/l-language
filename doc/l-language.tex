@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 9, 2020
+November 10, 2020
 
 \bigskip
  
@@ -1512,17 +1512,20 @@ where the following rules should be followed, least there be
 various confusing syntax or semantic errors:
 \begin{enumerate}
 \item
+\label{VARIABLE-NAME-RULE}
+A {\em variable-name} should not begin with a {\em module-abbreviation}.
+\item
 A {\em type-name} should not begin with a {\em module-abbreviation},
 {\em qualifier-name}, or {\em pointer-type-name}.
 \item
-\label{VARIABLE-NAME-RULE}
-A {\em variable-name} should not begin with a {\em module-abbreviation},
-{\em qualifier-name}, {\em pointer-type-name}, or {\em type-name}.
+A {\em pointer-type-name} should not begin with a {\em module-abbreviation}.
 \item
 A {\em function-term-name} should not begin with a {\em module-abbreviation}
 or contain {\em function-keywords}.
 \item
 {\em Names} not used as operators should not contain {\em operator-names}.
+\item
+{\em Names} of other than qualifiers should not contain {\em qualifier-names}.
 \end{enumerate}
 \end{indpar}
 
@@ -1530,14 +1533,20 @@ For example,
 the parser treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
-\{\MA {\em pointer-type-name}\}\QMARK{}
-\{\MA {\em type-name}\}\QMARK{}
+\{\MA {\em pointer-type-name}\}\QMARK{}~
+{\em qualifier-name}\QMARK{}~
+\MA {\em type-name}~
 \MA {\em variable-name}
 \end{center}
 where \MA denotes an optional {\em module-abbreviation},
 and while scanning this sequence from left to right,
 the parser does \underline{not} back up after identifying
 one of the components of the sequence.
+
+{\em Variable-names}, {\em type-names}, and {\em pointer-type-names}
+that begin with a {\em module-abbreviation} are called
+\skey{external name}s.  Other names are called \skey{internal name}s.
+
 
 \subsubsection{Constants}
 \label{CONSTANTS}
@@ -1992,8 +2001,8 @@ The following is a complete list of the kinds of statements:
         & [\pagref{CONTROL-STATEMENT}] \\
     $|$ & {\em allocation-statement}
         & [\pagref{ALLOCATION-STATEMENTS}] \\
-    $|$ & {\em declaration}
-        & [\pagref{DECLARATIONS}] \\
+    $|$ & {\em declaration-statement}
+        & [\pagref{DECLARATION-STATEMENT}] \\
     $|$ & {\em include-statement}
         & [\pagref{INCLUDE-STATEMENTS}] \\
     \end{tabular}
@@ -2465,9 +2474,22 @@ be indirect variables (see \pagref{INDIRECT-VARIABLE}).
 \subsubsection{Declarations}
 \label{DECLARATIONS}
 
-The following is a complete list of the kinds of declarations:
+The following is a complete list of declarations:
 \begin{indpar}
 \emkey{declaration}\label{DECLARATION}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em result-variable-declaration}
+        & [\pagref{RESULT-VARIABLE-DECLARATION}] \\
+    $|$ & {\em next-variable-declaration}
+        & [\pagref{NEXT-VARIABLE-DECLARATION}] \\
+    $|$ & {\em prototype-result-declaration}
+        & [\pagref{PROTOTYPE-RESULT-DECLARATION}] \\
+    $|$ & {\em argument-declaration}
+        & [\pagref{ARGUMENT-DECLARATION}] \\
+    $|$ & {\em declaration-statement} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{declaration-statement}\label{DECLARATION-STATEMENT}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em type-declaration}
         & [\pagref{TYPE-DECLARATIONS}] \\
@@ -2479,6 +2501,7 @@ The following is a complete list of the kinds of declarations:
         & [\pagref{OUT-OF-LINE-FUNCTION-DECLARATIONS}] \\
     \end{tabular}
 \end{indpar}
+
 
 \subsubsubsection{Type Declarations}
 \label{TYPE-DECLARATIONS}
@@ -2896,7 +2919,7 @@ The syntax of a function declaration is:
     {\em prototype-result-declaration}
     \{ \TT{,} {\em prototype-result-declaration} \}\STAR{}
 \\[0.5ex]
-\emkey{prototype-result-declaration} \\
+\emkey{prototype-result-declaration}\label{PROTOTYPE-RESULT-DECLARATION} \\
 \hspace*{1in}\begin{tabular}[t]{rl}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
@@ -2967,10 +2990,8 @@ A {\em prototype-pattern} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
 in the same {\em prototype-pattern}.
 \item
-A {\em function-variable-name} should follow Rule~\ref{VARIABLE-NAME-RULE}
-on \pagref{VARIABLE-NAME-RULE}, that is, it
-should not begin with a {\em module-abbreviation},
-{\em qualifier-name}, {\em pointer-type-name}, or {\em type-name}.
+Result and argument {\em variable-names} and {\em function-variable-names}
+in a {\em function-prototype} must not begin with a {\em module-abbreviation}.
 \item
 For a {\em prototype-result-declaration} of the form `\TT{next} $v$',
 $v$ must be the {\em vari\-able-name} in an {\em argument-declaration}
@@ -2979,7 +3000,7 @@ any actual argument associated to the {\em argument-declaration}
 must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
 {\em assignment-statement} {\em next-variable-declaration}.
 \item
-All the result and argument {\em variable-names}
+Result and argument {\em variable-names}
 in a {\em function-prototype} must
 be distinct, with an exception for the previous paragraph.
 \item
@@ -3496,7 +3517,7 @@ block, and return a pointer to the block.  The prototype must have
 exactly one result variable which is a pointer.
 
 If there is both a {\em function-call} and {\em statements},
-the {\em statements} are executed after all {\em assigment-left-side}
+the {\em statements} are executed after all {\em assig\-ment-left-side}
 variables have been set.  Within the block containing
 these {\em statements}, the qualifiers of these variables, and of the members
 and elements of their values, and of the members and elements of the members and
@@ -3514,13 +3535,29 @@ this is by convention and is not a builtin requirement of the L-Language.
 \subsection{Scope}
 \label{SCOPE}
 
-TBD
-
-
 A {\em declaration} has a \key{scope},
 that is the set of statements in which any
 names or prototypes defined by the {\em declaration}
-are recognized.  The scope of a {\em declaration}
+are recognized.
+
+Generally the scope of a {\em declaration} includes the {\em statements}
+in any {\em block}
+at the end of the {\em statement} containing the {\em declaration}, and
+all {\em statements} following the {\em statement} containing
+the {\em declaration} up to the end of any {\em block} or file
+containing this {\em statement}.
+
+A \key{top-level} {\em declaration} is a {\em declaration} that is
+\underline{not} in a {\em statement} inside any {\em block}.
+The scope of top-level {\em declarations} in a module file is extended
+to each body file of the module.
+
+A {\em declaration} is \key{external} if it is top level in a module
+(and not in a body), if it
+
+
+
+the 
 begins just after the {\em declaration}
 itself, and
 lasts to the end of smallest block containing the {\em declaration},%
