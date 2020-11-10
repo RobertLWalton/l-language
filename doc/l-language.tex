@@ -1515,17 +1515,19 @@ various confusing syntax or semantic errors:
 \label{VARIABLE-NAME-RULE}
 A {\em variable-name} should not begin with a {\em module-abbreviation}.
 \item
-A {\em type-name} should not begin with a {\em module-abbreviation},
-{\em qualifier-name}, or {\em pointer-type-name}.
+A {\em type-name} should not begin with a {\em module-abbreviation} or
+{\em pointer-type-name}.
 \item
-A {\em pointer-type-name} should not begin with a {\em module-abbreviation}.
+A {\em pointer-type-name} should not begin with a {\em module-abbreviation}
+or {\em type-name}.
 \item
 A {\em function-term-name} should not begin with a {\em module-abbreviation}
 or contain {\em function-keywords}.
 \item
 {\em Names} not used as operators should not contain {\em operator-names}.
 \item
-{\em Names} of other than qualifiers should not contain {\em qualifier-names}.
+{\em Names} that are not {\em qualifier-names}
+should not contain {\em qualifier-names}.
 \end{enumerate}
 \end{indpar}
 
