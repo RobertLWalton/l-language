@@ -2897,10 +2897,11 @@ The syntax of a function declaration is:
 
 \begin{indpar}
 \emkey{function-declaration}\label{FUNCTION-DECLARATION}
-    ::= \begin{tabular}[t]{l}
-        {\em function-prototype} \TT{:} \\
-	\TT{~~~~~}{\em statement}\PLUS{}
-	\end{tabular}
+    \begin{tabular}[t]{rl}
+    ::= &  {\em function-prototype} \TT{:} \\
+	& \TT{~~~~~}{\em statement}\PLUS{} \\
+    $|$ &  {\em function-prototype} \\
+    \end{tabular}
 \\[2ex]
 \emkey{function-prototype}\label{FUNCTION-PROTOTYPE} ::= \\
 \hspace*{0.25in}
@@ -3295,10 +3296,11 @@ The syntax of an out-of-line function declaration is:
 \begin{indpar}
 \emkey{out-of-line-function-declaration}%
 	\label{OUT-OF-LINE-FUNCTION-DECLARATION}
-    ::= \begin{tabular}[t]{l}
-        {\em out-of-line-function-prototype} \TT{:} \\
-	\TT{~~~~~}{\em statement}\PLUS{}
-	\end{tabular}
+    \begin{tabular}[t]{rl}
+    ::= &  {\em out-of-line-function-prototype} \TT{:} \\
+	& \TT{~~~~~}{\em statement}\PLUS{} \\
+    $|$ &  {\em out-of-line-function-prototype} \\
+    \end{tabular}
 \\[2ex]
 \emkey{out-of-line-function-prototype}%
 	\label{OUT-OF-LINE-FUNCTION-PROTOTYPE} ::= \\
@@ -3546,7 +3548,7 @@ Generally the scope of a {\em declaration} includes the {\em statements}
 in any {\em block}
 at the end of the {\em statement} containing the {\em declaration}, and
 all {\em statements} following the {\em statement} containing
-the {\em declaration} up to the end of any {\em block} or file
+the {\em declaration} up to the end of the {\em block} or file
 containing this {\em statement}.
 
 A \key{top-level} {\em declaration} is a {\em declaration} that is
@@ -3554,12 +3556,33 @@ A \key{top-level} {\em declaration} is a {\em declaration} that is
 The scope of top-level {\em declarations} in a module file is extended
 to each body file of the module.
 
-A {\em declaration} is \key{external} if it is top level in a module
-(and not in a body), if it
+Some {\em declarations} are \key{external}.  An external declaration
+must be top level in a module file.  The scope of an external
+{\em declaration} is extended to include all modules and bodies that
+import the module containing the {\em declaration}.
 
+A {\em result-variable-declaration} or {\em next-variable-declaration}
+is external if the {variable-name} declared begins with a
+{\em module-abbreviation}.
 
+A {\em type-declaration} or {\em pointer-type-declaration}
+is external if the {type-name} or {\em pointer-type-name}
+declared begins with a
+{\em module-abbreviation}.
 
-the 
+A {\em inline-function-declaration} or {\em out-of-line-function-declaration}
+is external if the {\em prototype-pattern} in the {\em declaration}
+is immediately preceeded by a {\em module-abbreviation}.
+
+A {\em module-abbreviation} that makes a {\em declaration} external
+must abbreviate the module in which the {\em declaration} occurs.
+
+{\em Prototype-result-declaration} and {\em argument-declaration}
+{\em variable-names} cannot begin with a {\em module-abbreviation},
+and therefore these {\em declarations} can never be external.
+
+TBD
+
 begins just after the {\em declaration}
 itself, and
 lasts to the end of smallest block containing the {\em declaration},%
