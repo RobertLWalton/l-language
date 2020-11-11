@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 10, 2020
+November 11, 2020
 
 \bigskip
  
@@ -408,12 +408,14 @@ type my type:
     flt64   weight           // Object Weight
     align   8
     label   extension
+    extendable
 
 type my type:
     origin  extension
     align
     flt64   height           // Object Height
     flt64   width            // Object Width
+    extendable
 
 type my type:
     origin  extension
@@ -2512,10 +2514,11 @@ The syntax of a type declaration is:
 
 \begin{indpar}
 \emkey{type-declaration}\label{TYPE-DECLARATION}
-    ::= \begin{tabular}[t]{l}
-        \ttkey{type} {\em defined-type-name} \TT{:} \\
-	\TT{~~~~~}{\em type-subdeclaration}\STAR{}
-	\end{tabular} \\
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{type} {\em defined-type-name} \TT{:} \\
+	& \TT{~~~~~}{\em type-subdeclaration}\STAR{} \\
+    $|$ & \ttkey{type} {\em defined-type-name} \TT{:} \ttkey{deferred} \\
+    \end{tabular} \\
 \emkey{defined-type-name} ::= {\em type-name} \\
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
 \\[2ex]
@@ -2529,6 +2532,7 @@ The syntax of a type declaration is:
            \{ \{\TT{+}$|$\TT{-}\} {\em offset} \}\QMARK{} \\
     $|$ &  \ttkey{origin} \{\TT{+}$|$\TT{-}\} {\em offset} \\
     $|$ &  \ttkey{include} {\em defined-type-name} \\
+    $|$ &  \ttkey{extendable} \\
     \end{tabular}
 \\[2ex]
 \emkey{field-declaration}
@@ -2638,9 +2642,12 @@ A \ttkey{include} sub-declaration copies all the {\em type-subdeclarations}
 of the given defined type into the current sequence of
 {\em type-subdeclarations}.
 
-If there are multiple {\em type-declarations} with the same
-{\em type-name}, all but the first act to append {\em type-subdeclarations}
-to the current list of such for the {\em type-name}.
+A \ttkey{extendable} sub-declaration must be the last
+{\em type-subdeclarations} in a {\em type-declaration}, and specifies
+that the {\em type-declaration} may be extended by giving another
+{\em type-declaration} with the same
+{\em type-name}, whose {\em type-subdeclarations}
+will be appended to the current list of such for the {\em type-name}.
 
 Subfields are parts of the previously declared numeric field.
 The bits occupied
@@ -2719,22 +2726,16 @@ X.x = 5
 X..y = 6.6
 \end{verbatim}\end{indpar}
 
-If a {\em defined-type-name} appears in several {\em type-declarations},
-the subsequent declarations extend the previous ones: that is, their
-lists of {\em type-subdeclarations} are concatenated.
-
-Some uses of a {\em defined-type-name} do not require it to have
-been previously declared, or do not require all its extensions to have
-been previously declared.  These uses include the builtin {\tt local}
-and {\tt global} allocators, and use as a {\em type-name} in a
-{\em result-variable-declaration} that also has
-a {\em pointer-type-name} (i.e., as a target of a pointer).
+A {\em defined-type-name} may declared as \key{deferred}, meaning
+that its full declaration will appear later.  Such a {\em defined-type-name}
+may be used before it is fully declared as the target of a
+{\em pointer-type} or with an allocator.
 
 The allocators work because the size and alignment of a defined
 type are computed as run-time constants initialized when the
 program is linked, which is after all extensions of the type have been
 declared, and in addition newly allocated values are
-always zeroed.  Use as a pointer target is does not require
+always zeroed.  Use as a pointer target is does not require non-deferred
 declaration until the pointer is used to access a value.
 
 Some uses of a {\em defined-type-name} require the type's
@@ -3557,7 +3558,9 @@ The scope of top-level {\em declarations} in a module file is extended
 to each body file of the module.
 
 Some {\em declarations} are \key{external}.  An external declaration
-must be top level in a module file.  The scope of an external
+must be top level in a module file, except that some external
+declarations may be repeated with more detail in a body of the
+module, as indicated below.  The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
 
