@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 11, 2020
+November 12, 2020
 
 \bigskip
  
@@ -408,14 +408,12 @@ type my type:
     flt64   weight           // Object Weight
     align   8
     label   extension
-    extendable
 
 type my type:
     origin  extension
     align
     flt64   height           // Object Height
     flt64   width            // Object Width
-    extendable
 
 type my type:
     origin  extension
@@ -2527,12 +2525,11 @@ The syntax of a type declaration is:
     ::= &  {\em field-declaration} \\
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
-    $|$ &  \ttkey{label} {\em field-label} \\
-    $|$ &  \ttkey{origin} {\em field-label}
-           \{ \{\TT{+}$|$\TT{-}\} {\em offset} \}\QMARK{} \\
-    $|$ &  \ttkey{origin} \{\TT{+}$|$\TT{-}\} {\em offset} \\
     $|$ &  \ttkey{include} {\em defined-type-name} \\
-    $|$ &  \ttkey{extendable} \\
+    $|$ &  \ttkey{*FINAL*} \\
+    $|$ &  \ttkey{*EXTERNAL*} \\
+    $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
+    $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
     \end{tabular}
 \\[2ex]
 \emkey{field-declaration}
@@ -2569,6 +2566,7 @@ The syntax of a type declaration is:
     \end{tabular}
 \\[2ex]
 \emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
+\emkey{origin-label}\label{ORIGIN-LABEL} ::=  {\em data-label} \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
@@ -2598,8 +2596,7 @@ The syntax of a type declaration is:
 \emkey{dit} ::= see \pagref{DIT}
 \\[2ex]
 \emkey{alignment} ::= compile-time {\em expression}
-		      with power of 2 integer value \\
-\emkey{offset} ::= compile-time {\em expression}
+		      with power of 2 integer value
 
 \begin{itemize}
 \item All the compile-time {\em expressions} must evaluate to an integer.
@@ -2629,25 +2626,43 @@ and in addition sets the align/pack switch to `align'.
 
 A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
-An \ttkey{origin} sub-declaration changes the current offset to that
-of the given {\em field-label} plus or minus the value of the
-given {\em offset}.  If the {\em field-label} is omitted, the
-the offset is set to the given {\em offset}.
-
-A \ttkey{label} sub-declaration behaves like the definition of a
-zero length field, and just assigns the current offset to the
-given {\em field-label}.
-
 A \ttkey{include} sub-declaration copies all the {\em type-subdeclarations}
 of the given defined type into the current sequence of
 {\em type-subdeclarations}.
 
-A \ttkey{extendable} sub-declaration must be the last
-{\em type-subdeclarations} in a {\em type-declaration}, and specifies
-that the {\em type-declaration} may be extended by giving another
-{\em type-declaration} with the same
-{\em type-name}, whose {\em type-subdeclarations}
-will be appended to the current list of such for the {\em type-name}.
+If there are multiple {\em type-declarations} with the same
+{\em type-name}, all but the first act to append {\em type-subdeclarations}
+to the current list of such for the {\em type-name}.
+All {\em type-declarations} for a given {\em type-name} but the first
+must be within the scope (see \itemref{SCOPE}) of the
+{\em type-name}.
+
+Normally all {\em type-declarations} with the same {\em type-name}
+must be in the same modules (\pagref{MODULE-DECLARATIONS}) or its
+bodies.
+However, if the \ttkey{*EXTERNAL*} sub-declaration is given
+in the first {\em type-declaration} with a given {\em type-name},
+and if the {\em type-name} is external (\pagref{SCOPE}),
+subsequent {\em type-declarations} with the given {\em type-name}
+may be in any module or body that imports the {\em type-name}'s
+module.
+
+A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
+given {\em origin-label} and provides the {\em origin-label}
+for use by subsequent {\tt *ORIGIN*} sub-declarations.
+
+An \ttkey{*ORIGIN*} sub-declaration changes the current offset to that
+of the given {\em origin-label}.
+The {\em origin-label} must be defined by a preceding
+{\tt *LABEL*} sub-declaration.
+
+Care must be exercised when using {\tt *LABEL*} and {\tt *ORIGIN*},
+as both type-violations and unexpected field allocations can result.
+Note that if there are multiple {\em type-declarations}
+with the same {\em type-name} in different modules and bodies
+(\pagref{MODULE-DECLARATIONS}),
+the order in which these {\em type-declarations} are processed
+may not be completely determined.
 
 Subfields are parts of the previously declared numeric field.
 The bits occupied
