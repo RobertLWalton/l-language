@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 12, 2020
+November 13, 2020
 
 \bigskip
  
@@ -407,16 +407,16 @@ type my type:
     [6] bool vegetable       // True if Vegetable
     flt64   weight           // Object Weight
     align   8
-    label   extension
+    *LABEL*   extension
 
 type my type:
-    origin  extension
+    *ORIGIN*  extension
     align
     flt64   height           // Object Height
     flt64   width            // Object Width
 
 type my type:
-    origin  extension
+    *ORIGIN*  extension
     align
     flt64   volume           // Object Volume
 
@@ -468,13 +468,16 @@ alignment equal to the least common multiple (in this case just the
 largest) of the
 alignments of its fields.
 
-A {\tt label} is like a zero length field that has no value and
-is used to associate a label with the current offset.
+A {\tt *LABEL*} is like a zero length field that has no value and
+is used to associate a orgin-label with the current offset.
 Here {\tt extension} has the offset value of 16 bytes.
-The {\tt origin} sub-declaration resets the current offset to the offset
-of a given label.
+The {\tt *ORIGIN*} sub-declaration resets the current offset to the offset
+of a given origin-label.
 The {\tt include} sub-declaration copies all the sub-declarations
-from another user defined type.
+from another user defined type.  If the user defined type is
+defined by multiple {\em type-declarations}, only sub-declarations
+from the {\em type-declarations} in the current scope (see \itemref{SCOPE})
+are copied.
 
 Defined types can be extended
 (as per the example), and fields can overlay each other.
@@ -2647,6 +2650,20 @@ subsequent {\em type-declarations} with the given {\em type-name}
 may be in any module or body that imports the {\em type-name}'s
 module.
 
+The \ttkey{*FINAL*} sub-declaration specifies that the containing
+{\em type-declaration} is the last {\em type-declaration} for
+its {\em type-name}.  This is just an aid to optimization, as
+it allows the compiler to pass values of the defined type in
+registers because the compiler knows the size and all the
+members of the defined type.  Otherwise the compiler must allocate
+the values to memory as their size is not determined until load
+time.
+
+A \ttkey{deferred} {\em type-declaration} is just syntactic
+sugar for a {\em type-declaration} with \underline{no} sub-declarations.
+Such a {\em type-declaration} is typically used allow the {\em type-name}
+to be used as the target type of a pointer.
+
 A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
 given {\em origin-label} and provides the {\em origin-label}
 for use by subsequent {\tt *ORIGIN*} sub-declarations.
@@ -2741,32 +2758,28 @@ X.x = 5
 X..y = 6.6
 \end{verbatim}\end{indpar}
 
-A {\em defined-type-name} may declared as \key{deferred}, meaning
-that its full declaration will appear later.  Such a {\em defined-type-name}
-may be used before it is fully declared as the target of a
-{\em pointer-type} or with an allocator.
-
-The allocators work because the size and alignment of a defined
-type are computed as run-time constants initialized when the
-program is linked, which is after all extensions of the type have been
-declared, and in addition newly allocated values are
-always zeroed.  Use as a pointer target is does not require non-deferred
-declaration until the pointer is used to access a value.
-
-Some uses of a {\em defined-type-name} require the type's
-size and alignment be known at the compile-time point of usage.
-One of these is use
-as the {\em type-name} in a {\em result-variable-declaration}
-that has \underline{no} {\em pointer-type-name}.
+The size and alignment of a defined type with no {\tt *FINAL*}
+sub-declaration is not known at compile-time.  They are computed
+during load-time and used as run-time constants.  A fields of
+the defined type can only be accessed by code in the scope
+of a {\em type-declaration} declaring the field.  Allocators
+use the size and alignment to allocate memory for a value of
+the type and then zero that memory.
 
 An example is:
 
 \begin{indpar}\begin{verbatim}
-ap *READ-WRITE* @X =@ local
-                    // Legal, my type need not be declared
+type my type : deferred
+ap *READ-WRITE* my type @X =@ local
+                    // Legal, my type members need not be declared.
+                    // The allocated my type value will be zeroed.
 ap ro @Y = @X       // Legal, only ap copied.
-my type Z = X       // Illegal, my type must be declared.
+my type Z = X       // Legal, Z is allocated as per `local'
+                    // and the value at @X is copied to
+                    // the location of Z.  However in this
+                    // case the value is zero.
 type my type:
+    *LABEL* origin  // `origin' is set to offset 0
     int I
 X.I = 55            // Legal, .I has been declared.
 
@@ -2774,15 +2787,14 @@ type my type:       // Extension of my type
     int J           // Now X.J == 0
 X.J = 66            // Legal, .J has been declared.
 
-my type W:          // my type cannot be extended after this
-    W.I = 2         // except by overlays.
-    W.J = 10
-type my type:       // Legal, does not change size or
-    offset 0        // alignment.
+type my type:
+    *ORIGIN* origin
     int K1
     int K2
-type my type:       // Illegal, increases size.
-    int K3
+
+// Now X.K1 == X.I == 55; X.K2 == X.J == 66,
+// but you must be sure about how packing is
+// done to believe this.
 \end{verbatim}\end{indpar}
 
 \subsubsubsection{Pointer Type Declarations}
