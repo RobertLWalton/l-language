@@ -2643,7 +2643,7 @@ must be within the scope (see \itemref{SCOPE}) of the
 Normally all {\em type-declarations} with the same {\em type-name}
 must be in the same modules (\pagref{MODULE-DECLARATIONS}) or its
 bodies.
-However, if the \ttkey{*EXTERNAL*} sub-declaration is given
+However, if the \ttkey{*EXTERNAL*}\label{*EXTERNAL*} sub-declaration is given
 in the first {\em type-declaration} with a given {\em type-name},
 and if the {\em type-name} is external (\pagref{SCOPE}),
 subsequent {\em type-declarations} with the given {\em type-name}
@@ -3579,6 +3579,10 @@ all {\em statements} following the {\em statement} containing
 the {\em declaration} up to the end of the {\em block} or file
 containing this {\em statement}.
 
+The scope of a sub-declaration of a {\em type-declaration} is
+the same as the scope of the particular {\em type-declaration}
+in which the sub-declaration occurs.
+
 A \key{top-level} {\em declaration} is a {\em declaration} that is
 \underline{not} in a {\em statement} inside any {\em block}.
 The scope of top-level {\em declarations} in a module file is extended
@@ -3604,32 +3608,29 @@ A {\em inline-function-declaration} or {\em out-of-line-function-declaration}
 is external if the {\em prototype-pattern} in the {\em declaration}
 is immediately preceeded by a {\em module-abbreviation}.
 
-A {\em module-abbreviation} that makes a {\em declaration} external
-must abbreviate the module in which the {\em declaration} occurs.
-
 {\em Prototype-result-declaration} and {\em argument-declaration}
 {\em variable-names} cannot begin with a {\em module-abbreviation},
 and therefore these {\em declarations} can never be external.
 
+A {\em module-abbreviation} that makes a {\em declaration} external
+must abbreviate the module in which the {\em declaration} occurs,
+with the exception of some {\em type-declarations}
+(see \pagref{*EXTERNAL*}).
+
+If multiple {\em type-declarations} are given for the same
+external {\em type-name}, some of the {\em type-declarations}
+may be in other modules and their bodies.  This is an exception
+to the rule that the {\em module-abbreviation} in the {\em type-name}
+of a {\em type-declaration} must abbreviate the module in which
+the {\em type-declaration} occurs.
+
 TBD
 
-begins just after the {\em declaration}
-itself, and
-lasts to the end of smallest block containing the {\em declaration},%
 \footnote{Recall that subblocks of
 {\em abbreviation-declarations},
 {\em type-declarations},
 and {\em in\-clude-statements} not considered to be blocks for
 this purpose: see \ref{NON-BLOCKS} on \pagref{NON-BLOCKS}.}
-or until the end of the file containing the {\em declaration} if
-the {\em declaration} is top level.
-The scope of top level {\em declarations} in a module
-is extended to include all the bodies of that
-module.
-If the {\em declaration} is external, the declaration must be
-top level in a module and not in a body, and the scope of the
-{\em declaration} is extended to include all modules and
-bodies that import the module containing the {\em declaration}.
 
 
 The scope of a {\em name}, {\em function-prototype}, or
