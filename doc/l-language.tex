@@ -3509,7 +3509,8 @@ The syntax of {\em allocation-statements} is:
 	  \{ \ttkey{=@}~ {\em function-call} \}\QMARK{}
 	\TT{:} \\
 	& \TT{~~~~}{\em statement}\STAR{} \\
-	\end{tabular} \\
+    $|$ & {\em assignment-left-side}~ \TT{:}~ \ttkey{deferred} \\
+    \end{tabular} \\
 \\[0.5ex]
 \emkey{function-call} ::= see \pagref{FUNCTION-CALL} \\
 \emkey{statement} ::= see \pagref{STATEMENT} \\
@@ -3527,12 +3528,22 @@ The statement allocates memory for the left side variables and
 zeros that memory.  Then any {\em statements} are executed with
 the allocated memory being write-only.
 
-More specifically, if there is no {\em function-call}, the
+More specifically, if there is no {\em function-call} and no
+`{\tt deferred}', the
 {\em assignment-left-side} variables are allocated to the
 current function frame and zeroed, and then the {\em statements}
 are executed with these variables being treated as {\tt *WRITE-ONLY*}.
 After the {\em allocation-assignment-statement} if finished, these
 variables will be treated as {\tt co} (constant, never changed).
+
+If there is no {\em function-call} and `{\tt deferred}' is given,
+the variables are allocated as before, but {\em statements} to be
+executed with the variables being treated as {\tt *WRITE-ONLY*} are
+deferred to subsequence {\em allocation-statements} for (one or more of)
+the same variables.  These subsequent {\em statements} must occur
+within the scope (see \itemref{SCOPE}) of the deferred {\em statement},
+and if a variable is external, all these subsequent statements must
+be in the module named by the variable or the bodies of this module.
 
 If there is a {\em function-call}, the {\em function-call} will be
 executed with a pre-pended argument list separately for each
@@ -3633,7 +3644,7 @@ and the declaration with the smaller scope is said to
 Hiding of this kind is a compiler error.
 
 A {\em next-variable-declaration} is allowed
-within the scope of a previous {\em result-variable-declaration}
+within the scope of a previous {\em result-variable-de\-clar\-a\-tion}
 or {\em next-variable-declaration} of the same {\em variable-name}
 if it is not within a smaller block than the previous declaration
 or if it is a {\em deferred-result} (\pagref{DEFERRED-RESULT}).
