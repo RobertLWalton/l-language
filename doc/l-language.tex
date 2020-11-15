@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 13, 2020
+November 15, 2020
 
 \bigskip
  
@@ -3624,22 +3624,38 @@ to the rule that the {\em module-abbreviation} in the {\em type-name}
 of a {\em type-declaration} must abbreviate the module in which
 the {\em type-declaration} occurs.
 
-TBD
+If two different {\em result-variable-declarations},
+{\em pointer-type-declarations}, or {\em function-type-de\-clar\-a\-tions}
+of the same {\em name} have overlapping
+scope, one of these scopes must include the other,
+and the declaration with the smaller scope is said to 
+`\key{hide}'\label{HIDE} the other declaration.
+Hiding of this kind is a compiler error.
 
-\footnote{Recall that subblocks of
-{\em abbreviation-declarations},
-{\em type-declarations},
-and {\em in\-clude-statements} not considered to be blocks for
-this purpose: see \ref{NON-BLOCKS} on \pagref{NON-BLOCKS}.}
+A {\em next-variable-declaration} is allowed
+within the scope of a previous {\em result-variable-declaration}
+or {\em next-variable-declaration} of the same {\em variable-name}
+if it is not within a smaller block than the previous declaration
+or if it is a {\em deferred-result} (\pagref{DEFERRED-RESULT}).
 
+However, if `{\tt v}' is an external variable,
+`\TT{next} {\tt v}' may not be declared.%
+\footnote{This rule is not logically necessary, but is made to
+avoid confusion while reading code.}
 
-The scope of a {\em name}, {\em function-prototype}, or
-{\em generic-prototype}
-is the scope of the declaration that defines it.
+{\em Type-declarations} cannot hide each other.  The second
+declaration extends the first.
 
-The scope of a {\em block-name} is the block it names
-(see \itemref{BLOCK-ASSIGNMENT-STATEMENTS}).  Block names are
-internal.
+Prototypes cannot hide each other.  If the
+current scope contains two declarations whose prototypes
+both match a call, the call is ambiguous and in error,
+even if the scope of one declaration is within
+a subblock of the scope of the other.
+
+{\em Statement-labels}, that is {\em block-labels},
+{\em exit-labels}, and {\em loop-labels}, have as their scope
+the block in which they are defined.  {\em Statement-labels}
+\underline{cannot} hide each other.
 
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
@@ -3647,8 +3663,9 @@ whose scope the statement is in.
 When a {\em function-call} to an inline function
 or a {\em generic-call} to a generic is compiled,
 the context of the compilation is \underline{not} the current context but
-rather the context of the inline function or generic
-declaration.
+rather the context of the inline {\em function-declaration}
+or {\em generic-declaration} that provided the {\em statements} executed
+by the call.
 Also the context in which any {\em default-value} expression
 provided by a declaration
 is compiled is the \underline{not} the current context but
@@ -3657,67 +3674,7 @@ rather the context of that declaration.
 Code produced by {\em include-statements} executed during a call to a generic
 (\itemref{GENERICS}), however, \underline{is} compiled in the current context.
 
-If two different declarations of the same {\em name} have overlapping
-scope, one of these scopes must include the other,
-and the declaration with the smaller scope is said to 
-`\key{hide}'\label{HIDE} the other declaration.
-Such hiding is a compiler error unless the smaller scope
-is within one of the following kinds of statements, and
-the larger scope includes the whole statement:
-\begin{center}
-\begin{tabular}{ll}
-{\em function-type-declaration}
-    & [see \pagref{FUNCTION-TYPE-DECLARATION}] \\
-{\em out-of-line-function-assignment}
-    & [see \pagref{OUT-OF-LINE-FUNCTION-ASSIGNMENT}] \\
-{\em out-of-line-function-declaration}
-    & [see \pagref{OUT-OF-LINE-FUNCTION-DECLARATION}] \\
-{\em function-declaration}
-    & [see \pagref{FUNCTION-DECLARATION}] \\
-{\em generic-declaration}
-    & [see \pagref{GENERIC-DECLARATION}] \\
-{\em block-assignment-statement} with context option
-    & [see \pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
-{\em compile-and-run-assignment-statement} with context option
-    & [see \pagref{COMPILE-AND-RUN-ASSIGNMENT-STATEMENTS}] \\
-\end{tabular}\label{HIDING-EXCEPTIONS}
-\end{center}
-
-As an exception to the last rule, the declaration with the
-smaller scope may be an assignment statement declaring
-a variable name `\TT{next} {\tt v}' when the declaration
-with the larger scope is an assignment statement
-declaring `{\tt v}', and the two declarations have the
-same smallest containing block.
-Within the smaller scope `{\tt v}' refers to the
-`\TT{next} {\tt v}' declaration: see \pagref{NEXT}.
-
-By the last rule,
-`\TT{next} {\tt v}' cannot be declared inside a block $B$ if `{\tt v}' was
-declared outside $B$ and $B$ is completely within
-the scope of `{\tt v}', so the smallest containing block of
-`{\tt v}' is not the same as the smallest containing block of
-`\TT{next} {\tt v}'.
-
-However, if `{\tt v}' is an external variable,
-`\TT{next} {\tt v}' may not be declared.%
-\footnote{This rule is not logically necessary, but is made to
-avoid confusion while reading code.}
-
-Prototypes cannot hide each other.  If the
-current scope contains two declarations whose prototypes
-both match a {\em function-call} or {\em generic-call},
-the call is ambiguous and
-in error, even if the scope of one declaration is within
-a subblock of the scope of the other.
-As a consequence, it may be unwise to place {\em function-declarations}
-or {\em generic-declarations}
-within statements that have the context option.
-
-A call that is a statement by itself
-is matched against both {\em generic-prototypes}
-and {\em function-proto\-types}, and will be ambiguous if it matches
-one of each kind.
+TBD
 
 An example is:
 \begin{indpar}\begin{verbatim}
