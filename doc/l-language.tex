@@ -3528,21 +3528,19 @@ The statement allocates memory for the left side variables and
 zeros that memory.  Then any {\em statements} are executed with
 the allocated memory being write-only.
 
-More specifically, if there is no {\em function-call} and no
-`{\tt deferred}', the
-{\em assignment-left-side} variables are allocated to the
-current function frame and zeroed, and then the {\em statements}
-are executed with these variables being treated as {\tt *WRITE-ONLY*}.
-After the {\em allocation-assignment-statement} if finished, these
-variables will be treated as {\tt co} (constant, never changed).
+More specifically, if there is no {\em function-call},
+the {\em assignment-left-side} variables are allocated to the
+current function frame and zeroed.  Then if there is no `{\tt deferred}',
+any {\em statements} are executed.  Within these {\em statements},
+any {\em reference-expression} beginning with the {\em variable-name}
+of one of the allocate variables is treated as {\tt *WRITE-ONLY*}.
 
 If there is no {\em function-call} and `{\tt deferred}' is given,
-the variables are allocated as before, but {\em statements} to be
-executed with the variables being treated as {\tt *WRITE-ONLY*} are
-deferred to subsequence {\em allocation-statements} for (one or more of)
-the same variables.  These subsequent {\em statements} must occur
-within the scope (see \itemref{SCOPE}) of the deferred {\em statement},
-and if a variable is external, all these subsequent statements must
+the {\em statements} to be executed are
+deferred to later {\em allocation-statements} for (one or more of)
+the same variables.  These later {\em statements} must occur
+within the scope (see \itemref{SCOPE}) of the `{\tt deferred}' {\em statement},
+and additionally, if a variable is external, all these later statements must
 be in the module named by the variable or the bodies of this module.
 
 If there is a {\em function-call}, the {\em function-call} will be
@@ -3562,10 +3560,9 @@ exactly one result variable which is a pointer.
 If there is both a {\em function-call} and {\em statements},
 the {\em statements} are executed after all {\em assig\-ment-left-side}
 variables have been set.  Within the block containing
-these {\em statements}, the qualifiers of these variables, and of the members
-and elements of their values, and of the members and elements of the members and
-elements, and so forth recursively, are effectively changed to
-{\tt *WRITE-ONLY*}.
+these {\em statements}, the qualifiers of {\em reference-expressions}
+beginning with indirect names derived from one of these variables
+are effectively changed to {\tt *WRITE-ONLY*}.
 
 As a general rule, allocator functions that return a {\tt av} or {\tt fv}
 pointer have a {\tt []} argument list
