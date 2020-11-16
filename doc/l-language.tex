@@ -1550,7 +1550,8 @@ one of the components of the sequence.
 
 {\em Variable-names}, {\em type-names}, and {\em pointer-type-names}
 that begin with a {\em module-abbreviation} are called
-\skey{external name}s.  Other names are called \skey{internal name}s.
+\key{external}\label{EXTERNAL-NAME}.
+Other names are called \key{internal}\label{INTERNAL-NAME}.
 
 
 \subsubsection{Constants}
@@ -3540,8 +3541,9 @@ the {\em statements} to be executed are
 deferred to later {\em allocation-statements} for (one or more of)
 the same variables.  These later {\em statements} must occur
 within the scope (see \itemref{SCOPE}) of the `{\tt deferred}' {\em statement},
-and additionally, if a variable is external, all these later statements must
-be in the module named by the variable or the bodies of this module.
+and additionally, if the `{\tt deferred}' {\em statement} is in a module,
+all these later statements must
+be in that module or bodies of that module.
 
 If there is a {\em function-call}, the {\em function-call} will be
 executed with a pre-pended argument list separately for each
@@ -3596,7 +3598,8 @@ A \key{top-level} {\em declaration} is a {\em declaration} that is
 The scope of top-level {\em declarations} in a module file is extended
 to each body file of the module.
 
-Some {\em declarations} are \key{external}.  An external declaration
+Some {\em declarations} are \key{external}\label{EXTERNAL}.
+An external declaration
 must be top level in a module file, except that some external
 declarations may be repeated with more detail in a body of the
 module, as indicated below.  The scope of an external
