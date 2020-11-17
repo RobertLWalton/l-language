@@ -3227,6 +3227,16 @@ it is a compile error.
 Call-prototype matching is done as follows:
 
 \begin{enumerate}
+\item If the call begins with a {\em module-abbreviation}
+and the {\em prototype-pattern}
+either does not begin with a {\em module-abbreviation},
+or begins with one that names a different module from that of the call,
+the call-prototype match fails.
+
+If the {\em prototype-pattern} begins with a {\em module-abbreviation}
+and the call does not, the match is marked as
+\key{module deficient}\label{MODULE-DEFICIENT}.
+
 \item The {\em function-term-names} in the prototype are matched to
 {\em call-term-names} in the call.  To match, the names must be identical,
 except that quotes in prototype
@@ -3372,7 +3382,10 @@ at compile-time.
 
 \end{enumerate}
 
-TBD: Module deficiency rules.
+If after applying these rules there is a single match, that
+is accepted.  If there are multiple matches and all but one
+are marked as module deficient, the one not marked module
+deficient is accepted.  All other cases are a compiler error.
 
 \subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
