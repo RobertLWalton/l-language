@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 17, 2020
+November 18, 2020
 
 \bigskip
  
@@ -489,7 +489,7 @@ not available at run-time.  Number constants are infinite
 precision, with unbounded integers and rational numbers that
 are ratios of unbounded integers.  Number constants
 can be converted to run-time numbers during compilation.
-However it is an compiler error
+However it is an compile error
 if the result will not fit into the runtime number.
 This happens, for example, if {\tt 1e20}
 is converted to an {\tt int32}.
@@ -1322,7 +1322,7 @@ The classes are
 \label{RUN-TIME-EXPRESSION-LIMITS}
 A statement that executes at run-time
 cannot have operators of different classes outside
-reference subexpressions (\pagref{REFERENCE-EXPRESSIONS}) and
+reference subexpressions\pagnote{REFERENCE-EXPRESSIONS} and
 subexpressions that evaluate at compile-time to a {\tt const} value
 (\itemref{COMPILE-TIME}).
 Thus a run-time statement may not mix arithmetic and logical,
@@ -2154,8 +2154,7 @@ indices).
 a \underline{single} right-side {\em expression}, this {\em expression}
 may be a single run-time {\em function-call},
 in which case there may any number of {\em assignment-results}
-consistent with the called function
-(see \pagref{INLINE-CALL-PROTOTYPE-MATCHING}).
+consistent with the called function.\pagnote{INLINE-CALL-PROTOTYPE-MATCHING}
 
 \item For run-time {\em expression-assignment-statements} with
 a \underline{single} right-side {\em expression} containing
@@ -2475,7 +2474,7 @@ while sum < 4
 Note that an {\em iteration-result} is just a
 {\em next-variable-declaration} used in a specific syntactic
 context.  As a consequence, {\em iteration-variables} cannot
-be indirect variables (see \pagref{INDIRECT-VARIABLE}).
+be indirect variables.\pagnote{INDIRECT-VARIABLE}
 
 \subsubsection{Declarations}
 \label{DECLARATIONS}
@@ -2642,11 +2641,11 @@ must be within the scope (see \itemref{SCOPE}) of the
 {\em type-name}.
 
 Normally all {\em type-declarations} with the same {\em type-name}
-must be in the same modules (\pagref{MODULE-DECLARATIONS}) or its
+must be in the same modules\pagnote{MODULE-DECLARATIONS} or its
 bodies.
 However, if the \ttkey{*EXTERNAL*}\label{*EXTERNAL*} sub-declaration is given
 in the first {\em type-declaration} with a given {\em type-name},
-and if the {\em type-name} is external (\pagref{SCOPE}),
+and if the {\em type-name} is external,\pagnote{SCOPE}
 subsequent {\em type-declarations} with the given {\em type-name}
 may be in any module or body that imports the {\em type-name}'s
 module.
@@ -2677,8 +2676,8 @@ The {\em origin-label} must be defined by a preceding
 Care must be exercised when using {\tt *LABEL*} and {\tt *ORIGIN*},
 as both type-violations and unexpected field allocations can result.
 Note that if there are multiple {\em type-declarations}
-with the same {\em type-name} in different modules and bodies
-(\pagref{MODULE-DECLARATIONS}),
+with the same {\em type-name} in different
+modules and bodies,\pagnote{MODULE-DECLARATIONS}
 the order in which these {\em type-declarations} are processed
 may not be completely determined.
 
@@ -3043,7 +3042,7 @@ In a {\em pattern-argument-list} or {\em input-variable-list}
 an {\em argument-declaration} with no {\em de\-fault-value} cannot
 follow an {\em argument-declaration} with a {\em default-value}.
 \item
-A wild-card (\pagref{WILD-CARD}) name of the form {\tt T\$\ldots}
+A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
 is treated in a {\em function-prototype} as a {\em type-name}.
 A wild-card name of the form {\tt P\$\ldots} is treated as a
 {\em pointer-type-name}.
@@ -3090,8 +3089,8 @@ must be surrounded by the same brackets; either both have {\tt (~)}
 or both have {\tt [~]}.
 
 Note that {\em quoted-marks} and {\em quoted-separators}
-in {\em function-term-names} appear without quotes in {\em call-term-names}
-(see \pagref{CALL-TERM-NAME}).  Thus we have the example:
+in {\em function-term-names} appear without quotes in
+{\em call-term-names}.\pagnote{CALL-TERM-NAME}  Thus we have the example:
 \begin{indpar}\begin{verbatim}
 function int z = ( int x ) "@@" ( int y ):
     . . . . . . . . . .
@@ -3349,7 +3348,7 @@ when the {\em variable-name} in $RD$ is replaced by a unique virtual
 
 The statements `$AR$ = $RD$' are processed in left to right order of
 {\em prototype-result-declarations}.
-and any unassigned wild-cards (\pagref{WILD-CARD})
+and any unassigned wild-cards\pagnote{WILD-CARD}
 in $RD$ are assigned the corresponding
 values in $AR$ (e.g., `{\tt int x = T\$1 y}' would assign `{\tt int}'
 to {\tt T\$1} if {\tt T\$1} were unassigned).
@@ -3361,7 +3360,7 @@ when the {\em variable-name} in $AD$ is replaced by a unique virtual
 
 The statements `$AD$ = $AA$' are processed in left to right order
 of prototype {\em argument-declarations},
-and any unassigned wild-cards (\pagref{WILD-CARD})
+and any unassigned wild-cards\pagnote{WILD-CARD}
 in $AD$ are assigned the corresponding
 values in $AA$ (e.g., `{\tt T\$1 x = int y}' would assign `{\tt int}'
 to {\tt T\$1} if {\tt T\$1} were unassigned).
@@ -3385,7 +3384,7 @@ at compile-time.
 If after applying these rules there is a single match, that
 is accepted.  If there are multiple matches and all but one
 are marked as module deficient, the one not marked module
-deficient is accepted.  All other cases are a compiler error.
+deficient is accepted.  All other cases are a compile error.
 
 \subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
@@ -3451,7 +3450,7 @@ An out-of-line function with a {\em quoted-string} as its
 {\em out-of-line-function-name} is \key{foreign}.
 
 A non-foreign out-of-line function can be called with a normal
-{\em function-call} (\pagref{FUNCTION-CALL}).  A foreign
+{\em function-call}.\pagnote{FUNCTION-CALL}  A foreign
 out-of-line function must be called with an:
 \begin{indpar}
 \emkey{out-of-line-function-call}%
@@ -3476,7 +3475,8 @@ that module.
 
 If\label{OUT-OF-LINE-EXTERNAL-COMPANION}
 a {\tt deferred} {\em out-of-line-function-declaration}
-is external, its companion may be in the body of a module
+is external,\pagnote{EXTERNAL-FUNCTION}
+its companion may be in the body of a module
 different from the module containing the {\tt deferred} declaration.
 This allows a module to call out-of-line functions defined by
 a companion in another module that imports the first module.
@@ -3647,8 +3647,9 @@ be in that module or bodies of that module.
 If there is a {\em function-call}, the {\em function-call} will be
 executed with a pre-pended argument list separately for each
 {\em assignment-left-side} variable.  The variable must have pointer
-type.  The {\em prototype-pattern} of the called function's prototype
-(see \pagref{PROTOTYPE-PATTERN}) must begin with: \\
+type.  The {\em prototype-pattern}
+of the called function's prototype\pagnote{PROTOTYPE-PATTERN}
+must begin with: \\
 \centerline{\tt ( uns length, uns alignment )} \\
 and when called a {\tt ()} {\em call-argument-list} is pre-pended to
 the {\em function-call} giving two {\tt uns} arguments: first the
@@ -3715,7 +3716,8 @@ declared begins with a
 {\em module-abbreviation}.
 
 A {\em inline-function-declaration} or {\em out-of-line-function-declaration}
-is external if the {\em prototype-pattern} in the {\em declaration}
+is external\label{EXTERNAL-FUNCTION}
+if the {\em prototype-pattern} in the {\em declaration}
 is immediately preceeded by a {\em module-abbreviation}.
 
 {\em Prototype-result-declaration} and {\em argument-declaration}
@@ -3724,10 +3726,9 @@ and therefore these {\em declarations} can never be external.
 
 A {\em module-abbreviation} that makes a {\em declaration} external
 must abbreviate the module in which the {\em declaration} occurs,
-with the exception of some {\em type-declarations}
-(see \pagref{*EXTERNAL*}) and some companion
-{\em out-of-line-function-declarations}
-(see \pagref{OUT-OF-LINE-EXTERNAL-COMPANION}).
+with the exception of some {\em type-declarations}\pagnote{*EXTERNAL*}
+and some companion
+{\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
 
 If multiple {\em type-declarations} are given for the same
 external {\em type-name}, some of the {\em type-declarations}
@@ -3742,13 +3743,13 @@ of the same {\em name} have overlapping
 scope, one of these scopes must include the other,
 and the declaration with the smaller scope is said to 
 `\key{hide}'\label{HIDE} the other declaration.
-Hiding of this kind is a compiler error.
+Hiding of this kind is a compile error.
 
 A {\em next-variable-declaration} is allowed
 within the scope of a previous {\em result-variable-de\-clar\-a\-tion}
 or {\em next-variable-declaration} of the same {\em variable-name}
 if it is not within a smaller block than the previous declaration
-or if it is a {\em deferred-result} (\pagref{DEFERRED-RESULT}).
+or if it is a {\em deferred-result}.\pagnote{DEFERRED-RESULT}
 
 However, if `{\tt v}' is an external variable,
 `\TT{next} {\tt v}' may not be declared.%
@@ -3918,7 +3919,7 @@ A {\em map-expression} computes a map value:
 
 
 Elements of a map can be accessed by {\em map-element-expressions}, which
-are also {\em reference-expressions} (see \pagref{REFERENCE-EXPRESSIONS}):
+are also {\em reference-expressions}:\pagnote{REFERENCE-EXPRESSIONS}
 
 \begin{indpar}
 \emkey{map-element-expression}
