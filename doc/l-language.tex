@@ -2634,7 +2634,8 @@ of the given defined type into the current sequence of
 {\em type-subdeclarations}.
 
 If there are multiple {\em type-declarations} with the same
-{\em type-name}, all but the first act to append {\em type-subdeclarations}
+{\em type-name}, all but the first act
+to append {\em type-subdeclarations}\label{TYPE-DECLARATION-APPEND}
 to the current list of such for the {\em type-name}.
 All {\em type-declarations} for a given {\em type-name} but the first
 must be within the scope (see \itemref{SCOPE}) of the
@@ -3756,10 +3757,11 @@ However, if `{\tt v}' is an external variable,
 \footnote{This rule is not logically necessary, but is made to
 avoid confusion while reading code.}
 
-{\em Type-declarations} cannot hide each other.  The second
-declaration extends the first.
+{\em Type-declarations} \underline{cannot} hide each other.  The second
+declaration appends sub-declarations
+to the first.\pagnote{TYPE-DECLARATION-APPEND}
 
-Prototypes cannot hide each other.  If the
+Prototypes \underline{cannot} hide each other.  If the
 current scope contains two declarations whose prototypes
 both match a call, the call is ambiguous and in error,
 even if the scope of one declaration is within
@@ -3785,7 +3787,8 @@ is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
 Code produced by {\em include-statements} executed during a call to a generic
-(\itemref{GENERICS}), however, \underline{is} compiled in the current context.
+(\itemref{GENERICS}), however, replaces the call and
+\underline{is} compiled in the context of the call.
 
 TBD
 
