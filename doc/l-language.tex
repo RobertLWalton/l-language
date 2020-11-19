@@ -2146,6 +2146,19 @@ to control the flow of execution within the more complex
     \end{tabular}
 \end{indpar}
 
+A {\em variable-declaration} allocates memory for its variable
+in the frame of the currently executing function.
+{\em Expression-assignment-statements} set the values of these variables
+to the values of the {\em expressions} in the {\em expression-list}.
+{\em Call-assignment-statements} set the values of these variables
+to the values returned by the {\em function-call}.
+In all other cases, the values are zeroed and the variables are
+{\tt *WRITE-ONLY*} in {\em statements} of the sub-block of the
+{\em assignment-statement} and {\tt co} after the
+{\em assignment-statement}.
+Zeroed numbers are zero, while zeroed pointers typically
+cause segmentation faults when de-referenced.
+
 If a {\em result-variable-declaration} declares a {\em variable-name}
 that begins with a `{\tt @}' and has a pointer type,
 an indirect variable is implicitly declared at the same time
@@ -2167,6 +2180,14 @@ Furthermore, {\tt v} cannot be an indirect variable name.
 The {\em next-variable-declaration} re-declares {\tt v} making a new
 variable that hides the previously declared {\tt v}.  The new variable
 has the same types and qualifiers as the previous variable named {\tt v}.
+
+A {\em next-variable-declaration} enables a {\em next-reference}
+with identical syntax that can be used by {\em statements}
+within a sub-block of the {\em assignment-statement} to set the
+memory allocated by the {\em next-variable-declaration}.  Use of
+the {\em variable-name} within these statements outside of a
+{\em next-reference} refers to the value of the variable just
+before the {\em assignment-statement} was executed.
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
