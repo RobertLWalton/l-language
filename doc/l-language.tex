@@ -2070,6 +2070,12 @@ The forms of an {\em assignment-statement} are:
         & ~~~~~ {\em exit-sublock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
+\emkey{deferred-assignment-statement} ::= \\
+\hspace*{0.5in}
+        {\em result-variable-declaration}
+	    \{ \TT{,} {\em result-variable-declaration} \}\QMARK{}
+	    \TT{=} \ttkey{deferred}
+\\[0.5ex]
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
