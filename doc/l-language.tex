@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 18, 2020
+November 19, 2020
 
 \bigskip
  
@@ -2021,29 +2021,83 @@ The following is a complete list of the kinds of statements:
 left side which receive values from a list of expressions or
 a block of code on the right side.  The left-side variables
 may be omitted if the values are not needed and the right side
-is just a {\em function-call}.  In some cases
+is just a {\em function-call}, or if a left-side variable
+has the form of `{\tt next} {\em variable-name}' and is
+implied.  In some cases
 the right side produces no values, though the right side is never omitted.
 
-The general form of an {\em assignment-statement} is:
+The forms of an {\em assignment-statement} are:
 \begin{indpar}
-\emkey{assignment-statement} ::= \\
-\hspace*{0.5in} \{ {\em assignment-left-side} \TT{=} \}\QMARK{}
-	      {\em assignment-right-side}
+\emkey{assignment-statement}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em expression-assignment-statement} \\
+    $|$ & {\em call-assignment-statement} \\
+    $|$ & {\em do-assignment-statement} \\
+    $|$ & {\em deferred-assignment-statement} \\
+    $|$ & {\em loop-assignment-statement} \\
+    \end{tabular}
 \\[0.5ex]
-\emkey{assignment-left-side} ::= \\
+\emkey{expression-assignment-statement} ::= \\
+\hspace*{0.5in} {\em assignment-result}
+                \{ \TT{,} {\em assignment-result} \}\QMARK{}
+		\TT{=} {\em expression-list}
+\\[0.5ex]
+\emkey{expression-list} ::= see \pagref{EXPRESSION-LIST}
+\\[0.5ex]
+\emkey{call-assignment-statement} ::= \\
 \hspace*{0.5in}
-    \{ {\em assignment-result} \TT{,} \}\STAR{}
-    {\em assignment-result}
+    \begin{tabular}[t]{@{}rll}
+        & {\em assignment-result}
+                \{ \TT{,} {\em assignment-result} \}\QMARK{}
+		\TT{=} {\em function-call} \\
+    $|$ & {\em function-call} \\
+    \end{tabular}
 \\[0.5ex]
-\emkey{assignment-result}
+\emkey{function-call} ::= see \pagref{FUNCTION-CALLS}
+\\[0.5ex]
+\emkey{do-assignment-statement} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rll}
+        & {\em variable-declaration}
+                \{ \TT{,} {\em variable-declaration} \}\QMARK{} \\
+	& ~~~~~~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{}
+		\{ \TT{=}
+		   \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-sublock}\STAR{} \\
+    $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-sublock}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{loop-assignment-statement} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rll}
+        & {\em iteration-result}
+                \{ \TT{,} {\em iteration-result} \}\QMARK{}
+		\TT{=} {\em iteration-control} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-sublock}\STAR{} \\
+    $|$ & {\em iteration-control} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-sublock}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{variable-declaration}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{assignment-result}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em variable-declaration} \\
     $|$ & {\em reference-expression}
     		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
-    $|$ & {\em deferred-result}
-    		& [see \pagref{DEFERRED-RESULT}] \\
+    $|$ & {\em next-reference} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{iteration-result} ::= {\em next-variable-declaration}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}
@@ -2062,42 +2116,25 @@ The general form of an {\em assignment-statement} is:
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
-\emkey{assignment-right-side}\label{ASSIGNMENT-RIGHT-SIDE} ::= \\
-\hspace*{1in}
-    \begin{tabular}[t]{@{}rll}
-        & {\em expression-list}
-    		& [see \pagref{EXPRESSION-LIST}] \\
-    $|$ & {\em function-call}
-    		& [see \pagref{FUNCTION-CALLS}] \\
-    $|$ & {\em block}
-	        & [see kinds of assignment statement below] \\
-    \end{tabular}
+\emkey{next-reference} ::= \ttkey{next} {\em variable-name}
+\\[0.5ex]
+\emkey{allocation-call} ::= {\em function-call}
+\\[0.5ex]
+\emkey{function-call} ::= see \pagref{FUNCTION-CALLS}
+\\[0.5ex]
+\emkey{iteration-control} ::= see \pagref{ITERATION-CONTROL}
 \end{indpar}
 
-The following are the different kinds of {\em assignment-statements}:
-\begin{indpar}
-\emkey{assignment-statement}
-    \begin{tabular}[t]{@{}rll}
-    ::= & {\em expression-assignment-statement}
-    	& [\pagref{EXPRESSION-ASSIGNMENT-STATEMENTS}] \\
-    $|$ & {\em block-assignment-statement}
-        & [\pagref{BLOCK-ASSIGNMENT-STATEMENTS}] \\
-    $|$ & {\em conditional-assignment-statement}
-        & [\pagref{CONDITIONAL-ASSIGNMENT-STATEMENTS}] \\
-    $|$ & {\em loop-assignment-statement}
-        & [\pagref{LOOP-ASSIGNMENT-STATEMENTS}] \\
-    \end{tabular}
-\end{indpar}
-
-Associated with some of the more complex types of
-{\em assignment-statement} there are {\em control-statements}
+Associated with {\em do-assignment-statements} and
+{\em loop-assignment-statements}
+there are {\em control-statements}
 to control the flow of execution within the more complex
 {\em assignment-statement}:
 \begin{indpar}
 \emkey{control-statement}\label{CONTROL-STATEMENT}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em block-control-statement}
-        & [\pagref{BLOCK-CONTROL-STATEMENTS}] \\
+    ::= & {\em do-control-statement}
+        & [\pagref{DO-CONTROL-STATEMENTS}] \\
     $|$ & {\em loop-control-statement}
         & [\pagref{LOOP-CONTROL-STATEMENTS}] \\
     \end{tabular}
