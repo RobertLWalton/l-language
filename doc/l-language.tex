@@ -2132,19 +2132,19 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{block-label} ::= {\em statement-label}
 \\[0.5ex]
-\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL} \\
+\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL}
 \end{indpar}
 
 Associated with {\em block-assignment-statements} and
 {\em loop-assignment-statements}
-there are {\em control-statements}
+there are {\em con\-trol-statements}
 to control the flow of execution within the more complex
-{\em assignment-statement}:
+{\em assignment-state\-ment}:
 \begin{indpar}
 \emkey{control-statement}\label{CONTROL-STATEMENT}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em do-control-statement}
-        & [\pagref{DO-CONTROL-STATEMENT}] \\
+        & [\pagref{BLOCK-CONTROL-STATEMENT}] \\
     $|$ & {\em loop-control-statement}
         & [\pagref{LOOP-CONTROL-STATEMENT}] \\
     \end{tabular}
@@ -2327,35 +2327,43 @@ where
 \end{itemize}
 \end{indpar}
 
-TBD
-
 The {\em block-assignment-statement}
-allocates memory for the variables declared by the {\em variable-declarations}
-and zeros that memory.  Then any {\em statements} and
+allocates memory for the variables declared by the {\em variable-declarations},
+zeros the memory allocated to {\em result-variable-declarations},
+and sets the memory allocated for each {\em next-variable-declaration}
+to the previous value of its variable.
+Then any {\em statements} and
 {\em exit-subblocks} are executed with
 the allocated memory being write-only.
+After the {\em block-assignment-statement} finished, the variables
+become constant ({\tt co}).
 
-More specifically, if there is no {\em allocation-call},
-the {\em variable-declaration} variables are allocated to the
-current function frame and zeroed.
+More specifically, if there is \underline{no} {\em allocation-call},
+the {\em variable-declaration} variable memory is allocated in the
+current function frame.
 
-If there is an {\em allocation-call}, the {\em allocation-call} will be
-executed with a pre-pended argument list separately for each
-{\em variable-declaration}.  The declared variable must have pointer
-type.  The {\em prototype-pattern}
+If there is an {\em allocation-call}, the variables must have pointer
+type, and the {\em allocation-call} is executed to set the pointer
+before any {\em statements} in the {\em block-assignment-statement}
+are executed.  The {\em allocation-call} is executed
+separately for each {\em variable-declaration}
+with a pre-pended argument list consisting of two {\tt uns} values
+in {\tt ()} parentheses.  The first value is the number of bytes to
+be allocated, and the second value is the byte alignment of the
+memory to be allocated.
+The {\em prototype-pattern}
 of the called function's prototype\pagnote{PROTOTYPE-PATTERN}
-must begin with: \\
-\centerline{\tt ( uns length, uns alignment )} \\
-and when called a {\tt ()} {\em call-argument-list} is pre-pended to
-the {\em function-call} giving two {\tt uns} arguments: first the
-number of bytes to be allocated, and second the alignment required
-of the first byte.  The called function must allocate a block of
+must begin with `{\tt ( uns length, uns alignment )}'.
+The called function must allocate a block of
 memory with the required number of bytes and alignment, zero that
 block, and return a pointer to the block.  The prototype must have
-exactly one result variable which is a pointer.
+exactly one result variable whose type is the data type associated
+with a pointer type\pagnote{POINTER-ASSOCIATE}
+convertable to the data type associated with the variable's pointer type.
 
-As a general rule, allocator functions that return a {\tt av} or {\tt fv}
-pointer have a {\tt []} argument list
+As a general rule, allocator functions that return a value of
+`{\tt data for av}' or `{\tt data for fv}' type
+have a {\tt []} argument list
 with a single argument giving a vector size {\tt N}.
 The allocator allocates not a single block of the given length
 and alignment, but instead a vector of {\tt N} such blocks, with zero padding
@@ -2402,8 +2410,6 @@ A variable declared within the block is only visible to statements that can be
 arrived at only by execution paths that include the variable's
 declaration.  An execution path cannot include
 two {\em result-variable-declarations} of the same variable.
-
-TBD
 
 If `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
@@ -2925,8 +2931,9 @@ type my type:
 \subsubsubsection{Pointer Type Declarations}
 \label{POINTER-TYPE-DECLARATIONS}
 
-A pointer type has an associated data type specified by
-a pointer type declaration.  The syntax is:
+A pointer type has an
+\key{associated data type}\label{POINTER-ASSOCIATE}
+specified by a pointer type declaration.  The syntax is:
 
 \begin{indpar}
 \emkey{pointer-type-declaration}\label{POINTER-TYPE-DECLARATION} ::= \\
