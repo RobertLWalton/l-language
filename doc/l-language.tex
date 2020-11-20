@@ -2032,7 +2032,7 @@ The forms of an {\em assignment-statement} are:
     \begin{tabular}[t]{@{}rll}
     ::= & {\em expression-assignment-statement} \\
     $|$ & {\em call-assignment-statement} \\
-    $|$ & {\em do-assignment-statement} \\
+    $|$ & {\em block-assignment-statement} \\
     $|$ & {\em deferred-assignment-statement} \\
     $|$ & {\em loop-assignment-statement} \\
     \end{tabular}
@@ -2055,7 +2055,7 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{function-call} ::= see \pagref{FUNCTION-CALLS}
 \\[0.5ex]
-\emkey{do-assignment-statement} ::= \\
+\emkey{block-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em variable-declaration}
@@ -2129,9 +2129,13 @@ The forms of an {\em assignment-statement} are:
 \emkey{function-call} ::= see \pagref{FUNCTION-CALLS}
 \\[0.5ex]
 \emkey{iteration-control} ::= see \pagref{ITERATION-CONTROL}
+\\[0.5ex]
+\emkey{block-label} ::= {\em statement-label}
+\\[0.5ex]
+\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL} \\
 \end{indpar}
 
-Associated with {\em do-assignment-statements} and
+Associated with {\em block-assignment-statements} and
 {\em loop-assignment-statements}
 there are {\em control-statements}
 to control the flow of execution within the more complex
@@ -2140,9 +2144,9 @@ to control the flow of execution within the more complex
 \emkey{control-statement}\label{CONTROL-STATEMENT}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em do-control-statement}
-        & [\pagref{DO-CONTROL-STATEMENTS}] \\
+        & [\pagref{DO-CONTROL-STATEMENT}] \\
     $|$ & {\em loop-control-statement}
-        & [\pagref{LOOP-CONTROL-STATEMENTS}] \\
+        & [\pagref{LOOP-CONTROL-STATEMENT}] \\
     \end{tabular}
 \end{indpar}
 
@@ -2289,14 +2293,19 @@ The syntax of {\em block-assignment-statements} is:
 
 \begin{indpar}
 \emkey{block-assignment-statement} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em assignment-left-side} \TT{=} \}\QMARK{}
-	~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
-	\TT{:} \\
-	\TT{~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}{\em exit-subblock}\STAR{}
-	\end{tabular} \\
-\emkey{block-label} ::= {\em statement-label}
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rll}
+        & {\em variable-declaration}
+                \{ \TT{,} {\em variable-declaration} \}\QMARK{} \\
+	& ~~~~~~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{}
+		\{ \TT{=}
+		   \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-sublock}\STAR{} \\
+    $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-sublock}\STAR{} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{exit-subblock} ::=
     \begin{tabular}[t]{l}
@@ -2307,48 +2316,60 @@ The syntax of {\em block-assignment-statements} is:
 \\[0.5ex]
 \emkey{statement-label} ::= see \pagref{STATEMENT-LABEL} \\
 \emkey{statement} ::= see \pagref{STATEMENT} \\
-\emkey{block-control-statements}\label{BLOCK-CONTROL-STATEMENTS}
+\emkey{block-control-statement}\label{BLOCK-CONTROL-STATEMENT}
 	::= {\em goto-exit-statement} \\
 {\em go-to-exit-statement} ::= see \pagref{GO-TO-STATEMENT} \\
 \\[1ex]
 where
 \begin{itemize}
-\item The {\tt =} and {\tt do} cannot \underline{both} be omitted.
-\item The {\em assignment-left-side} may \underline{not} contain
-{\em reference-expressions}.
+\item If there is an {\em allocation-call}, all the
+{\em variable-declarations} must have {\em pointer-types}.
 \end{itemize}
 \end{indpar}
 
-The result variables of a {\em block-assignment-statement}
-are given values by the {\em statements} within the block
-of the {\em block-assignment-statement} using {\em deferred-result}
-names:
-\begin{indpar}
-\emkey{deferred-result}\label{DEFERRED-RESULT} ::=
-    {\em next-variable-declaration} $|$
-    {\em reference-expression} $|$
-    {\em deferred-result}
-\end{indpar}
-A {\em deferred-result} is just a copy of one of the
-block's {\em assignment-results} with any {\em qualifiers}
-and {\em types} omitted (these are inferred within the block
-from the associated {\em assignment-result}).  An example is:
-\begin{indpar}\begin{verbatim}
-ap *READ-WRITE* int @x =@ local
-x = 5
-ap *READ-WRITE* int @y, int z =:
-    @y = @x
-    y = 6
-    z = 7
-    int k = 8
-int w = x      // Now w == 6.
-int u = z      // Now u == 7
-// k is not visible here
-\end{verbatim}\end{indpar}
+TBD
 
-There are scoping rules that prevent {\tt k} from being visible
-outside the block in which it is defined;
-see \itemref{SCOPE}.
+The {\em block-assignment-statement}
+allocates memory for the variables declared by the {\em variable-declarations}
+and zeros that memory.  Then any {\em statements} and
+{\em exit-subblocks} are executed with
+the allocated memory being write-only.
+
+More specifically, if there is no {\em allocation-call},
+the {\em variable-declaration} variables are allocated to the
+current function frame and zeroed.
+
+If there is an {\em allocation-call}, the {\em allocation-call} will be
+executed with a pre-pended argument list separately for each
+{\em variable-declaration}.  The declared variable must have pointer
+type.  The {\em prototype-pattern}
+of the called function's prototype\pagnote{PROTOTYPE-PATTERN}
+must begin with: \\
+\centerline{\tt ( uns length, uns alignment )} \\
+and when called a {\tt ()} {\em call-argument-list} is pre-pended to
+the {\em function-call} giving two {\tt uns} arguments: first the
+number of bytes to be allocated, and second the alignment required
+of the first byte.  The called function must allocate a block of
+memory with the required number of bytes and alignment, zero that
+block, and return a pointer to the block.  The prototype must have
+exactly one result variable which is a pointer.
+
+As a general rule, allocator functions that return a {\tt av} or {\tt fv}
+pointer have a {\tt []} argument list
+with a single argument giving a vector size {\tt N}.
+The allocator allocates not a single block of the given length
+and alignment, but instead a vector of {\tt N} such blocks, with zero padding
+between the blocks if necessary to obtain proper alignment.  However,
+this is by convention and is not a builtin requirement of the L-Language.
+
+
+After variable allocation 
+{\em statements} and {\em exit-subblocks}
+are executed.
+Within these
+any {\em reference-expression} beginning with the {\em variable-name}
+or associated indirect\pagnote{INDIRECT-VARIABLE} {\em variable-name}
+of one of the allocate variables is treated as {\tt *WRITE-ONLY*}.
 
 A {\em go-to-exit-statement} within a block may exit the block or
 enter an {\em exit-subblock} of the block:
@@ -2370,6 +2391,7 @@ Unless a {\em go-to-exit-statement} is executed,
 a block exits after the last {\em statement} in the block,
 and an {\em exit-subblock} exits its containing block after the last
 {\em statement} in the {\em exit-subblock}.
+
 A {\em go-to-exit-statement} in an {\em exit-subblock} may only enter
 a \underline{subsequent} {\em exit-subblock} or exit its containing
 {\em block-assignment-statement}.
@@ -2381,20 +2403,15 @@ arrived at only by execution paths that include the variable's
 declaration.  An execution path cannot include
 two {\em result-variable-declarations} of the same variable.
 
-All the execution paths must set each of the
-block's {\em assignment-result} variables exactly once, except for
-{\em assignment-results} of the form
-`{\tt next} {\em variable}', which if not set at all will
-automatically be given the value {\em variable} had at the beginning
-of the {\em block-assignment-statement}.
+TBD
 
-Also, if `{\tt next} {\em variable}' is used as an
+If `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
 {\em block-assignment-statement} that is not within the scope of
-a {\em result-variable-declaration} for the {\em variable}
+a {\em result-variable-declaration} for the {\em variable-name}
 that is also within the {\em block-assignment-statement},
-then `{\tt next} {\em variable}' will be automatically added
-to the {\em assignment-left-side} of the {\em block-assignment-statement},
+then `{\tt next} {\em variable-name}' will be automatically added
+to the {\em variable-declarations} of the {\em block-assignment-statement},
 if it is not already there.  For example:
 \begin{indpar}\begin{verbatim}
 int x = 5
@@ -2497,7 +2514,7 @@ A {\em loop-assignment-statement} has the syntax:
 \\[0.5ex]
 \emkey{bool-expression} ::= see \pagref{BOOL-EXPRESSION}
 \\[0.5ex]
-\emkey{loop-control-statement}\label{LOOP-CONTROL-STATEMENTS} ::=
+\emkey{loop-control-statement}\label{LOOP-CONTROL-STATEMENT} ::=
     {\em break-statement} $|$ {\em continue-statement}
 \\[0.5ex]
 \emkey{break-statement}\label{BREAK-STATEMENT} ::=
