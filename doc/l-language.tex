@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 19, 2020
+November 20, 2020
 
 \bigskip
  
@@ -2095,7 +2095,7 @@ The forms of an {\em assignment-statement} are:
     $|$ & {\em next-variable-declaration} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{assignment-result}
+\emkey{assignment-result}\label{ASSIGNMENT-RESULT}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em variable-declaration} \\
     $|$ & {\em reference-expression}
@@ -2194,49 +2194,92 @@ before the {\em assignment-statement} was executed.
 
 The syntax of an {\em expression-assign\-ment-statement} is:
 \begin{indpar}
-\emkey{expression-assignment-statement} ::=
-    {\em assignment-left-side} ~\TT{=}~ {\em expression-list}
+\emkey{expression-assignment-statement} ::= \\
+\hspace*{0.5in} {\em assignment-result}
+                \{ \TT{,} {\em assignment-result} \}\QMARK{}
+		\TT{=} {\em expression-list}
 \\[0.5ex]
 \emkey{expression-list}\label{EXPRESSION-LIST} ::=
 	      {\em expression} \{ \TT{,} {\em expression} \}\STAR{}
+\\[0.5ex]
+\emkey{assignment-result} ::= see \pagref{ASSIGNMENT-RESULT}
+\\[0.5ex]
+\emkey{expression} ::= see \pagref{EXPRESSION}
 \\[2.0ex]
 where
 \begin{itemize}
 
-\item If there is \underline{more than one} right-side {\em expression},
-the number of right-side {\em expressions} must equal the number
-of left-side {\em assignment-results}.
+\item The number of {\em expressions} must equal the number
+of {\em assignment-results}.
+
+\item The
+{\em expressions} \underline{cannot} contain a run-time {\em function-call}.
 
 \item For run-time {\em expression-assignment-statements}, if
-there is \underline{more than one} right-side {\em expression}, all these
+there is \underline{more than one} {\em expression}, all these
 {\em expressions} must be {\em reference-expressions} or
 compile-time {\em expressions} (thus run-time computation cannot
-be done on the right-side except for {\em reference-expression}
-indices).
+be done except for {\em reference-expression} indices).
 
 \item For run-time {\em expression-assignment-statements} with
-a \underline{single} right-side {\em expression}, this {\em expression}
-may be a single run-time {\em function-call},
-in which case there may any number of {\em assignment-results}
-consistent with the called function.\pagnote{INLINE-CALL-PROTOTYPE-MATCHING}
-
-\item For run-time {\em expression-assignment-statements} with
-a \underline{single} right-side {\em expression} containing
-\underline{no} run-time {\em function-calls}, 
-there must be a single {\em assignment-result}, and the right-side
-{\em expression} may only contain operators that operate on
-the data type specified by this {\em assignment-result}.
-Furthermore the parenthesis depth of the right-side {\em expression}
+a \underline{single} {\em expression}, the run-time operators
+in the {\em expression} must operate on
+the data type specified by the single {\em assignment-result}.
+Furthermore the parenthesis depth of the {\em expression}
 must not be greater then 4 (i.e., {\tt ((((\ldots))))} is the
 maximum depth allowed).
 
 \end{itemize}
 \end{indpar}
 
-For cases not involving a run-time {\em function-call},
-all {\em reference-expression} locations are evaluated first,
-then any other operators are evaluated,
-then the right-side values are stored in the left-side locations.
+All {\em reference-expression} indices are evaluated first,
+then the {\em expressions} are evaluated,
+then the {\em expression} values are stored in the {\em assignment-results}.
+
+Variable names declared by {\em variable-declarations} that are
+{\em assignment-results} are not visible to the {\em expressions}.
+In particular, if `{\tt next V}' is an {\em assignment-result},
+the name `{\tt V}' in an {\em expression} will refer to the variable
+that exists before the {\em expression-assignment-statement}.
+
+\subsubsubsection{Call Assignment Statements}
+\label{CALL-ASSIGNMENT-STATEMENTS}
+
+The syntax of a {\em call-assignment-statement} is:
+\begin{indpar}
+\emkey{call-assignment-statement} ::= \\
+\hspace*{0.5in} {\em assignment-result}
+                \{ \TT{,} {\em assignment-result} \}\QMARK{}
+		\TT{=} {\em function-call}
+\\[0.5ex]
+\emkey{assignment-result} ::= see \pagref{ASSIGNMENT-RESULT}
+\\[0.5ex]
+\emkey{function-call} ::= see \pagref{FUNCTION-CALL}
+\\[2.0ex]
+where
+\begin{itemize}
+
+\item The {\em function-call} must be run-time (else the statement is
+an {\em expression-assign\-ment-statement}.
+
+\item The {\em actual-arguments} in the {\em function-call} must be
+{\em reference-expressions} or
+com\-pile-time {\em expressions}.
+
+\item The {\em function-call} and {\em assignment-results} together
+must match a single function prototype as per
+\itemref{INLINE-CALL-PROTOTYPE-MATCHING}.
+\end{itemize}
+\end{indpar}
+
+All {\em reference-expression} indices are evaluated first,
+then the {\em function-call} is evaluated.
+
+Variable names declared by {\em variable-declarations} that are
+{\em assignment-results} are not visible to the {\em actual-arguments}.
+In particular, if `{\tt next V}' is an {\em assignment-result},
+the name `{\tt V}' in an {\em actual-argument} will refer to the variable
+that exists before the {\em call-assignment-statement}.
 
 
 \subsubsubsection{Block Assignment Statements}
