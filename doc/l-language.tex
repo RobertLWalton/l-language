@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 20, 2020
+November 21, 2020
 
 \bigskip
  
@@ -2307,15 +2307,17 @@ The syntax of {\em block-assignment-statements} is:
         & ~~~~~ {\em exit-sublock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{exit-subblock} ::=
+{\em allocation-call} ::= {\em function-call}
+\\[0.5ex]
+\emkey{exit-subblock}\label{EXIT-SUBBLOCK} ::=
     \begin{tabular}[t]{l}
     {\em exit-label} \ttkey{exit}\TT{:} \\
     \TT{~~~~}{\em statement}\STAR{} \\
     \end{tabular} \\
 \emkey{exit-label} ::= {\em statement-label}
 \\[0.5ex]
-\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL} \\
-\emkey{statement} ::= see \pagref{STATEMENT} \\
+{\em statement-label} ::= see \pagref{STATEMENT-LABEL} \\
+{\em statement} ::= see \pagref{STATEMENT} \\
 \emkey{block-control-statement}\label{BLOCK-CONTROL-STATEMENT}
 	::= {\em goto-exit-statement} \\
 {\em go-to-exit-statement} ::= see \pagref{GO-TO-STATEMENT} \\
@@ -2339,11 +2341,11 @@ After the {\em block-assignment-statement} finished, the variables
 become constant ({\tt co}).
 
 More specifically, if there is \underline{no} {\em allocation-call},
-the {\em variable-declaration} variable memory is allocated in the
+the variable memory is allocated in the
 current function frame.
 
 If there is an {\em allocation-call}, the variables must have pointer
-type, and the {\em allocation-call} is executed to set the pointer
+type, and the {\em allocation-call} is executed to set the pointers
 before any {\em statements} in the {\em block-assignment-statement}
 are executed.  The {\em allocation-call} is executed
 separately for each {\em variable-declaration}
@@ -2353,10 +2355,11 @@ be allocated, and the second value is the byte alignment of the
 memory to be allocated.
 The {\em prototype-pattern}
 of the called function's prototype\pagnote{PROTOTYPE-PATTERN}
-must begin with `{\tt ( uns length, uns alignment )}'.
+must begin with `{\tt ( uns length, uns alignment )}', although
+the argument names may be different.
 The called function must allocate a block of
-memory with the required number of bytes and alignment, zero that
-block, and return a pointer to the block.  The prototype must have
+memory with the required number of bytes and alignment and zero that
+block.  The prototype must have
 exactly one result variable whose type is the data type associated
 with a pointer type\pagnote{POINTER-ASSOCIATE}
 convertable to the data type associated with the variable's pointer type.
@@ -2367,8 +2370,10 @@ have a {\tt []} argument list
 with a single argument giving a vector size {\tt N}.
 The allocator allocates not a single block of the given length
 and alignment, but instead a vector of {\tt N} such blocks, with zero padding
-between the blocks if necessary to obtain proper alignment.  However,
+between the blocks if necessary to obtain proper alignment for each
+block.  However,
 this is by convention and is not a builtin requirement of the L-Language.
+The convention is followed by the builtin allocators (e.g., {\tt local}).
 
 
 After variable allocation 
@@ -2377,7 +2382,7 @@ are executed.
 Within these
 any {\em reference-expression} beginning with the {\em variable-name}
 or associated indirect\pagnote{INDIRECT-VARIABLE} {\em variable-name}
-of one of the allocate variables is treated as {\tt *WRITE-ONLY*}.
+of one of the allocated variables is treated as {\tt *WRITE-ONLY*}.
 
 A {\em go-to-exit-statement} within a block may exit the block or
 enter an {\em exit-subblock} of the block:
@@ -2402,14 +2407,19 @@ and an {\em exit-subblock} exits its containing block after the last
 
 A {\em go-to-exit-statement} in an {\em exit-subblock} may only enter
 a \underline{subsequent} {\em exit-subblock} or exit its containing
-{\em block-assignment-statement}.
+{\em block-assignment-statement} by using the block's {\em block-label}.
 
 {\em Go-to-exit-statements} define various possible execution
 paths through a {\em block-assignment-statement}.
-A variable declared within the block is only visible to statements that can be
-arrived at only by execution paths that include the variable's
-declaration.  An execution path cannot include
-two {\em result-variable-declarations} of the same variable.
+It is a compile error if a {\em statement}
+within the {\em block-assignment-statement}
+uses a declaration and the statement can be reached by a path that
+does not contain the declaration.
+Note that declarations not in {\em exit-subblocks} have scope
+that includes the {\em exit-subblocks}, but declarations
+within an {\em exit-subblock} have scope that ends with the end of
+the subblock.  A function or generic prototype is `used' if and only if it
+matches a {\em function-call}.
 
 If `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
@@ -2431,6 +2441,54 @@ next x = do:
     next x = x + 1
 \end{verbatim}\end{indpar}
 
+\subsubsubsection{Deferred Assignment Statements}
+\label{DEFERRED-ASSIGNMENT-STATEMENTS}
+
+The syntax of {\em deferred-assignment-state\-ments} is:
+
+\begin{indpar}
+\emkey{deferred-assignment-statement} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}l}
+        {\em result-variable-declaration}
+                \{ \TT{,} {\em result-variable-declaration} \}\QMARK{} \\
+	~~~~~~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{}
+		     \TT{:} \ttkey{deferred} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{companion-assignment-statement} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}l}
+        {\em result-variable-declaration}
+                \{ \TT{,} {\em result-variable-declaration} \}\QMARK{}
+		 \TT{:} \\
+        ~~~~~ {\em statement}\STAR{} \\
+        ~~~~~ {\em exit-sublock}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
+{\em allocation-call} ::= {\em function-call}
+\\[0.5ex]
+{\em exit-subblock} ::= see \pagref{EXIT-SUBBLOCK}
+\\[1ex]
+where
+\begin{itemize}
+\item If there is an {\em allocation-call}, all the
+{\em variable-declarations} must have {\em pointer-types}.
+\end{itemize}
+\end{indpar}
+
+A {\em deferred-assignment-statement} has
+{\em companion-assignment-statements} whose {\em result-vari\-able-declaration}
+lists are sublists of the list of the {\em deferred-assignment-statement}.
+The combination of a {\em deferred-assignment-statement} and its
+\skey{companion}s has the same effect as a {\em block-assignment-statement}
+that has been split into parts so its {\em statements} can be executed
+later than its header.
+
+The companions of a {\em deferred-assignment-statement} must be in the
+scope\pagnote{SCOPE} of the {\em deferred-assignment-statement}, and
+if the {\em deferred-assignment-statement} is in a module, the companions
+must be in that module or its bodies.
 
 \subsubsubsection{Conditional Assignment Statements}
 \label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
