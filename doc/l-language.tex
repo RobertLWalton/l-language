@@ -2079,9 +2079,10 @@ The forms of an {\em assignment-statement} are:
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
-        & {\em iteration-result}
-                \{ \TT{,} {\em iteration-result} \}\QMARK{}
-		\TT{=} {\em iteration-control} \TT{:} \\
+        & {\em next-variable-declaration}
+                \{ \TT{,} {\em next-variable-declaration} \}\QMARK{}
+		\TT{=} \\
+	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
         & ~~~~~ {\em exit-sublock}\STAR{} \\
     $|$ & {\em iteration-control} \TT{:} \\
@@ -2553,14 +2554,18 @@ A {\em loop-assignment-statement} has the syntax:
 
 \begin{indpar}
 \emkey{loop-assignment-statement} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em iteration-result} \{ \TT{,} {\em iteration-result} \}
-	   \TT{=} \}\QMARK{} {\em iteration-control}\TT{:} \\
-	\TT{~~~~}{\em statement}\STAR{} \\
-	\end{tabular}
-\\[0.5ex]
-\emkey{iteration-result}\label{ITERATION-VARIABLE} ::= 
-    \TT{next} {\em iteration-variable}
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rll}
+        & {\em next-variable-declaration}
+                \{ \TT{,} {\em next-variable-declaration} \}\QMARK{}
+		\TT{=} \\
+	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-sublock}\STAR{} \\
+    $|$ & {\em iteration-control} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-sublock}\STAR{} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{iteration-control} \begin{tabular}[t]{rl}
 	             ::= & {\em loop-label}\QMARK{} \ttkey{loop}
@@ -2638,11 +2643,12 @@ more iterations.  If there are nested loops, a {\em loop-label}
 may be used with these statements to designate which nested iteration
 is being exited.
 
-{\em Assignment-results} of the form `{\tt next} {\em variable}'
-within the loop {\em statements} will be automatically added
-to the list of {\em iteration-results} according to the rules
-for doing so given at the end of \itemref{BLOCK-ASSIGNMENT-STATEMENTS}.
-Thus the above example could be written as:
+As in {\em block-assignment-statements}, if `{\tt next V}' occurs
+as an {\em assignment-result} within the loop {\em statements}
+but is not within the scope of a {\em result-variable-declaration}
+for {\tt V}, `{\tt next V}' will be added to the {\em next-variable-declaration}
+list of the {\em loop-assignment-statement}.  Therefore the
+above example could be written as:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
@@ -2659,10 +2665,8 @@ while sum < 4
     next i = i + 1
 \end{verbatim}\end{indpar}
 
-Note that an {\em iteration-result} is just a
-{\em next-variable-declaration} used in a specific syntactic
-context.  As a consequence, {\em iteration-variables} cannot
-be indirect variables.\pagnote{INDIRECT-VARIABLE}
+The variables declared by the {\em next-variable-declarations}
+of a {\em loop-assignment-statement} are called \skey{iteration varible}s.
 
 \subsubsection{Declarations}
 \label{DECLARATIONS}
