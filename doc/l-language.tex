@@ -2491,62 +2491,6 @@ scope\pagnote{SCOPE} of the {\em deferred-assignment-statement}, and
 if the {\em deferred-assignment-statement} is in a module, the companions
 must be in that module or its bodies.
 
-\subsubsubsection{Conditional Assignment Statements}
-\label{CONDITIONAL-ASSIGNMENT-STATEMENTS}
-
-A {\em conditional-assignment-statement}
-is syntactic sugar for a {\em block-assignment-statement}
-with conditional {\em go-to-exit-statements}
-and {\em exit-subblocks} (\itemref{BLOCK-ASSIGNMENT-STATEMENTS}).
-{\em Conditional-assignment-statements} have the syntax:
-
-\begin{indpar}
-\emkey{conditional-assignment-statement} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{l}
-        \{ {\em assignment-left-side} \TT{=} \}\QMARK{} \ttkey{if}\TT{:} \\
-	\TT{~~~~}{\em expression-assignment-statement}\STAR{} \\
-	\TT{~~~~}{\em bool-expression}\TT{:} \\
-	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}{\em expression-assignment-statement}\STAR{} \\
-	\TT{~~~~}{\em bool-expression}\TT{:} \\
-	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots\ldots \\
-	\TT{~~~~}\ttkey{else}\TT{:} \\
-	\TT{~~~~~~~~~}{\em statement}\STAR{} \\
-	\TT{~~~~}{\em exit-subblock}\STAR{}
-	\end{tabular}
-\end{indpar}
-
-An example is:
-\begin{indpar}\begin{verbatim}
-int x = 5
-int y = 6
-int z = if:
-    int sum = x + y         // Sets sum = 11
-    int product = x * y     // Sets product = 30
-    sum < product:
-        z = sum             // Sets z = 11
-    else:
-        z = product         // Is NOT executed
-// Now z = 11
-\end{verbatim}\end{indpar}
-in which the {\em conditional-assignment-statement} is equivalent to:
-\begin{indpar}\begin{verbatim}
-int z =:
-    int sum = x + y                 // Sets sum = 11
-    int product = x * y             // Sets product = 30
-    if sum < product go to E1 exit  // goes to E1 exit
-    z = product                     // Is NOT executed
-    E1 exit:
-        z = sum                     // Sets z = 11
-// Now z = 11
-\end{verbatim}\end{indpar}
-
-In words, each {\em bool-expression} turns into a
-{\em go-to-exit-statement}, and the subblock of {\em statements}
-after the {\em bool-expression} become the {\em statements}
-of the corresponding {\em exit-subblock}.
-
 \subsubsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
 
@@ -2667,6 +2611,48 @@ while sum < 4
 
 The variables declared by the {\em next-variable-declarations}
 of a {\em loop-assignment-statement} are called \skey{iteration variable}s.
+
+\subsubsection{Conditional Statements}
+\label{CONDITIONAL-STATEMENTS}
+
+A {\em conditional-statement} executes another {\em statement}
+or block of {\em statements} according to what several
+{\em bool-expressions} evaluated to.
+{\em Conditional-statements} have the syntax:
+
+\begin{indpar}
+\emkey{conditional--statement} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+        & \ttkey{if} {\em bool-expression} \TT{:} \\
+	& ~~~~~ {\em statement}\STAR{} \\
+    $|$ & \ttkey{else if} {\em bool-expression} \TT{:} \\
+	& ~~~~~ {\em statement}\STAR{} \\
+    $|$ & \ttkey{else} \TT{:} \\
+	& ~~~~~ {\em statement}\STAR{} \\
+    $|$ & \ttkey{if} {\em bool-expression} \TT{:} {\em statement} \\
+    $|$ & \ttkey{else if} {\em bool-expression} \TT{:} {\em statement} \\
+    $|$ & \ttkey{else} \TT{:} {\em statement} \\
+	\end{tabular}
+\\[1ex]
+where
+\begin{itemize}
+\item An `{\tt else if}' or `{\tt else}' {\em statement} must be immediately
+preceded by an `{\tt if}' or `{\tt else if}' {\em statement}.
+\end{itemize}
+\end{indpar}
+
+An example is:
+\begin{indpar}\begin{verbatim}
+int x = 5
+int y = 6
+int z:
+    int sum = x + y         // Sets sum = 11
+    int product = x * y     // Sets product = 30
+    if sum < product:
+        z = sum             // Sets z = 11
+    else: z = product       // Is NOT executed
+// Now z = 11
+\end{verbatim}\end{indpar}
 
 \subsubsection{Declarations}
 \label{DECLARATIONS}
