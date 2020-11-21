@@ -2666,7 +2666,7 @@ while sum < 4
 \end{verbatim}\end{indpar}
 
 The variables declared by the {\em next-variable-declarations}
-of a {\em loop-assignment-statement} are called \skey{iteration varible}s.
+of a {\em loop-assignment-statement} are called \skey{iteration variable}s.
 
 \subsubsection{Declarations}
 \label{DECLARATIONS}
@@ -3788,85 +3788,6 @@ and for a body to the bodies it is `{\tt initialized after}'
 is called
 the `\key{initialization graph}'\label{INITIALIZATION-GRAPH}
 and \underline{must be acyclic}.
-
-\subsubsection{Allocation Statements}
-\label{ALLOCATION-STATEMENTS}
-
-The syntax of {\em allocation-statements} is:
-
-\begin{indpar}
-\emkey{allocation-statement} ::= \\
-\hspace*{0.5in}\begin{tabular}[t]{rl}
-        & {\em assignment-left-side}~
-	  \ttkey{=@}~ {\em function-call} \\
-    $|$ & {\em assignment-left-side}~
-	  \{ \ttkey{=@}~ {\em function-call} \}\QMARK{}
-	\TT{:} \\
-	& \TT{~~~~}{\em statement}\STAR{} \\
-    $|$ & {\em assignment-left-side}~ \TT{:}~ \ttkey{deferred} \\
-    \end{tabular} \\
-\\[0.5ex]
-\emkey{function-call} ::= see \pagref{FUNCTION-CALL} \\
-\emkey{statement} ::= see \pagref{STATEMENT} \\
-\\[1ex]
-where
-\begin{itemize}
-\item The {\em assignment-left-side} may \underline{not} contain
-{\em reference-expressions} or {\em deferred-results}.
-\item If there is a {\em function-call}, all the {\em assignment-left-side}
-variables must have pointer types.
-\end{itemize}
-\end{indpar}
-
-The statement allocates memory for the left side variables and
-zeros that memory.  Then any {\em statements} are executed with
-the allocated memory being write-only.
-
-More specifically, if there is no {\em function-call},
-the {\em assignment-left-side} variables are allocated to the
-current function frame and zeroed.  Then if there is no `{\tt deferred}',
-any {\em statements} are executed.  Within these {\em statements},
-any {\em reference-expression} beginning with the {\em variable-name}
-of one of the allocate variables is treated as {\tt *WRITE-ONLY*}.
-
-If there is no {\em function-call} and `{\tt deferred}' is given,
-the {\em statements} to be executed are
-deferred to later {\em allocation-statements} for (one or more of)
-the same variables.  These later {\em statements} must occur
-within the scope (see \itemref{SCOPE}) of the `{\tt deferred}' {\em statement},
-and additionally, if the `{\tt deferred}' {\em statement} is in a module,
-all these later statements must
-be in that module or bodies of that module.
-
-If there is a {\em function-call}, the {\em function-call} will be
-executed with a pre-pended argument list separately for each
-{\em assignment-left-side} variable.  The variable must have pointer
-type.  The {\em prototype-pattern}
-of the called function's prototype\pagnote{PROTOTYPE-PATTERN}
-must begin with: \\
-\centerline{\tt ( uns length, uns alignment )} \\
-and when called a {\tt ()} {\em call-argument-list} is pre-pended to
-the {\em function-call} giving two {\tt uns} arguments: first the
-number of bytes to be allocated, and second the alignment required
-of the first byte.  The called function must allocate a block of
-memory with the required number of bytes and alignment, zero that
-block, and return a pointer to the block.  The prototype must have
-exactly one result variable which is a pointer.
-
-If there is both a {\em function-call} and {\em statements},
-the {\em statements} are executed after all {\em assig\-ment-left-side}
-variables have been set.  Within the block containing
-these {\em statements}, the qualifiers of {\em reference-expressions}
-beginning with indirect names derived from one of these variables
-are effectively changed to {\tt *WRITE-ONLY*}.
-
-As a general rule, allocator functions that return a {\tt av} or {\tt fv}
-pointer have a {\tt []} argument list
-with a single argument giving a vector size {\tt N}.
-The allocator allocates not a single block of the given length
-and alignment, but instead a vector of {\tt N} such blocks, with zero padding
-between the blocks if necessary to obtain proper alignment.  However,
-this is by convention and is not a builtin requirement of the L-Language.
 
 \subsection{Scope}
 \label{SCOPE}
