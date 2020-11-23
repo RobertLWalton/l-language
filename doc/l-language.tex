@@ -2167,31 +2167,40 @@ Zeroed numbers are zero, while zeroed pointers typically
 cause segmentation faults when de-referenced.
 
 If a {\em result-variable-declaration} declares a {\em pointer-variable},
-a {\em target-variable} is implicitly declared at the same time
+an associated {\em target-variable} is implicitly declared at the same time
 whose name is the {\em pointer-name} with the initial `{\tt @}' removed.
 
 Note that a {\em result-variable-declaration} does not allow
 qualifiers on anything but the target of a pointer.  The implicit
-qualifier of a declared direct variable is {\tt co}, meaning the
+qualifier of a declared variable is {\tt co}, meaning the
 the value of the variable once initially set is never changed.
-The qualifiers of an indirect variable are those of the target of
+The qualifiers of a {\em target-variable} associated with a
+{\em pointer-variable} are those of the target of
 its associated pointer.
 
 A {\em next-variable-declaration} for a {\em variable} {\tt v}
 must occur in the scope of either a {\em result-variable-declaration}
 for {\tt v} or another {\em next-variable-declaration} for {\tt v}.
-Furthermore, {\tt v} cannot be an indirect variable name.
+Furthermore, {\tt v} cannot be an {\em target-variable} associated
+with a {\em pointer-variable}.
 The {\em next-variable-declaration} re-declares {\tt v} making a new
 variable that hides the previously declared {\tt v}.  The new variable
 has the same types and qualifiers as the previous variable named {\tt v}.
 
 A {\em next-variable-declaration} for variable {\tt v} enables
-{\tt next v} to be used like a {\em variable-name}
+`{\tt next v}' to be used like a {\em variable-name}
 in {\em reference-expressions} within the {\em statements}
 of a sub-block of the {\em assignment-statement}.  Use of
 {\tt v} within these statements outside of `{\tt next v}'
 refers to the value of {\tt v} just
 before the {\em assignment-statement} was executed.
+
+Under some circumstances `{\tt next v}' will
+be implicitly added to an {\em assignment-statement}
+{\em variable-declaration} list to legalize the
+use of `{\tt next v}' as an {\em assignment-result} of a {\em statement}
+in a {\em sub-block} of the {\em assignment-statement}.
+See \pagref{NEXT-PROMOTION}.
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
@@ -2421,7 +2430,7 @@ within an {\em exit-subblock} have scope that ends with the end of
 the subblock.  A function or generic prototype is `used' if and only if it
 matches a {\em function-call}.
 
-If `{\tt next} {\em variable-name}' is used as an
+If\label{NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
 {\em block-assignment-statement} that is not within the scope of
 a {\em result-variable-declaration} for the {\em variable-name}
