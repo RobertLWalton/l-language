@@ -2166,12 +2166,9 @@ In all other cases, the values are zeroed and the variables are
 Zeroed numbers are zero, while zeroed pointers typically
 cause segmentation faults when de-referenced.
 
-If a {\em result-variable-declaration} declares a {\em variable-name}
-that begins with a `{\tt @}' and has a pointer type,
-an indirect variable is implicitly declared at the same time
-whose name is the {\em variable-name} with the `{\tt @}' removed.
-A {\em variable-name} that is not indirect is called a direct variable.
-See \pagref{INDIRECT-VARIABLE}.
+If a {\em result-variable-declaration} declares a {\em pointer-variable},
+a {\em target-variable} is implicitly declared at the same time
+whose name is the {\em pointer-name} with the initial `{\tt @}' removed.
 
 Note that a {\em result-variable-declaration} does not allow
 qualifiers on anything but the target of a pointer.  The implicit
