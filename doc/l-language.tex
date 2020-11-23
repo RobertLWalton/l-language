@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 21, 2020
+November 23, 2020
 
 \bigskip
  
@@ -1457,6 +1457,11 @@ L-Language uses several kinds of names:
     \MA{} {\em basic-name} \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     \MA{} {\em basic-name} \\
+\emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
+    {\em variable-name} whose {\em basic-name} begins with an \TT{@} \\
+\emkey{target-variable}\label{TARGET-VARIABLE} ::=
+    {\em variable-name} whose {\em basic-name} does \underline{not}
+    begin with an \TT{@} \\
 \emkey{statement-label} ::= {\em basic-name}
     \label{STATEMENT-LABEL} \\
 \\[1ex]
@@ -1746,6 +1751,7 @@ is:
 \emkey{reference-expression}
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
+    $|$ & \TT{next}~ {\em variable-name} \\
     $|$ & {\em reference-expression} \TT{[} {\em index-list} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     \end{tabular}
@@ -1781,43 +1787,37 @@ An {\em index} may be used to select an element of a vector
 or array in a
 user defined type value, or the
 element of a vector pointed at by a pointer, or an element
-of a {\em map}.  When used to select a {\em map-dictionary}
-element, the {\em index} must be a string.  Otherwise the
+of a {\em map}.  An {\em index} can also be a {\em const}
+string.  For a run-time {\em reference-expression} a string
+{\em index} is a {\em data-label}: `{\tt ["M"]}' is equivalent
+to `{\tt .M}'.  For a compile-time {\em reference-expression}
+the string must be used to select a {\em map-dictionary}
+element.  Otherwise the
 index is a positive or negative integer.  Bounds imposed
 by user defined types or stored in a pointer are used to
 check that the index is within range.
+
 
 Within an {\em index-list} the comma (\TT{,}) is treated
 as equivalent to \TT{][}, so, for example, {\tt [x,y]}
 is equivalent to {\tt [x][y]}.
 
-A run-time (non-{\tt const})
-variable whose name begins with `{\tt @}' and which names a pointer
-value has an associated \key{indirect variable}\label{INDIRECT-VARIABLE}
-whose name is made
-by removing the initial `{\tt @}' from the variable name (e.g.,
-the indirect variable associated with {\tt @V} is {\tt V}).
-The indirect variable is automatically declared when the direct
-variable is declared.
-A run-time variable that has not been declared as an indirect variable
-is called a \key{direct variable}\label{DIRECT-VARIABLE}.
-Note that syntactically direct variable are must arbitrary
-{\em variable-names}.
+If the {\em variable-name} at the beginning of a {\em reference-expression}
+is a {\em pointer-variable}, the reference expression computes a pointer.
+E.g., `{\tt @V[5]}' computes a pointer to the 5+1'st element of the
+vector pointed at by {\tt @V}.
 
-A {\em reference-expression} that is just a direct variable name
-can only be used to read the value of the variable.
-If a {\em reference-expression} selects members or vector elements
-and begins with a direct variable name, the direct variable value
-must be a pointer, and the reference expression computes a pointer
-to the selected member or element.
+If the {\em variable-name} at the beginning of a {\em reference-expression}
+is a {\em target-variable} with a companion {\em pointer-variable},
+the reference expression refers to the value pointed by the pointer
+that would be computed if the {\em target-variable} was replaced by
+its companion {\em pointer-variable}.
 
-A {\em reference-expression} that is just an indirect variable name
-can be used to read or write (if qualifiers allow) the value pointed
-at by the associated direct variable.
-If a {\em reference-expression} selects members or vector elements
-and begins with an indirect variable name, the value of the vector
-element or member is designated, and may be read and written
-(if qualifiers allow).
+If the {\em variable-name} at the beginning of a {\em reference-expression}
+is a {\em target-variable} \underline{without}
+a companion {\em pointer-variable},
+the reference expression refers to variable, field, or vector element
+allocated to the current function frame.
 
 Compile-time maps are represented interally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
@@ -2101,16 +2101,16 @@ The forms of an {\em assignment-statement} are:
     ::= & {\em variable-declaration} \\
     $|$ & {\em reference-expression}
     		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
-    $|$ & {\em next-reference} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{iteration-result} ::= {\em next-variable-declaration}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
-\hspace*{0.5in}
-        \{ {\em pointer-type-name} {\em qualifier-name}\STAR{} \}\QMARK{} \\
-\hspace*{1.0in}
-        {\em type-name} {\em variable-name}
+\hspace*{0.5in}\begin{tabular}{rl}
+	    & {\em type-name} {\em target-variable} \\
+	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      {\em type-name} {\em pointer-variable}
+	\end{tabular}
 \\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
     ::= \ttkey{next} {\em variable-name}
@@ -2123,7 +2123,9 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
-\emkey{next-reference} ::= \ttkey{next} {\em variable-name}
+\emkey{target-variable} ::= see \pagref{TARGET-VARIABLE}
+\\[0.5ex]
+\emkey{pointer-variable} ::= see \pagref{POINTER-VARIABLE}
 \\[0.5ex]
 \emkey{allocation-call} ::= {\em function-call}
 \\[0.5ex]
@@ -2186,12 +2188,12 @@ The {\em next-variable-declaration} re-declares {\tt v} making a new
 variable that hides the previously declared {\tt v}.  The new variable
 has the same types and qualifiers as the previous variable named {\tt v}.
 
-A {\em next-variable-declaration} enables a {\em next-reference}
-with identical syntax that can be used by {\em statements}
-within a sub-block of the {\em assignment-statement} to set the
-memory allocated by the {\em next-variable-declaration}.  Use of
-the {\em variable-name} within these statements outside of a
-{\em next-reference} refers to the value of the variable just
+A {\em next-variable-declaration} for variable {\tt v} enables
+{\tt next v} to be used like a {\em variable-name}
+in {\em reference-expressions} within the {\em statements}
+of a sub-block of the {\em assignment-statement}.  Use of
+{\tt v} within these statements outside of `{\tt next v}'
+refers to the value of {\tt v} just
 before the {\em assignment-statement} was executed.
 
 \subsubsubsection{Expression Assignment Statements}
