@@ -2390,8 +2390,9 @@ After variable allocation
 are executed.
 Within these
 any {\em reference-expression} beginning with the {\em variable-name}
-or associated indirect\pagnote{INDIRECT-VARIABLE} {\em variable-name}
-of one of the allocated variables is treated as {\tt *WRITE-ONLY*}.
+of one of the allocated variables, or the associated
+{\em target-variable} if the {\em variable-name} is a
+{\em pointer-variable}, is treated as {\tt *WRITE-ONLY*}.
 
 A {\em go-to-exit-statement} within a block may exit the block or
 enter an {\em exit-subblock} of the block:
@@ -2758,7 +2759,8 @@ The syntax of a type declaration is:
 \\[2ex]
 \emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
 \emkey{pointer-label}\label{POINTER-LABEL} ::=
-    {\em field-label} beginning with `\TT{@}' or `\TT{.@}' \\
+    {\em field-label} beginning with zero or more `\TT{.}'s followed by
+    an `\TT{@}' \\
 \emkey{target-label}\label{TARGET-LABEL} ::=
     {\em field-label} that is \underline{not} a {\em pointer-label} \\
 \emkey{origin-label}\label{ORIGIN-LABEL} ::=  {\em data-label} \\
@@ -2768,11 +2770,14 @@ The syntax of a type declaration is:
 \emkey{dimension-size} ::=  compile-time {\em expression}
 			    with non-negative integer value
 \\[2ex]
-\emkey{subfield-declaration}
-    ::= {\em bit-range} {\em subfield-type-name} {\em subfield-label} \\
+\emkey{subfield-declaration} ::= \\
+\hspace*{0.5in}
+    {\em bit-range} {\em subfield-type-name} {\em subfield-label}
+    		{\em subfield-dimension}\QMARK{} \\
 \emkey{subfield-type-name}\label{SUBFIELD-TYPE-NAME} ::=
     {\em number-type-name} $|$ \TT{bool} \\
-\emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em data-label}
+\emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em target-label} \\
+\emkey{subfield-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
 \\[2ex]
 \emkey{bit-range}
     \begin{tabular}[t]{@{}rl}
@@ -2914,9 +2919,34 @@ bool vegetable = X.vegetable
 flt weight = X.weight
 \end{verbatim}\end{indpar}
 
-If a {\em field-with-subfields-declaration} contains a
-{\em field-dimension} the subfields can be indexed
-as an alternative to indexed the field.  For example:
+If a {\em field-label} is a {\em pointer-label}, an
+associated {\em target-label} is declared consisting of the
+{\em pointer-label} minus its first `{\tt @}'.  The {\em target-label}
+references a virtual field consisting of the target value stored
+at the location pointed at by the {\em pointer-label} field's pointer.
+An example is:
+
+\begin{indpar}\begin{verbatim}
+type list element:
+    int value
+    ap list element @next
+
+list element @X =@ local:
+    X.value = 1
+    list element @Y =@ local:
+        Y.value = 2
+    X.@next = @Y
+// Now X.value == 1 and X.next.value == 2 while
+// @X and X.@next are pointers to local memory
+\end{verbatim}\end{indpar}
+
+If a {\em field-declaration} with {\em field-label}\, {\tt L} contains 
+{\em field-dimension} {\tt [$n$]} then $n$ fields are
+allocated to ascending memory addresses, using zero padding
+if necessary to align all $n$ fields.  The labels of these
+fields are {\tt L[$i$]} for $0\le i<n$.  If there is a subfield
+labeled {\tt S} of the field, {\tt S[$i$]} refers to the
+subfield in {\tt L[$i$]}.  For example:
 
 \begin{indpar}\begin{verbatim}
 type character attributes:
@@ -2932,23 +2962,25 @@ bool line feed is graphic = X.is graphic [C "\n"]
 bool A is graphic = X.is graphic [C "A"]
 \end{verbatim}\end{indpar}
 
-A {\em field-label} may be direct with associated indirect
-{\em field-label} if the field has a pointer type.
-However, if the {\em field-label} is a {\em member-name}
-beginning with `{\tt .}'s, the `{\tt @}' is placed immediately
-after any initial `{\tt .}'s. 
+If a {\em subfield-declaration} with {\em subfield-label}\, {\tt S} contains 
+{\em subfield-dimension} {\tt [$n$]} then $n$ subfields are
+allocated to the containing field, starting with the bits
+designated by the {\em subfield-declaration}'s {\em bit-range}
+and adding the number of bits in the {\em bit-range} to each integer
+in the {\em bit-range} for each successive subfield.
 For example:
 
 \begin{indpar}\begin{verbatim}
-type my type:
-    ap *READ-WRITE* int @x;
-    ap *READ-WRITE* flt .@y;
+type hex digits:
+    uns32
+    [0-3] uns hex digit [8]
 
-my type X:
-    X.@x =@ local
-    X..@y =@ local
-X.x = 5
-X..y = 6.6
+hex digits X:
+    int i = 0;
+    while i < 8:
+        X.hex digit[i] = i
+        next i = i + 1
+// Now X == X#"<0><1><2><3><4><5><6><7>"
 \end{verbatim}\end{indpar}
 
 The size and alignment of a defined type with no {\tt *FINAL*}
