@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 23, 2020
+November 24, 2020
 
 \bigskip
  
@@ -2728,16 +2728,18 @@ The syntax of a type declaration is:
     \end{tabular}
 \\[2ex]
 \emkey{field-without-subfields-declaration} ::= \\
-\hspace*{0.5in}
-        \{ {\em qualifier-name}\STAR{} {\em pointer-type-name} \}\QMARK{} \\
-\hspace*{1.0in}
-        {\em qualifier-name}\STAR{} {\em field-type-name}~
-        {\em field-label}~ {\em field-dimension}\QMARK{}
+\hspace*{0.5in}\begin{tabular}{rl}
+        & {\em qualifier-name}\STAR{} {\em field-type-name}~
+          {\em target-label}~ {\em field-dimension}\QMARK{} \\
+    $|$ & {\em qualifier-name}\STAR{} {\em pointer-type-name} \\
+        & ~~~~~ {\em qualifier-name}\STAR{} {\em field-type-name}~
+                {\em pointer-label}~ {\em field-dimension}\QMARK{}
+	\end{tabular}
 \\[2ex]
 \emkey{field-with-subfields-declaration} ::= \\
 \hspace*{0.5in}
     {\em qualifier-name}\STAR{}
-    \TT{std}\QMARK{} {\em number-type-name}~ {\em field-label}\QMARK{}
+    \TT{std}\QMARK{} {\em number-type-name}~ {\em target-label}\QMARK{}
                 {\em field-dimension}\QMARK{} \\
 \hspace*{0.5in}
     {\em subfield-declaration}\PLUS{}
@@ -2755,6 +2757,10 @@ The syntax of a type declaration is:
     \end{tabular}
 \\[2ex]
 \emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
+\emkey{pointer-label}\label{POINTER-LABEL} ::=
+    {\em field-label} beginning with `\TT{@}' or `\TT{.@}' \\
+\emkey{target-label}\label{TARGET-LABEL} ::=
+    {\em field-label} that is \underline{not} a {\em pointer-label} \\
 \emkey{origin-label}\label{ORIGIN-LABEL} ::=  {\em data-label} \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
