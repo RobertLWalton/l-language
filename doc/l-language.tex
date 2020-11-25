@@ -1822,14 +1822,14 @@ E.g., `{\tt @V[5]}' computes a pointer to the 5+1'st element of the
 vector pointed at by {\tt @V}.
 
 If the {\em variable-name} at the beginning of a {\em reference-expression}
-is a {\em target-variable} with a companion {\em pointer-variable},
+is a {\em target-variable} with an assocated {\em pointer-variable},
 the reference expression refers to the value pointed by the pointer
 that would be computed if the {\em target-variable} was replaced by
-its companion {\em pointer-variable}.
+its assocated {\em pointer-variable}.
 
 If the {\em variable-name} at the beginning of a {\em reference-expression}
 is a {\em target-variable} \underline{without}
-a companion {\em pointer-variable},
+a assocated {\em pointer-variable},
 the reference expression refers to variable, field, or vector element
 allocated to the current function frame.
 
@@ -3846,8 +3846,9 @@ names or prototypes defined by the {\em declaration}
 are recognized.
 
 Generally the scope of a {\em declaration} includes the {\em statements}
-in any {\em block}
-at the end of the {\em statement} containing the {\em declaration}, and
+in any {\em block} at the end of the {\em statement}
+containing the {\em declaration} (recall that a {\em statement} is a
+logical line that can end in a {\em block}), and
 all {\em statements} following the {\em statement} containing
 the {\em declaration} up to the end of the {\em block} or file
 containing this {\em statement}.
@@ -3863,15 +3864,20 @@ to each body file of the module.
 
 Some {\em declarations} are \key{external}\label{EXTERNAL}.
 An external declaration
-must be top level in a module file, except that some external
-declarations may be repeated with more detail in a body of the
-module, as indicated below.  The scope of an external
+must be top level in a module file, except that external
+declarations that are not inline {\em function-declarations}
+may be have companion declarations anywhere within the scope
+of the external declaration.
+The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
 
-A {\em result-variable-declaration} or {\em next-variable-declaration}
+A {\em result-variable-declaration}
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.
+
+A {\em next-variable-declaration} may not be external, and its
+{variable-name} may not begin with a {\em module-abbreviation}.
 
 A {\em type-declaration} or {\em pointer-type-declaration}
 is external if the {type-name} or {\em pointer-type-name}
