@@ -3718,10 +3718,56 @@ that module.
 If\label{OUT-OF-LINE-EXTERNAL-COMPANION}
 a {\tt deferred} {\em out-of-line-function-declaration}
 is external,\pagnote{EXTERNAL-FUNCTION}
-its companion may be in the body of a module
-different from the module containing the {\tt deferred} declaration.
+its companion may be anywhere in the scope of the declaration,
+including in another module or another module's body that imports
+the declaration's module.
 This allows a module to call out-of-line functions defined by
 a companion in another module that imports the first module.
+
+A function type whose values are pointers to out-of-line
+functions may be declared by:
+
+\begin{indpar}
+\emkey{function-type-declaration}\label{FUNCTION-TYPE-DECLARATION} ::= \\
+\hspace*{0.5in}
+    \ttkey{type} {\tt function-type-name} \TT{is}
+                 {\em function-type-prototype}
+\\[0.5ex]
+{\em function-type-name} ::= {\em target-name}
+\\[0.5ex]
+\emkey{function-type-prototype}%
+	\label{FUNCTION-TYPE-PROTOTYPE} ::= \\
+\hspace*{0.25in} \ttkey{function}~
+          \{ {\em prototype-result-list}~ \TT{=}~ \}\QMARK{} \\
+\hspace*{0.5in}\TT{()} {\em pattern-argument-list}\QMARK{}
+\end{indpar}
+
+Here the {\em function-type-prototype} is just like an
+{\em out-of-line-function-prototype} except that the
+{\em out-of-line-function-name} is replaced by {\tt ()} and
+the word `{\tt out-of-line}' is omitted as being superfluous.
+
+A constant pointer value for a function type can be declared by:
+\begin{indpar}
+\emkey{function-value-declaration}\label{FUNCTION-VALUE-DECLARATION} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{rl}
+        &  {\em function-type-name} {function-value-name} \TT{:} \\
+	& \TT{~~~~~}{\em statement}\PLUS{} \\
+    \end{tabular} \\
+\emkey{function-value-name} ::=
+    {\em module-abbreviation}\QMARK{} {\em basic-name}
+\end{indpar}
+
+Here the first line functions as an {\em out-of-line-function-prototype}
+made by taking the {\em function-type-prototype} from the
+{\em function-type-name} and replacing the {\tt ()}
+{\em out-of-line-function-name} by the {\em function-value-name}
+while adding `{\tt out-of-line}' to its beginning.  In addition
+the {\em function-value-name} is declared as a variable whose
+value has the {\em function-type-name} as its {\em type-name}.
+
+
 
 \subsubsubsection{Module Declarations}
 \label{MODULE-DECLARATIONS}
@@ -3912,8 +3958,11 @@ Hiding of this kind is a compile error.
 A {\em next-variable-declaration} is allowed
 within the scope of a previous {\em result-variable-de\-clar\-a\-tion}
 or {\em next-variable-declaration} of the same {\em variable-name}
-if it is not within a smaller block than the previous declaration
-or if it is a {\em deferred-result}.\pagnote{DEFERRED-RESULT}
+if it is not within a smaller block than the previous declaration.
+Note that a {\em next-variable-declaration} has
+the same syntax as a {\em reference-expression}, and its use
+as an implicitly {\tt *WRITE-ONLY*} {\em reference-expression}
+is allowed within smaller blocks.
 
 However, if `{\tt v}' is an external variable,
 `\TT{next} {\tt v}' may not be declared.%
@@ -3932,8 +3981,8 @@ a subblock of the scope of the other.
 
 {\em Statement-labels}, that is {\em block-labels},
 {\em exit-labels}, and {\em loop-labels}, have as their scope
-the block in which they are defined.  {\em Statement-labels}
-\underline{cannot} hide each other.
+the block in which they are defined.  {\em Statement-label}
+hiding is a compile error.
 
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
