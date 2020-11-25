@@ -3863,14 +3863,16 @@ The scope of top-level {\em declarations} in a module file is extended
 to each body file of the module.
 
 Some {\em declarations} are \key{external}\label{EXTERNAL}.
-An external declaration
-must be top level in a module file, except that external
-declarations that are not inline {\em function-declarations}
-may be have companion declarations anywhere within the scope
-of the external declaration.
+These must be top-level declarations in a module.
 The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
+
+An external declaration may have a companion in a body of its module,
+but not in modules or bodies that import the declaration's module.
+As an exception, an
+{\em out-of-line-function-declaration} may have a companion
+anywhere within the scope of the original declaration.
 
 A {\em result-variable-declaration}
 is external if the {variable-name} declared begins with a
@@ -3898,13 +3900,6 @@ must abbreviate the module in which the {\em declaration} occurs,
 with the exception of some {\em type-declarations}\pagnote{*EXTERNAL*}
 and some companion
 {\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
-
-If multiple {\em type-declarations} are given for the same
-external {\em type-name}, some of the {\em type-declarations}
-may be in other modules and their bodies.  This is an exception
-to the rule that the {\em module-abbreviation} in the {\em type-name}
-of a {\em type-declaration} must abbreviate the module in which
-the {\em type-declaration} occurs.
 
 If two different {\em result-variable-declarations},
 {\em pointer-type-declarations}, or {\em function-type-de\-clar\-a\-tions}
