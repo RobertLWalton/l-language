@@ -3747,26 +3747,43 @@ Here the {\em function-type-prototype} is just like an
 {\em out-of-line-function-name} is replaced by {\tt ()} and
 the word `{\tt out-of-line}' is omitted as being superfluous.
 
-A constant pointer value for a function type can be declared by:
+Function type variables are just like any other variables.
+The only operations defined on them are copying them and
+calling them.  A call to such a variable or a function type
+constant has the form:
 \begin{indpar}
-\emkey{function-value-declaration}\label{FUNCTION-VALUE-DECLARATION} ::= \\
+\emkey{function-variable-call}\label{FUNCTION-VARIABLE-CALL} ::= \\
+\hspace*{0.25in}\begin{tabular}{rl}
+	& {\em function-variable-name}
+	     {\em call-argument-list}\QMARK{} \\
+    $|$ & {\em function-constant-name}
+	     {\em call-argument-list}\QMARK{}
+    \end{tabular}
+\\[0.5ex]
+{\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
+\end{indpar}
+
+A function constant can be declared by:
+\begin{indpar}
+\emkey{function-constant-declaration}%
+    \label{FUNCTION-CONSTANT-DECLARATION} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{rl}
-        &  {\em function-type-name} {\em function-value-name} \TT{:} \\
+        &  {\em function-type-name} {\em function-constant-name} \TT{:} \\
 	& \TT{~~~~~}{\em statement}\PLUS{} \\
     \end{tabular} \\
-\emkey{function-value-name} ::=
+\emkey{function-constant-name} ::=
     {\em module-abbreviation}\QMARK{} {\em basic-name}
 \end{indpar}
 
 Here the first line behaves like an {\em out-of-line-function-prototype}
 made by taking the {\em function-type-prototype} specified by the
 {\em function-type-name} and replacing the {\tt ()}
-{\em out-of-line-function-name} by the {\em function-value-name}
+{\em out-of-line-function-name} by the {\em function-constant-name}
 while adding `{\tt out-of-line}' to its beginning.  In addition
-the {\em function-value-name} is declared as a variable whose
+the {\em function-constant-name} is declared as a constant whose
 value has the {\em function-type-name} as its {\em type-name}.
-Internally this value is a run-time pointer to the out-of-line function.
+Internally this constant is a run-time pointer to the out-of-line function.
 
 
 
