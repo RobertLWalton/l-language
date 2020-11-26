@@ -3760,6 +3760,8 @@ constant has the form:
 	     {\em call-argument-list}\QMARK{}
     \end{tabular}
 \\[0.5ex]
+\emkey{function-variable-name} ::= {\em target-name}
+\\[0.5ex]
 {\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \end{indpar}
 
@@ -3782,7 +3784,7 @@ made by taking the {\em function-type-prototype} specified by the
 {\em out-of-line-function-name} by the {\em function-constant-name}
 while adding `{\tt out-of-line}' to its beginning.  In addition
 the {\em function-constant-name} is declared as a constant whose
-value has the {\em function-type-name} as its {\em type-name}.
+value has the type named by the {\em function-type-name}.
 Internally this constant is a run-time pointer to the out-of-line function.
 
 
