@@ -23,9 +23,12 @@
 // ----- --- -----
 
 # include <l_language.h>
+# include <ll_parser_oper.h>
 # define LLANG l_language
 # define LLEX l_language::lexeme
 # define PAR ll::parser
+# define TAB ll::parser::table
+# define OP ll::parser::oper
 
 min::locatable_gen LLEX::l_language;
 min::locatable_gen LLEX::equal_at;
@@ -46,4 +49,46 @@ void LLANG::init_parser ( PAR::parser parser )
 	      PAR::top_level_position );
 
     MIN_REQUIRE ( result == min::SUCCESS() );
+
+    min::uns32 block_level =
+        PAR::block_level ( parser );
+
+    min::locatable_gen code_name
+        ( min::new_str_gen ( "code" ) );
+    min::locatable_gen math_name
+        ( min::new_str_gen ( "math" ) );
+
+    TAB::flags code =
+        1ull << TAB::find_name
+            ( parser->selector_name_table, code_name );
+    TAB::flags math =
+        1ull << TAB::find_name
+            ( parser->selector_name_table, math_name );
+
+    min::locatable_gen oper
+        ( min::new_str_gen ( "operator" ) );
+
+    PAR::pass pass = parser->pass_stack;
+    while ( pass != min::NULL_STUB
+            &&
+	    pass->name != oper )
+        pass = pass->next;
+    MIN_REQUIRE ( pass != min::NULL_STUB );
+    OP::oper_pass oper_pass = (OP::oper_pass) pass;
+
+    min::locatable_gen binary
+        ( min::new_str_gen ( "binary" ) );
+
+    OP::push_oper
+        ( LLEX::equal_at,
+          min::MISSING(),
+          code + math,
+          block_level, PAR::top_level_position,
+          OP::INFIX,
+          9010,
+          PAR::find_reformatter
+              ( binary,
+                OP::reformatter_stack ),
+          min::NULL_STUB,
+          oper_pass->oper_table );
 }
