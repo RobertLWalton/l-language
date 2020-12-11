@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Dec 10 22:47:16 EST 2020
+# Date:		Fri Dec 11 04:46:19 EST 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -99,8 +99,21 @@ test:		${TESTS:=.test}
 	rm -f $*.out
 	${RUNENV} $* > $*.out
 
+l_language_parser.o:		\
+	    ../src/l_language_parser.cc \
+	    ../include/l_language.h \
+	    ${LAYERED}/lib/liblayered.a \
+	    ${MIN}/lib/libmin.a \
+	    Makefile
+	g++ -g ${GFLAGS} ${WFLAGS} \
+	    -I ../include \
+	    -I ${LAYERED}/include -I ${MIN}/include \
+	    -c ../src/l_language_parser.cc
+
 l_language_compiler:		\
 	    ../src/l_language_compiler.cc \
+	    l_language_parser.o \
+	    ../include/l_language.h \
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MIN}/lib/libmin.a \
 	    Makefile
@@ -109,6 +122,7 @@ l_language_compiler:		\
 	    -I ${LAYERED}/include -I ${MIN}/include \
 	    -o $@ \
 	    ../src/l_language_compiler.cc \
+	    l_language_parser.o \
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MIN}/lib/libmin.a
 
@@ -119,5 +133,7 @@ l_language_snippet_test.out:	\
 	${RUNENV} l_language_compiler < $*.in > $*.out
 
 clean:
-	rm -f ${TESTS} ${TESTS:=.out} l_language_compiler
+	rm -f ${TESTS} ${TESTS:=.out} \
+	    l_language_compiler \
+	    l_language_parser.o
 
