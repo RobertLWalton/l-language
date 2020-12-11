@@ -1,2 +1,2 @@
-l-language:
-	pdflatex l-language; makeindex l-language
+l_language:
+	pdflatex l_language; makeindex l_language

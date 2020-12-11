@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Thu Dec 10 11:27:13 EST 2020
+# Date:		Thu Dec 10 22:47:16 EST 2020
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -92,14 +92,15 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-            < $*.out | diff --minimal -u ${DIFF_FLAGS} $*.test -
+            < $*.out | \
+	      diff --minimal -u ${DIFF_FLAGS} $*.test -
 
 %.out:	%
 	rm -f $*.out
 	${RUNENV} $* > $*.out
 
-l_compiler:		\
-	    ../src/l_compiler.cc \
+l_language_compiler:		\
+	    ../src/l_language_compiler.cc \
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MIN}/lib/libmin.a \
 	    Makefile
@@ -107,15 +108,16 @@ l_compiler:		\
 	    -I ../include \
 	    -I ${LAYERED}/include -I ${MIN}/include \
 	    -o $@ \
-	    ../src/l_compiler.cc \
+	    ../src/l_language_compiler.cc \
 	    ${LAYERED}/lib/liblayered.a \
 	    ${MIN}/lib/libmin.a
 
 l_language_snippet_test.out:	\
-	    l_compiler l_language_snippet_test.in
+	    l_language_compiler \
+	    l_language_snippet_test.in
 	rm -f $*.out
-	${RUNENV} l_compiler < $*.in > $*.out
+	${RUNENV} l_language_compiler < $*.in > $*.out
 
 clean:
-	rm -f ${TESTS} ${TESTS:=.out} l_compiler
+	rm -f ${TESTS} ${TESTS:=.out} l_language_compiler
 

@@ -2,7 +2,7 @@
 //
 // File:	l_language_snippet_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 10 12:33:07 EST 2020
+// Date:	Thu Dec 10 18:34:27 EST 2020
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -13,4 +13,6 @@
     trace [+ subexpression lines]
     trace [+ subexpression elements]
 
-int X = C#"0"
+int X = Y - C#"0"
+
+av *READ-WRITE* uns8 @bp =@ local[81]

@@ -1,8 +1,8 @@
 // Reckon Interpreter/Compiler
 //
-// File:	l_compiler.cc
+// File:	l_language_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Dec 10 11:30:09 EST 2020
+// Date:	Thu Dec 10 22:48:19 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
