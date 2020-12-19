@@ -1,9 +1,8 @@
-
 // L-Language Parser
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Dec 11 04:37:15 EST 2020
+// Date:	Sat Dec 19 06:18:52 EST 2020
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -12,12 +11,8 @@
 // Table of Contents
 //
 //	Usage and Setup
-//	Strings
-//	Tokens
-//	Parser Closures
 //	Parser
 //	Reformatters
-//	Parser Functions
 
 // Usage and Setup
 // ----- --- -----
@@ -29,6 +24,10 @@
 # define PAR ll::parser
 # define TAB ll::parser::table
 # define OP ll::parser::oper
+
+
+// L-Language Parser
+// ---------- ------
 
 min::locatable_gen LLEX::l_language;
 min::locatable_gen LLEX::equal_at;
