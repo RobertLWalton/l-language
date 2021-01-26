@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 25, 2020
+January 26, 2021
 
 \bigskip
  
@@ -1723,6 +1723,8 @@ An \emkey{map-constant} has two parts, a list and a dictionary
     $|$ & \TT{\{} {\em map-list} \TT{\}} \\
     $|$ & \TT{\{} {\em map-dictionary} \TT{\}} \\
     $|$ & \TT{\{} {\em map-list}\TT{,} {\em map-dictionary} \TT{\}} \\
+    $|$ & {\em phrase-constant} \\
+    $|$ & {\em expression-constant} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{map-list} ::= {\em constant-expression}
@@ -1737,9 +1739,33 @@ An \emkey{map-constant} has two parts, a list and a dictionary
 \emkey{map-label}\label{MAP-LABEL} ::= {\em data-label}
 \\[0.5ex]
 \emkey{data-label} ::= see \pagref{DATA-LABEL}
+\\[0.5ex]
+\emkey{phrase-constant} ::= \TT{`} {\em name-item}\STAR{} \TT{'}
+\\[0.5ex]
+\emkey{expression-constant} ::= \TT{`{}`} {\em expression} \TT{'{}'}
 \end{indpar}
 
 Maps \underline{cannot} be represented at run-time.
+
+A {\em phrase-constant} is shorthand for a {\em map-constant}
+of the form: \\
+\hspace*{0.5in}\TT{\{}
+    \begin{tabular}[t]{@{}l}
+    {\em quoted-name-item} \{ \TT{,} {\em quoted-name-item} \}\STAR{}\TT{,} \\
+    \TT{.type => "PHRASE" \}}
+    \end{tabular}
+\\[0.2ex]
+where {\em quoted-name-item} is a {\em name-item} with {\em words} turned into
+{\em quoted-strings}.
+
+An {\em expression-constant} is shorthand for the {\em map-constant}
+produced when the {\em expression} is parsed: see \pagref{PARSER-OUTPUT}.
+As an example, {\tt `{}`X = Y 1 + Z'{}'} is equivalent to: \\
+\hspace*{0.5in}\TT{\{}
+    \begin{tabular}[t]{@{}l}
+    \TT{"X", "=", \{\{"Y", 1\}, "+", "Z"\},} \\
+    \TT{.type => "EXPRESSION" \}}
+    \end{tabular}
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 compile-time as if they were variables of type {\tt const}

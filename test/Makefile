@@ -65,7 +65,7 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-            < $*.out > $*.test
+	    < $*.out > $*.test
 
 %.diff:	%.out
 	@echo DIFFING $*.test $*.out
@@ -92,7 +92,7 @@ test:		${TESTS:=.test}
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
 	    -e '/@[0-9]/s//@@/g' \
-            < $*.out | \
+	    < $*.out | \
 	      diff --minimal -u ${DIFF_FLAGS} $*.test -
 
 %.out:	%
