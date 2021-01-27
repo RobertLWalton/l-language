@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 26, 2021
+January 27, 2021
 
 \bigskip
  
@@ -1573,11 +1573,6 @@ compile-time.  There are three kinds of constants:
     $|$ & {\em map-constant} \\
     \end{tabular} \\
 \emkey{string-constant} ::= {\em quoted-string}
-\\[0.5ex]
-\emkey{constant-expression}\label{CONSTANT-EXPRESSION}
-    ::= {\em expression} evaluating at compile-time to a {\tt const} value
-\\[0.5ex]
-\emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 A \emkey{number-constant} is a {\em number} lexeme or sequence of
@@ -1717,7 +1712,7 @@ An \emkey{map-constant} has two parts, a list and a dictionary
 (either or both can be empty).  Its syntax is:
 
 \begin{indpar}
-\emkey{map-constant}
+\emkey{map-constant}\label{MAP-CONSTANT}
     \begin{tabular}[t]{rl}
     ::= & \TT{\{} \TT{\}} \\
     $|$ & \TT{\{} {\em map-list} \TT{\}} \\
@@ -1739,6 +1734,11 @@ An \emkey{map-constant} has two parts, a list and a dictionary
 \emkey{map-label}\label{MAP-LABEL} ::= {\em data-label}
 \\[0.5ex]
 \emkey{data-label} ::= see \pagref{DATA-LABEL}
+\\[0.5ex]
+\emkey{constant-expression}\label{CONSTANT-EXPRESSION}
+    ::= {\em expression} evaluating at compile-time to a {\tt const} value
+\\[0.5ex]
+\emkey{expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
 \emkey{phrase-constant} ::= \TT{`} {\em name-item}\STAR{} \TT{'}
 \\[0.5ex]
@@ -4161,24 +4161,8 @@ a {\tt .separator} hidden attribute.
 
 A \key{map} is a compile time {\tt const} value that, unlike
 numbers and strings, is mutable.
-A {\em map-expression} computes a map value:
-
-\begin{indpar}
-\emkey{map-expression} ::=
-    \TT{[]} $|$
-    \TT{[} {\em map-element} \{ \TT{,} {\em map-element} \}\STAR{} \TT{]}
-\\[0.5ex]
-\emkey{map-element} ::=
-        {\em expression} $|$ {\em data-label} \TT{=>} {\em expression}
-	                 $|$ \TT{[} {\em map-index} \TT{]}
-			 	\TT{=>} {\em expression}
-\\[0.5ex]
-{\em data-label} ::= see \pagref{DATA-LABEL}
-\\[0.5ex]
-\emkey{map-index} ::=
-    {\em expression} evaluating to a {\tt const} integer or string
-\end{indpar}
-
+A {\em map-constant} computes a map value: see
+\pagref{MAP-CONSTANT}.
 
 Elements of a map can be accessed by {\em map-element-expressions}, which
 are also {\em reference-expressions}:\pagnote{REFERENCE-EXPRESSIONS}
@@ -4190,9 +4174,13 @@ are also {\em reference-expressions}:\pagnote{REFERENCE-EXPRESSIONS}
     ::= & {\em map-base} {\em map-member} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{map-base} ::= {\em expression} evaluating to a map
+\emkey{map-base} ::= {\em constant-expression} evaluating to a map
 \\[0.5ex]
-\emkey{map-member} :::= \TT{.} {\em label} ~~~~[note :::= and not ::=]
+\emkey{map-member} :::= \TT{.} {\em map-label} ~~~~[note :::= and not ::=]
+\\[0.5ex]
+\emkey{map-label} ::= see \pagref{MAP-LABEL}
+\\[0.5ex]
+\emkey{constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
 \end{indpar}
 
 A map is mutable in that its elements may be written as well as read.
@@ -4206,7 +4194,7 @@ are equivalent.
 
 There is a virtual hidden element of a map, \ttdkey{length}, which is
 the value of the largest integer index of any map element,
-plus 1.  So {\tt ["A", "B", "C"]..length == 3}.  If a map has no
+plus 1.  So {\tt \{"A", "B", "C"\}..length == 3}.  If a map has no
 integer indices, its {\tt .length} is 0.
 
 Values may be stored into map elements as well as read from the
@@ -4214,10 +4202,13 @@ elements.  Storing into a non-existant element creates the element.
 
 Storing {\tt UNDEF} in an element deletes the element, and reading
 from a non-existant element returns {\tt UNDEF} without any other
-indication of there being an error.  Storing an integer into the
-{\tt .length} of a map deletes all elements with integer indices
-greater than or equal to the integer stored (but this may make
-the map {\tt .length} less than instead of equal to the integer stored).
+indication of there being an error.  Deleting a map vector element
+re-indexes the following vector elements.
+Storing an integer into the {\tt .length} of a map deletes
+all vector elements with integer indices greater than or equal
+to the integer stored; if there are none the map {\tt .length} not be reset.
+
+TBD
 
 A simple assignment {\tt x = y} where {\tt y} is a map makes
 a copy of the map in {\tt x}, so that {\tt x} and {\tt y} hold
