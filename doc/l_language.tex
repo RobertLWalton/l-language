@@ -4183,7 +4183,7 @@ are also {\em reference-expressions}:\pagnote{REFERENCE-EXPRESSIONS}
 \emkey{constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
 \end{indpar}
 
-A map is mutable in that its elements may be written as well as read.
+A map may be mutable in that its elements may be written as well as read.
 Note that hidden labels turn into {\em map-members} beginning with
 two dots: the {\tt .position} of {\tt x} is {\tt x..position}.
 
@@ -4208,29 +4208,34 @@ Storing an integer into the {\tt .length} of a map deletes
 all vector elements with integer indices greater than or equal
 to the integer stored; if there are none the map {\tt .length} not be reset.
 
-TBD
+A map has a \key{read-only flag} which is set when the map is created
+by a {\em map-constant}.  The vector and dictionary elements of a
+read-only map cannot be changed.  The flag may be cleared by the
+{\tt read-write} function and reset by the {\tt read-only} function,
+as in the example:
+\begin{indpar}\begin{verbatim}
+const m = {1, 2, 3}
+read-write ( m )
+m[1] = "X"           // now m == {1, "X", 3}
+read-only ( m )
+m[1] = "Y"           // error: m is now read-only
+\end{verbatim}\end{indpar}
 
+Each {\em map-label} in a map also has a read-only flag, which is
+cleared when a map is created by a {\em map-constant}.
+See \pagref{READ-ONLY-DICTIONARY-FUNCTION}.
+
+A {\tt const} map value is actually a pointer to a map, and
+not the map itself, which is stored in heap.
 A simple assignment {\tt x = y} where {\tt y} is a map makes
-a copy of the map in {\tt x}, so that {\tt x} and {\tt y} hold
-\underline{different} maps (but they are {\tt ==}).  These two different maps
-can be alterred independently.
-
-A simple assignment {\tt @ x = @ y} where {\tt y} is a map makes
-{\tt x} and {\tt y} both designate the \underline{same} map.
-Altering the map designated by {\tt x} will alter the map
-designated by {\tt y} in the same way.
-
-A simple assignment such as {\tt @ x = @ y[z]} makes {\tt x} and
-{\tt y[z]} designate the \underline{same} element of the map {\tt y},
-so that storing into {\tt x} is the same as storing into
-{\tt y[z]}.
-
-Locations can be compared using {\tt ==} and {\tt @}.  So if {\tt y}
-is a map, {\tt @ x == @ y[z]} can be used to test whether {\tt x}
-and {\tt y[z]} both reference the same map element.
-
-There are no {\tt const} pointer values, so {\tt x = @ y[z]} is not
-legal when {\tt y} is a map.
+{\tt x} point at the same map that {\tt y} points at.  For
+example, the statement {\tt x[1] = 5} will have the same effect as
+the statement {\tt y[1] = 5}.  If {\tt x} is a (pointer to a) map,
+the expression {\tt x == y} returns
+{\tt TRUE} if and only if {\tt y} points at the same map. 
+There is a {\tt copy} function that can be used to make a
+copy of a map that can be altered independently of the
+copied map: see \pagref{MAP-COPY}.
 
 \subsection{Operators and Builtin Functions}
 
