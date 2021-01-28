@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 27, 2021
+January 28, 2021
 
 \bigskip
  
@@ -558,10 +558,8 @@ It is possible to define compile-time functions:
 
 \begin{indpar}\begin{verbatim}
 function const r = max ( const x, const y ):
-    if x < y:
-        r = y
-    else:
-        r = x
+    if x < y: r = y
+    else:     r = x
 
 const x = 2e5
 const y = 3e6
@@ -580,10 +578,8 @@ an arbitary type.  Thus the example:
 
 \begin{indpar}\begin{verbatim}
 function T$r r = max ( T$r x, T$r y ):
-    if x < y:
-        r = y
-    else:
-        r = x
+    if x < y: r = y
+    else:     r = x
 
 const x = 2e5
 int y = 27e4
@@ -2438,16 +2434,9 @@ A {\em go-to-exit-statement} within a block may exit the block or
 enter an {\em exit-subblock} of the block:
 \begin{indpar}
 \emkey{go-to-exit-statement}\label{GO-TO-STATEMENT} ::=
-    \{ \TT{if} {\em bool-expression} \}\QMARK{}
     \ttkey{go to} {\em go-to-label} \TT{exit}
 \\[0.5ex]
 \emkey{go-to-label} ::= {\em block-label} $|$ {\em exit-label}
-\\[0.5ex]
-{\em bool-expression}\label{BOOL-EXPRESSION} ::=
-    \begin{tabular}[t]{@{}l}
-    {\em expression} evaluating at run-time to a {\tt bool} \\
-    or at compile-time to the {\em const} value {\tt "TRUE"} or {\tt "FALSE"}
-    \end{tabular}
 \end{indpar}
 
 Unless a {\em go-to-exit-statement} is executed,
@@ -2575,18 +2564,20 @@ A {\em loop-assignment-statement} has the syntax:
 \\[0.5ex]
 \emkey{int-expression} ::= {\em expression} evaluating to an {\tt int}
 \\[0.5ex]
-\emkey{bool-expression} ::= see \pagref{BOOL-EXPRESSION}
+\emkey{bool-expression}\label{BOOL-EXPRESSION} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em expression} evaluating at run-time to a {\tt bool} \\
+    or at compile-time to the {\em const} value {\tt "TRUE"} or {\tt "FALSE"}
+    \end{tabular}
 \\[0.5ex]
 \emkey{loop-control-statement}\label{LOOP-CONTROL-STATEMENT} ::=
     {\em break-statement} $|$ {\em continue-statement}
 \\[0.5ex]
 \emkey{break-statement}\label{BREAK-STATEMENT} ::=
-    \{ \TT{if} {\em bool-expression} \}\QMARK{} \ttkey{break}
-    {\em loop-label}\QMARK{}
+    \ttkey{break} {\em loop-label}\QMARK{}
 \\[0.5ex]
 \emkey{contine-statement}\label{CONTINUE-STATEMENT} ::=
-    \{ \TT{if} {\em bool-expression} \}\QMARK{} \ttkey{continue}
-    {\em loop-label}\QMARK{}
+    \ttkey{continue} {\em loop-label}\QMARK{}
 \end{indpar}
 
 A {\em loop-assignment-statement} is the semantic equivalent of
@@ -2671,7 +2662,7 @@ or block of {\em statements} according to what several
 {\em Conditional-statements} have the syntax:
 
 \begin{indpar}
-\emkey{conditional--statement} ::= \\
+\emkey{conditional-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{rl}
         & \ttkey{if} {\em bool-expression} \TT{:} \\
 	& ~~~~~ {\em statement}\STAR{} \\
@@ -2683,6 +2674,8 @@ or block of {\em statements} according to what several
     $|$ & \ttkey{else if} {\em bool-expression} \TT{:} {\em statement} \\
     $|$ & \ttkey{else} \TT{:} {\em statement} \\
 	\end{tabular}
+\\[0.5ex]
+\emkey{bool-expression} ::= see \pagref{BOOL-EXPRESSION}
 \\[1ex]
 where
 \begin{itemize}
@@ -3928,6 +3921,23 @@ and for a body to the bodies it is `{\tt initialized after}'
 is called
 the `\key{initialization graph}'\label{INITIALIZATION-GRAPH}
 and \underline{must be acyclic}.
+
+\subsubsection{Include Statements}
+\label{INCLUDE-STATEMENTS}
+
+The compiler maintains two FIFOs, a \key{local include FIFO} and
+a \key{top level include FIFO}, that hold sequences of statements
+(logical lines that are statements).
+After the compiler compiles a non-top-level statement, the compiler
+prepends the contents of the local include FIFO to the list of
+statements remaining to be compiled in the current block.
+After the compiler compiles a top-level statement, the compiler
+prepends first the contents of the top level include FIFO and then
+the contents of the local include FIFO to the list of top level
+statements remaining to be compiled.
+
+Statements are pushed to the end of an include FIFO by an
+include statement:
 
 \subsection{Scope}
 \label{SCOPE}
