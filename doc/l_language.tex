@@ -4297,36 +4297,28 @@ There is a {\tt copy} function that can be used to make a
 copy of a map that can be altered independently of the
 copied map: see \pagref{MAP-COPY}.
 
-\subsection{Operators and Builtin Functions}
+\subsection{Compile Time Functions}
 
-\subsection{Control Structures}
+The functions described in the following sections are builtin.
 
-\subsubsection{Function Definitions}
+\subsubsection{Compile Time Number Functions}
 
-\section{Run Time}
+{\tt const r =} \ttkey{numerator} {\tt ( const number )} \\
+{\tt const r =} \ttkey{denominator} {\tt ( const number )} \\
+\begin{indpar}
+These functions return the numerator and denominator of a number.
+Both numerator and denominator are integers.
+The denominator is {\tt 1} for integer numbers, and {\tt >= 1}
+for rational numbers.
+\end{indpar}
 
-\subsection{Data Types}
+\subsubsection{Compile Time String Functions}
 
-\subsubsection{Memory Organization}
-
-\subsubsection{Numeric Data Types}
-
-\subsubsection{Builtin Pointer Data Types}
-
-\subsubsection{Defined Data Types}
-
-\subsection{The Symbol Table}
-
-\subsection{Assignment Statements}
-
-\subsubsection{Operators and Builtin Functions}
-
-\subsection{Control Structures}
-
-\subsubsection{Inline Functions}
-
-\subsubsection{Out-of-Line Functions}
-
+{\tt const r =} (const s1) \ttkey{"+"} {\tt ( const s2 )}
+\begin{indpar}
+The {\tt +} operator returns the concatenation of {\tt s1}
+and {\tt s2}.
+\end{indpar}
 
 
 
