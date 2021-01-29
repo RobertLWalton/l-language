@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 28, 2021
+January 29, 2021
 
 \bigskip
  
@@ -1498,7 +1498,7 @@ L-Language uses several kinds of names:
 
 \emkey{function-keyword}
     \begin{tabular}[t]{rl}
-    ::= & \TT{no} $|$ \TT{not} $|$ \TT{function} $|$ \TT{generic} \\
+    ::= & \TT{no} $|$ \TT{not} $|$ \TT{function} \\
     $|$ & \TT{"="} $|$ \TT{","} $|$ \TT{"("} $|$ \TT{")"} $|$
           \TT{"["} $|$ \TT{"]"}
     \end{tabular}
@@ -2457,7 +2457,7 @@ does not contain the declaration.
 Note that declarations not in {\em exit-subblocks} have scope
 that includes the {\em exit-subblocks}, but declarations
 within an {\em exit-subblock} have scope that ends with the end of
-the subblock.  A function or generic prototype is `used' if and only if it
+the subblock.  A function prototype is `used' if and only if it
 matches a {\em function-call}.
 
 If\label{NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
@@ -3927,7 +3927,8 @@ and \underline{must be acyclic}.
 
 The compiler maintains two FIFOs, a \key{local include FIFO} and
 a \key{top level include FIFO}, that hold sequences of statements
-(logical lines that are statements).
+(a list of read-only map values that encode
+logical lines that are statements).
 After the compiler compiles a non-top-level statement, the compiler
 prepends the contents of the local include FIFO to the list of
 statements remaining to be compiled in the current block.
@@ -3938,6 +3939,56 @@ statements remaining to be compiled.
 
 Statements are pushed to the end of an include FIFO by an
 include statement:
+
+\begin{indpar}
+\emkey{include-statement}\label{INCLUDE-STATEMENT} ::=
+    \begin{tabular}[t]{l}
+    \TT{include} {\em include-fifo}\QMARK{}
+    	{\em include-argument-list}\QMARK{} \TT{:} \\
+    \TT{~~~~}{\em statement}\STAR{} \\
+    \TT{include}  {\em include-fifo}\QMARK{}
+    	{\em include-argument-list}\QMARK{} \TT{:}
+	{\em statement} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{include-fifo} ::= \TT{local} $|$ \TT{top level}
+	~~~~~ [default is {\tt local}]
+\\[0.5ex]
+\emkey{include-argument-list} ::= \TT{( )} $|$
+	\TT{(} {\em include-argument}
+	\{ \TT{,} {\em include-argument} \}\STAR{} \TT{)}
+\\[0.5ex]
+\emkey{include-argument} ::= {\em word} beginning with a {\em letter}
+
+\end{indpar}
+
+{\em Include-statements} are executed at compile time.
+Each {\em include-argument} must be a {\tt const} variable assigned
+a value before the {\em include-statement}.  Everywhere this variable
+appears in the {\em statements} of the {\em include-statement},
+the value of the variable is substituted for the variable name.
+Then the {\em statements} are appended to the designated include FIFO.
+
+Substitution for {\em include-arguments} obeys the following rules:
+\begin{itemize}
+\item A phrase (map value with {\tt .type = "PHRASE"}) is spliced
+into the list containing the {\em include-argument} name.  Thus
+if {\tt X=`A B'} then the {\em statement} {\tt Y = X 1} becomes
+{\tt Y = A B 1}.  The phrase may be empty.
+
+\item An expression (map value with {\tt .type = "EXPRESSION"})
+replaces the {\em include-argument} name.  Thus
+if {\tt X=`{}`A + B'{}'} then the {\em statement} {\tt Y = X * 2} becomes
+{\tt Y = \{| A + B|\} * 2} where {\tt \{|~~|\}} denotes `implied'
+parentheses.
+
+\item A number, string, or special value replaces
+replaces the {\em include-argument} name.
+
+\item A map that is neither a phrase nor an expression replaces the
+{\em include-argument} name with a {\em map-constant}
+(see \pagref{MAP-CONSTANT}) encoding the map.
+\end{itemize}
 
 \subsection{Scope}
 \label{SCOPE}
@@ -4043,20 +4094,19 @@ hiding is a compile error.
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
 
-When a {\em function-call} to an inline function
-or a {\em generic-call} to a generic is compiled,
+When a {\em function-call} to an inline function is compiled,
 the context of the compilation is \underline{not} the current context but
 rather the context of the inline {\em function-declaration}
-or {\em generic-declaration} that provided the {\em statements} executed
-by the call.
+that provided the {\em statements} executed by the call.
 Also the context in which any {\em default-value} expression
 provided by a declaration
 is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
-Code produced by {\em include-statements} executed during a call to a generic
-(\itemref{GENERICS}), however, replaces the call and
+Code produced by {\em include-statements} executed during a call to a
+compile-time function
 \underline{is} compiled in the context of the call.
+See Include Statements (\pagref{INCLUDE-STATEMENTS}).
 
 TBD
 
