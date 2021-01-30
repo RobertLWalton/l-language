@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 29, 2021
+January 30, 2021
 
 \bigskip
  
@@ -1585,8 +1585,8 @@ with the denominator being equal to or greater that 2.  The syntax is:
     $|$ & {\em binary-constant} \\
     $|$ & {\em hexadecimal-constant} \\
     $|$ & {\em character-constant} \\
-    $|$ & \TT{+Inf}\index{Inf@\TT{+Inf}}
-          ~$|$~ \TT{-Inf}\index{Inf@\TT{-Inf}}
+    $|$ & \TT{+Inf}
+          ~$|$~ \TT{-Inf}
           ~$|$~ \ttkey{NaN}
     \end{tabular}
 \\[0.5ex]
@@ -4318,6 +4318,52 @@ for rational numbers.
 \begin{indpar}
 The {\tt +} operator returns the concatenation of {\tt s1}
 and {\tt s2}.
+\end{indpar}
+
+{\tt const r =} \ttkey{compile re} ( const s )
+\begin{indpar}
+Compile the regular expression represented by the string {\tt s}
+and return an integer that references the compiled expression.
+
+Regular expressions are those recognized by the {\tt pcre32}
+subroutine library for linux: see {\tt pcrepattern[3]} in
+the linux documentation.  The only line ends recognized
+by {\tt \textbackslash R} and {\tt \$} are LF, CR, and CRLF (no other
+{\tt pcre32} options are used).  By default {\tt \textasciicircum}
+matches the beginning of {\tt s} and {\tt \$} matches the end.
+This can be changed by the {\tt (?i)} option setter in the
+regular expression.
+
+Note that {\tt const} strings are stored as vectors of
+unsigned 32-bit unicode values.
+\end{indpar}
+
+\ttkey{free re} ( const i )
+\begin{indpar}
+Free the memory used by the compiled regular expression
+referenced by the integer {\tt i}.  Does nothing if {\tt i}
+does not reference a compiled regular expression.
+\end{indpar}
+
+{\tt const r =} \ttkey{match re} ( const i, const s  )
+\begin{indpar}
+Matches the string {\tt s} to the compiled regular expression
+referenced by the integer {\tt i}.
+Returns a map {\tt r} that is a vector of substrings matched.
+If there is no match this is an empty list.  If there is
+a match, {\tt r[0]} is the string matched.  If there are
+subpattern matches, {\tt r[i]} is the string matched by the
+{\tt i}'th subpattern.
+\end{indpar}
+
+{\tt const r =} \ttkey{scan} ( const s  )
+\begin{indpar}
+Scan the string {\tt s} and return a map that is a vector
+containing the list of lexemes in {\tt s}.  Brackets and
+operators are not specially recognized and are returned
+as strings.  Quoted strings inside {\tt s} are returned
+as vector elements that are maps of the form: \\
+\centerline{\tt \{ {\rm \em represented-string}, .type => "<Q>" \}}
 \end{indpar}
 
 
