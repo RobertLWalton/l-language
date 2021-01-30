@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Fri Dec 11 04:46:19 EST 2020
+# Date:		Sat Jan 30 07:46:42 EST 2021
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -27,7 +27,7 @@ OPTIMIZE = -O3
 
 L_LANGUAGE_TESTS = l_language_snippet_test
 
-TESTS = ${L_LANGUAGE_TESTS}
+TESTS = ${L_LANGUAGE_TESTS} pcre_test
 
 .SECONDARY:	${TESTS:=.out}
 
@@ -131,6 +131,13 @@ l_language_snippet_test.out:	\
 	    l_language_snippet_test.in
 	rm -f $*.out
 	${RUNENV} l_language_compiler < $*.in > $*.out
+
+pcre_test:	pcre_test.cc
+	g++ -o pcre_test pcre_test.cc -lpcre32
+
+pcre_test.out:	pcre_test
+	rm -f $*.out
+	pcre_test > $*.out
 
 clean:
 	rm -f ${TESTS} ${TESTS:=.out} \

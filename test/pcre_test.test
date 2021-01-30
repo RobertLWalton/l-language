@@ -1,0 +1,10 @@
+COMPILING RE: a(b*)c
+MATCHING: ac
+  2: 
+  1: ac
+MATCHING: abc
+  2: b
+  1: abc
+MATCHING: abbc
+  2: bb
+  1: abbc
