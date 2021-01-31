@@ -4455,6 +4455,39 @@ Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
+\subsubsection{Compile Time Map Functions}
+
+Recall that a {\tt const} map value is actually a pointer to the map,
+and not the whole map itself.
+
+{\tt const r =} \ttkey{read-write} {\tt ( const m )} \\
+{\tt const r =} \ttkey{read-only} {\tt ( const m )}
+\begin{indpar}
+Makes the map {\tt m} read-write or read-only and returns {\tt m}.
+\end{indpar}
+
+{\tt const r =} \ttkey{read-write} {\tt ( const m, const s )} \\
+{\tt const r =} \ttkey{read-only} {\tt ( const m, const s )}
+\begin{indpar}
+Makes the map label {\tt s} (a string) of the map {\tt m}
+read-write or read-only, and returns {\tt m}.  The map
+itself must be read-write.
+
+When a value is first written at the label, the label is created
+for the map and set to read-write.
+\end{indpar}
+
+{\tt const r =} \ttkey{copy} {\tt ( const m )}
+\begin{indpar}
+Returns a new map whose contents is a copy of the contents of
+map {\tt m}.  The new map is read-only if and only if {\tt m} is,
+and the labels in the new map are read-only if and only if the
+corresponding labels in {\tt m} are.
+
+Changing the contents of the new map will \underline{not} change
+the contents of {\tt m}.
+\end{indpar}
+
 
 
 \printindex
