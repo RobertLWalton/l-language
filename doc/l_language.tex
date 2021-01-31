@@ -4314,10 +4314,28 @@ for rational numbers.
 
 \subsubsection{Compile Time String Functions}
 
+{\tt const r =} \ttkey{"\#"} {\tt ( const s )}
+\begin{indpar}
+Returns the length of string {\tt s} as a non-negative integer.
+\end{indpar}
+
 {\tt const r =} (const s1) \ttkey{"+"} {\tt ( const s2 )}
 \begin{indpar}
-The {\tt +} operator returns the concatenation of {\tt s1}
-and {\tt s2}.
+Returns the concatenation of string {\tt s1}
+and string {\tt s2}.
+\end{indpar}
+
+{\tt const r =} \ttkey{explode} {\tt ( const s )}
+\begin{indpar}
+Returns a map that is a vector whose elements are unsigned integers equal
+to the UNICODE codes of the characters of string {\tt s}.
+\end{indpar}
+
+{\tt const r =} \ttkey{implode} {\tt ( const m )}
+\begin{indpar}
+Given a map {\tt m} that is a vector whose elements are unsigned integers
+that are UNICODE codes of characters, return the string whose characters
+are those specified by the map elements in the order specified by the map.
 \end{indpar}
 
 {\tt const r =} \ttkey{compile re} ( const s )
