@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 30, 2021
+January 31, 2021
 
 \bigskip
  
@@ -4301,10 +4301,66 @@ copied map: see \pagref{MAP-COPY}.
 
 The functions described in the following sections are builtin.
 
+If an argument is of the wrong type for a function, all the
+function results will be the {\tt UNDEF} special value, and
+a compiler error message will be produced.  Unless stated
+otherwise, other errors in arguments (e.g., malformed
+regular expressions given to {\tt compile re}) are treated
+similarly.
+
+\subsubsection{Compile Time General Functions}
+
+{\tt const r =} (const v1) \ttkey{"=="} {\tt ( const v2 )} \\
+{\tt const r =} (const v1) \ttkey{"!="} {\tt ( const v2 )}
+\begin{indpar}
+Comparisons of {\tt const} values of different types treat
+the values as unequal.
+\end{indpar}
+
+{\tt const r =} \ttkey{type} {\tt ( const v1 )}
+\begin{indpar}
+Returns the type of {\tt v1} as one of the strings: \\
+\hspace*{0.5in}{\tt
+"special" ~  "integer" ~ "rational" ~ "string" ~ \tt "map"}
+\end{indpar}
+
+
 \subsubsection{Compile Time Number Functions}
 
+{\tt const r =} \ttkey{"+"} {\tt ( const n1 )} \\
+{\tt const r =} \ttkey{"-"} {\tt ( const n1 )} \\
+{\tt const r =} (const n1) \ttkey{"+"} {\tt ( const n2 )} \\
+{\tt const r =} (const n1) \ttkey{"-"} {\tt ( const n2 )} \\
+{\tt const r =} (const n1) \ttkey{"*"} {\tt ( const n2 )} \\
+{\tt const r =} (const n1) \ttkey{"/"} {\tt ( const n2 )}
+\begin{indpar}
+Standard arithmetic operators on numbers {\tt n1} and {\tt n2},
+done using integer or rational arithmetic.  Dividing by {\tt 0}
+returns {\tt UNDEF} and \underline{no} compiler error message.
+\end{indpar}
+
+{\tt const r =} (const i1) \ttkey{"\&"} {\tt ( const i2 )} \\
+{\tt const r =} (const i1) \ttkey{"|"} {\tt ( const i2 )} \\
+{\tt const r =} (const i1) \ttkey{"\textasciicircum"} {\tt ( const i2 )} \\
+{\tt const r =} (const i1) \ttkey{"<{}<"} {\tt ( const i2 )} \\
+{\tt const r =} (const i1) \ttkey{">{}>"} {\tt ( const i2 )}
+\begin{indpar}
+Standard bitwise operators on integers {\tt i1} and {\tt i2}
+that are treated as two's complement.
+\end{indpar}
+
+{\tt const r =} (const n1) \ttkey{"=="} {\tt ( const n2 )} \\
+{\tt const r =} (const n1) \ttkey{"!="} {\tt ( const n2 )} \\
+{\tt const r =} (const n1) \ttkey{"<"} {\tt ( const n2 )} \\
+{\tt const r =} (const n1) \ttkey{"<="} {\tt ( const n2 )} \\
+{\tt const r =} (const n1) \ttkey{">"} {\tt ( const n2 )} \\
+{\tt const r =} (const n1) \ttkey{">="} {\tt ( const n2 )}
+\begin{indpar}
+Standard comparison operators on numbers {\tt n1} and {\tt n2}.
+\end{indpar}
+
 {\tt const r =} \ttkey{numerator} {\tt ( const number )} \\
-{\tt const r =} \ttkey{denominator} {\tt ( const number )} \\
+{\tt const r =} \ttkey{denominator} {\tt ( const number )}
 \begin{indpar}
 These functions return the numerator and denominator of a number.
 Both numerator and denominator are integers.
@@ -4323,6 +4379,18 @@ Returns the length of string {\tt s} as a non-negative integer.
 \begin{indpar}
 Returns the concatenation of string {\tt s1}
 and string {\tt s2}.
+\end{indpar}
+
+{\tt const r =} (const s1) \ttkey{"=="} {\tt ( const s2 )} \\
+{\tt const r =} (const s1) \ttkey{"!="} {\tt ( const s2 )} \\
+{\tt const r =} (const s1) \ttkey{"<"} {\tt ( const s2 )} \\
+{\tt const r =} (const s1) \ttkey{"<="} {\tt ( const s2 )} \\
+{\tt const r =} (const s1) \ttkey{">"} {\tt ( const s2 )} \\
+{\tt const r =} (const s1) \ttkey{">="} {\tt ( const s2 )}
+\begin{indpar}
+Standard lexigraphic comparison operators on strings {\tt s1} and {\tt s2}.
+Characters are compared by comparing their UNICODE codes as unsigned
+32-bit integers.
 \end{indpar}
 
 {\tt const r =} \ttkey{explode} {\tt ( const s )}
@@ -4381,7 +4449,10 @@ containing the list of lexemes in {\tt s}.  Brackets and
 operators are not specially recognized and are returned
 as strings.  Quoted strings inside {\tt s} are returned
 as vector elements that are maps of the form: \\
-\centerline{\tt \{ {\rm \em represented-string}, .type => "<Q>" \}}
+\hspace*{1in}{\tt \{ {\rm \em represented-string}, .type => "<Q>" \}}
+
+Syntax errors produce compiler error messages and are
+otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
 
