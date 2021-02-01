@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 31, 2021
+February 1, 2021
 
 \bigskip
  
@@ -4293,7 +4293,7 @@ example, the statement {\tt x[1] = 5} will have the same effect as
 the statement {\tt y[1] = 5}.  If {\tt x} is a (pointer to a) map,
 the expression {\tt x == y} returns
 {\tt TRUE} if and only if {\tt y} points at the same map. 
-There is a {\tt copy} function that can be used to make a
+There are functions that can be used to make a
 copy of a map that can be altered independently of the
 copied map: see \pagref{MAP-COPY}.
 
@@ -4467,7 +4467,8 @@ Makes the map {\tt m} read-write or read-only and returns {\tt m}.
 \end{indpar}
 
 {\tt const r =} \ttkey{read-write} {\tt ( const m, const s )} \\
-{\tt const r =} \ttkey{read-only} {\tt ( const m, const s )}
+{\tt const r =} \ttkey{read-only} {\tt ( const m, const s )} %
+\label{READ-ONLY-DICTIONARY-FUNCTION}
 \begin{indpar}
 Makes the map label {\tt s} (a string) of the map {\tt m}
 read-write or read-only, and returns {\tt m}.  The map
@@ -4477,18 +4478,62 @@ When a value is first written at the label, the label is created
 for the map and set to read-write.
 \end{indpar}
 
-{\tt const r =} \ttkey{copy} {\tt ( const m )}
+{\tt const r =} \ttkey{copy} {\tt ( const m )} \\
+{\tt const r =} \ttkey{copy top} {\tt ( const m )} %
+\label{MAP-COPY}
 \begin{indpar}
 Returns a new map whose contents is a copy of the contents of
 map {\tt m}.  The new map is read-only if and only if {\tt m} is,
 and the labels in the new map are read-only if and only if the
 corresponding labels in {\tt m} are.
 
-Changing the contents of the new map will \underline{not} change
-the contents of {\tt m}.
+If any vector or dictionary element values are maps, they are
+copied recursively by {\tt copy}, but not by
+{\tt copy top}, which copies pointers to the maps.
+
+Changing the values of elements of the new map will \underline{not} change
+the contents of {\tt m}.  For {\tt copy} changing the element values
+will not change corresponding element values, but for {\tt copy top},
+changing element values will change these values in the returned map.
+
 \end{indpar}
 
+{\tt const r =} \ttkey{duplicate} {\tt ( const m )} \\
+{\tt const r =} \ttkey{duplicate top} {\tt ( const m )}
+\begin{indpar}
+Ditto, but if any read-only map is to be copied, the pointer
+to the map is copied and no new map is made.
+\end{indpar}
 
+{\tt const r =} \ttkey{slice} {\tt ( const m, const i, const n )}
+\begin{indpar}
+Returns a new vector map consisting of just the
+elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.  
+If any of these elements do not exist, they are omitted (e.g.,
+if {\tt i >= m..length}, {\tt i + n <= 0}, or {\tt n <= 0},
+the empty map is returned).
+\end{indpar}
+
+{\tt const r =} \ttkey{splice} {\tt ( const m, const i, const n, const v )}
+\begin{indpar}
+Edits {\tt m} by replacing the vector element sequence
+{\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]} by the
+vector elements of {\tt v}.  Dictionary elements of {\tt v} are ignored.
+It is an error is any of the elements to be replaced do not exist
+(e.g., if {\tt i < 0} or {\tt i >= m..length}).
+The edited map {\tt m} is returned.
+\end{indpar}
+
+{\tt const r =} \ttkey{push} {\tt ( const m, const v )}
+\begin{indpar}
+Appends {\tt v} to the vector of {\tt m} and returns {\tt m}.
+\end{indpar}
+
+{\tt const r =} \ttkey{pull} {\tt ( const m )}
+\begin{indpar}
+Deletes the last vector element of {\tt m} and returns it.
+It is an error if {\tt m} is empty.
+\end{indpar}
 
 \printindex
 
