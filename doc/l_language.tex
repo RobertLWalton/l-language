@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 1, 2021
+May 13, 2021
 
 \bigskip
  
@@ -266,8 +266,9 @@ the base address, but contains instead this pointer to where
 the base address is stored in memory.  This scheme allows
 the base address to be change without changing the {\tt av} value.
 \item An `offset' {\tt int} that is added to the base address
-to form the address of the {\tt uns8} type vector element
-which will have index {\tt 0} in the vector.
+to form the address of the vector element
+that has index {\tt 0} in the vector (this element does not
+exist if {\tt 0} is not an allowed index).
 \item A `lower bound' {\tt int} which is the minimum allowed
 value of the index {\tt int}.
 \item An `upper bound' {\tt int} which is the maximum allowed
@@ -281,7 +282,7 @@ high order part and a field size in bits in its low order part.
 The {\tt ap} and {\tt fp} types are
 similar but do not have the bounds and cannot be indexed.  Lastly
 there is the direct pointer, {\tt dp}, that is just a single {\tt int}
-containing the byte address; this is most useful for calling
+containing a byte address; this is most useful for calling
 C language functions.
 New pointer types may be defined by the user.
 
@@ -300,7 +301,9 @@ Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
 ap ro int Z = @Y         // Copies pointer value of Y
                          // Conversion from *READ-WRITE*
-                         // to ro is legal.
+                         // to ro is legal.  As Z does not
+                         // begin with @, there is no
+                         // corresponding indirect variable.
 \end{verbatim}\end{indpar}
 
 Here `{\tt =@ local}' allocates an {\tt int} to the current
@@ -328,13 +331,14 @@ L-Language has a full set of number types:
 {\tt int16}, {\tt uns16}, {\tt flt16}, \ldots,
 {\tt int128}, {\tt uns128}, {\tt flt128}.
 The types {\tt int}, {\tt uns}, {\tt flt} are just these
-types for the target machine word size, and the types
+types for the target machine word size.
 The types {\tt intd}, {\tt intq}, {\tt unsd}, {\tt unsq} are just integer
 types for twice (double) or four times (quad) the target machine word size.
 The {\tt bool} type is a single bit interpreted as {\tt true} if
 1 and {\tt false} if 0: it is in essence a 1-bit unsigned integer.
 
-User defined type values consist of a sequence of bytes containing fields.
+User defined types have values that
+consist of a sequence of bytes containing fields.
 Fields in turn can contain subfields.
 An example is:
 
@@ -360,7 +364,7 @@ int d = X.des           // Now d == 3
 ap *READ-WRITE* my type @Y =@ local
 Y.op code = 129
 fp *READ-WRITE* int @C = @Y.constant
-ap *READ-WRITE* int @OP = @Y.op code
+ap *READ-WRITE* uns8 @OP = @Y.op code
 next op = OP            // Now op == 129
 bool B = Y.has constant // Now B == 1
 C = -1234               // Now Y.constant = -1234
@@ -381,20 +385,20 @@ they are stored in memory.  Therefore the `{\tt op code}' subfield
 is on a byte boundary, and
 the location of {\tt OP} is an {\tt ap} aligned pointer.  Although
 the {\tt constant} subfield is on a byte boundary, it is
-shorter than an {\tt uns} integer, and therefore the
+shorter than an {\tt int} integer, and therefore the
 location of {\tt C} must be an {\tt fp} field pointer.
 If `{\tt op code}' where in bits 23-30 instead of 24-31, it would
 not be on a byte boundary and the location of {\tt OP} would
 also have to be an {\tt fp} field pointer.
 
 Note that `{\tt Y.op code}' is a {\tt *READ-WRITE*}
-integer while `{\tt @Y.op code}' is a {\tt co} pointer to
-a {\tt *READ-WRITE*} integer.
+{\tt int} while `{\tt @Y.op code}' is a {\tt co} pointer to
+a {\tt *READ-WRITE*} {\tt int}.
 
 Note that names in L-Language can have multiple lexemes, as in
 the type name `{\tt my type}', the subfield name `{\tt op code}',
 and what L-Language calls the
-associated member name `{\tt .op code}' which is used to access
+associated member name `{\tt .op code}' which can be used to access
 the field.
 
 Another example is:
@@ -452,7 +456,7 @@ at the current offset and adds the size of the field to the
 current offset.
 
 In the example the fields are {\tt kind}, {\tt weight}, {\tt height}, etc.
-Fields can be packed or aligned.  An aligned number has an offset
+Fields can be packed or aligned; aligned is the default.  An aligned number has an offset
 that is a multiple of the length of the number.
 Here fields are initially packed
 so that since {\tt kind} has offset 0 bytes and size 1 byte,
@@ -495,17 +499,16 @@ This happens, for example, if {\tt 1e20}
 is converted to an {\tt int32}.
 
 Quoted strings denote string {\tt const} values that can be
-used to populate run-time vectors of unsigned integers.
-Quoted strings can also be converted to run-time vectors
-with constant elements during compilation.
+converted to run-time vectors
+with {\tt co} integer elements during compilation.
 
 Lastly there are map {\tt const} values that can hold lists
 and dictionaries.  These last can be mutable at compile-time,
 but cannot be converted to run-time values.
 
 Expressions, statements, and functions that use only {\tt const} values
-execute at compile-time and can be used to compute run-time
-constants and other arbitrary code.
+execute at compile-time and can be used to compute compile-time
+{\tt const} values including maps that represent code.
 
 By default, functions in L-Language are inline.  For example,
 
