@@ -526,7 +526,7 @@ int z = max ( x, y )
 
 A run-time assignment statement can contain a single function call
 or can contain operators on non-{\tt const} data
-outside reference expessions, but not both.
+outside reference expressions, but not both.
 For example, given the definition of {\tt max} above:
 
 \begin{indpar}\begin{verbatim}
@@ -572,7 +572,7 @@ const w = max ( x, max( y, z ) )  // Legal!
 
 Such functions are not available at run-time, and
 are not really inline, as there is no
-distinction between inline and out-of-line compile-time functions.
+distinction between inline and out-of-line for compile-time functions.
 
 Inline function definitions may make use of type wildcards.
 A name that is a single word beginning with {\tt T\$}
@@ -614,6 +614,9 @@ function uns r = strlen ( P$s Q$s uns8 s ):
 which converts the pointer of type {\tt P\$s} to a pointer of
 type {\tt dp} (direct pointer) and calls the `foreign' C programming
 language subroutine {\tt strlen} with the direct pointer.
+For some pointer types (e.g., field pointer types),
+the pointer conversion may be illegal, as will be detected
+when this function is called with these types.
 
 L-Language does not necessarily make any use of registers, other
 than as temporaries during the execution of a single statement,
@@ -659,7 +662,7 @@ flt64 v = q.p[0]              // OK
 
 In this section we describe the syntax of L-Language programs
 and briefly indicate the associated semantics, which is
-described in detail in following sections.
+described in detail in later sections.
 
 \subsection{Lexemes}
 \label{LEXEMES}
