@@ -2,7 +2,7 @@
 #
 # File:		Makefile
 # Author:	Bob Walton (walton@acm.org)
-# Date:		Sat Jan 30 07:46:42 EST 2021
+# Date:		Fri May 14 15:18:10 EDT 2021
 #
 # The authors have placed this program in the public
 # domain; they make no warranty and accept no liability
@@ -25,7 +25,8 @@ WFLAGS = -Wall -Wno-char-subscripts
 #
 OPTIMIZE = -O3
 
-L_LANGUAGE_TESTS = l_language_snippet_test
+L_LANGUAGE_TESTS = l_language_print_test \
+                   l_language_snippet_test
 
 TESTS = ${L_LANGUAGE_TESTS} pcre_test
 
@@ -129,6 +130,12 @@ l_language_compiler:		\
 l_language_snippet_test.out:	\
 	    l_language_compiler \
 	    l_language_snippet_test.in
+	rm -f $*.out
+	${RUNENV} l_language_compiler < $*.in > $*.out
+
+l_language_print_test.out:	\
+	    l_language_compiler \
+	    l_language_print_test.in
 	rm -f $*.out
 	${RUNENV} l_language_compiler < $*.in > $*.out
 
