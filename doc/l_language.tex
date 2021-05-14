@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 13, 2021
+May 14, 2021
 
 \bigskip
  
@@ -768,9 +768,10 @@ do have an \key{indent}, which is the indent of
 the graphic character after the indent lexeme.
 The \key{indent} of a character is the number
 of columns that precede the character in the character's physical line.
-A single space takes 1 column, and tabs are set every 8 columns.
-Other horizontal space characters (e.g., {\tt <NBSP>}) take up 1 column and also
-produce a warning message.
+{\em Control-characters} other than {\em horizontal-space-characters}
+take zero columns, as do characters of classes \TT{Mn} (combining-marks)
+and \TT{Me} (ending marks).  All other characters take one column,
+except for tabs, that are set every 8 columns.
 Indent lexemes are used to form logical lines and blocks
 (\itemref{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}).
 
@@ -931,7 +932,7 @@ warning messages.
 
 The lexemes in a L-Language program are specified in
 Figure~\itemref{L-LANGUAGE-PROGRAM-LEXEMES}.  This specification assumes there
-are no illegal characters in the input; see page \pageref{ILLEGAL-CHARACTERS}
+are no illegal characters in the input; see text
 above to account for such characters.
 
 The symbol `\ttkey{:::=}' is used in syntax equations
