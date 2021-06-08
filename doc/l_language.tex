@@ -128,7 +128,6 @@
 	 \end{minipage}
 	 \end{lrbox}
 
-	 \vspace*{-15ex}
 	 \centering
 	 \fbox{\hspace*{0.1in}\usebox{\figurebox}\hspace*{0.1in}}
 	 \end{figure*}}
@@ -1178,9 +1177,11 @@ Expressions are built from operators, such as \TT{+} and \TT{*},
 and primaries, such as variable names and function calls.
 
 Operators are characterized by fixity, precedence, and format.
-The L-Language operators are listed in Table~\itemref{L-LANGUAGE-OPERATORS}.
+The L-Language operators are listed in
+Figures~\itemref{L-LANGUAGE-LINE-OPERATORS}
+and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS}.
 
-\begin{boxedfigure}[!p]
+\begin{boxedfigure}[!t]
 \begin{center}
 Line Level Operators \\
 Must Occur Outside Parentheses and Brackets
@@ -1198,10 +1199,10 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{until} & & & &
 \\\cline{1-3}
 \ttkey{else} & conditional & initial & &
+\\\cline{1-3}
+\ttkey{:} operator & completes & afix & &
 \\\cline{1-1}\cline{3-3}
-\ttkey{:} & & afix & &
-\\\cline{1-1}\cline{3-3}
-\ttkey{:} indentation & & afix & & \\
+\ttkey{:} indentation & conditional & afix & & \\
 ~~mark                & & postfix & &
 \\\hline
 \ttkey{=} & assignment & infix & binary & 1000
@@ -1218,9 +1219,8 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-2}
 \ttkey{\&=} & mask & & &
 \\\cline{1-2}
-\ttkey{\~=} & flip & & &
+\ttkey{\textasciitilde=} & flip & & &
 \\\hline
-
 \end{tabular}
 \end{center}
 
@@ -1228,64 +1228,66 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \label{L-LANGUAGE-LINE-OPERATORS}
 \end{boxedfigure}
 
-\begin{boxedfigure}[!p]
+\begin{boxedfigure}[!t]
 \begin{center}
-\begin{tabular}{|lllllr|}
+Non-Line Level Operators \\
+May Occur Inside or Outside Parentheses and Brackets
+\\[1ex]
+\begin{tabular}{|l|l|l|l|r|}
 \hline
-Operator & Meaning & Class & Fixity & Format & Precedence \\
+Operator & Meaning & Fixity & Format & Precedence \\
 \hline
-\ttkey{=} & assignment & & infix & binary & L = 1 \\
-$AOP$\ttkey{=} & see text & A & infix & binary & 1 \\
-$BOP$\ttkey{=} & see text & B & infix & binary & 1 \\
-\hline
-\ttkey{,} & separator & & nofix & separating & 2 \\
-\hline
-\ttkey{else} & selection & L & infix & nomix & 3 \\
-\hline
-\ttkey{if} & condition & L & infix & binary & 4 \\
-\hline
-\ttkey{BUT NOT} & logical and not & L & infix & binary & 5 \\
-\hline
-\ttkey{AND} & logical and & L & infix & nomix & 6 \\
-\ttkey{OR} & logical or & L & infix & nomix & 6 \\
-\hline
-\ttkey{NOT} & logical not & L & nofix & unary & 7 \\
-\hline
-\ttkey{==} & equal & L & infix & left associative & 8 \\
-\ttkey{!=} & not equal & L & infix & left associative & 8 \\
-\ttkey{<} & less than & L & infix & left associative & 8 \\
-\ttkey{<=} & \stack{less than\\or equal} & L & infix & left associative & 8 \\
-\ttkey{>} & greater than & L & infix & left associative & 8 \\
-\ttkey{>=} & \stack{greater than\\or equal} & L & infix & left associative & 8 \\
-\hline
-\ttkey{+} & addition & A & infix & sum & 9 \\
-\ttkey{-} & subtraction & A & infix & sum & 9 \\
-\ttkey{|} & bitwise or & B & infix & nomix & 9 \\
-\ttkey{\&} & bitwise and & B & infix & nomix & 9 \\
-\ttkey{\textasciicircum} & \stack{bitwise\\exclusive or} & B & infix & nomix & 9 \\
-\ttkey{<{}<} & left shift & B & infix & left associative & 9 \\
-\ttkey{>{}>} & right shift & B & infix & left associative & 9 \\
-\hline
-\ttkey{/} & division & A & infix & binary & 10 \\
-\ttkey{\%} & modulo & A & infix & binary & 10 \\
-\hline
-\ttkey{*} & multiplication & A & infix & nomix & 11 \\
-\hline
-\ttkey{**} & exponentiation & A & infix & binary & H = 12 \\
-\hline
-\ttkey{+} & no operation & A & prefix & unary & \\
-\ttkey{-} & sign change & A & prefix & unary & \\
-\ttkey{!} & \stack{bitwise\\complement} & B & prefix & unary & \\
-\hline
+\ttkey{,} & separator & nofix & separator & 2000
+\\\hline
+\ttkey{BUT NOT} & logical and not & infix & binary & 3000
+\\\hline
+\ttkey{AND} & logical and & infix & n-ary & 3100
+\\\cline{1-2}
+\ttkey{OR}  & logical or  & & &
+\\\hline
+\ttkey{NOT}  & logical not & prefix & unary & 3200
+\\\hline
+\ttkey{==}  & equal & infix & left & 4000
+\\\cline{1-2}
+\ttkey{!=}  & not equal & & associative &
+\\\cline{1-2}
+\ttkey{<}  & less than & & &
+\\\cline{1-2}
+\ttkey{<=}  & less than or equal & & &
+\\\cline{1-2}
+\ttkey{>}  & greater than & & &
+\\\cline{1-2}
+\ttkey{>=}  & greater than or equal & & &
+\\\hline
+\ttkey{+}  & addition & infix & sum & 5000
+\\\cline{1-2}
+\ttkey{-}  & subtraction & & &
+\\\cline{1-2}\cline{4-4}
+\ttkey{|}  & bitwise or & & n-ary &
+\\\cline{1-2}
+\ttkey{\&}  & bitwise and & & &
+\\\cline{1-2}
+\ttkey{\textasciitilde}  & bitwise xor & & &
+\\\hline
+\ttkey{/}  & division & infix & binary & 5100
+\\\cline{1-2}\cline{4-5}
+\ttkey{*}  & multiplication & & n-ary & 5200
+\\\cline{1-2}\cline{4-5}
+\ttkey{\textasciicircum}  & exponentiation & & binary & 5300
+\\\hline
+\ttkey{+}  & no-op & prefix & unary & H-1
+\\\cline{1-2}
+\ttkey{-}  & negation & & & 
+\\\cline{1-2}
+\ttkey{\textasciitilde}  & bitwise complement & & & 
+\\\hline
 
 \end{tabular}
 \end{center}
 
-\caption{L-LANGUAGE OPERATORS}
-\label{L-LANGUAGE-OPERATORS}
+\caption{L-Language Non-Line Operators}
+\label{L-LANGUAGE-NON-LINE-OPERATORS}
 \end{boxedfigure}
-
-\clearpage
 
 Given this, expressions have the following syntax,
 where an {\em P-expression}
