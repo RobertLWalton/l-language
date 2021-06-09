@@ -1189,19 +1189,21 @@ Must Occur Outside Parentheses and Brackets
 \hline
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
-\ttkey{if} & conditional & prefix & control & 0000
+\ttkey{if} & conditional & prefix & conditional & 0000
 \\\cline{1-1}
 \ttkey{else if} & & & &
 \\\cline{1-2}
 \ttkey{while} & loop & & &
 \\\cline{1-1}
 \ttkey{until} & & & &
-\\\cline{1-3}
-\ttkey{else} & conditional & initial & &
-\\\cline{1-3}
-\ttkey{:} operator & completes & afix & &
+\\\cline{1-4}
+\ttkey{else} & terminating & initial & terminating & \\
+             & conditional & & conditional &
+\\\cline{1-4}
+\ttkey{:} operator & conditional & afix & (none) & \\
+                   & completion & right & &
 \\\cline{1-1}\cline{3-3}
-\ttkey{:} indentation & conditional & afix & & \\
+\ttkey{:} indentation & & afix & & \\
 ~~mark                & & postfix & &
 \\\hline
 \ttkey{=} & assignment & infix & binary & 1000
@@ -1321,7 +1323,7 @@ and operators of precedence $P$.
 The operators can have any combination of the following \key{base fixities}:
 
 \begin{center}
-\begin{tabular}{lp{4.5in}}
+\begin{tabular}{lp{5.0in}}
 \ttkey{initial}	& {\em P-operator} must be the first thing
                   in its {\em P-expression}. \\
 \ttkey{final}	& {\em P-operator} must be the last thing
@@ -1352,97 +1354,131 @@ The following \key{combination fixities} are defined:
 
 All of these but {\tt inital} and {\tt prefix} can be combined with {\tt afix}.
 
-The operators in Figure \itemref{L-LANGUAGE-OPERATORS} have precedences in
+The operators in
+Figures~\itemref{L-LANGUAGE-LINE-OPERATORS}
+and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS}
+have precedences in
 the range {\em [L,H]}.
 Precedence {\em (H+1)} is reserved for the `error operator' which is a
 nofix operator inserted by the parser to `fix up' parsing errors
 so parsing can continue.
-An {\em (H+2)-expression}, while it can be thought of as a sequence
-of zero or more prefix operators followed by a single {\em primary},
-is parsed so as to execute the prefix operators from right-to-left, each
-with a single operand.
 
-An \key{infix} operator must be surrounded by operands,
-but a \key{nofix} operator
-may or may not have adjacent operands.  A \key{prefix} operator must be followed
-by an operand, but must not be preceded by an operand.
-
-A \key{binary} operator must be in an expression consisting of nothing
-but two operands separated by an operator.
-A \key{unary} operator must be in an expression consisting of nothing
-but one operand preceded by an operator.
-A \key{nomix} operator must be in an expression consisting of nothing
-but operands and identical operators (e.g., \TT{AND} and \TT{OR}
-cannot be outside parenthesized operands in the same expression).
-The comparison operators are \key{left associative}, e.g.,
-`\TT{x < y < z}' is the same as `\TT{(x < y) < z}'.
-The \key{separating} format for the comma operator (`\TT{,}')
-inserts special \TT{no-operand} primaries
-into the expression so the separating operator becomes an infix
-operator.  The \key{sum} format allows \TT{+} and \TT{-} to be mixed
-in the same expression, but not other operators of the same
-precedence.  In this format, \TT{- x} is rewritten as \TT{+ (- x)}
-and then \TT{+} is treated as a left associative binary infix operator.
-
-The \TT{NOT} operator is odd in that it is nofix/unary instead of
-prefix/unary.  This is done so it can have lower precedence than
-the comparison operators, as prefix operators effectively have highest
-precedence.
-
-The classes are
+The first {\em P-operator} in a {\em P-expression} determines
+the {\em P-expression}'s \key{format}, which is one of the following,
+where in describing expressions we use:
 \begin{center}
-\begin{tabular}{ll}
-\key{L} & means `logical' \\
-\key{A} & means `arithmetic' \\
-\key{B} & means `bitwise' \\
+`expression' to mean {\em P-expression}, \\
+`operator' to mean {\em P-operator}, \\
+and `operand' to mean {\em (P+1)-expression}:
+\end{center}
+\begin{center}
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{conditional}
+    & The expression must consist of the operator followed by an
+      operand followed by either a \TT{:} operator and an
+      operand or by just a \TT{:} indented paragraph.
+\\[1ex]
+\ttkey{\begin{tabular}[t]{@{}l}terminating\\conditional\end{tabular}}
+    & The expression must consist of the operator followed by
+      either a \TT{:} operator and an
+      operand or by just a \TT{:} indented paragraph.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{binary}
+    & The expression must consist of an operand followed by
+      the operator followed by an operand.  There must be only one
+      operator in the expression.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{separator}
+    & All operators in the expression must be identical.
+      There are no other constraints on the expression.  An implied empty
+      operand is inserted between two consecutive operators,
+      at the beginning if the expression begins with an operator,
+      and at the end if the expression ends with an operator.
+      Then the operators are deleted from the expression and
+      the expression operator is attached
+      to the expression as its \TT{.separator} attribute.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{n-ary}
+    & All operators in the expression must be identical.
+      The expression must consist of alternating operands
+      and operators and begin and end with an operand.
+\\[1ex]
+\ttkey{unary}
+    & The expression must consist of
+      the operator followed by an operand.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{\begin{tabular}[t]{@{}l}left\\associative\end{tabular}}
+    & The expression must consist of alternating operands
+      and operators and begin and end with an operand.
+      As long as the expression contains at least two operators,
+      the begining subsequence `operand operator operand'
+      is enclosed in \TT{\{|~~|\}} brackets to make it into
+      a single operand (e.g., `{\tt X == Y < Z}' becomes
+      `{\tt \{| X == Y |\} < Z}'.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{sum}
+    & The expression operators must all be either \TT{+} or \TT{-}.
+      The expression must consist of alternating operands
+      and operators and end with an operand (it may begin with
+      an operator).
+      Each subsequence of the form `\TT{-} operand' is
+      replaced by `\TT{+} \TT{\{|} \TT{-} operand \TT{|\}}', and then
+      any \TT{+} at the beginning of the expression is deleted.
 \end{tabular}
 \end{center}
 
-\label{RUN-TIME-EXPRESSION-LIMITS}
-A statement that executes at run-time
-cannot have operators of different classes outside
-reference subexpressions\pagnote{REFERENCE-EXPRESSIONS} and
-subexpressions that evaluate at compile-time to a {\tt const} value
-(\itemref{COMPILE-TIME}).
-Thus a run-time statement may not mix arithmetic and logical,
-arithmetic and bitwise, or bitwise and logical run-time
-operators outside reference expressions and expressions with
-{\tt const} value.
+TBD
 
-A statement that executes at run-time cannot have class L, A, or B
-operators and a call of an inline function,
-except it can have reference expression
-calls and/or operators inside a reference expression.
 
 The following elaborates the meaning of some of the operators
 that are used in these expressions:
 
 \begin{tabular}{rp{5.0in}}
-\tt x \TT{if} y & evaluates to {\tt x} if {\tt y} evaluates to {\tt true},
-                  and to {\tt no-operand} otherwise
+\tt x \TT{if} y & evaluates {\tt y}, and if the value of that is {\tt true},
+                  evaluates and returns the value of {\tt x}; otherwise
+		  returns {\tt NONE}
 \\[0.5ex]
-\tt x \TT{else} y & evaluates to {\tt x} if that is not {\tt no-operand}
-                  and to {\tt y} otherwise; {\tt no-operand} is only
-		  allowed as a first operand to {\tt else}
+		& NOTE: {\tt NONE} cannot be stored in a variable, but
+		  can be converted to {\tt false} which can be stored
+		  in a {\tt bool} variable.
 \\[0.5ex]
-\tt x \TT{<} y \TT{<} z & evaluates to {\tt (x < y) AND (y < z)} where
-                  {\tt y} is evaluated only once, and similarly for
-		  all comparison operators
+\tt x \TT{else} y & evaluates {\tt x}, if the value of that is {\tt NONE},
+                  evaluates and returns {\tt y}; otherwise the value of
+		  {\tt x} is returned without evaluating {\tt y}
 \\[0.5ex]
-\tt \TT{!} x & evaluates on signed integers as if they were represented
+\tt x \TT{<} y    & returns either {\tt NONE} or {\tt \{?~value-of-y~?\}};
+		    evaluates {\tt x} and if that value is {\tt NONE},
+		    returns {\tt NONE}; otherwise evaluates {\tt y},
+		    and if the value of {\tt x < y} is {\tt false},
+		    returns {\tt NONE}, but if the value of {\tt x < y}
+		    is {\tt true}, returns {\tt \{?~value-of-y~?\}}.
+\\[0.5ex]
+		& NOTE: {\tt \{?~x~?\}} is converted to {\tt x}
+		  if it is the value of the first operand to a
+		  comparison operator, and can be converted to {\tt true}
+		  in other contexts if a {\tt bool} value is required.
+\\[0.5ex]
+\tt \TT{\textasciitilde} x
+             & evaluates on signed integers as if they were represented
                in two's complement by binary values of unbounded size,
 	       and similarly for other bitwise operators
 \\[0.5ex]
-\tt x \TT{**} y & requires that {\tt y} be a {\tt const} non-negative integer;
+\tt x \TT{\textasciicircum} y
+             & requires that {\tt y} be a {\tt const} non-negative integer;
 {\tt x ** 0 == 1} for all {\tt x}
 \\[0.5ex]
-\tt x $AOP$\TT{=} y & means {\tt next x = x $AOP$ y} if {\tt x}
-is a {\tt co} frame variable, and {\tt x = x $AOP$ y} otherwise,
-where $AOP$ is any class A binary operator of precedence above 1
-\\[0.5ex]
-\tt x $BOP$\TT{=} y & means {\tt next x = x $BOP$ y} if {\tt x}
-is a {\tt co} frame variable, and {\tt x = x $BOP$ y} otherwise,
-where $BOP$ is any class B binary operator of precedence above 1
+\tt x \TT{+=} y & means {\tt next x = x + y} if {\tt x}
+is {\tt co}, and {\tt x = x + y} if {\tt x} is {\tt *READ-WRITE*}
 \end{tabular}
 
 \subsection{Primaries}
