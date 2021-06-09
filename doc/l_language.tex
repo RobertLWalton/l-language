@@ -98,7 +98,6 @@
 \newcommand{\ttkey}[1]{{\tt \bfseries #1}}
 \newcommand{\emkey}[1]{{\em \bfseries #1}}
 \newcommand{\skey}[2]{{\rm \bfseries #1#2}}
-\newcommand{\ikey}[2]{{\rm \bfseries #1}}
 \newcommand{\tttkey}[1]{{\tt \bfseries <#1>}}
 \newcommand{\ttakey}[1]{{\tt \bfseries *#1*}}
 \newcommand{\ttdkey}[1]{{\tt \bfseries .#1}}
@@ -163,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-June 8, 2021
+June 9, 2021
 
 \bigskip
  
@@ -762,7 +761,7 @@ The following is a special virtual lexeme:
 	{\em graphic} character on a line
 \end{indpar}
 
-\ikey{Indent lexemes}{indent lexeme} have no characters, but
+\key{Indent lexemes} have no characters, but
 do have an \key{indent}, which is the indent of
 the graphic character after the indent lexeme.
 The \key{indent} of a character is the number
@@ -951,7 +950,7 @@ After each logical line is formed,
 {\em line-break}, and {\em end-of-file} lexemes are deleted
 from the logical line.
 
-\ikey{Quoted string lexemes}{quoted strings!concatenated}
+\key{Quoted string lexemes}
 \label{QUOTED-STRING-CONCATENATION}
 separated by the `\TT{\#}' mark
 are glued together if they are in the
@@ -975,7 +974,7 @@ quoted string, the characters being \TT{<}, \TT{L}, \TT{F},
 and \TT{>}.  The latter is a 1-character quoted string, the character
 being a line feed.
 
-\ikey{Middle lexemes}{middle lexemes!glued}
+\key{Middle lexemes}
 in the same logical line are glued together if the first
 ends with `\TT{\#}' and the second begins with `\TT{\#}'.
 Thus
@@ -1301,21 +1300,12 @@ have precedence equal to or greater than P:
     \begin{tabular}[t]{@{}rl}
     ::= & \{ {\em (P+1)-expression} $|$ {\em P-operator)} \}\PLUS{} \\
         & where no two {\em (P+1)-expressions} may be adjacent \\ 
-        & and each {\em infix-P-operator} must be surrounded by \\
-	& {\em (P+1)-expressions} \\
+        & and the {\em P-operators} must obey the fixity rules below \\
     \end{tabular}
 \\[0.5ex]
-\emkey{P-operator} ::= {\em nofix-P-operator} $|$ {\em infix-P-operator}
+\emkey{P-operator} ::= operator of precedence P
 \\[0.5ex]
-\emkey{nofix-P-operator} ::= nofix operator of precedence P
-\\[0.5ex]
-\emkey{infix-P-operator} ::= infix operator of precedence P
-\\[0.5ex]
-\emkey{(H+2)-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & {\em primary} \\
-    $|$ & {\em prefix-operator} {\em (H+2)-expression} \\
-    \end{tabular}
+\emkey{(H+2)-expression} ::= {\em primary}
 \\[0.5ex]
 \emkey{primary} ::= {\em non-operator}\PLUS{}
 \\[2.0ex]
@@ -1327,6 +1317,40 @@ where P is any precedence in the range [L,H+1]
 Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
 and operators of precedence $P$.
+
+The operators can have any combination of the following \key{base fixities}:
+
+\begin{center}
+\begin{tabular}{lp{4.5in}}
+\ttkey{initial}	& {\em P-operator} must be the first thing
+                  in its {\em P-expression}. \\
+\ttkey{final}	& {\em P-operator} must be the last thing
+                  in its {\em P-expression}. \\
+\ttkey{left}	& {\em P-operator} must be immediately
+                  preceeded by a {\em (P+1)-expression}
+                  in its {\em P-expression}. \\
+\ttkey{right}	& {\em P-operator} must be immediately
+                  followed by a {\em (P+1)-expression}
+                  in its {\em P-expression}. \\
+\ttkey{afix}	& {\em P-operator} must be after a (not necessarily
+                  immediately) preceeding {\em P-operator}
+                  in its {\em P-expression}. \\
+\end{tabular}
+\end{center}
+
+The following \key{combination fixities} are defined:
+
+\begin{center}
+\begin{tabular}{ll}
+\ttkey{prefix}	& {\tt initial} + {\tt right} \\
+\ttkey{infix}	& {\tt left} + {\tt right} \\
+\ttkey{postfix}	& {\tt left} + {\tt final} \\
+\ttkey{nofix}	& none of {\tt initial}, {\tt final}, {\tt left},
+                  or {\tt right} \\
+\end{tabular}
+\end{center}
+
+All of these but {\tt inital} and {\tt prefix} can be combined with {\tt afix}.
 
 The operators in Figure \itemref{L-LANGUAGE-OPERATORS} have precedences in
 the range {\em [L,H]}.
@@ -1368,9 +1392,9 @@ precedence.
 The classes are
 \begin{center}
 \begin{tabular}{ll}
-\ikey{L}{class} & means `logical' \\
-\ikey{A}{class} & means `arithmetic' \\
-\ikey{B}{class} & means `bitwise' \\
+\key{L} & means `logical' \\
+\key{A} & means `arithmetic' \\
+\key{B} & means `bitwise' \\
 \end{tabular}
 \end{center}
 
