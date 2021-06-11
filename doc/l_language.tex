@@ -1475,6 +1475,14 @@ but the following examples give an idea of some of this semantics:
       difference being that {\tt y} is evaluated to its natural type only
       once.
 \\[0.5ex]
+\tt v[x+5] = y
+    & The target type of subscripts such as `{\tt x + 5}' is always {\tt int}.
+\\[0.5ex]
+\tt x = max(y, z)
+    & A run-time function call can only appear as the right operand of
+      an assignment operator (i.e., {\tt =}, {\tt +=}, etc.) or by itself
+      as a whole statement.
+\\[0.5ex]
 \tt \TT{\textasciitilde} x
              & Evaluates on signed integers as if they were represented
                in two's complement by binary values of unbounded size,
