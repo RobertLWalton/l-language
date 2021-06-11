@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-June 9, 2021
+June 11, 2021
 
 \bigskip
  
@@ -1240,17 +1240,22 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \hline
 \ttkey{,} & separator & nofix & separator & 2000
 \\\hline
-\ttkey{BUT NOT} & logical and not & infix & binary & 3000
+\ttkey{if} & selector & infix & selector & 3000
+\\\cline{1-1}\cline{3-4}
+\ttkey{else} & & infix & (none) & \\
+             & & afix & &
 \\\hline
-\ttkey{AND} & logical and & infix & n-ary & 3100
+\ttkey{BUT NOT} & logical and not & infix & binary & 4000
+\\\hline
+\ttkey{AND} & logical and & infix & n-ary & 4100
 \\\cline{1-2}
 \ttkey{OR}  & logical or  & & &
 \\\hline
-\ttkey{NOT}  & logical not & prefix & unary & 3200
+\ttkey{NOT}  & logical not & prefix & unary & 4200
 \\\hline
-\ttkey{==}  & equal & infix & left & 4000
+\ttkey{==}  & equal & infix & (none) & 5000
 \\\cline{1-2}
-\ttkey{!=}  & not equal & & associative &
+\ttkey{!=}  & not equal & & &
 \\\cline{1-2}
 \ttkey{<}  & less than & & &
 \\\cline{1-2}
@@ -1260,7 +1265,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-2}
 \ttkey{>=}  & greater than or equal & & &
 \\\hline
-\ttkey{+}  & addition & infix & sum & 5000
+\ttkey{+}  & addition & infix & sum & 6000
 \\\cline{1-2}
 \ttkey{-}  & subtraction & & &
 \\\cline{1-2}\cline{4-4}
@@ -1270,13 +1275,13 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-2}
 \ttkey{\textasciitilde}  & bitwise xor & & &
 \\\hline
-\ttkey{/}  & division & infix & binary & 5100
+\ttkey{/}  & division & infix & binary & 6100
 \\\cline{1-2}\cline{4-5}
-\ttkey{*}  & multiplication & & n-ary & 5200
+\ttkey{*}  & multiplication & & n-ary & 6200
 \\\cline{1-2}\cline{4-5}
-\ttkey{\textasciicircum}  & exponentiation & & binary & 5300
+\ttkey{\textasciicircum}  & exponentiation & & binary & 6300
 \\\hline
-\ttkey{+}  & no-op & prefix & unary & H-1
+\ttkey{+}  & no-op & prefix & unary & H
 \\\cline{1-2}
 \ttkey{-}  & negation & & & 
 \\\cline{1-2}
@@ -1385,6 +1390,14 @@ and `operand' to mean {\em (P+1)-expression}:
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
+\ttkey{selector}
+    & The expression operators must all be either \TT{if} or \TT{else}.
+      The expression must consist of alternating operands
+      and operators and begin and end with an operand.
+      The two possible operators alternate, with \TT{if} first.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
 \ttkey{binary}
     & The expression must consist of an operand followed by
       the operator followed by an operand.  There must be only one
@@ -1415,17 +1428,6 @@ and `operand' to mean {\em (P+1)-expression}:
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
-\ttkey{\begin{tabular}[t]{@{}l}left\\associative\end{tabular}}
-    & The expression must consist of alternating operands
-      and operators and begin and end with an operand.
-      As long as the expression contains at least two operators,
-      the begining subsequence `operand operator operand'
-      is enclosed in \TT{\{|~~|\}} brackets to make it into
-      a single operand (e.g., `{\tt X == Y < Z}' becomes
-      `{\tt \{| X == Y |\} < Z}'.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1in}p{5.0in}}
 \ttkey{sum}
     & The expression operators must all be either \TT{+} or \TT{-}.
       The expression must consist of alternating operands
@@ -1437,48 +1439,53 @@ and `operand' to mean {\em (P+1)-expression}:
 \end{tabular}
 \end{center}
 
-TBD
 
-
-The following elaborates the meaning of some of the operators
-that are used in these expressions:
+Full semantics of operators and expressions is described later,
+but the following examples give an idea of some of this semantics:
 
 \begin{tabular}{rp{5.0in}}
-\tt x \TT{if} y & evaluates {\tt y}, and if the value of that is {\tt true},
-                  evaluates and returns the value of {\tt x}; otherwise
-		  returns {\tt NONE}
+\tt T v \TT{=} x + y * z
+     & Here {\tt T} is the \key{target type} of the expression
+       `{\tt x + y * z}'.  The operands are evaluated and their values
+       are converted to type {\tt T}, and then the operators are evaluated.
 \\[0.5ex]
-		& NOTE: {\tt NONE} cannot be stored in a variable, but
-		  can be converted to {\tt false} which can be stored
-		  in a {\tt bool} variable.
+\tt x \TT{AND} y & The target type of the whole expression and of {\tt x} and
+                   {\tt y} individually is {\tt bool}.
+		   Evaluates {\tt x}, and if the value of that is {\tt true},
+                   evaluates and returns the value of {\tt y}; otherwise
+		   returns {\tt false}.
 \\[0.5ex]
-\tt x \TT{else} y & evaluates {\tt x}, if the value of that is {\tt NONE},
-                  evaluates and returns {\tt y}; otherwise the value of
-		  {\tt x} is returned without evaluating {\tt y}
+\tt x \TT{if} y \TT{else} z 
+    & Evaluates {\tt y} with target type {\tt bool}.  If that value
+      is {\tt true}, evaluates and returns the value of {\tt x}; otherwise
+      evaluates and returns the value of {\tt z}.  Both {\tt x} and {\tt z},
+      if evaluated, have the same target type as the whole expression.
 \\[0.5ex]
-\tt x \TT{<} y    & returns either {\tt NONE} or {\tt \{?~value-of-y~?\}};
-		    evaluates {\tt x} and if that value is {\tt NONE},
-		    returns {\tt NONE}; otherwise evaluates {\tt y},
-		    and if the value of {\tt x < y} is {\tt false},
-		    returns {\tt NONE}, but if the value of {\tt x < y}
-		    is {\tt true}, returns {\tt \{?~value-of-y~?\}}.
-\\[0.5ex]
-		& NOTE: {\tt \{?~x~?\}} is converted to {\tt x}
-		  if it is the value of the first operand to a
-		  comparison operator, and can be converted to {\tt true}
-		  in other contexts if a {\tt bool} value is required.
+\tt x \TT{<} y \TT{<} z
+    & Here {\tt x}, {\tt y}, and {\tt z} must be primaries (e.g., variable
+      names), which have natural types.  First {\tt x} and {\tt y} are
+      evaluated to their natural type values.  Then if one of their types
+      is implicitely convertable to the other, that is done and `{\tt x < y}'
+      is evaluated to a {\tt bool}.  If that is {\tt false}, then the
+      entire expression evaluates to {\tt false}.  Otherwise `{\tt y < z}'
+      is evaluated and returned.  In doing this, that natural type
+      value of {\tt y} is used even if that has previously been converted
+      to the natural type of {\tt x}.  Note that the value of the expression
+      is the same as the value of `{\tt x < y} AND {\tt y < x}', the only
+      difference being that {\tt y} is evaluated to its natural type only
+      once.
 \\[0.5ex]
 \tt \TT{\textasciitilde} x
-             & evaluates on signed integers as if they were represented
+             & Evaluates on signed integers as if they were represented
                in two's complement by binary values of unbounded size,
-	       and similarly for other bitwise operators
+	       and similarly for other bitwise operators.
 \\[0.5ex]
-\tt x \TT{\textasciicircum} y
-             & requires that {\tt y} be a {\tt const} non-negative integer;
-{\tt x ** 0 == 1} for all {\tt x}
+\tt x \TT{**} y
+             & Requires that {\tt y} be a {\tt const} non-negative integer;
+	       {\tt x ** 0 == 1} for all {\tt x}.
 \\[0.5ex]
-\tt x \TT{+=} y & means {\tt next x = x + y} if {\tt x}
-is {\tt co}, and {\tt x = x + y} if {\tt x} is {\tt *READ-WRITE*}
+\tt x \TT{+=} y & Means {\tt next x = x + y} if {\tt x}
+is {\tt co}, and {\tt x = x + y} if {\tt x} is {\tt *READ-WRITE*}.
 \end{tabular}
 
 \subsection{Primaries}
