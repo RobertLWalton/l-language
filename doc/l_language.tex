@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-June 12, 2021
+October 5, 2021
 
 \bigskip
  
@@ -184,11 +184,11 @@ System Low Level Language.
 
 A typical L-Language statement is:
 \begin{indpar}\begin{verbatim}
-int X = Y - C"0"
+int X = Y - C#"0"
 \end{verbatim}\end{indpar}
 This allocates a new variable {\tt X} of type {\tt int}
 and sets its value to the value of the
-variable {\tt Y} minus the constant {\tt C"0"} (which is
+variable {\tt Y} minus the constant {\tt C\#"0"} (which is
 the character code of the character {\tt 0}).
 The `variable' {\tt X} is readable, but after it is
 initialized it is not writable.
@@ -219,7 +219,7 @@ to reference elements of their vectors, and have {\tt upper} and
 are their defaults, which are {\tt 0}.
 
 Here {\tt @bp} is a variable whose name begins with `{\tt @}' and
-whose value is a pointer.  Such a variable has an associated
+whose value is therefore a pointer.  Such a variable has an associated
 indirect variable {\tt bp} whose name is missing the initial `{\tt @}'.
 The expression {\tt @bp[i]} designates a pointer to the {\tt i}+1'st
 element of the vector pointed at by {\tt @bp}, but the expression
@@ -253,7 +253,7 @@ and {\tt intq} is a four word (quad) integer.
 Although the value of a variable is constant, the value may point
 at a memory location that is read-write.
 
-An aligned vector pointer is a
+An aligned vector pointer {\tt av} is a
 quad integer ({\tt intq}) containing:
 \begin{itemize}
 \item A `base pointer' {\tt int} holding the byte address
@@ -264,7 +264,7 @@ the base address, but contains instead this pointer to where
 the base address is stored in memory.  This scheme allows
 the base address to be change without changing the {\tt av} value.
 \item An `offset' {\tt int} that is added to the base address
-to form the address of the vector element
+to form the byte address of the vector element
 that has index {\tt 0} in the vector (this element does not
 exist if {\tt 0} is not an allowed index).
 \item A `lower bound' {\tt int} which is the minimum allowed
@@ -327,7 +327,8 @@ the variable for inspection by a debugger.
 L-Language has a full set of number types:
 {\tt int8}, {\tt uns8},
 {\tt int16}, {\tt uns16}, {\tt flt16}, \ldots,
-{\tt int128}, {\tt uns128}, {\tt flt128}.
+{\tt int128}, {\tt uns128}, {\tt flt128}; for signed integer,
+unsigned integer, and floating point respectively.
 The types {\tt int}, {\tt uns}, {\tt flt} are just these
 types for the target machine word size.
 The types {\tt intd}, {\tt intq}, {\tt unsd}, {\tt unsq} are just integer
@@ -383,15 +384,15 @@ they are stored in memory.  Therefore the `{\tt op code}' subfield
 is on a byte boundary, and
 the location of {\tt OP} is an {\tt ap} aligned pointer.  Although
 the {\tt constant} subfield is on a byte boundary, it is
-shorter than an {\tt int} integer, and therefore the
+shorter than an {\tt int}, and therefore the
 location of {\tt C} must be an {\tt fp} field pointer.
 If `{\tt op code}' where in bits 23-30 instead of 24-31, it would
 not be on a byte boundary and the location of {\tt OP} would
 also have to be an {\tt fp} field pointer.
 
 Note that `{\tt Y.op code}' is a {\tt *READ-WRITE*}
-{\tt int} while `{\tt @Y.op code}' is a {\tt co} pointer to
-a {\tt *READ-WRITE*} {\tt int}.
+{\tt uns8} while `{\tt @Y.op code}' is a {\tt co} pointer to
+a {\tt *READ-WRITE*} {\tt uns8}.
 
 Note that names in L-Language can have multiple lexemes, as in
 the type name `{\tt my type}', the subfield name `{\tt op code}',
@@ -413,13 +414,11 @@ type my type:
 
 type my type:
     *ORIGIN*  extension
-    align
     flt64   height           // Object Height
     flt64   width            // Object Width
 
 type my type:
     *ORIGIN*  extension
-    align
     flt64   volume           // Object Volume
 
 type your type:
