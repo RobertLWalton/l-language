@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 5, 2021
+October 6, 2021
 
 \bigskip
  
@@ -497,7 +497,7 @@ is converted to an {\tt int32}.
 
 Quoted strings denote string {\tt const} values that can be
 converted to run-time vectors
-with {\tt co} integer elements during compilation.
+with {\tt co} unsigned integer elements during compilation.
 
 Lastly there are map {\tt const} values that can hold lists
 and dictionaries.  These last can be mutable at compile-time,
@@ -612,8 +612,7 @@ which converts the pointer of type {\tt P\$s} to a pointer of
 type {\tt dp} (direct pointer) and calls the `foreign' C programming
 language subroutine {\tt strlen} with the direct pointer.
 For some pointer types (e.g., field pointer types),
-the pointer conversion may be illegal, as will be detected
-when this function is called with these types.
+the pointer conversion may be illegal.
 
 L-Language does not necessarily make any use of registers, other
 than as temporaries during the execution of a single statement,
