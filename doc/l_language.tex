@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 6, 2021
+October 7, 2021
 
 \bigskip
  
@@ -1554,7 +1554,7 @@ variables and functions.  Names are building blocks of primaries.
 \emkey{continuing-name-item} ::= {\em name-item} not containing `\TT{.}' \\
 \emkey{name-item}\label{NAME-ITEM}
     \begin{tabular}[t]{@{}rl}
-    ::= & {\em word} containing no `\TT{.}' following a character
+    ::= & {\em word} containing no `\TT{.}' that follows a character
                      that is not a `\TT{.}' \\
         & [i.e., `\TT{.}'s can only be at the \underline{beginning}
 	   of the {\em word}] \\
@@ -1626,7 +1626,7 @@ L-Language uses several kinds of names:
     {\em variable-name} whose {\em basic-name} does \underline{not}
     begin with an \TT{@} \\
 \emkey{statement-label} ::= {\em basic-name}
-    \label{STATEMENT-LABEL} \\
+    \label{STATEMENT-LABEL}
 \\[1ex]
 \emkey{member-name}\label{MEMBER-NAME}
 	::= \begin{tabular}[t]{@{}l@{}}
@@ -1652,16 +1652,9 @@ L-Language uses several kinds of names:
 \emkey{operator-name}
     \begin{tabular}[t]{rl}
     ::= & \TT{if} $|$ \TT{else}
-                  $|$ \TT{xor} $|$ \TT{AND} $|$ \TT{OR}
-		  $|$ \TT{NOT} $|$ \TT{BUT}  \\
-    $|$ & \TT{mod} $|$ \TT{div} $|$ \TT{rem}
+                  $|$ \TT{AND} $|$ \TT{OR}
+		  $|$ \TT{NOT} $|$ \TT{BUT}
     \end{tabular}
-\begin{indpar}
-{\tt xor} abbreviates `exclusive or' \\
-{\tt mod} abbreviates `modulo' as per mathematics \\
-{\tt div} abbreviates `divided by' as per elementary integer arithmetic \\
-{\tt rem} abbreviates `remainder' as per elementary integer arithmetic
-\end{indpar}
 
 \emkey{function-keyword}
     \begin{tabular}[t]{rl}
@@ -1683,14 +1676,9 @@ where the following rules should be followed, least there be
 various confusing syntax or semantic errors:
 \begin{enumerate}
 \item
-\label{VARIABLE-NAME-RULE}
-A {\em variable-name} should not begin with a {\em module-abbreviation}.
+A {\em type-name} should not begin with a {\em pointer-type-name}.
 \item
-A {\em type-name} should not begin with a {\em module-abbreviation} or
-{\em pointer-type-name}.
-\item
-A {\em pointer-type-name} should not begin with a {\em module-abbreviation}
-or {\em type-name}.
+A {\em pointer-type-name} should not begin with a {\em type-name}.
 \item
 A {\em function-term-name} should not begin with a {\em module-abbreviation}
 or contain {\em function-keywords}.
@@ -1703,17 +1691,17 @@ should not contain {\em qualifier-names}.
 \end{indpar}
 
 For example,
-the parser treats a sequence of
+the name resolver treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
 \{\MA {\em pointer-type-name}\}\QMARK{}~
-{\em qualifier-name}\QMARK{}~
+{\em qualifier-name}\STAR{}~
 \MA {\em type-name}~
 \MA {\em variable-name}
 \end{center}
 where \MA denotes an optional {\em module-abbreviation},
 and while scanning this sequence from left to right,
-the parser does \underline{not} back up after identifying
+the name resolver does \underline{not} back up after identifying
 one of the components of the sequence.
 
 {\em Variable-names}, {\em type-names}, and {\em pointer-type-names}
@@ -1743,7 +1731,10 @@ lexemes with specific syntax
 that is used to denote a number.  Numbers are stored either
 as unbounded integers, or as rational numbers whose numerator
 and denominator are unbounded integers that have no common divisor
-with the denominator being equal to or greater that 2.  The syntax is:
+with the denominator being equal to or greater than 2.  In addition,
+plus and minus infinity and a special `Not-a-Number' (NaN) value
+are number values.
+The syntax is:
 
 \begin{indpar}
 \emkey{number-constant}\label{NUMBER-CONSTANT}
@@ -1871,7 +1862,7 @@ with {\tt uns8}, {\tt uns16}, or {\tt uns32} type elements.
 UTf-8, UTF-16, or UTF-32 encodings are used according to element
 size.
 
-An \emkey{map-constant} has two parts, a list and a dictionary
+A \emkey{map-constant} has two parts, a list and a dictionary
 (either or both can be empty).  Its syntax is:
 
 \begin{indpar}
