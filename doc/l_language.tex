@@ -1884,19 +1884,20 @@ A \emkey{map-constant} has two parts, a list and a dictionary
     $|$ & {\em expression-constant} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{map-list} ::= {\em map-element} \{ \TT{,} {\em map-element} \}\STAR{}
+\emkey{map-list} ::= {\em list-element} \{ \TT{,} {\em list-element} \}\STAR{}
 \\[0.5ex]
-\emkey{map-dictionary} ::= {\em map-attribute}
-                              \{ \TT{,} {\em map-attribute} \}\STAR{}
+\emkey{map-dictionary} ::= {\em dictionary-entry}
+                              \{ \TT{,} {\em dictionary-entry} \}\STAR{}
 \\[0.5ex]
-\emkey{map-attribute} ::=
-    {\em map-label} \TT{=>} {\em map-attribute-value}
+\emkey{dictionary-entry} ::=
+    {\em dictionary-label} \TT{=>} {\em dictionary-value}
 \\[0.5ex]
-\emkey{map-element}\label{MAP-ELEMENT} ::= {\em constant-expression}
+\emkey{list-element}\label{LIST-ELEMENT} ::= {\em constant-expression}
 \\[0.5ex]
-\emkey{map-label}\label{MAP-LABEL} ::= {\em constant-expression}
+\emkey{dictionary-label}\label{MAP-LABEL} ::= {\em constant-expression}
+    evaluating to a string
 \\[0.5ex]
-\emkey{map-attribute-value}\label{MAP-ATTRIBUTE-VALUE}
+\emkey{dictionary-value}\label{DICTIONARY-VALUE}
     ::= {\em constant-expression}
 \\[0.5ex]
 \emkey{constant-expression}\label{CONSTANT-EXPRESSION}
@@ -1978,7 +1979,7 @@ is:
 A {\em member-name} of the form `\TT{.}{\em data-label}\,'
 may be used to select a field or subfield
 of a user defined type\pagnote{TYPE-DECLARATIONS} value or
-an element of a {\em map-dictionary}.
+a dictionary entry of a {\em map-dictionary}.
 
 An {\em index} may be used to select an element of a vector
 or array in a
@@ -1988,8 +1989,8 @@ of a {\em map}.  An {\em index} can also be a {\em const}
 string.  For a run-time {\em reference-expression} a string
 {\em index} is a {\em data-label}: `{\tt ["M"]}' is equivalent
 to `{\tt .M}'.  For a compile-time {\em reference-expression}
-the string must be used to select a {\em map-dictionary}
-element.  Otherwise the
+the string is used to select a map {\em dictionary-entry}.
+Otherwise the
 index is a positive or negative integer.  Bounds imposed
 by user defined types or stored in a pointer are used to
 check that the index is within range.
@@ -4364,7 +4365,7 @@ print.  Maps that have no non-hidden labels are called \key{lists}.
 Maps are represented by comma separated lists of elements inside
 {\tt \{~\}} brackets, with vector elements being represented by
 just their value, and dictionary elements being represented
-by the syntax `{\em map-label} {\tt =>} {\em constant-expression}'.
+by the syntax `{\em dictionary-label} {\tt =>} {\em dictionary-value}'.
 
 The parser translates an input text into nested lists.  These
 lists have a {\tt .position} hidden label whose value specifies
@@ -4385,13 +4386,13 @@ numbers and strings, is mutable.
 A {\em map-constant} computes a map value: see
 \pagref{MAP-CONSTANT}.
 
-Elements of a map can be accessed by {\em map-element-expressions}, which
+Elements of a map can be accessed by {\em list-element-expressions}, which
 are also {\em reference-expressions}:\pagnote{REFERENCE-EXPRESSIONS}
 
 \begin{indpar}
-\emkey{map-element-expression}
+\emkey{list-element-expression}
     \begin{tabular}[t]{rl}
-    ::= & {\em map-base} \TT{[} {\em map-index} \TT{]} \\
+    ::= & {\em map-base} \TT{[} {\em list-index} \TT{]} \\
     ::= & {\em map-base} {\em map-member} \\
     \end{tabular}
 \\[0.5ex]
@@ -4409,7 +4410,7 @@ Note that hidden labels turn into {\em map-members} beginning with
 two dots: the {\tt .position} of {\tt x} is {\tt x..position}.
 
 The {\em label} of a map element, when represented as a string, can
-be used in a {\em map-index} to designate the element.  That is,
+be used in a {\em list-index} to designate the element.  That is,
 given a map {\tt x} and a label {\tt y}, {\tt x.y} and {\tt x["y"]}
 are equivalent.
 
