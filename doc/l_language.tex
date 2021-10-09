@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 7, 2021
+October 9, 2021
 
 \bigskip
  
@@ -1178,7 +1178,9 @@ The L-Language operators are listed in
 Figures~\itemref{L-LANGUAGE-LINE-OPERATORS}
 and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS}.
 
-\begin{boxedfigure}[!b]
+\newpage
+
+\begin{boxedfigure}[!t]
 \begin{center}
 Line Level Operators \\
 Must Occur Outside Parentheses and Brackets
@@ -1231,7 +1233,41 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \label{L-LANGUAGE-LINE-OPERATORS}
 \end{boxedfigure}
 
-\begin{boxedfigure}[!b]
+\newpage
+
+Given this, expressions have the following syntax,
+where an {\em P-expression}
+is an expression all of whose operators that are outside brackets
+have precedence equal to or greater than P:
+
+\begin{indpar}\begin{minipage}{6in}
+\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
+\\[0.5ex]
+\emkey{P-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \{ {\em (P+1)-expression} $|$ {\em P-operator)} \}\PLUS{} \\
+        & where no two {\em (P+1)-expressions} may be adjacent \\ 
+        & and the {\em P-operators} must obey the fixity rules below \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{P-operator} ::= operator of precedence P
+\\[0.5ex]
+\emkey{(H+2)-expression} ::= {\em primary}
+\\[0.5ex]
+\emkey{primary} ::= {\em non-operator}\PLUS{}
+\\[2.0ex]
+\hspace*{3em}\begin{tabular}{l}
+where P is any precedence in the range [L,H+1]
+\end{tabular}
+\end{minipage}\end{indpar}
+
+Generally
+a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
+and operators of precedence $P$.
+
+\newpage
+
+\begin{boxedfigure}[!h]
 \begin{center}
 Non-Line Level Operators \\
 May Occur Inside or Outside Parentheses and Brackets
@@ -1301,35 +1337,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \label{L-LANGUAGE-NON-LINE-OPERATORS}
 \end{boxedfigure}
 
-Given this, expressions have the following syntax,
-where an {\em P-expression}
-is an expression all of whose operators that are outside brackets
-have precedence equal to or greater than P:
-
-\begin{indpar}\begin{minipage}{6in}
-\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
-\\[0.5ex]
-\emkey{P-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & \{ {\em (P+1)-expression} $|$ {\em P-operator)} \}\PLUS{} \\
-        & where no two {\em (P+1)-expressions} may be adjacent \\ 
-        & and the {\em P-operators} must obey the fixity rules below \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{P-operator} ::= operator of precedence P
-\\[0.5ex]
-\emkey{(H+2)-expression} ::= {\em primary}
-\\[0.5ex]
-\emkey{primary} ::= {\em non-operator}\PLUS{}
-\\[2.0ex]
-\hspace*{3em}\begin{tabular}{l}
-where P is any precedence in the range [L,H+1]
-\end{tabular}
-\end{minipage}\end{indpar}
-
-Generally
-a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
-and operators of precedence $P$.
+\newpage
 
 The operators can have any combination of the following \key{base fixities}:
 
@@ -1389,7 +1397,7 @@ and `operand' to mean {\em (P+1)-expression}:
       operand followed by either a \TT{:} operator and an
       operand or by just a \TT{:} indented paragraph.
 \\[1ex]
-\ttkey{\begin{tabular}[t]{@{}l}terminating\\conditional\end{tabular}}
+\ttkey{\begin{tabular}[t]{@{}l@{}}terminating\\conditional\end{tabular}}
     & The expression must consist of the operator followed by
       either a \TT{:} operator and an
       operand or by just a \TT{:} indented paragraph.
@@ -1876,18 +1884,20 @@ A \emkey{map-constant} has two parts, a list and a dictionary
     $|$ & {\em expression-constant} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{map-list} ::= {\em constant-expression}
-                     \{ \TT{,} {\em constant-expression} \}\STAR{}
+\emkey{map-list} ::= {\em map-element} \{ \TT{,} {\em map-element} \}\STAR{}
 \\[0.5ex]
-\emkey{map-dictionary} ::= {\em label-value-pair}
-                              \{ \TT{,} {\em label-value-pair} \}\STAR{}
+\emkey{map-dictionary} ::= {\em map-attribute}
+                              \{ \TT{,} {\em map-attribute} \}\STAR{}
 \\[0.5ex]
-\emkey{label-value-pair} ::=
-    {\em map-label} \TT{=>} {\em constant-expression}
+\emkey{map-attribute} ::=
+    {\em map-label} \TT{=>} {\em map-attribute-value}
 \\[0.5ex]
-\emkey{map-label}\label{MAP-LABEL} ::= {\em data-label}
+\emkey{map-element}\label{MAP-ELEMENT} ::= {\em constant-expression}
 \\[0.5ex]
-\emkey{data-label} ::= see \pagref{DATA-LABEL}
+\emkey{map-label}\label{MAP-LABEL} ::= {\em constant-expression}
+\\[0.5ex]
+\emkey{map-attribute-value}\label{MAP-ATTRIBUTE-VALUE}
+    ::= {\em constant-expression}
 \\[0.5ex]
 \emkey{constant-expression}\label{CONSTANT-EXPRESSION}
     ::= {\em expression} evaluating at compile-time to a {\tt const} value
@@ -1904,22 +1914,15 @@ Maps \underline{cannot} be represented at run-time.
 A {\em phrase-constant} is shorthand for a {\em map-constant}
 of the form: \\
 \hspace*{0.5in}\TT{\{}
-    \begin{tabular}[t]{@{}l}
-    {\em quoted-name-item} \{ \TT{,} {\em quoted-name-item} \}\STAR{}\TT{,} \\
-    \TT{.type => "PHRASE" \}}
-    \end{tabular}
+    {\em quoted-name-item} \{ \TT{,} {\em quoted-name-item} \}\STAR{}\TT{\}}
 \\[0.2ex]
-where {\em quoted-name-item} is a {\em name-item} with {\em words} turned into
-{\em quoted-strings}.
+where {\em quoted-name-item} is a {\em name-item} with {\em non-numbers}
+turned into {\em quoted-strings}.
 
 An {\em expression-constant} is shorthand for the {\em map-constant}
 produced when the {\em expression} is parsed: see \pagref{PARSER-OUTPUT}.
 As an example, {\tt `{}`X = Y 1 + Z'{}'} is equivalent to: \\
-\hspace*{0.5in}\TT{\{}
-    \begin{tabular}[t]{@{}l}
-    \TT{"X", "=", \{\{"Y", 1\}, "+", "Z"\},} \\
-    \TT{.type => "EXPRESSION" \}}
-    \end{tabular}
+\hspace*{0.5in}\TT{\{"X", "=", \{\{"Y", 1\}, "+", "Z"\}\}}
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 compile-time as if they were variables of type {\tt const}
@@ -2023,12 +2026,12 @@ as unchangeable constants.  The following example illustrates
 computation with compile-time maps:
 \begin{indpar}\begin{verbatim}
 const X = {"A", "B"}
-X[0] = "C"                   // Now X is {"C", "B"}.
-const Y = X                  // Now X and Y are both {"C", "B"}. 
-Y[1] = "D"                   // Now X and Y are both {"C", "D"}. 
-const Z = { Y, "M" }         // Now Z is {{"C", "D"}, "M"}.
-Z[0].W = "N"                 // Now Z is {{"C", "D", W => "N"}, "M"},
-                             // X and Y are both {"C", "D", W => "N"}.
+X[0] = "C"               // Now X is {"C", "B"}.
+const Y = X              // Now X and Y are both {"C", "B"}. 
+Y[1] = "D"               // Now X and Y are both {"C", "D"}. 
+const Z = { Y, "M" }     // Now Z is {{"C", "D"}, "M"}.
+Z[0].W = "N"             // Now Z is {{"C", "D", "W" => "N"}, "M"},
+                         // X and Y are both {"C", "D", "W" => "N"}.
 \end{verbatim}\end{indpar}
 
 
