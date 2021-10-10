@@ -2075,10 +2075,14 @@ function ap *READ_WRITE* flt64 @x = ( ap my vector @v ) [ uns index ]:
 The syntax of function calls is:
 
 \begin{indpar}
-\emkey{function-call}\label{FUNCTION-CALL} ::=
-    {\em module-abbreviation}\QMARK{}
-    {\em call-argument-list}\STAR{}
-    {\em call-term} {\em call-term}\STAR{}
+\emkey{function-call}\label{FUNCTION-CALL}
+    \begin{tabular}[t]{rl}
+    ::= & {\em module-abbreviation}\QMARK{}
+          {\em call-argument-list}\STAR{}
+          {\em call-term} {\em call-term}\STAR{} \\
+    $|$ & {\em call-argument-list}
+          {\em call-argument-list}\PLUS{} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{call-term}
     \begin{tabular}[t]{rl}
@@ -2100,7 +2104,7 @@ The syntax of function calls is:
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
 \emkey{unparenthesized-actual-argument} ::=
-    {\em constant} $|$ {\em reference-expression}
+    {\em constant} $|$ {\em variable-name}
 \\[0.5ex]
 \emkey{call-term-name}\label{CALL-TERM-NAME} ::=
     \begin{tabular}[t]{@{}l}
@@ -2112,7 +2116,7 @@ The syntax of function calls is:
 \\[0.5ex]
 \emkey{constant} ::= see \pagref{CONSTANTS}
 \\[0.5ex]
-\emkey{reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
+\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \\[2.0ex]
@@ -2128,7 +2132,7 @@ parentheses have been omitted.  Thus given the example function definition
 on page \pageref{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE},
 {\tt (v)[i]} may be written as {\tt v[i]}.  Only {\tt (~)}'s may be
 omitted, and then only if they surround exactly one {\em actual-argument}
-that is a {\em constant} or {\em reference-expression}.
+that is a {\em constant} or {\em variable-name}.
 
 {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
 equivalent to `{\tt x(false)}'.
