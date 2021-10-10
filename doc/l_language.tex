@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 9, 2021
+October 10, 2021
 
 \bigskip
  
@@ -1567,7 +1567,7 @@ variables and functions.  Names are building blocks of primaries.
         & [i.e., `\TT{.}'s can only be at the \underline{beginning}
 	   of the {\em word}] \\
         & [see text about splitting words with embedded `\TT{.}'s] \\
-    $|$ & {\em natural-number} \\
+    $|$ & {\em natural-number} less than $10^9$ \\
     $|$ & {\em quoted-mark} not containing `\TT{.}'s \\
     $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
     \end{tabular} \\
@@ -1985,13 +1985,13 @@ An {\em index} may be used to select an element of a vector
 or array in a
 user defined type value, or the
 element of a vector pointed at by a pointer, or an element
-of a {\em map}.  An {\em index} can also be a {\em const}
+of a {\em map}.  An {\em index} can be a {\em const}
 string.  For a run-time {\em reference-expression} a string
 {\em index} is a {\em data-label}: `{\tt ["M"]}' is equivalent
 to `{\tt .M}'.  For a compile-time {\em reference-expression}
 the string is used to select a map {\em dictionary-entry}.
 Otherwise the
-index is a positive or negative integer.  Bounds imposed
+index must be a positive or negative integer.  Bounds imposed
 by user defined types or stored in a pointer are used to
 check that the index is within range.
 
@@ -2006,16 +2006,18 @@ E.g., `{\tt @V[5]}' computes a pointer to the 5+1'st element of the
 vector pointed at by {\tt @V}.
 
 If the {\em variable-name} at the beginning of a {\em reference-expression}
-is a {\em target-variable} with an assocated {\em pointer-variable},
+is a {\em target-variable} with an associated {\em pointer-variable},
 the reference expression refers to the value pointed by the pointer
 that would be computed if the {\em target-variable} was replaced by
-its assocated {\em pointer-variable}.
+its associated {\em pointer-variable}.
 
 If the {\em variable-name} at the beginning of a {\em reference-expression}
-is a {\em target-variable} \underline{without}
-a assocated {\em pointer-variable},
-the reference expression refers to variable, field, or vector element
-allocated to the current function frame.
+is a {\em target-variable} (i.e., does not begin with `\TT{@}')
+\underline{without}
+an associated {\em pointer-variable},
+the reference expression refers to the variable itself,
+to a field or dictionary entry of the variable's value,
+or to a vector or list element of the variable's value.
 
 Compile-time maps are represented interally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
@@ -2042,9 +2044,9 @@ can be used as {\em reference-expressions} (this is an exception
 to the rule that a run-time statement can contain at most one function
 call).  If the inline function returns a value, a call to the function
 can only be used to read a value from an apparent
-location.  However if the inline function returns a location whose
-value has writable qualifiers, a call to the function can be used
-to write the location.  An example of the latter is:
+location.  However if the inline function returns a pointer at a target
+with writable qualifiers, a call to the function can be used
+to write that target.  An example of the latter is:
 \label{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE}
 
 \begin{indpar}\begin{verbatim}
