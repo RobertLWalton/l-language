@@ -204,7 +204,7 @@ while ( i < @cp.upper ):
 bp[cp.upper] = 0
 \end{verbatim}\end{indpar}
 
-Here `{\tt local[81]}' creats an aligned vector of
+Here `{\tt local[81]}' creates an aligned vector of
 81 {\tt uns8} (8-bit unsigned) numbers in the current function
 frame and returns an aligned vector pointer, or {\tt av}, to
 the vector, marking the vector elements as {\tt *READ-WRITE*}.
@@ -376,7 +376,7 @@ an {\tt uns8} integer occupying the highest order 8
 bits of the unlabeled field, bits 24-31,
 where bits are numbered 0, 1, 2, \ldots{} from
 low to high order.  The second subfield is a 1-bit {\tt bool}
-value that occupies the high order bit, bit 31, of the unlabelled field.
+value that occupies the high order bit, bit 31, of the unlabeled field.
 Note that subfields can overlap.
 
 Defined type values are aligned on byte boundaries when
@@ -470,7 +470,7 @@ largest) of the
 alignments of its fields.
 
 A {\tt *LABEL*} is like a zero length field that has no value and
-is used to associate a orgin-label with the current offset.
+is used to associate an origin-label with the current offset.
 Here {\tt extension} has the offset value of 16 bytes.
 The {\tt *ORIGIN*} sub-declaration resets the current offset to the offset
 of a given origin-label.
@@ -574,7 +574,7 @@ distinction between inline and out-of-line for compile-time functions.
 Inline function definitions may make use of type wildcards.
 A name that is a single word beginning with {\tt T\$}
 is a type wildcard that denotes
-an arbitary type.  Thus the example:
+an arbitrary type.  Thus the example:
 
 \begin{indpar}\begin{verbatim}
 function T$r r = max ( T$r x, T$r y ):
@@ -984,7 +984,7 @@ is equivalent to
 \begin{indpar}\begin{verbatim}
 This is a continued-middle-lexeme.
 \end{verbatim}\end{indpar}
-For compatibility, two consequtive `\TT{\#}' marks may be used
+For compatibility, two consecutive `\TT{\#}' marks may be used
 to glue together two quoted strings, as in
 \begin{indpar}\begin{verbatim}
 "This is a continued-"#
@@ -1348,13 +1348,13 @@ The operators can have any combination of the following \key{base fixities}:
 \ttkey{final}	& {\em P-operator} must be the last thing
                   in its {\em P-expression}. \\
 \ttkey{left}	& {\em P-operator} must be immediately
-                  preceeded by a {\em (P+1)-expression}
+                  preceded by a {\em (P+1)-expression}
                   in its {\em P-expression}. \\
 \ttkey{right}	& {\em P-operator} must be immediately
                   followed by a {\em (P+1)-expression}
                   in its {\em P-expression}. \\
 \ttkey{afix}	& {\em P-operator} must be after a (not necessarily
-                  immediately) preceeding {\em P-operator}
+                  immediately) preceding {\em P-operator}
                   in its {\em P-expression}. \\
 \end{tabular}
 \end{center}
@@ -1371,7 +1371,7 @@ The following \key{combination fixities} are defined:
 \end{tabular}
 \end{center}
 
-All of these but {\tt inital} and {\tt prefix} can be combined with {\tt afix}.
+All of these but {\tt initial} and {\tt prefix} can be combined with {\tt afix}.
 
 The operators in
 Figures~\itemref{L-LANGUAGE-LINE-OPERATORS}
@@ -1496,7 +1496,7 @@ but the following examples give an idea of some of this semantics:
     & Here {\tt x}, {\tt y}, and {\tt z} must be primaries (e.g., variable
       names), which have natural types.  First {\tt x} and {\tt y} are
       evaluated to their natural type values.  Then if one of their types
-      is implicitely convertable to the other, that is done and `{\tt x < y}'
+      is implicitly convertible to the other, that is done and `{\tt x < y}'
       is evaluated to a {\tt bool}.  If that is {\tt false}, then the
       entire expression evaluates to {\tt false}.  Otherwise `{\tt y < z}'
       is evaluated and returned.  In doing this, that natural type
@@ -2019,7 +2019,7 @@ the reference expression refers to the variable itself,
 to a field or dictionary entry of the variable's value,
 or to a vector or list element of the variable's value.
 
-Compile-time maps are represented interally by pointers to where
+Compile-time maps are represented internally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
 i.e., pointing at, a map, then {\tt Y = X} copies the pointer
 to the map to the variable {\tt Y}.  By default compile-time
@@ -2076,7 +2076,7 @@ The syntax of function calls is:
 
 \begin{indpar}
 \emkey{function-call}\label{FUNCTION-CALL} ::=
-    {\em module-abreviation}\QMARK{}
+    {\em module-abbreviation}\QMARK{}
     {\em call-argument-list}\STAR{}
     {\em call-term} {\em call-term}\STAR{}
 \\[0.5ex]
@@ -2571,7 +2571,7 @@ memory with the required number of bytes and alignment and zero that
 block.  The prototype must have
 exactly one result variable whose type is the data type associated
 with a pointer type\pagnote{POINTER-ASSOCIATE}
-convertable to the data type associated with the variable's pointer type.
+convertible to the data type associated with the variable's pointer type.
 
 As a general rule, allocator functions that return a value of
 `{\tt data for av}' or `{\tt data for fv}' type
@@ -2740,7 +2740,7 @@ A {\em loop-assignment-statement} has the syntax:
 \emkey{break-statement}\label{BREAK-STATEMENT} ::=
     \ttkey{break} {\em loop-label}\QMARK{}
 \\[0.5ex]
-\emkey{contine-statement}\label{CONTINUE-STATEMENT} ::=
+\emkey{continue-statement}\label{CONTINUE-STATEMENT} ::=
     \ttkey{continue} {\em loop-label}\QMARK{}
 \end{indpar}
 
@@ -3329,7 +3329,7 @@ function data for ap r = *ACCESS* *POINTER* *CONVERSION*
     r = pointer to data ( @f )
         // Qualifiers of @f are ignored by pointer to data.
 
-function file descriptor *READ-WRITE* r = allocate file desciptor:
+function file descriptor *READ-WRITE* r = allocate file descriptor:
     r = *UNCHECKED* ( next file )
     next file = next file + 1
 
@@ -3671,7 +3671,7 @@ The match is made by scanning the call from left-to-right
 while identifying sequences of lexemes that match
 {\em function-term-names} in the prototype.  After identifying
 a name, the scan skips to just after the name.  If several
-names match at the same position, the longest is choosen.
+names match at the same position, the longest is chosen.
 The scan may match a single prototype name to several points in the
 call, but if this happens, the call-prototype match fails.
 If the first prototype name fails to match the first call name,
@@ -3683,7 +3683,7 @@ The {\em function-term-names} found in the call are used to determine
 the extent of {\em call-terms} in the call.  For starters, each
 {\em call-term} consists of its {\em call-term-name} and everything
 following up to the next {\em call-term}.  If the prototype begins
-with {\em pattern-argument-lists}, the situtation is treated as
+with {\em pattern-argument-lists}, the situation is treated as
 if both prototype and call began with identical virtual
 {\em term-names}.
 
@@ -3691,7 +3691,7 @@ Then if a {\em call-term-name} is matched to a {\em boolean-pattern-term}
 {\em function-term-name} and if its {\em call-term} has no
 {\em call-argument-lists}, then if the preceding {\em call-term}
 ends in `\TT{no}' or `\TT{not}', this last is removed from the
-preceeding {\em call-term} and `{\tt (false)}' is appended to the
+preceding {\em call-term} and `{\tt (false)}' is appended to the
 current {\em call-term}, and otherwise `{\tt (true)}' is appended to the
 current {\em call-term}.
 
@@ -3706,7 +3706,7 @@ brackets (either {\tt (~)} or {\tt [~]}) for corresponding
 {\em argument-lists}, and the same number of
 arguments in corresponding {\em argument-lists}, \underline{after}
 the {\em call-term} has been \key{adjusted}.  The following are
-permited adjustments.
+permitted adjustments.
 
 For every {\em pattern-term} that has no corresponding {\em call-term}
 (because its {\em function-term-name} was not found in the call),
@@ -4206,7 +4206,7 @@ declared begins with a
 A {\em inline-function-declaration} or {\em out-of-line-function-declaration}
 is external\label{EXTERNAL-FUNCTION}
 if the {\em prototype-pattern} in the {\em declaration}
-is immediately preceeded by a {\em module-abbreviation}.
+is immediately preceded by a {\em module-abbreviation}.
 
 {\em Prototype-result-declaration} and {\em argument-declaration}
 {\em variable-names} cannot begin with a {\em module-abbreviation},
@@ -4341,7 +4341,7 @@ that evaluates to an integer
 can be used to represent an integer {\tt const}.
 
 \key{Rationals} are pairs of unbounded integers, a numerator and a denominator.
-The demoninator must be greater than or equal to 2.  The greatest common divisor
+The denominator must be greater than or equal to 2.  The greatest common divisor
 of the numerator and denominator must be 1.
 Any sequence of lexemes that is a
 number representative
@@ -4422,10 +4422,10 @@ plus 1.  So {\tt \{"A", "B", "C"\}..length == 3}.  If a map has no
 integer indices, its {\tt .length} is 0.
 
 Values may be stored into map elements as well as read from the
-elements.  Storing into a non-existant element creates the element.
+elements.  Storing into a non-existent element creates the element.
 
 Storing {\tt UNDEF} in an element deletes the element, and reading
-from a non-existant element returns {\tt UNDEF} without any other
+from a non-existent element returns {\tt UNDEF} without any other
 indication of there being an error.  Deleting a map vector element
 re-indexes the following vector elements.
 Storing an integer into the {\tt .length} of a map deletes
