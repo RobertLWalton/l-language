@@ -2157,11 +2157,7 @@ matched to the {\em function-call}.
 
 Variables and values that exist during compilation are called
 \key{compile-time}, while variables and values that exist during
-program execution are called {\em run-time}.  Compile-time
-is actually an important syntactic concept, as run-time
-{\em expressions} cannot contain operators of different
-classes or both operators and function calls: see
-\pagref{RUN-TIME-EXPRESSION-LIMITS}.
+program execution are called {\em run-time}.
 
 Syntactically \key{compile-time} is defined as follows:
 
@@ -2373,6 +2369,9 @@ cause segmentation faults when de-referenced.
 If a {\em result-variable-declaration} declares a {\em pointer-variable},
 an associated {\em target-variable} is implicitly declared at the same time
 whose name is the {\em pointer-name} with the initial `{\tt @}' removed.
+The {\em target-variable} is not itself allocated to memory,
+but instead references the value the {\em pointer-variable}
+points at.
 
 Note that a {\em result-variable-declaration} does not allow
 qualifiers on anything but the target of a pointer.  The implicit
@@ -2443,7 +2442,7 @@ a \underline{single} {\em expression}, the run-time operators
 in the {\em expression} must operate on
 the data type specified by the single {\em assignment-result}.
 Furthermore the parenthesis depth of the {\em expression}
-must not be greater then 4 (i.e., {\tt ((((\ldots))))} is the
+must not be greater than 4 (i.e., {\tt ((((\ldots))))} is the
 maximum depth allowed).
 
 \end{itemize}
