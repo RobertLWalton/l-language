@@ -2521,19 +2521,16 @@ The syntax of {\em block-assignment-statements} is:
 \emkey{block-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
-        & {\em variable-declaration}
-                \{ \TT{,} {\em variable-declaration} \}\QMARK{} \\
-	& ~~~~~~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{}
-		\{ \TT{=}
+        & {\em block-variable-declaration}
+                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \\
+	& ~~~~~ \{ \TT{=}
 		   \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
-        & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
     $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
         & ~~~~~ {\em exit-sublock}\STAR{} \\
     \end{tabular}
-\\[0.5ex]
-{\em allocation-call} ::= {\em function-call}
 \\[0.5ex]
 \emkey{exit-subblock}\label{EXIT-SUBBLOCK} ::=
     \begin{tabular}[t]{l}
@@ -2546,35 +2543,34 @@ The syntax of {\em block-assignment-statements} is:
 {\em statement} ::= see \pagref{STATEMENT} \\
 \emkey{block-control-statement}\label{BLOCK-CONTROL-STATEMENT}
 	::= {\em goto-exit-statement} \\
-{\em go-to-exit-statement} ::= see \pagref{GO-TO-STATEMENT} \\
-\\[1ex]
-where
-\begin{itemize}
-\item If there is an {\em allocation-call}, all the
-{\em variable-declarations} must have {\em pointer-types}.
-\end{itemize}
+{\em go-to-exit-statement} ::= see \pagref{GO-TO-STATEMENT}
 \end{indpar}
 
 The {\em block-assignment-statement}
-allocates memory for the variables declared by the {\em variable-declarations},
-zeros the memory allocated to {\em result-variable-declarations},
-and sets the memory allocated for each {\em next-variable-declaration}
-to the previous value of its variable.
+first allocates and initializes
+memory for the variables declared by the {\em block-variable-declarations}.
+Declarations containing an {\em allocation-call} set the memory, which
+is a pointer variable, to the result of the {\em allocation-call}.
+Other declarations zero the memory if they are not {\em next-declarations},
+and set the memory to the previous value of the declaration's variable if
+the declarations are {\em next-declarations}.
+
+
 Then any {\em statements} and
 {\em exit-subblocks} are executed with
 the allocated memory being write-only.
 After the {\em block-assignment-statement} finished, the variables
 become constant ({\tt co}).
 
-More specifically, if there is \underline{no} {\em allocation-call},
-the variable memory is allocated in the
+Note that variables whose declarations have
+\underline{no} {\em allocation-call},
+are allocated in the
 current function frame.
 
-If there is an {\em allocation-call}, the variables must have pointer
-type, and the {\em allocation-call} is executed to set the pointers
+When a declaration has an {\em allocation-call}, its variable must have pointer
+type, and the {\em allocation-call} is executed to set the pointer
 before any {\em statements} in the {\em block-assignment-statement}
 are executed.  The {\em allocation-call} is executed
-separately for each {\em variable-declaration}
 with a pre-pended argument list consisting of two {\tt uns} values
 in {\tt ()} parentheses.  The first value is the number of bytes to
 be allocated, and the second value is the byte alignment of the
@@ -2602,10 +2598,7 @@ this is by convention and is not a builtin requirement of the L-Language.
 The convention is followed by the builtin allocators (e.g., {\tt local}).
 
 
-After variable allocation 
-{\em statements} and {\em exit-subblocks}
-are executed.
-Within these
+Within the {\em statements} and {\em exit-subblocks}
 any {\em reference-expression} beginning with the {\em variable-name}
 of one of the allocated variables, or the associated
 {\em target-variable} if the {\em variable-name} is a
