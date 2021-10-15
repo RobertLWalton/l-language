@@ -2547,25 +2547,25 @@ The syntax of {\em block-assignment-statements} is:
 \end{indpar}
 
 The {\em block-assignment-statement}
-first allocates and initializes
-memory for the variables declared by the {\em block-variable-declarations}.
+first allocates and initializes memory in the current function frame
+for the variables declared by the {\em block-variable-declarations}.
 Declarations containing an {\em allocation-call} set the memory, which
-is a pointer variable, to the result of the {\em allocation-call}.
-Other declarations zero the memory if they are not {\em next-declarations},
-and set the memory to the previous value of the declaration's variable if
+is a pointer variable, to the result of the {\em allocation-call}
+(see below), which in turn points at allocated memory that is zeroed.
+Other declarations zero the variable's memory if they are not
+{\em next-declarations},
+and set the variable's memory
+to the previous value of the declaration's variable if
 the declarations are {\em next-declarations}.
 
-
 Then any {\em statements} and
-{\em exit-subblocks} are executed with
-the allocated memory being write-only.
-After the {\em block-assignment-statement} finished, the variables
-become constant ({\tt co}).
-
-Note that variables whose declarations have
-\underline{no} {\em allocation-call},
-are allocated in the
-current function frame.
+{\em exit-subblocks} are executed.  During this execution
+block variables with \underline{no} {\em allocation-call}
+are write-only, and after this execution, these variables become
+{\tt co}.  During this execution variables with
+an {\em allocation-call} are {\tt co} but the memory they point
+at is write-only, and after execution this memory becomes whatever
+its pointer qualifiers specify.
 
 When a declaration has an {\em allocation-call}, its variable must have pointer
 type, and the {\em allocation-call} is executed to set the pointer
@@ -2582,9 +2582,8 @@ the argument names may be different.
 The called function must allocate a block of
 memory with the required number of bytes and alignment and zero that
 block.  The prototype must have
-exactly one result variable whose type is the data type associated
-with a pointer type\pagnote{POINTER-ASSOCIATE}
-convertible to the data type associated with the variable's pointer type.
+exactly one result variable whose type is convertible to
+the data type associated with a pointer type\pagnote{POINTER-ASSOCIATE}.
 
 As a general rule, allocator functions that return a value of
 `{\tt data for av}' or `{\tt data for fv}' type
@@ -2596,13 +2595,6 @@ between the blocks if necessary to obtain proper alignment for each
 block.  However,
 this is by convention and is not a builtin requirement of the L-Language.
 The convention is followed by the builtin allocators (e.g., {\tt local}).
-
-
-Within the {\em statements} and {\em exit-subblocks}
-any {\em reference-expression} beginning with the {\em variable-name}
-of one of the allocated variables, or the associated
-{\em target-variable} if the {\em variable-name} is a
-{\em pointer-variable}, is treated as {\tt *WRITE-ONLY*}.
 
 A {\em go-to-exit-statement} within a block may exit the block or
 enter an {\em exit-subblock} of the block:
