@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 14, 2021
+October 15, 2021
 
 \bigskip
  
@@ -2315,16 +2315,19 @@ The forms of an {\em assignment-statement} are:
 	      {\em type-name} {\em pointer-variable}
 	\end{tabular}
 \\[0.5ex]
-\emkey{block-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
-\hspace*{0.5in}\begin{tabular}{rl}
-	    & {\em type-name} {\em target-variable} \\
-	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      {\em type-name} {\em pointer-variable} \\
-	    & ~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{}
-	\end{tabular}
-\\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
     ::= \ttkey{next} {\em variable-name}
+\\[0.5ex]
+\emkey{block-variable-declaration}\label{BLOCK-VARIABLE-DECLARATION} ::= \\
+\hspace*{0.5in}\begin{tabular}{rl}
+	    & {\em type-name} {\em target-variable} \\
+	$|$ & \TT{next} {\em target-variable} \\
+	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      {\em type-name} {\em pointer-variable} \\
+	    & ~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
+	$|$ & \TT{next} {\em pointer-variable}
+	      ~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
+	\end{tabular}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
