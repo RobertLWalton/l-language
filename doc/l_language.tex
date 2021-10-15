@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 10, 2021
+October 14, 2021
 
 \bigskip
  
@@ -2258,13 +2258,12 @@ The forms of an {\em assignment-statement} are:
 \emkey{block-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
-        & {\em variable-declaration}
-                \{ \TT{,} {\em variable-declaration} \}\QMARK{} \\
-	& ~~~~~~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{}
-		\{ \TT{=}
+        & {\em block-variable-declaration}
+                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \\
+	& ~~~~~ \{ \TT{=}
 		   \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
-        & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
     $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
         & ~~~~~ {\em exit-sublock}\STAR{} \\
@@ -2275,6 +2274,17 @@ The forms of an {\em assignment-statement} are:
         {\em result-variable-declaration}
 	    \{ \TT{,} {\em result-variable-declaration} \}\QMARK{}
 	    \TT{=} \ttkey{deferred}
+\\[0.5ex]
+\emkey{companion-assignment-statement} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rll}
+        & {\em block-variable-declaration}
+                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \\
+	& ~~~~~ \{ \TT{=}
+		   \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
+        & ~~~~~~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}
@@ -2290,26 +2300,27 @@ The forms of an {\em assignment-statement} are:
         & ~~~~~ {\em exit-sublock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{variable-declaration}
+\emkey{assignment-result}\label{ASSIGNMENT-RESULT}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{assignment-result}\label{ASSIGNMENT-RESULT}
-    \begin{tabular}[t]{@{}rll}
-    ::= & {\em variable-declaration} \\
     $|$ & {\em reference-expression}
     		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
     \end{tabular}
-\\[0.5ex]
-\emkey{iteration-result} ::= {\em next-variable-declaration}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em target-variable} \\
 	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
 	      {\em type-name} {\em pointer-variable}
+	\end{tabular}
+\\[0.5ex]
+\emkey{block-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
+\hspace*{0.5in}\begin{tabular}{rl}
+	    & {\em type-name} {\em target-variable} \\
+	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      {\em type-name} {\em pointer-variable} \\
+	    & ~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{}
 	\end{tabular}
 \\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
