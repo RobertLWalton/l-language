@@ -2270,8 +2270,8 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{deferred-assignment-statement} ::= \\
 \hspace*{0.5in}
-        {\em result-variable-declaration}
-	    \{ \TT{,} {\em result-variable-declaration} \}\QMARK{}
+        {\em block-variable-declaration}
+	    \{ \TT{,} {\em block-variable-declaration} \}\QMARK{}
 	    \TT{=} \ttkey{deferred}
 \\[0.5ex]
 \emkey{companion-assignment-statement} ::= \\
@@ -2357,7 +2357,8 @@ The forms of an {\em assignment-statement} are:
 \emkey{allocation-call} ::= {\em function-call}
 \end{indpar}
 
-Associated with {\em block-assignment-statements} and
+Associated with {\em block-assignment-statements},
+{\em companion-assignment-statements}, and
 {\em loop-assignment-statements}
 there are {\em con\-trol-statements}
 to control the flow of execution within the more complex
@@ -2365,25 +2366,50 @@ to control the flow of execution within the more complex
 \begin{indpar}
 \emkey{control-statement}\label{CONTROL-STATEMENT}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em do-control-statement}
+    ::= & {\em block-control-statement}
         & [\pagref{BLOCK-CONTROL-STATEMENT}] \\
     $|$ & {\em loop-control-statement}
         & [\pagref{LOOP-CONTROL-STATEMENT}] \\
     \end{tabular}
 \end{indpar}
 
-A {\em variable-declaration} allocates memory for its variable
+A {\em result-variable-declaration} allocates memory for its variable
 in the frame of the currently executing function.
 {\em Expression-assignment-statements} set the values of these variables
 to the values of the {\em expressions} in the {\em expression-list}.
 {\em Call-assignment-statements} set the values of these variables
 to the values returned by the {\em function-call}.
-In all other cases, the values are zeroed and the variables are
-{\tt *WRITE-ONLY*} in {\em statements} of the sub-block of the
-{\em assignment-statement} and {\tt co} after the
+
+A {\em block-variable-declaration} allocates memory for its variable
+in the frame of the currently executing function and also initializes
+that memory according to the declaration syntax as follows:
+\begin{indpar}[0.05in]
+{\em result-variable-declaration}\,:~
+The memory is zeroed. \\
+{\em next-variable-declaration} with no {\em allocation-call}\,:~
+Previous value of the named variable. \\
+{\em block-variable-declaration} with {\em allocation-call}\,:~
+Value returned by the {\em allocation-call}.
+\end{indpar}
+
+The variables declared by {\em block-variable-declarations}
+\underline{without} {\em allocation-calls}
+are {\tt *WRITE-ONLY*} in {\em statements}
+of the {\em assignment-statement} and {\tt co} after the
 {\em assignment-statement}.
 Zeroed numbers are zero, while zeroed pointers typically
 cause segmentation faults when de-referenced.
+
+The {\em pointer-variables} declared by {\em block-variable-declarations}
+\underline{with} {\em allocation-calls}
+are initialized by the {\em allocation-call}, but the memory
+pointed at is zeroed initially, 
+{\tt *WRITE-ONLY*} in {\em statements}
+of the {\em assignment-statement}, and 
+subject to the {\em pointer-variable} {\em qualifiers} after
+the {\em assignment-statement} finished execution.
+
+TBD
 
 If a {\em result-variable-declaration} declares a {\em pointer-variable},
 an associated {\em target-variable} is implicitly declared at the same time
