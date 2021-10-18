@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 15, 2021
+October 18, 2021
 
 \bigskip
  
@@ -2220,11 +2220,10 @@ The following is a complete list of the kinds of statements:
 {\em Assignment-statements} have a list of variables on the
 left side which receive values from a list of expressions or
 a block of code on the right side.  The left-side variables
-may be omitted if the values are not needed and the right side
-is just a {\em function-call}, or if a left-side variable
+may be omitted if the right side produces no values,
+or if a left-side variable
 has the form of `{\tt next} {\em variable-name}' and is
-implied.  In some cases
-the right side produces no values, though the right side is never omitted.
+implied by the right side.
 
 The forms of an {\em assignment-statement} are:
 \begin{indpar}
@@ -2300,6 +2299,20 @@ The forms of an {\em assignment-statement} are:
         & ~~~~~ {\em exit-sublock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
+\emkey{exit-subblock} ::=
+    \begin{tabular}[t]{l}
+    {\em exit-label} \ttkey{exit}\TT{:} \\
+    \TT{~~~~}{\em statement}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{iteration-control} ::= see \pagref{ITERATION-CONTROL}
+\\[0.5ex]
+\emkey{block-label} ::= {\em statement-label}
+\\[0.5ex]
+\emkey{exit-label} ::= {\em statement-label}
+\\[0.5ex]
+\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL}
+\\[0.5ex]
 \emkey{assignment-result}\label{ASSIGNMENT-RESULT}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em result-variable-declaration} \\
@@ -2342,14 +2355,6 @@ The forms of an {\em assignment-statement} are:
 \emkey{pointer-variable} ::= see \pagref{POINTER-VARIABLE}
 \\[0.5ex]
 \emkey{allocation-call} ::= {\em function-call}
-\\[0.5ex]
-\emkey{function-call} ::= see \pagref{FUNCTION-CALLS}
-\\[0.5ex]
-\emkey{iteration-control} ::= see \pagref{ITERATION-CONTROL}
-\\[0.5ex]
-\emkey{block-label} ::= {\em statement-label}
-\\[0.5ex]
-\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL}
 \end{indpar}
 
 Associated with {\em block-assignment-statements} and
