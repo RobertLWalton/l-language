@@ -2331,7 +2331,7 @@ The forms of an {\em assignment-statement} are:
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
     ::= \ttkey{next} {\em variable-name}
 \\[0.5ex]
-\emkey{block-variable-declaration}\label{BLOCK-VARIABLE-DECLARATION} ::= \\
+\emkey{block-variable-declaration} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em target-variable} \\
 	$|$ & \TT{next} {\em target-variable} \\
@@ -2380,7 +2380,8 @@ to the values of the {\em expressions} in the {\em expression-list}.
 {\em Call-assignment-statements} set the values of these variables
 to the values returned by the {\em function-call}.
 
-A {\em block-variable-declaration} allocates memory for its variable
+A {\em block-variable-declaration}\label{BLOCK-VARIABLE-DECLARATION}
+allocates memory for its variable
 in the frame of the currently executing function and also initializes
 that memory according to the declaration syntax as follows:
 \begin{indpar}[0.05in]
@@ -2402,7 +2403,8 @@ cause segmentation faults when de-referenced.
 
 The {\em pointer-variables} declared by {\em block-variable-declarations}
 \underline{with} {\em allocation-calls}
-are initialized by the {\em allocation-call} and are thereafter
+are initialized by the {\em allocation-call}
+(see \pagref{ALLOCATION-CALL}) and are thereafter
 {\tt co}, but the memory
 pointed at is zeroed initially, 
 {\tt *WRITE-\EOL ONLY*} in {\em statements}
@@ -2584,26 +2586,20 @@ The syntax of {\em block-assignment-statements} is:
 
 The {\em block-assignment-statement}
 first allocates and initializes memory in the current function frame
-for the variables declared by the {\em block-variable-declarations}.
-Declarations containing an {\em allocation-call} set the memory, which
-is a pointer variable, to the result of the {\em allocation-call}
-(see below), which in turn points at allocated memory that is zeroed.
-Other declarations zero the variable's memory if they are not
-{\em next-declarations},
-and set the variable's memory
-to the previous value of the declaration's variable if
-the declarations are {\em next-declarations}.
+for the variables declared by the {\em block-variable-declarations}:
+see \pagref{BLOCK-VARIABLE-DECLARATION}.
 
 Then any {\em statements} and
 {\em exit-subblocks} are executed.  During this execution
 block variables with \underline{no} {\em allocation-call}
-are write-only, and after this execution, these variables become
+are {\tt *WRITE-\EOL ONLY*}, and after this execution, these variables become
 {\tt co}.  During this execution variables with
 an {\em allocation-call} are {\tt co} but the memory they point
-at is write-only, and after execution this memory becomes whatever
+at is {\tt *WRITE-\EOL ONLY*}, and after execution this memory becomes whatever
 its pointer qualifiers specify.
 
-When a declaration has an {\em allocation-call}, its variable must have pointer
+When a declaration has an {\em allocation-call}\label{ALLOCATION-CALL},
+its variable must have pointer
 type, and the {\em allocation-call} is executed to set the pointer
 before any {\em statements} in the {\em block-assignment-statement}
 are executed.  The {\em allocation-call} is executed
@@ -2647,11 +2643,12 @@ and an {\em exit-subblock} exits its containing block after the last
 {\em statement} in the {\em exit-subblock}.
 
 A {\em go-to-exit-statement} in an {\em exit-subblock} may only enter
-a \underline{subsequent} {\em exit-subblock} or exit its containing
-{\em block-assignment-statement} by using the block's {\em block-label}.
+a \underline{subsequent} {\em exit-subblock} or exit any of its containing
+{\em block-assignment-statements} by using that block's {\em block-label}.
 
 {\em Go-to-exit-statements} define various possible execution
-paths through a {\em block-assignment-statement}.
+paths through a {\em block-assignment-statement}
+(these are paths in an acyclic graph).
 It is a compile error if a {\em statement}
 within the {\em block-assignment-statement}
 uses a declaration and the statement can be reached by a path that
@@ -2682,10 +2679,11 @@ next x = do:
     next x = x + 1
 \end{verbatim}\end{indpar}
 
-\subsubsubsection{Deferred Assignment Statements}
-\label{DEFERRED-ASSIGNMENT-STATEMENTS}
+\subsubsubsection{Deferred and Companion Assignment Statements}
+\label{DEFERRED-AND-COMPANION-ASSIGNMENT-STATEMENTS}
 
-The syntax of {\em deferred-assignment-state\-ments} is:
+The syntax of {\em deferred-assignment-state\-ments} and
+{\em companion-assignment-statements} is:
 
 \begin{indpar}
 \emkey{deferred-assignment-statement} ::= \\
