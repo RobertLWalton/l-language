@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 18, 2021
+October 21, 2021
 
 \bigskip
  
@@ -2394,7 +2394,7 @@ Value returned by the {\em allocation-call}.
 
 The variables declared by {\em block-variable-declarations}
 \underline{without} {\em allocation-calls}
-are {\tt *WRITE-ONLY*} in {\em statements}
+are {\tt *WRITE-\EOL ONLY*} in {\em statements}
 of the {\em assignment-statement} and {\tt co} after the
 {\em assignment-statement}.
 Zeroed numbers are zero, while zeroed pointers typically
@@ -2402,14 +2402,13 @@ cause segmentation faults when de-referenced.
 
 The {\em pointer-variables} declared by {\em block-variable-declarations}
 \underline{with} {\em allocation-calls}
-are initialized by the {\em allocation-call}, but the memory
+are initialized by the {\em allocation-call} and are thereafter
+{\tt co}, but the memory
 pointed at is zeroed initially, 
-{\tt *WRITE-ONLY*} in {\em statements}
+{\tt *WRITE-\EOL ONLY*} in {\em statements}
 of the {\em assignment-statement}, and 
 subject to the {\em pointer-variable} {\em qualifiers} after
-the {\em assignment-statement} finished execution.
-
-TBD
+the {\em assignment-statement}.
 
 If a {\em result-variable-declaration} declares a {\em pointer-variable},
 an associated {\em target-variable} is implicitly declared at the same time
@@ -2420,7 +2419,8 @@ points at.
 
 Note that a {\em result-variable-declaration} does not allow
 qualifiers on anything but the target of a pointer.  The implicit
-qualifier of a declared variable is {\tt co}, meaning the
+qualifier of a declared variable is {\tt co} after the
+{\em assignment-statements} meaning that
 the value of the variable once initially set is never changed.
 The qualifiers of a {\em target-variable} associated with a
 {\em pointer-variable} are those of the target of
@@ -2438,16 +2438,17 @@ has the same types and qualifiers as the previous variable named {\tt v}.
 A {\em next-variable-declaration} for variable {\tt v} enables
 `{\tt next v}' to be used like a {\em variable-name}
 in {\em reference-expressions} within the {\em statements}
-of a sub-block of the {\em assignment-statement}.  Use of
+of the {\em assignment-statement}.  Use of
 {\tt v} within these statements outside of `{\tt next v}'
 refers to the value of {\tt v} just
 before the {\em assignment-statement} was executed.
 
 Under some circumstances `{\tt next v}' will
 be implicitly added to an {\em assignment-statement}
-{\em variable-declaration} list to legalize the
+{\em block-variable-declaration} list or {\em next-variable-declaration} list
+to legalize the
 use of `{\tt next v}' as an {\em assignment-result} of a {\em statement}
-in a {\em sub-block} of the {\em assignment-statement}.
+in the {\em assignment-statement}.
 See \pagref{NEXT-PROMOTION}.
 
 \subsubsubsection{Expression Assignment Statements}
@@ -2474,7 +2475,11 @@ where
 of {\em assignment-results}.
 
 \item The
-{\em expressions} \underline{cannot} contain a run-time {\em function-call}.
+{\em expressions} \underline{cannot} contain a run-time {\em function-call},
+other than a call to a builtin function called by means of an operator.
+For example, {\tt x "+" y} is allowed if {\tt x} and {\tt y} are of
+builtin numeric type or number constants, but not if either is a
+string constant or of a user defined type.
 
 \item For run-time {\em expression-assignment-statements}, if
 there is \underline{more than one} {\em expression}, all these
@@ -2497,7 +2502,7 @@ All {\em reference-expression} indices are evaluated first,
 then the {\em expressions} are evaluated,
 then the {\em expression} values are stored in the {\em assignment-results}.
 
-Variable names declared by {\em variable-declarations} that are
+Variable names declared by {\em result-variable-declarations} that are
 {\em assignment-results} are not visible to the {\em expressions}.
 In particular, if `{\tt next V}' is an {\em assignment-result},
 the name `{\tt V}' in an {\em expression} will refer to the variable
@@ -2521,7 +2526,7 @@ where
 \begin{itemize}
 
 \item The {\em function-call} must be run-time (else the statement is
-an {\em expression-assign\-ment-statement}.
+an {\em expression-assign\-ment-statement}).
 
 \item The {\em actual-arguments} in the {\em function-call} must be
 {\em reference-expressions} or
