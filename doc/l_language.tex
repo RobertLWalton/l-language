@@ -2307,7 +2307,7 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{iteration-control} ::= see \pagref{ITERATION-CONTROL}
 \\[0.5ex]
-\emkey{block-label} ::= {\em statement-label}
+\emkey{block-label}\label{BLOCK-LABEL} ::= {\em statement-label}
 \\[0.5ex]
 \emkey{exit-label} ::= {\em statement-label}
 \\[0.5ex]
@@ -2713,19 +2713,16 @@ The syntax of {\em deferred-assignment-state\-ments} and
         ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
-{\em allocation-call} ::= {\em function-call}
+{\em block-label} ::= see \pagref{BLOCK-LABEL}
+\\[0.5ex]
+{\em statement} ::= see \pagref{STATEMENT}
 \\[0.5ex]
 {\em exit-subblock} ::= see \pagref{EXIT-SUBBLOCK}
-\\[1ex]
-where
-\begin{itemize}
-\item If there is an {\em allocation-call}, all the
-{\em variable-declarations} must have {\em pointer-types}.
-\end{itemize}
 \end{indpar}
 
 A {\em deferred-assignment-statement} has
-{\em companion-assignment-statements} whose {\em result-vari\-able-declaration}
+{\em companion-assignment-statements} whose
+{\em deferred-vari\-able-declaration}
 lists are sublists of the list of the {\em deferred-assignment-statement}.
 The combination of a {\em deferred-assignment-statement} and its
 \skey{companion}s has the same effect as a {\em block-assignment-statement}
