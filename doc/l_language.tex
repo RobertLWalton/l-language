@@ -2831,7 +2831,8 @@ is being exited.
 As in {\em block-assignment-statements}, if `{\tt next V}' occurs
 as an {\em assignment-result} within the loop {\em statements}
 but is not within the scope of a {\em result-variable-declaration}
-for {\tt V}, `{\tt next V}' will be added to the {\em next-variable-declaration}
+for {\tt V} that is also within the {\em loop-assignment-statement},
+`{\tt next V}' will be added to the {\em next-variable-declaration}
 list of the {\em loop-assignment-statement}.  Therefore the
 above example could be written as:
 \begin{indpar}\begin{verbatim}
@@ -2849,9 +2850,6 @@ while sum < 4
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
-
-The variables declared by the {\em next-variable-declarations}
-of a {\em loop-assignment-statement} are called \skey{iteration variable}s.
 
 \subsubsection{Conditional Statements}
 \label{CONDITIONAL-STATEMENTS}
