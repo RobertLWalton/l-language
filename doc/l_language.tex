@@ -2272,7 +2272,7 @@ The forms of an {\em assignment-statement} are:
 \hspace*{0.5in}
         {\em deferred-variable-declaration}
 	    \{ \TT{,} {\em deferred-variable-declaration} \}\QMARK{}
-	    \TT{=} \ttkey{deferred}
+	    \TT{=} \ttkey{*DEFERRED*}
 \\[0.5ex]
 \emkey{companion-assignment-statement} ::= \\
 \hspace*{0.5in}
@@ -2690,7 +2690,7 @@ next x = do:
 \subsubsubsection{Deferred and Companion Assignment Statements}
 \label{DEFERRED-AND-COMPANION-ASSIGNMENT-STATEMENTS}
 
-The syntax of {\em deferred-assignment-state\-ments} and
+The syntax of {\em defer\-red-assignment-state\-ments} and
 {\em companion-assignment-statements} is:
 
 \begin{indpar}
@@ -2699,7 +2699,7 @@ The syntax of {\em deferred-assignment-state\-ments} and
     \begin{tabular}[t]{@{}l}
         {\em deferred-variable-declaration}
                 \{ \TT{,} {\em deferred-variable-declaration} \}\QMARK{}
-		     \TT{=} \ttkey{deferred} \\
+		     \TT{=} \ttkey{*DEFERRED*} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{companion-assignment-statement} ::= \\
@@ -2737,8 +2737,14 @@ must be in that module or its bodies.
 {\em Deferred-variable-declarations} are just {\em block-variable-declarations}
 that are not {\em next-declar\-ations}.  A {\em pointer-variable} declared by a
 {\em deferred-variable-declaration} may have an {\em allocation-call} in
-either its {\em deferred-assignent-statement} or its companion, but not
-both.
+either its {\em companion-assignent-statement} but not in its
+{\em deferred-assignment-statement}.
+
+Code that reads a variable declared in a {\em deferred-assignment-statement}
+before the variable's companion executes will read the variable's value
+as zero.  For pointers this will usually reference undefined memory which
+will cause a memory fault if accessed.
+
 
 \subsubsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
