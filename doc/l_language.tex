@@ -2834,8 +2834,8 @@ while sum < 4
 \label{CONDITIONAL-STATEMENTS}
 
 A {\em conditional-statement} executes another {\em statement}
-or block of {\em statements} according to what several
-{\em bool-expressions} evaluated to.
+or block of {\em statements} according to what a
+{\em bool-expression} evaluates to.
 {\em Conditional-statements} have the syntax:
 
 \begin{indpar}
@@ -2885,6 +2885,8 @@ The following is a complete list of declarations:
         & [\pagref{RESULT-VARIABLE-DECLARATION}] \\
     $|$ & {\em next-variable-declaration}
         & [\pagref{NEXT-VARIABLE-DECLARATION}] \\
+    $|$ & {\em block-variable-declaration}
+        & [\pagref{BLOCK-VARIABLE-DECLARATION}] \\
     $|$ & {\em prototype-result-declaration}
         & [\pagref{PROTOTYPE-RESULT-DECLARATION}] \\
     $|$ & {\em argument-declaration}
@@ -2916,7 +2918,7 @@ The syntax of a type declaration is:
     \begin{tabular}[t]{rl}
     ::= & \ttkey{type} {\em defined-type-name} \TT{:} \\
 	& \TT{~~~~~}{\em type-subdeclaration}\STAR{} \\
-    $|$ & \ttkey{type} {\em defined-type-name} \TT{:} \ttkey{deferred} \\
+    $|$ & \ttkey{type} {\em defined-type-name} \TT{:} \ttkey{*DEFERRED*} \\
     \end{tabular} \\
 \emkey{defined-type-name} ::= {\em type-name} \\
 \emkey{type-name} ::= see \pagref{TYPE-NAME}
@@ -3068,7 +3070,7 @@ members of the defined type.  Otherwise the compiler must allocate
 the values to memory as their size is not determined until load
 time.
 
-A \ttkey{deferred} {\em type-declaration} is just syntactic
+A \ttkey{*DEFERRED*} {\em type-declaration} is just syntactic
 sugar for a {\em type-declaration} with \underline{no} sub-declarations.
 Such a {\em type-declaration} is typically used allow the {\em type-name}
 to be used as the target type of a pointer.
@@ -3366,7 +3368,7 @@ The syntax of a function declaration is:
     \begin{tabular}[t]{rl}
     ::= &  {\em function-prototype} \TT{:} \\
 	& \TT{~~~~~}{\em statement}\PLUS{} \\
-    $|$ &  {\em function-prototype}~ \TT{:}~ \ttkey{deferred} \\
+    $|$ &  {\em function-prototype}~ \TT{:}~ \ttkey{*DEFERRED*} \\
     \end{tabular}
 \\[2ex]
 \emkey{function-prototype}\label{FUNCTION-PROTOTYPE} ::= \\
@@ -3588,9 +3590,9 @@ F ( 8 ) G ( z )    // Matches only second F declaration
                    // (z is not compile-time).
 \end{verbatim}\end{indpar}
 
-A `{\tt deferred}' {\em function-declaration} permits
+A `{\tt *DEFERRED*}' {\em function-declaration} permits
 inline functions defined between it and a later
-non-{\tt deferred} companion {\em function-declaration} to call the
+non-{\tt *DEFERRED*} companion {\em function-declaration} to call the
 function.  An example is:
 \begin{indpar}\begin{verbatim}
 function F2 ( const i): deferred
@@ -3618,17 +3620,17 @@ F1 ( 5 )   // Legal, expands to:
            // visible to the statements of F1.
 \end{verbatim}\end{indpar}
 Here the statements of {\tt F1} compile in the context
-of the declaration of {\tt F1} and need the {\tt deferred}
+of the declaration of {\tt F1} and need the {\tt *DEFERRED*}
 declaration of {\tt F2} in that context to enable these
 statements to call {\tt F2}.  Given that a call is enabled,
 the situation where the statements of {\tt F2} are provided later
 is permitted than the declaration of {\tt F1} is permitted.
 
-A {\tt deferred} declaration and its companion non-{\tt deferred}
+A {\tt *DEFERRED*} declaration and its companion non-{\tt *DEFERRED*}
 declaration must have identical prototypes, except:
 \label{COMPANION-DECLARATION}
 \begin{itemize}
-\item Default values must appear only in the {\tt deferred} declaration
+\item Default values must appear only in the {\tt *DEFERRED*} declaration
 and are omitted in the companion.
 \item Required values need not have the same computing expressions
 in the two declarations, but these expressions must evaluate to the
@@ -3637,12 +3639,12 @@ their prototype is declared, and therefore are evaluated in
 two different contexts.
 \end{itemize}
 
-A {\tt deferred} inline {\em function-declaration} may have at
+A {\tt *DEFERRED*} inline {\em function-declaration} may have at
 most one companion.
 
 The prototype of an inline {\em function-declaration} is visible
 to the {\em statements} of that same declaration, and therefore
-an inline function can call itself without having any {\tt deferred}
+an inline function can call itself without having any {\tt *DEFERRED*}
 companion.
 
 Recursion in inline function calls must be limited by compile-time
@@ -3843,7 +3845,7 @@ The syntax of an out-of-line function declaration is:
     \begin{tabular}[t]{rl}
         &  {\em out-of-line-function-prototype} \TT{:} \\
 	& \TT{~~~~~}{\em statement}\PLUS{} \\
-    $|$ &  {\em out-of-line-function-prototype} \TT{:} \ttkey{deferred} \\
+    $|$ &  {\em out-of-line-function-prototype} \TT{:} \ttkey{*DEFERRED*} \\
     \end{tabular}
 \\[2ex]
 \emkey{out-of-line-function-prototype}%
@@ -3877,9 +3879,9 @@ The rules for inline {\em function-declarations} on
 \item
 Wild-cards are not allowed.
 \item
-The rules for inline `{\tt deferred}' {\em function-declarations} and
+The rules for inline `{\tt *DEFERRED*}' {\em function-declarations} and
 their companions on \pagref{COMPANION-DECLARATION}
-must be followed for {\tt deferred} {\tt out-of-line-function-declarations}
+must be followed for {\tt *DEFERRED*} {\tt out-of-line-function-declarations}
 and their companions.
 \end{itemize}
 \end{indpar}
@@ -3901,18 +3903,18 @@ out-of-line function must be called with an:
 \end{indpar}
 
 Unlike inline functions, an out-of-line function can
-be called from a statement for which only a {\tt deferred} declaration
+be called from a statement for which only a {\tt *DEFERRED*} declaration
 of the out-of-line function is visible.  A missing companion
 declaration is not a compile-time error, but will be a
 run-time error if the function is actually called at run-time.
 
-Like inline functions, a {\tt deferred} {\em out-of-line-function-declaration}
-can have only one companion.  It is common for the {\tt deferred}
+Like inline functions, a {\tt *DEFERRED*} {\em out-of-line-function-declaration}
+can have only one companion.  It is common for the {\tt *DEFERRED*}
 declaration to be in a module and its companion to be in a body of
 that module.
 
 If\label{OUT-OF-LINE-EXTERNAL-COMPANION}
-a {\tt deferred} {\em out-of-line-function-declaration}
+a {\tt *DEFERRED*} {\em out-of-line-function-declaration}
 is external,\pagnote{EXTERNAL-FUNCTION}
 its companion may be anywhere in the scope of the declaration,
 including in another module or another module's body that imports
