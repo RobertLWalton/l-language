@@ -3079,40 +3079,39 @@ A \ttkey{include} sub-declaration copies all the {\em type-subdeclarations}
 of the given defined type into the current sequence of
 {\em type-subdeclarations}.
 
-If there are multiple {\em type-declarations} with the same
-{\em type-name}, all but the first act
+If the first sub-declaration of a {\em type-declaration}
+is either {\tt *EXPANDABLE*} or {\tt *EXTERNAL*} there may
+be multiple {\em type-declarations} with the same
+{\em type-name}, all of which must have the same first
+sub-declaration.  All act
 to append {\em type-subdeclarations}\label{TYPE-DECLARATION-APPEND}
 to the current list of such for the {\em type-name}.
 All {\em type-declarations} for a given {\em type-name} but the first
-must be within the scope (see \itemref{SCOPE}) of the
-{\em type-name}.
+must be within the scope (see \itemref{SCOPE}) of the first
+{\em type-declaration}.   All but the first are called
+\skey{expansion}s of the first {\em type-declaration}.
+Either {\tt *EXPANDABLE*} or {\tt *EXTERNAL*} may be a
+sub-declaration of a {\em type-declaration}, but not both.
 
-The \ttkey{*EXPANDABLE*}\label{*EXPANDABLE*} and
-\ttkey{*EXTERNAL*}\label{*EXTERNAL*} sub-declarations allow
-a {\em type-definition} to be expanded by a subsequent
-{\em type-definition} with the same {\em type-name}.
-Only one of these sub-declarations may be given, and it must be the
-last sub-declaration in is {\em type-definition}.
-The subsequent {\em type-declaration} is called the \key{expansion}
-of the {\em type-declaration} that ends with the
-{\tt *EXPANDABLE*} or {\tt *EXTERNAL*} sub-declarations.
-The expansion must be within the scope\pagnote{SCOPE} of the
-{\em type-declaration}.
-
-For a {\em type-declaration} with an {\tt *EXPANDABLE*} sub-declaration,
-its expansion must be in the same module\pagnote{MODULE-DECLARATIONS}
+For a {\em type-declaration} with an \ttkey{*EXPANDABLE*} sub-declaration,
+its expansions must be in the same module\pagnote{MODULE-DECLARATIONS}
 as the {\em type-declaration}, or in one of that module's bodies.
-For a {\em type-declaration} with an {\tt *EXTERNAL*} sub-declaration
+For a {\em type-declaration} with an \ttkey{*EXTERNAL*} sub-declaration
 there is no such restriction, and the expansion may be in
 in any module or body that imports the {\em type-declaration}'s
 module.
 
-TBD
+At the beginning of each expansion the offset is set to zero and
+the align/pack switch is set to align.
 
 A \ttkey{*DEFERRED*} {\em type-declaration} is just syntactic
 sugar for a {\em type-declaration} with \underline{no} sub-declarations.
 Such a {\em type-declaration} is typically used allow the {\em type-name}
 to be used as the target type of a pointer.
+
+The {\em type-name} in a {\em type-declaration} is declared before
+the {\em type-declaration}'s sub-declarations are processed, so these
+sub-declarations may use the {\em type-name} as a pointer target type.
 
 A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
 given {\em origin-label} and provides the {\em origin-label}
@@ -3123,6 +3122,10 @@ of the given {\em origin-label}.
 The {\em origin-label} must be defined by a preceding
 {\tt *LABEL*} sub-declaration.
 
+An {\em origin-label} may be re-used.  Its use in an {\tt *ORIGIN*}
+sub-declaration refers to its most recent previous use in a {\tt *LABEL*}
+statement.
+
 Care must be exercised when using {\tt *LABEL*} and {\tt *ORIGIN*},
 as both type-violations and unexpected field allocations can result.
 Note that if there are multiple {\em type-declarations}
@@ -3130,6 +3133,8 @@ with the same {\em type-name} in different
 modules and bodies,\pagnote{MODULE-DECLARATIONS}
 the order in which these {\em type-declarations} are processed
 may not be completely determined.
+
+TBD
 
 Subfields are parts of the previously declared numeric field.
 The bits occupied
