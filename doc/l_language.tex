@@ -1644,6 +1644,13 @@ L-Language uses several kinds of names:
 			(note: all `\TT{.}'s in a {\em name} must be at
 			 the beginning of the {\em name})
 			\end{tabular} \\
+\emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::= \\
+\hspace*{2em}
+    {\em member-name} beginning with one or more `\TT{.}'s followed by
+    an `\TT{@}' \\
+\emkey{target-member-name}\label{TARGET-MEMBER-NAME} ::=
+    {\em member-name} that is \underline{not} a {\em pointer-member-name}
+\\[1ex]
 \emkey{data-label}\label{DATA-LABEL} ::=
     {\em basic-name} $|$ {\em member-name}
 \\[1ex]
@@ -2699,7 +2706,7 @@ The syntax of {\em defer\-red-assignment-state\-ments} is:
 
 Each variable declared by a {\em deferred-variable-declaration}
 of a {\em deferred-assignment-statement} must be declared identically,
-except for the permitted addition or subtraction of an {\em allocation-call},
+except for addition or subtraction of an {\em allocation-call},
 as a {\em block-variable-declaration} of a {\em block-assignment-statement}
 that is within the scope\pagnote{SCOPE} of the
 {\em deferred-assignment-statement}.  The {\em block-assignment-statement},
@@ -2959,10 +2966,10 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
     $|$ &  \ttkey{include} {\em defined-type-name} \\
-    $|$ &  \ttkey{*FINAL*} \\
-    $|$ &  \ttkey{*EXTERNAL*} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
+    $|$ &  \ttkey{*EXPANDABLE*} \\
+    $|$ &  \ttkey{*EXTERNAL*} \\
     \end{tabular}
 \\[2ex]
 \emkey{field-declaration}
@@ -2974,17 +2981,17 @@ The syntax of a type declaration is:
 \emkey{field-without-subfields-declaration} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
         & {\em qualifier-name}\STAR{} {\em field-type-name}~
-          {\em target-label}~ {\em field-dimension}\QMARK{} \\
+          {\em target-label}~ {\em field-dimension}\STAR{} \\
     $|$ & {\em qualifier-name}\STAR{} {\em pointer-type-name} \\
         & ~~~~~ {\em qualifier-name}\STAR{} {\em field-type-name}~
-                {\em pointer-label}~ {\em field-dimension}\QMARK{}
+                {\em pointer-label}~ {\em field-dimension}\STAR{}
 	\end{tabular}
 \\[2ex]
 \emkey{field-with-subfields-declaration} ::= \\
 \hspace*{0.5in}
     {\em qualifier-name}\STAR{}
     \TT{std}\QMARK{} {\em number-type-name}~ {\em target-label}\QMARK{}
-                {\em field-dimension}\QMARK{} \\
+                {\em field-dimension}\STAR{} \\
 \hspace*{0.5in}
     {\em subfield-declaration}\PLUS{}
 \\[2ex]
@@ -3006,7 +3013,7 @@ The syntax of a type declaration is:
     an `\TT{@}' \\
 \emkey{target-label}\label{TARGET-LABEL} ::=
     {\em field-label} that is \underline{not} a {\em pointer-label} \\
-\emkey{origin-label}\label{ORIGIN-LABEL} ::=  {\em data-label} \\
+\emkey{origin-label}\label{ORIGIN-LABEL} ::=  {\em target-label} \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
@@ -3016,7 +3023,7 @@ The syntax of a type declaration is:
 \emkey{subfield-declaration} ::= \\
 \hspace*{0.5in}
     {\em bit-range} {\em subfield-type-name} {\em subfield-label}
-    		{\em subfield-dimension}\QMARK{} \\
+    		{\em subfield-dimension}\STAR{} \\
 \emkey{subfield-type-name}\label{SUBFIELD-TYPE-NAME} ::=
     {\em number-type-name} $|$ \TT{bool} \\
 \emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em target-label} \\
@@ -3026,7 +3033,7 @@ The syntax of a type declaration is:
     \begin{tabular}[t]{@{}rl}
     ::= &  \TT{[} {\em onlybit} \TT{]} \\
     $|$ &  \TT{[} {\em lowhighbits} \TT{]} \\
-    $|$ &  \TT{[} {\em lowbit} \TT{-} {\em highbit} \TT{]}
+    $|$ &  \TT{[} {\em highbit} \TT{-} {\em lowbit} \TT{]}
     \end{tabular} \\
 \emkey{onlybit} ::= compile-time {\em expression}
 		    with non-negative integer value \\
@@ -3040,19 +3047,15 @@ The syntax of a type declaration is:
 \\[2ex]
 \emkey{alignment} ::= compile-time {\em expression}
 		      with power of 2 integer value
-
-\begin{itemize}
-\item All the compile-time {\em expressions} must evaluate to an integer.
-\end{itemize}
 \end{indpar}
 
 The {\em type-subdeclarations} are processed in order.  At the
 beginning of each, there is a align/pack switch value and an
-offset-in-bits integer that determine the offset, relative to the
-beginning of each datum of the new data type being declared, of the next
-{\em field-declaration} field encountered.  These offsets are in bits.
-Initially the align/pack switch is set to align and the offset is
-set to zero.
+offset-in-bits integer.  These determine the offset in bits
+of the next {\em field-declaration} field encountered
+relative to the beginning of each datum of the new data
+type being declared.  At the beginning of each {\em type-declaration}
+the align/pack switch is set to align and the offset is set to zero.
 
 If the align/pack switch is in the \key{align} position and the
 next {\em type-subdeclaration} is a {\em field-declaration}, the
@@ -3061,11 +3064,14 @@ of the field being declared.  The increment will be just enough
 to make the offset an exact multiple of the field's type's alignment.
 The alignment of a number type is its size in bits.  The alignment
 of a defined type is the least common multiple of the alignment of
-any of its fields.
+any of its fields, which, since all alignments are powers of two,
+is the same as the largest alignment of any of the fields.
 
 An `\ttkey{align} $N$' sub-declaration behaves like an unnamed
 field of alignment $N$ and zero length,
 and in addition sets the align/pack switch to `align'.
+An `\ttkey{align}' sub-declaration just sets the
+align/pack switch to `align'.
 
 A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
@@ -3081,24 +3087,27 @@ All {\em type-declarations} for a given {\em type-name} but the first
 must be within the scope (see \itemref{SCOPE}) of the
 {\em type-name}.
 
-Normally all {\em type-declarations} with the same {\em type-name}
-must be in the same modules\pagnote{MODULE-DECLARATIONS} or its
-bodies.
-However, if the \ttkey{*EXTERNAL*}\label{*EXTERNAL*} sub-declaration is given
-in the first {\em type-declaration} with a given {\em type-name},
-and if the {\em type-name} is external,\pagnote{SCOPE}
-subsequent {\em type-declarations} with the given {\em type-name}
-may be in any module or body that imports the {\em type-name}'s
+The \ttkey{*EXPANDABLE*}\label{*EXPANDABLE*} and
+\ttkey{*EXTERNAL*}\label{*EXTERNAL*} sub-declarations allow
+a {\em type-definition} to be expanded by a subsequent
+{\em type-definition} with the same {\em type-name}.
+Only one of these sub-declarations may be given, and it must be the
+last sub-declaration in is {\em type-definition}.
+The subsequent {\em type-declaration} is called the \key{expansion}
+of the {\em type-declaration} that ends with the
+{\tt *EXPANDABLE*} or {\tt *EXTERNAL*} sub-declarations.
+The expansion must be within the scope\pagnote{SCOPE} of the
+{\em type-declaration}.
+
+For a {\em type-declaration} with an {\tt *EXPANDABLE*} sub-declaration,
+its expansion must be in the same module\pagnote{MODULE-DECLARATIONS}
+as the {\em type-declaration}, or in one of that module's bodies.
+For a {\em type-declaration} with an {\tt *EXTERNAL*} sub-declaration
+there is no such restriction, and the expansion may be in
+in any module or body that imports the {\em type-declaration}'s
 module.
 
-The \ttkey{*FINAL*} sub-declaration specifies that the containing
-{\em type-declaration} is the last {\em type-declaration} for
-its {\em type-name}.  This is just an aid to optimization, as
-it allows the compiler to pass values of the defined type in
-registers because the compiler knows the size and all the
-members of the defined type.  Otherwise the compiler must allocate
-the values to memory as their size is not determined until load
-time.
+TBD
 
 A \ttkey{*DEFERRED*} {\em type-declaration} is just syntactic
 sugar for a {\em type-declaration} with \underline{no} sub-declarations.
