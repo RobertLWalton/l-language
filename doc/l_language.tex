@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 23, 2021
+October 26, 2021
 
 \bigskip
  
@@ -2270,8 +2270,8 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{deferred-assignment-statement} ::= \\
 \hspace*{0.5in}
-        {\em result-variable-declaration}
-	    \{ \TT{,} {\em result-variable-declaration} \}\QMARK{}
+        {\em deferred-variable-declaration}
+	    \{ \TT{,} {\em deferred-variable-declaration} \}\QMARK{}
 	    \TT{=} \ttkey{*DEFERRED*}
 \\[0.5ex]
 \emkey{loop-assignment-statement} ::= \\
@@ -2320,7 +2320,7 @@ The forms of an {\em assignment-statement} are:
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
     ::= \ttkey{next} {\em variable-name}
 \\[0.5ex]
-\emkey{block-variable-declaration} ::= \\
+\emkey{block-variable-declaration}\label{BLOCK-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em target-variable} \\
 	$|$ & \TT{next} {\em target-variable} \\
@@ -2329,6 +2329,15 @@ The forms of an {\em assignment-statement} are:
 	    & ~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
 	$|$ & \TT{next} {\em pointer-variable}
 	      ~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{deferred-variable-declaration}%
+    \label{DEFERRED-VARIABLE-DECLARATION} ::= \\
+\hspace*{0.5in}\begin{tabular}{rl}
+	    & {\em type-name} {\em target-variable} \\
+	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      {\em type-name} {\em pointer-variable} \\
+	    & ~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
 \emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
@@ -2369,7 +2378,7 @@ to the values of the {\em expressions} in the {\em expression-list}.
 {\em Call-assignment-statements} set the values of these variables
 to the values returned by the {\em function-call}.
 
-A {\em block-variable-declaration}\label{BLOCK-VARIABLE-DECLARATION}
+A {\em block-variable-declaration}
 allocates memory for its variable
 in the frame of the currently executing function and also initializes
 that memory according to the declaration syntax as follows:
@@ -2559,6 +2568,9 @@ The syntax of {\em block-assignment-statements} is:
         & ~~~~~ {\em exit-sublock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
+{\em block-variable-declaration} ::=
+    see \pagref{BLOCK-VARIABLE-DECLARATION}
+\\[0.5ex]
 \emkey{exit-subblock}\label{EXIT-SUBBLOCK} ::=
     \begin{tabular}[t]{l}
     {\em exit-label} \ttkey{exit}\TT{:} \\
@@ -2575,8 +2587,7 @@ The syntax of {\em block-assignment-statements} is:
 
 The {\em block-assignment-statement}
 first allocates and initializes memory in the current function frame
-for the variables declared by the {\em block-variable-declarations}:
-see \pagref{BLOCK-VARIABLE-DECLARATION}.
+for the variables declared by the {\em block-variable-declarations}.
 
 Then any {\em statements} and
 {\em exit-subblocks} are executed.  During this execution
@@ -2672,41 +2683,60 @@ next x = do:
 \label{DEFERRED-ASSIGNMENT-STATEMENTS}
 
 The syntax of {\em defer\-red-assignment-state\-ments} is:
-{\em companion-assignment-statements} is:
 
 \begin{indpar}
 \emkey{deferred-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}l}
-        {\em result-variable-declaration}
-                \{ \TT{,} {\em result-variable-declaration} \}\QMARK{}
+        {\em deferred-variable-declaration}
+                \{ \TT{,} {\em deferred-variable-declaration} \}\QMARK{}
 		     \TT{=} \ttkey{*DEFERRED*} \\
     \end{tabular}
 \\[0.5ex]
-{\em result-variable-declaration} ::= see \pagref{RESULT-VARIABLE-DECLARATION}
+{\em deferred-variable-declaration} ::=
+    see \pagref{DEFERRED-VARIABLE-DECLARATION}
 \end{indpar}
 
-Each variable declared by a {\em result-variable-declaration}
+Each variable declared by a {\em deferred-variable-declaration}
 of a {\em deferred-assignment-statement} must be declared identically,
-except for the permitted addition of an {\em allocation-call},
+except for the permitted addition or subtraction of an {\em allocation-call},
 as a {\em block-variable-declaration} of a {\em block-assignment-statement}
 that is within the scope\pagnote{SCOPE} of the
 {\em deferred-assignment-statement}.  The {\em block-assignment-statement},
-known as the \key{companion} of the {\em result-variable-declaration}
-in the {\em deferred-assignment-statement}, computes the value of the
-declared variable.
+known as the \key{companion} of the {\em deferred-variable-declaration},
+computes the value of the
+declared variable, except in the case of a pointer variable whose value is
+set by an {\em allocation-call} in the {\em deferred-assignment-statement}.
 If a {\em deferred-assignment-statement} is in a module
 (\itemref{MODULE-DECLARATIONS}), companions
-of its {\em result-variable-declarations} must be in that module or its bodies.
+of its {\em deferred-variable-declarations}
+must be in that module or its bodies.
 
-A {\em deferred-assignment-statement} sets the variables it declares to
-zero and makes them {\em ro} (not {\em co}).
-Code that reads the variables before companions compute their values will
+A pointer variable may have an {\em allocation-call} in either its
+{\em deferred-assignment-statement} or in its companion, but not
+both.
+
+A {\em deferred-assignment-statement} initializes the variables it declares
+in the same manner as a {\em block-assignment-statement}.
+
+For variables that are \underline{not} set by an {\em allocation-call} in the
+{\em deferred-assignment-statement}, the variables are initialized to zero
+and made {\em ro} (not {\em co}) after the {\em deferred-assignment-statement}.
+Code that reads these variables before companions compute their values will
 read zero.  For pointers this will typically reference undefined memory which
 will cause a memory fault if accessed.  The variables are treated as
 normal {\em block-variable-declaration} variables inside their companions,
 and in particular, are {\tt *WRITE-ONLY*} inside their companions.
 
+For pointer variables that \underline{are} set by an {\em allocation-call}
+in the {\em deferred-assignment-statement}, the variables are made
+{\em co} after the {\em deferred-assignment-statement}, and the pointer
+target is given the {\em ro} qualifier, instead of its designated
+qualifiers, after the {\em deferred-assignment-statement}.  For most
+{\em allocation-calls} the data pointed at will be zero.  Then when
+the companion executes, the target will be {\tt *WRITE-ONLY}* in the
+{\em statements} of the companion, and after the companion finishes,
+will be given the qualifiers of the variable's declarations.
 
 \subsubsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -3144,10 +3174,10 @@ type list element:
     int value
     ap list element @next
 
+list element @Y =@ local:
+    Y.value = 2
 list element @X =@ local:
     X.value = 1
-    list element @Y =@ local:
-        Y.value = 2
     X.@next = @Y
 // Now X.value == 1 and X.next.value == 2 while
 // @X and X.@next are pointers to local memory
