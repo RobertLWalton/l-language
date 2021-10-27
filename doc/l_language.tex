@@ -2693,7 +2693,7 @@ The syntax of {\em defer\-red-assignment-state\-ments} is:
 
 \begin{indpar}
 \emkey{deferred-assignment-statement} ::= \\
-\hspace*{0.5in}
+\hspace*{0.3in}
     \begin{tabular}[t]{@{}l}
         {\em deferred-variable-declaration}
                 \{ \TT{,} {\em deferred-variable-declaration} \}\QMARK{}
@@ -2737,8 +2737,8 @@ read zero.  For pointers this will typically reference undefined memory which
 will cause a memory fault if accessed.
 
 The variables declared in a {\em deferred-assignment-statement} are treated as
-normal {\em block-variable-declaration} variables inside their companions.
-In particular the {\tt ro} variables are {\tt *WRITE-ONLY*}
+normal {\em block-vari\-able-declaration} variables inside their companions.
+In particular the {\tt ro} variables are {\tt *WRITE-\EOL ONLY*}
 inside their companions, and the {\tt co} pointer variables set by
 an {\em allocation-call} in their {\em deferred-assignment-statement}
 have their target type changed to {\tt *WRITE-ONLY*}
@@ -3179,8 +3179,6 @@ list element @Y:
 // pointers to local memory.
 \end{verbatim}\end{indpar}
 
-TBD
-
 Subfields are parts of the previously declared numeric field.
 The bits occupied
 by a subfield are given by its {\em bit-range}, where bits are numbered
@@ -3222,7 +3220,7 @@ flt weight = X.weight
 \end{verbatim}\end{indpar}
 
 If a {\em field-declaration} with {\em field-label}\, {\tt L} contains 
-{\em field-dimension} {\tt [$n$]} then $n$ fields are
+a single {\em field-dimension} {\tt [$n$]} then $n$ fields are
 allocated to ascending offsets, using zero padding
 if necessary to align all $n$ fields.  The labels of these
 fields are {\tt L[$i$]} for $0\le i<n$.  If there is a subfield
@@ -3239,9 +3237,22 @@ character attributes X:
     while i < 128:
         X.is graphic[i] = 32 < i && i < 127
         next i = i + 1
-bool line feed is graphic = X.is graphic [C#"\n"]
+bool line feed is graphic = X.is graphic [C#"<LF>"]
 bool A is graphic = X.is graphic [C#"A"]
 \end{verbatim}\end{indpar}
+
+In a {\em field-declaration}
+\underline{two} {\em field-dimensions} {\tt [$n1$][$n2$]} is
+treated as syntactic sugar for {\tt [$n1$*$n2$]} with
+{\tt L[$i1$][$i2$]} being syntactic sugar for
+{\tt L[$i1$*$n2$+$i2$]}.  Similarly
+{\tt [$n1$][$n2$][$n3$]} is
+syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
+{\tt L[$i1$][$i2$][$i3$]} being syntactic sugar for
+{\tt L[$i1$*$n2$*$n3$*+$i2$*$n2$+$i3$]}.  And so forth for any
+number of {\em field-dimensions}.
+
+TBD
 
 If a {\em subfield-declaration} with {\em subfield-label}\, {\tt S} contains 
 {\em subfield-dimension} {\tt [$n$]} then $n$ subfields are
