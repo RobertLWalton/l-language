@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 26, 2021
+October 27, 2021
 
 \bigskip
  
@@ -1984,7 +1984,7 @@ is:
 \end{indpar}
 
 A {\em member-name} of the form `\TT{.}{\em data-label}\,'
-may be used to select a field or subfield
+may be used to select a field or subfield\label{FIELD-SELECTION}
 of a user defined type\pagnote{TYPE-DECLARATIONS} value or
 a dictionary entry of a {\em map-dictionary}.
 
@@ -2598,12 +2598,12 @@ for the variables declared by the {\em block-variable-declarations}.
 
 Then any {\em statements} and
 {\em exit-subblocks} are executed.  During this execution
-block variables with \underline{no} {\em allocation-call}
+block variables \underline{not} set by an {\em allocation-call}
 are {\tt *WRITE-\EOL ONLY*}, and after this execution, these variables become
-{\tt co}.  During this execution variables with
-an {\em allocation-call} are {\tt co} but the memory they point
-at is {\tt *WRITE-\EOL ONLY*}, and after execution this memory becomes whatever
-its pointer qualifiers specify.
+{\tt co}.  During this execution pointer variables set by
+an {\em allocation-call} are {\tt co}, but their target type is changed
+to {\tt *WRITE-\EOL ONLY*}, and after execution the target type
+qualifiers become whatever the pointer variable declarations specify.
 
 When a declaration has an {\em allocation-call}\label{ALLOCATION-CALL},
 its variable must have pointer
@@ -2726,24 +2726,23 @@ both.
 A {\em deferred-assignment-statement} initializes the variables it declares
 in the same manner as a {\em block-assignment-statement}.
 
-For variables that are \underline{not} set by an {\em allocation-call} in the
-{\em deferred-assignment-statement}, the variables are initialized to zero
-and made {\em ro} (not {\em co}) after the {\em deferred-assignment-statement}.
-Code that reads these variables before companions compute their values will
+{\em Deferred-assignment-statement} variable initialization is the
+same as {\em block-assignment-state\-ment} variable initialization,
+except that after the statement the variables
+are made {\em ro} and not {\em co} if they are not set
+by an {\em allocation-call} in the {\em deferred-assignment-statement}.
+Code that reads such {\tt ro} variables
+before companions compute their values will
 read zero.  For pointers this will typically reference undefined memory which
-will cause a memory fault if accessed.  The variables are treated as
-normal {\em block-variable-declaration} variables inside their companions,
-and in particular, are {\tt *WRITE-ONLY*} inside their companions.
+will cause a memory fault if accessed.
 
-For pointer variables that \underline{are} set by an {\em allocation-call}
-in the {\em deferred-assignment-statement}, the variables are made
-{\em co} after the {\em deferred-assignment-statement}, and the pointer
-target is given the {\em ro} qualifier, instead of its designated
-qualifiers, after the {\em deferred-assignment-statement}.  For most
-{\em allocation-calls} the data pointed at will be zero.  Then when
-the companion executes, the target will be {\tt *WRITE-ONLY}* in the
-{\em statements} of the companion, and after the companion finishes,
-will be given the qualifiers of the variable's declarations.
+The variables declared in a {\em deferred-assignment-statement} are treated as
+normal {\em block-variable-declaration} variables inside their companions.
+In particular the {\tt ro} variables are {\tt *WRITE-ONLY*}
+inside their companions, and the {\tt co} pointer variables set by
+an {\em allocation-call} in their {\em deferred-assignment-statement}
+have their target type changed to {\tt *WRITE-ONLY*}
+inside their companions.
 
 \subsubsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
@@ -3134,6 +3133,52 @@ modules and bodies,\pagnote{MODULE-DECLARATIONS}
 the order in which these {\em type-declarations} are processed
 may not be completely determined.
 
+A field of a value of a user defined type are accessed by prepending
+`\TT{.}' to the {\em field-label} to form a {\em member-name} in
+a {\em reference-expression} (see \pagref{FIELD-SELECTION}).
+An example is:
+
+\begin{indpar}\begin{verbatim}
+type my type:
+    uns8    kind         // Object Kind
+    flt weight
+
+my type X:
+    // Within this block X is write-only.
+    X.kind = HIPPOPOTAMUS
+    X.weight = 152.34
+uns8 kind = X.kind
+flt weight = X.weight
+\end{verbatim}\end{indpar}
+
+If a {\em field-label} is a {\em pointer-label}, an
+associated {\em target-label} is declared consisting of the
+{\em pointer-label} minus its first `{\tt @}'.  The {\em target-label}
+references a virtual field consisting of the target value stored
+at the location pointed at by the {\em pointer-label} field's pointer.
+An example is:
+
+\begin{indpar}\begin{verbatim}
+type list element:
+    int value
+    ap list element @next
+
+// Make doubly linked circular list.
+//
+list element @Y =@ local = *DEFERRED*
+list element @X =@ local:
+    X.value = 1
+    X.@next = @Y
+list element @Y:
+    Y.value = 2
+    Y.@next = @X
+//
+// Now X.value == 1 and X.next.value == 2 and
+// similarly Y.value == 2 and Y.next.value == 1,
+// while X.@next == @Y and Y.@next == @X are
+// pointers to local memory.
+\end{verbatim}\end{indpar}
+
 TBD
 
 Subfields are parts of the previously declared numeric field.
@@ -3174,27 +3219,6 @@ uns8 kind = X.kind
 bool animal = X.animal
 bool vegetable = X.vegetable
 flt weight = X.weight
-\end{verbatim}\end{indpar}
-
-If a {\em field-label} is a {\em pointer-label}, an
-associated {\em target-label} is declared consisting of the
-{\em pointer-label} minus its first `{\tt @}'.  The {\em target-label}
-references a virtual field consisting of the target value stored
-at the location pointed at by the {\em pointer-label} field's pointer.
-An example is:
-
-\begin{indpar}\begin{verbatim}
-type list element:
-    int value
-    ap list element @next
-
-list element @Y =@ local:
-    Y.value = 2
-list element @X =@ local:
-    X.value = 1
-    X.@next = @Y
-// Now X.value == 1 and X.next.value == 2 while
-// @X and X.@next are pointers to local memory
 \end{verbatim}\end{indpar}
 
 If a {\em field-declaration} with {\em field-label}\, {\tt L} contains 
