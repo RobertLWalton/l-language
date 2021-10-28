@@ -3318,6 +3318,14 @@ hex digits X:
 // Now X == X#"76543210"
 \end{verbatim}\end{indpar}
 
+A {\em subfield-declaration} with more than one {\em subfield-dimension} is
+treated in the same manner as a {\em field-declaration} with
+more than one {\em field-dimension}.  For example,
+{\tt [$n1$][$n2$][$n3$]} is
+syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
+{\tt L[$i1$][$i2$][$i3$]} is syntactic sugar for
+{\tt L[$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$]}.
+
 TBD
 
 \subsubsubsection{Pointer Type Declarations}
