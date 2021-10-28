@@ -3326,7 +3326,14 @@ syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
 {\tt L[$i1$][$i2$][$i3$]} is syntactic sugar for
 {\tt L[$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$]}.
 
-TBD
+If a {\em field-declaration} with {\em field-label} {\tt F}
+has a {\em field-dimension}
+and also a subfield with {\em subfield-label} {\tt L}, then
+{\tt L[$i$]} references the subfield in the field value {\tt F[$i$]}.
+If in addition the subfield has a {\em subfield-dimension},
+{\tt L[$i$][$j$]} references the subfield selected by {\tt [$j$]}
+in the field value {\tt F[$i$]}.
+
 
 \subsubsubsection{Pointer Type Declarations}
 \label{POINTER-TYPE-DECLARATIONS}
