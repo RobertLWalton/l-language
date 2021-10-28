@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 27, 2021
+October 28, 2021
 
 \bigskip
  
@@ -2962,13 +2962,13 @@ The syntax of a type declaration is:
 \emkey{type-subdeclaration}
     \begin{tabular}[t]{@{}rl}
     ::= &  {\em field-declaration} \\
+    $|$ &  \ttkey{*EXPANDABLE*} \\
+    $|$ &  \ttkey{*EXTERNAL*} \\
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
     $|$ &  \ttkey{include} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
-    $|$ &  \ttkey{*EXPANDABLE*} \\
-    $|$ &  \ttkey{*EXTERNAL*} \\
     \end{tabular}
 \\[2ex]
 \emkey{field-declaration}
@@ -3079,7 +3079,8 @@ of the given defined type into the current sequence of
 {\em type-subdeclarations}.
 
 If the first sub-declaration of a {\em type-declaration}
-is either {\tt *EXPANDABLE*} or {\tt *EXTERNAL*} there may
+is either {\tt *EXPANDABLE*}\label{*EXPANDABLE*}
+or {\tt *EXTERNAL*}\label{*EXTERNAL*} there may
 be multiple {\em type-declarations} with the same
 {\em type-name}, all of which must have the same first
 sub-declaration.  All act
@@ -3179,6 +3180,50 @@ list element @Y:
 // pointers to local memory.
 \end{verbatim}\end{indpar}
 
+The size and alignment of a defined type with an {\tt *EXPANDABLE*}
+or {\tt *EXTERNAL*}
+sub-declara\-tion are not known at compile-time.  They are computed
+during load-time and used as run-time constants.
+Allocators use this size and alignment to allocate memory for a value of
+the type and then zero that memory.
+A field of
+the defined type can only be accessed by code in the scope
+of a {\em type-declaration} declaring the field.
+
+An example is:
+
+\begin{indpar}\begin{verbatim}
+type my type : *DEFERRED*
+ap *READ-WRITE* my type @X =@ local
+                    // Legal, my type members need not be declared.
+                    // The allocated my type value will be zeroed.
+ap ro @Y = @X       // Legal, only ap copied.
+my type Z = X       // Legal, Z is allocated as per `local'
+                    // and the value at @X is copied to
+                    // the location of Z.  However in this
+                    // case the value is zero.
+type my type:
+    *EXPANDABLE*
+    *LABEL* origin  // `origin' is set to offset 0
+    int I
+X.I = 55            // Legal, .I has been declared.
+
+type my type:       // Extension of my type
+    *EXPANDABLE*
+    int J           // Now X.J == 0
+X.J = 66            // Legal, .J has been declared.
+
+type my type:
+    *EXPANDABLE*
+    *ORIGIN* origin
+    int K1
+    int K2
+
+// Now X.K1 == X.I == 55; X.K2 == X.J == 66,
+// but you must be sure about how packing is
+// done to believe this.
+\end{verbatim}\end{indpar}
+
 Subfields are parts of the previously declared numeric field.
 The bits occupied
 by a subfield are given by its {\em bit-range}, where bits are numbered
@@ -3252,8 +3297,6 @@ syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
 {\tt L[$i1$*$n2$*$n3$*+$i2$*$n2$+$i3$]}.  And so forth for any
 number of {\em field-dimensions}.
 
-TBD
-
 If a {\em subfield-declaration} with {\em subfield-label}\, {\tt S} contains 
 {\em subfield-dimension} {\tt [$n$]} then $n$ subfields are
 allocated to the containing field, starting with the bits
@@ -3272,48 +3315,10 @@ hex digits X:
     while i < 8:
         X.hex digit[i] = i
         next i = i + 1
-// Now X == X#"<10><32><54><76>"
+// Now X == X#"76543210"
 \end{verbatim}\end{indpar}
 
-The size and alignment of a defined type with no {\tt *FINAL*}
-sub-declaration are not known at compile-time.  They are computed
-during load-time and used as run-time constants.
-Allocators use this size and alignment to allocate memory for a value of
-the type and then zero that memory.
-A field of
-the defined type can only be accessed by code in the scope
-of a {\em type-declaration} declaring the field.
-
-An example is:
-
-\begin{indpar}\begin{verbatim}
-type my type : deferred
-ap *READ-WRITE* my type @X =@ local
-                    // Legal, my type members need not be declared.
-                    // The allocated my type value will be zeroed.
-ap ro @Y = @X       // Legal, only ap copied.
-my type Z = X       // Legal, Z is allocated as per `local'
-                    // and the value at @X is copied to
-                    // the location of Z.  However in this
-                    // case the value is zero.
-type my type:
-    *LABEL* origin  // `origin' is set to offset 0
-    int I
-X.I = 55            // Legal, .I has been declared.
-
-type my type:       // Extension of my type
-    int J           // Now X.J == 0
-X.J = 66            // Legal, .J has been declared.
-
-type my type:
-    *ORIGIN* origin
-    int K1
-    int K2
-
-// Now X.K1 == X.I == 55; X.K2 == X.J == 66,
-// but you must be sure about how packing is
-// done to believe this.
-\end{verbatim}\end{indpar}
+TBD
 
 \subsubsubsection{Pointer Type Declarations}
 \label{POINTER-TYPE-DECLARATIONS}
