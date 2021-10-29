@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 28, 2021
+October 29, 2021
 
 \bigskip
  
@@ -3355,16 +3355,26 @@ An {\tt *UNCHECKED*} conversion is defined from the associated data
 type to data with the given pointer type, and an normal conversion
 is defined in the other direction.
 
+It is important that there be a 1-1 correspondance between
+pointer types and their associated data types.  In particular,
+{\tt int} must not be used as the associated data type of
+more than one pointer type.  This is why associated data types
+are generally user defined types.
+
 For example, the following are builtin:
 
 \begin{indpar}\begin{verbatim}
-pointer type dp is int
+pointer type dp is data for dp
 pointer type ap is data for ap
+type data for dp:
+    int address
 type data for ap:
     dp ro int @base
     int offset
 
+function dp Q$1 T$1 r = *UNCHECKED* ( data for dp dap )
 function ap Q$1 T$1 r = *UNCHECKED* ( data for ap dap )
+function data for dp r = pointer to data ( dp Q$1 T$1 ptr )
 function data for ap r = pointer to data ( ap Q$1 T$1 ptr )
     // These functions just copy the argument value to the
     // result value changing the type of the value.  Here
@@ -3376,22 +3386,23 @@ function data for ap r = pointer to data ( ap Q$1 T$1 ptr )
 // and the dp value for its offset.
 // 
 function data for ap r = *IMPLIED* *POINTER* *CONVERSION*
-        ( int d ):
+        ( data for dp d ):
     dp int @zero = constant int 0
-        // constant int 0 allocates an int equal to 0 to read-only
-        // memory whose location is constant during execution
+        // constant int 0 allocates an int equal to 0 to co memory
     data for ap dap:
         dap.@base  = @zero
-        dap.offset = d
+        dap.offset = d.address
     r = dap
 
 // This function enables *UNCHECKED* conversion of `ap ...' to
 // `dp ...' where the latter is the sum of the base and offset
 // of the ap.
 //
-function int r = *UNCHECKED* *POINTER* *CONVERSION*
+function data for dp r = *UNCHECKED* *POINTER* *CONVERSION*
         ( data for ap d ):
-    r = d.base + d.offset
+    data for dp ddp:
+        ddp.address = d.base + d.offset
+    r = ddp
 \end{verbatim}\end{indpar}
 
 A {\em pointer-type-declaration} `{\tt pointer type $P$ is $D$}'
