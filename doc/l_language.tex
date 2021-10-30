@@ -3476,9 +3476,15 @@ function $P2$ Q\$1 T\$1 r = \ttkey{*ACCESS* *CONVERSION*}
 \hspace*{0.3in}r = *UNCHECKED* ( d2 )
 \end{indpar}
 
-TBD
-
-You can define a function with prototype
+If a pointer of type $P1$ is to be implicitly
+convertible to a pointer of type $P2$ when passing the
+pointer to a function or storing the pointer in memory,
+the above functions are not used.  Instead a function with
+the prototype:
+\begin{indpar} \tt
+function $P2$ Q\$1 T\$1 r = *IMPLIED* *CONVERSION* ( $P1$ Q\$1 T\$1 p )
+\end{indpar}
+is called.  You can define this, or you can define
 \begin{indpar} \tt
 function $D2$ r = \ttkey{*IMPLIED* *POINTER* *CONVERSION*} ( $D1$ data )
 \end{indpar}
@@ -3490,11 +3496,17 @@ function $P2$ Q\$1 T\$1 r = \ttkey{*IMPLIED* *CONVERSION*}
 \hspace*{0.3in}$D2$ dd = *IMPLIED* *POINTER* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}r = *UNCHECKED* ( d2 )
 \end{indpar}
-Similarly, defining a function with prototype
+
+You may want the conversion from $P1$ to $P2$ to
+be unchecked instead of implied.  This can be achieved by defining:
+\begin{indpar} \tt
+function $P2$ Q\$1 T\$1 r = *UNCHECKED* ( $P1$ Q\$1 T\$1 p )
+\end{indpar}
+Alternatively you can define a function with prototype
 \begin{indpar} \tt
 function $D2$ r = \ttkey{*UNCHECKED* *POINTER* *CONVERSION*} ( $D1$ data )
 \end{indpar}
-implicitly defines the function:
+which implicitly defines the function:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 r = \TT{*UNCHECKED*}
 	( $P1$ Q\$1 T\$1 p1 ): \\
