@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 29, 2021
+October 30, 2021
 
 \bigskip
  
@@ -3413,17 +3413,74 @@ function $D$ r = pointer to data ( $P$ Q\$1 T\$1 ptr )
 \end{indpar}
 These just copy values changing type.
 
+Reading and writing values using a pointer of type $P$ and
+associated data type $D$ can be accomplished by the functions:
+
+\begin{indpar} \tt
+function Q\$1 T\$1 r = *POINTER* *ACCESS* ( $D$ data ) \\
+function *POINTER* *ACCESS* ( $D$ data ) = Q\$1 T\$1 r
+\end{indpar}
+
+These functions can be defined after $P$ is defined.
+They allow the pointer to be used to read a copy of the
+value pointed at, or write the value, but do not allow
+members or elements of the value to be accessed
+(members and elements of the copy may be accessed).
+
+These functions are implicitly called when the target
+of a pointer variable is read or written.  For example:
+\begin{indpar}\begin{verbatim}
+ap int @p = local:
+p = 5
+  // This translates to:
+  //   *POINTER* *ACCESS* ( pointer to data ( p ) ) = 5
+int x = p
+  // This translates to:
+  //   x = *POINTER* *ACCESS* ( pointer to data ( p ) )
+\end{verbatim}\end{indpar}
+
+TBD
+
 In the following, suppose we are given:
 \begin{indpar} \tt
 pointer type $P1$ is $D1$ \\
 pointer type $P2$ is $D2$
 \end{indpar}
 
-Then defining a function with prototype
+To get more complete access to the value pointed at one
+can define a function with the prototype:
+\begin{indpar} \tt
+function $P2$ Q\$1 T\$1 r = *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 p )
+\end{indpar}
+which converts a pointer of type $P1$ to a pointer of type $P2$.
+Only one such function can be defined for each pointer type $P1$.
+This conversion
+is called if a value pointed at by a pointer of type $P1$ is to
+be accessed.  Then if $P2$ is {\tt dp}, {\tt ap}, {\tt fp}, {\tt av},
+or {\tt fv}, the $P2$ pointer can be used to not only read or write
+the value, but to also read or write members or elements of the
+value.
+
+Alternatively you can define a function with prototype
+\begin{indpar} \tt
+function $D2$ r = \ttkey{*ACCESS* *POINTER* *CONVERSION*} ( $D1$ data )
+\end{indpar}
+which implicitly defines the function:
+\begin{indpar} \tt
+function $P2$ Q\$1 T\$1 r = \ttkey{*ACCESS* *CONVERSION*}
+	( $P1$ Q\$1 T\$1 p1 ): \\
+\hspace*{0.3in}$D1$ d1 = pointer to data ( p1 ) \\
+\hspace*{0.3in}$D2$ d2 = *ACCESS* *POINTER* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}r = *UNCHECKED* ( d2 )
+\end{indpar}
+
+TBD
+
+You can define a function with prototype
 \begin{indpar} \tt
 function $D2$ r = \ttkey{*IMPLIED* *POINTER* *CONVERSION*} ( $D1$ data )
 \end{indpar}
-implicitly defines the function:
+which implicitly defines the function:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 r = \ttkey{*IMPLIED* *CONVERSION*}
 	( $P1$ Q\$1 T\$1 p1 ): \\
@@ -3445,31 +3502,6 @@ function $P2$ Q\$1 T\$1 r = \TT{*UNCHECKED*}
 \end{indpar}
 
 TBD
-
-In order to access the value pointed at by a pointer of a defined
-pointer type, one of several approaches may be taken.  The easiest
-is to define a function with the prototype:
-\begin{indpar} \tt
-function data for $BIP$ r = *ACCESS* *POINTER* *CONVERSION* ( $D$ data )
-\end{indpar}
-which converts the data for $P$ to the data for a builtin pointer type
-$BIP$ ({\tt dp}, {\tt ap}, {\tt fp}, {\tt av}, or {\tt fv}).  If this
-is defined, whenever a pointer of type $P$ is to be used as
-the address of the value pointed at or a member or vector element
-of this value,
-the pointer of type $P$ is converted to a pointer of type $BIP$.
-
-A second more limited way to provide for use of $P$ is to define
-the two functions:
-\begin{indpar} \tt
-function Q\$1 T\$1 r = *POINTER* *ACCESS* ( $D$ data ) \\
-function *POINTER* *ACCESS* ( $D$ data ) = Q\$1 T\$1 r
-\end{indpar}
-
-This allows the pointer to be used to read a copy of the
-value pointed at, or write the value.  It does not allow
-members or elements of the value to be accessed
-(members and elements of the copy may be accessed).
 
 An example is:
 
