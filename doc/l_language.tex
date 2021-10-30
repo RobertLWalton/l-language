@@ -3413,6 +3413,39 @@ function $D$ r = pointer to data ( $P$ Q\$1 T\$1 ptr )
 \end{indpar}
 These just copy values changing type.
 
+In the following, suppose we are given:
+\begin{indpar} \tt
+pointer type $P1$ is $D1$ \\
+pointer type $P2$ is $D2$
+\end{indpar}
+
+Then defining a function with prototype
+\begin{indpar} \tt
+function $D2$ r = \ttkey{*IMPLIED* *POINTER* *CONVERSION*} ( $D1$ data )
+\end{indpar}
+implicitly defines the function:
+\begin{indpar} \tt
+function $P2$ Q\$1 T\$1 r = \ttkey{*IMPLIED* *CONVERSION*}
+	( $P1$ Q\$1 T\$1 p1 ): \\
+\hspace*{0.3in}$D1$ d1 = pointer to data ( p1 ) \\
+\hspace*{0.3in}$D2$ dd = *IMPLIED* *POINTER* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}r = *UNCHECKED* ( d2 )
+\end{indpar}
+Similarly, defining a function with prototype
+\begin{indpar} \tt
+function $D2$ r = \ttkey{*UNCHECKED* *POINTER* *CONVERSION*} ( $D1$ data )
+\end{indpar}
+implicitly defines the function:
+\begin{indpar} \tt
+function $P2$ Q\$1 T\$1 r = \TT{*UNCHECKED*}
+	( $P1$ Q\$1 T\$1 p1 ): \\
+\hspace*{0.3in}$D1$ d1 = pointer to data ( p1 ) \\
+\hspace*{0.3in}$D2$ dd = *IMPLIED* *POINTER* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}r = *UNCHECKED* ( d2 )
+\end{indpar}
+
+TBD
+
 In order to access the value pointed at by a pointer of a defined
 pointer type, one of several approaches may be taken.  The easiest
 is to define a function with the prototype:
