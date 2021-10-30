@@ -3439,27 +3439,29 @@ int x = p
   //   x = *POINTER* *ACCESS* ( pointer to data ( p ) )
 \end{verbatim}\end{indpar}
 
-TBD
-
-In the following, suppose we are given:
+An alternative strategy is to convert a pointer of type $P1$
+to a pointer of type $P2$ that allows members and elements
+to be accessed.  Suppose we are given:
 \begin{indpar} \tt
 pointer type $P1$ is $D1$ \\
 pointer type $P2$ is $D2$
 \end{indpar}
 
-To get more complete access to the value pointed at one
-can define a function with the prototype:
+Then we can define a function with the prototype:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 r = *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 p )
 \end{indpar}
 which converts a pointer of type $P1$ to a pointer of type $P2$.
 Only one such function can be defined for each pointer type $P1$.
-This conversion
+This conversion function
 is called if a value pointed at by a pointer of type $P1$ is to
-be accessed.  Then if $P2$ is {\tt dp}, {\tt ap}, {\tt fp}, {\tt av},
+be accessed, in preference to calling the {\tt *POINTER* *ACCESS*}
+functions.  Then if $P2$ is {\tt dp}, {\tt ap}, {\tt fp}, {\tt av},
 or {\tt fv}, the $P2$ pointer can be used to not only read or write
 the value, but to also read or write members or elements of the
-value.
+value.  Note, however, that only one {\tt *ACCESS* *CONVERSION*}
+function can be called per access: these functions do not
+automatically chain.
 
 Alternatively you can define a function with prototype
 \begin{indpar} \tt
