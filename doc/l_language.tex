@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 30, 2021
+October 31, 2021
 
 \bigskip
  
@@ -3403,6 +3403,17 @@ function data for dp r = *UNCHECKED* *POINTER* *CONVERSION*
     data for dp ddp:
         ddp.address = d.base + d.offset
     r = ddp
+
+// This function enables conversion of `ap ...' to `dp ...'
+// when an ap pointer is being used to access a value or
+// member or element of a value.  The dp is the sum of the
+// base and offset of the ap.
+//
+function data for dp r = *ACCESS* *POINTER* *CONVERSION*
+        ( data for ap d ):
+    data for dp ddp:
+        ddp.address = d.base + d.offset
+    r = ddp
 \end{verbatim}\end{indpar}
 
 A {\em pointer-type-declaration} `{\tt pointer type $P$ is $D$}'
@@ -3515,32 +3526,42 @@ function $P2$ Q\$1 T\$1 r = \TT{*UNCHECKED*}
 \hspace*{0.3in}r = *UNCHECKED* ( d2 )
 \end{indpar}
 
-TBD
+The example at the beginning of this section contains
+all three kinds of {\tt \ldots{} *POINTER* *CONVERSION*} functions.
 
-An example is:
+An example implementing a new pointer type is:
 
 \begin{indpar}\begin{verbatim}
 type file:
     *READ-WRITE* av uns8 name
     . . . . .
-av *READ-WRITE* file @files = global file[1000];
-ap *READ-WRITE* int @next file = global int
+av *READ-WRITE* file @files = global [1000];
+ap *READ-WRITE* int @next file = global
 
-pointer type file descriptor is int
+// Implement a file descriptor (fd) that addresses a file
+// in files.  The fd contains an index and addresses
+// files[index].
+
+type data for fd:
+    int index
+
+pointer type fd is data for fd
 function data for ap r = *ACCESS* *POINTER* *CONVERSION*
-        ( int data ):
-    ap file @f = @files[data]
+        ( data for fd d ):
+    ap file @f = @files[d.index]
     r = pointer to data ( @f )
         // Qualifiers of @f are ignored by pointer to data.
 
-function file descriptor *READ-WRITE* r = allocate file descriptor:
-    r = *UNCHECKED* ( next file )
+function fd *READ-WRITE* r = allocate fd:
+    data for fd d:
+        d.index = next file
+    r = *UNCHECKED* ( d )
     next file = next file + 1
 
-file descriptor *READ-WRITE* @fd = allocate file descriptor
-fd.name = ...
+fd *READ-WRITE* @f = allocate fd
+f.name = ...
 . . . . .
-av uns8 n = fd.name
+av uns8 n = f.name
 . . . . .
 \end{verbatim}\end{indpar}
 
