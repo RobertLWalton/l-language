@@ -2133,7 +2133,8 @@ NOTE: Two {\em unparenthesized-actual-arguments} cannot be consecutive.
 Thus a {\em function-call} is a sequence of {\em function-term-names}
 and {\em call-argument-lists}.
 
-An {\em unparenthesized-actual-argument} is an {\em actual-argument}
+An {\em unparenthesized-actual-argument}\label{UNPARENTHESIZED-ACTUAL-ARGUMENT}
+is an {\em actual-argument}
 {\tt X} that would normally be in parentheses as {\tt (X)} but the
 parentheses have been omitted.  Thus given the example function definition
 on page \pageref{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE},
@@ -4163,22 +4164,25 @@ Here the {\em function-type-prototype} is just like an
 {\em out-of-line-function-name} is replaced by {\tt ()} and
 the word `{\tt out-of-line}' is omitted as being superfluous.
 
-Function type variables are just like any other variables.
-The only operations defined on them are copying them and
-calling them.  A call to such a variable or a function type
-constant has the form:
+The only operations defined on function type values are copying them and
+calling them.  A call to such a value has the form:
 \begin{indpar}
-\emkey{function-variable-call}\label{FUNCTION-VARIABLE-CALL} ::= \\
-\hspace*{0.25in}\begin{tabular}{rl}
-	& {\em function-variable-name}
+\emkey{function-value-call}\label{FUNCTION-VALUE-CALL} ::=
+	\TT{(} {\em expression} \TT{)}
 	     {\em call-argument-list}\QMARK{} \\
-    $|$ & {\em function-constant-name}
-	     {\em call-argument-list}\QMARK{}
-    \end{tabular}
 \\[0.5ex]
-\emkey{function-variable-name} ::= {\em target-name}
+{\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
 {\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
+\\[1ex]
+where
+\begin{itemize}
+\item The first {\em expression} evaluates to a function type value.
+\item The \TT{()} parentheses around the first {\em expression} may be
+omitted if the first {\em expression} is an
+{\em unparenthesized-actual-argument}:
+see \pagref{UNPARENTHESIZED-ACTUAL-ARGUMENT}.
+\end{itemize}
 \end{indpar}
 
 A function constant can be declared by:
