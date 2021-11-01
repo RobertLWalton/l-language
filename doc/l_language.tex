@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 31, 2021
+November 1, 2021
 
 \bigskip
  
@@ -2925,8 +2925,8 @@ The following is a complete list of declarations:
         & [\pagref{BLOCK-VARIABLE-DECLARATION}] \\
     $|$ & {\em prototype-result-declaration}
         & [\pagref{PROTOTYPE-RESULT-DECLARATION}] \\
-    $|$ & {\em argument-declaration}
-        & [\pagref{ARGUMENT-DECLARATION}] \\
+    $|$ & {\em prototype-argument-declaration}
+        & [\pagref{PROTOTYPE-ARGUMENT-DECLARATION}] \\
     $|$ & {\em declaration-statement} \\
     \end{tabular}
 \\[0.5ex]
@@ -3573,7 +3573,7 @@ av uns8 n = f.name
 
 The syntax of a function declaration is:
 
-\begin{indpar}
+\begin{indpar}[0.1in]
 \emkey{function-declaration}\label{FUNCTION-DECLARATION}
     \begin{tabular}[t]{rl}
     ::= &  {\em function-prototype} \TT{:} \\
@@ -3601,7 +3601,7 @@ The syntax of a function declaration is:
     \{ \TT{,} {\em prototype-result-declaration} \}\STAR{}
 \\[0.5ex]
 \emkey{prototype-result-declaration}\label{PROTOTYPE-RESULT-DECLARATION} \\
-\hspace*{1in}\begin{tabular}[t]{rl}
+\hspace*{0.5in}\begin{tabular}[t]{rl}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
     \end{tabular}
@@ -3612,12 +3612,12 @@ The syntax of a function declaration is:
 \\[0.5ex]
 {\em next-variable-declaration} ::= see \pagref{NEXT-VARIABLE-DECLARATION}
 \\[0.5ex]
-\emkey{input-variable-list}
-    ::= {\em argument-declaration}
-                 \{ \TT{,} {\em argument-declaration} \}\STAR{}
+\emkey{input-variable-list} ::= \\
+\hspace*{0.5in}{\em prototype-argument-declaration}
+                 \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{}
 \\[0.5ex]
-\emkey{argument-declaration}\label{ARGUMENT-DECLARATION} \\
-\hspace*{1in}\begin{tabular}[t]{@{}rl@{}}
+\emkey{prototype-argument-declaration}\label{PROTOTYPE-ARGUMENT-DECLARATION} \\
+\hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
     ::= & {\em result-variable-declaration}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{bool} {\em variable-name}
@@ -3647,19 +3647,19 @@ The syntax of a function declaration is:
 \emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::= \\
-\hspace*{1in}
+\hspace*{0.5in}
     \begin{tabular}[t]{@{}p{5in}@{}}
     {\em function-term-name} $N$ that appears in a {\em function-prototype}
     of the form `{\tt function $N$ = \ldots}'
     \end{tabular}
 \\[0.5ex]
 \emkey{pattern-argument-list}\label{PATTERN-ARGUMENT-LIST} \\
-\hspace*{1in}
+\hspace*{0.5in}
     \begin{tabular}[t]{@{}rl}
-    ::= & \TT{(} {\em argument-declaration}~
-                 \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{)} \\
-    $|$ & \TT{[} {\em argument-declaration}~
-                 \{ \TT{,} {\em argument-declaration} \}\STAR{} \TT{]} \\
+    ::= & \TT{(} {\em prototype-argument-declaration}~
+	     \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[} {\em prototype-argument-declaration}~
+	     \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{} \TT{]} \\
     \end{tabular}
 \begin{itemize}
 \item
@@ -3675,9 +3675,9 @@ Result and argument {\em variable-names} and {\em function-variable-names}
 in a {\em function-prototype} must not begin with a {\em module-abbreviation}.
 \item
 For a {\em prototype-result-declaration} of the form `\TT{next} $v$',
-$v$ must be the {\em vari\-able-name} in an {\em argument-declaration}
+$v$ must be the {\em vari\-able-name} in an {\em prototype-argument-declaration}
 of the form `\dots{} {\em type-name} $v$', and
-any actual argument associated to the {\em argument-declaration}
+any actual argument associated to the {\em prototype-argument-declaration}
 must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
 {\em assignment-statement} {\em next-variable-declaration}.
 \item
@@ -3685,12 +3685,12 @@ Result and argument {\em variable-names}
 in a {\em function-prototype} must
 be distinct, with an exception for the previous paragraph.
 \item
-The first {\em argument-declaration} in an {\em input-variable-list}
+The first {\em prototype-argument-declaration} in an {\em input-variable-list}
 must not have a {\em default-value}.
 \item
 In a {\em pattern-argument-list} or {\em input-variable-list}
-an {\em argument-declaration} with no {\em de\-fault-value} cannot
-follow an {\em argument-declaration} with a {\em default-value}.
+an {\em prototype-argument-declaration} with no {\em de\-fault-value} cannot
+follow an {\em prototype-argument-declaration} with a {\em default-value}.
 \item
 A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
 is treated in a {\em function-prototype} as a {\em type-name}.
@@ -3699,7 +3699,7 @@ A wild-card name of the form {\tt P\$\ldots} is treated as a
 A wild-card name of the form {\tt Q\$\ldots} is treated as a
 {\em qualifier-name} and \underline{must not} be combined with
 other {\em qualifier-names} in the same {\em result-variable-declaration}
-or {\em argument-declaration}.
+or {\em prototype-argument-declaration}.
 
 \end{itemize}
 \end{indpar}
@@ -3732,7 +3732,7 @@ F[10] = 6
 \end{verbatim}\end{indpar}
 which is treated as if {\tt =} were a {\em function-term-name}
 that must be the last such in the call, and the comma separated
-values in the call and {\em argument-declarations} in the prototype
+values in the call and {\em prototype-argument-declarations} in the prototype
 were surrounded by parentheses {\tt (~)}.  Note that for an argument
 list in the prototype to match an argument list in the call, both
 must be surrounded by the same brackets; either both have {\tt (~)}
@@ -3967,12 +3967,12 @@ type of brackets (either `{\tt (~)}' or `{\tt [~]}') and in number
 of arguments, else the call-prototype match fails.
 
 \item If all the above is successful, then {\em actual-arguments}
-in the call are matched to corresponding {\em argument-declarations}
+in the call are matched to corresponding {\em prototype-argument-declarations}
 in the prototype according to the rules that follow.
 Failure of any of these matches causes
 the call-prototype match to fail.
 
-\item If an {\em argument-declaration} has a {\em required-value},
+\item If an {\em prototype-argument-declaration} has a {\em required-value},
 its matching {\em actual-argument} must be compile-time with
 a value equal to the {\em required-value}, else the call-prototype
 match fails.
@@ -4003,13 +4003,14 @@ in $RD$ are assigned the corresponding
 values in $AR$ (e.g., `{\tt int x = T\$1 y}' would assign `{\tt int}'
 to {\tt T\$1} if {\tt T\$1} were unassigned).
 
-\item If an {\em argument-declaration} $AD$ matches an {\em actual-argument}
+\item If an {\em prototype-argument-declaration} $AD$ matches
+an {\em actual-argument}
 $AA$, the statement `$AD$ = $AA$' must successfully compile
 when the {\em variable-name} in $AD$ is replaced by a unique virtual
 {\em variable-name}, else the call-prototype match fails.
 
 The statements `$AD$ = $AA$' are processed in left to right order
-of prototype {\em argument-declarations},
+of prototype {\em prototype-argument-declarations},
 and any unassigned wild-cards\pagnote{WILD-CARD}
 in $AD$ are assigned the corresponding
 values in $AA$ (e.g., `{\tt T\$1 x = int y}' would assign `{\tt int}'
@@ -4433,7 +4434,7 @@ is external\label{EXTERNAL-FUNCTION}
 if the {\em prototype-pattern} in the {\em declaration}
 is immediately preceded by a {\em module-abbreviation}.
 
-{\em Prototype-result-declaration} and {\em argument-declaration}
+{\em Prototype-result-declaration} and {\em prototype-argument-declaration}
 {\em variable-names} cannot begin with a {\em module-abbreviation},
 and therefore these {\em declarations} can never be external.
 
