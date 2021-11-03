@@ -4344,6 +4344,8 @@ and \underline{must be acyclic}.
 \subsubsection{Include Statements}
 \label{INCLUDE-STATEMENTS}
 
+TBD
+
 The compiler maintains two FIFOs, a \key{local include FIFO} and
 a \key{top level include FIFO}, that hold sequences of statements
 (a list of read-only map values that encode
@@ -4440,9 +4442,9 @@ The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
 
-An external declaration may have a companion in a body of its module,
+A deferred external declaration may have a companion in a body of its module,
 but not in modules or bodies that import the declaration's module.
-As an exception, an
+As an exception, a deferred
 {\em out-of-line-function-declaration} may have a companion
 anywhere within the scope of the original declaration.
 
@@ -4469,8 +4471,9 @@ and therefore these {\em declarations} can never be external.
 
 A {\em module-abbreviation} that makes a {\em declaration} external
 must abbreviate the module in which the {\em declaration} occurs,
-with the exception of some {\em type-declarations}\pagnote{*EXTERNAL*}
-and some companion
+with the exception of expansions of
+{\tt *EXTERNAL} {\em type-declar\-ations}\pagnote{*EXTERNAL*}
+and companions of deferred
 {\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
 
 If two different {\em result-variable-declarations},
@@ -4490,11 +4493,6 @@ the same syntax as a {\em reference-expression}, and its use
 as an implicitly {\tt *WRITE-ONLY*} {\em reference-expression}
 is allowed within smaller blocks.
 
-However, if `{\tt v}' is an external variable,
-`\TT{next} {\tt v}' may not be declared.%
-\footnote{This rule is not logically necessary, but is made to
-avoid confusion while reading code.}
-
 {\em Type-declarations} \underline{cannot} hide each other.  The second
 declaration appends sub-declarations
 to the first.\pagnote{TYPE-DECLARATION-APPEND}
@@ -4507,13 +4505,13 @@ a subblock of the scope of the other.
 
 {\em Statement-labels}, that is {\em block-labels},
 {\em exit-labels}, and {\em loop-labels}, have as their scope
-the block in which they are defined.  {\em Statement-label}
-hiding is a compile error.
+the block in which they are defined.  {\em Statement-labels}
+\underline{cannot} hide each other.
 
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
 
-When a {\em function-call} to an inline function is compiled,
+When a {\em function-call} to an inline function is expanded,
 the context of the compilation is \underline{not} the current context but
 rather the context of the inline {\em function-declaration}
 that provided the {\em statements} executed by the call.
