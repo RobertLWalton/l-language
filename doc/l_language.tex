@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 1, 2021
+November 3, 2021
 
 \bigskip
  
@@ -1609,7 +1609,7 @@ Note that it is whole names that are abbreviated, and not parts of
 names.
 
 A name may begin with a {\em word} that is a {\em module-abbreviation}
-that designates a code module: see~\itemref{MODULE-DECLARATIONS}.
+that designates a code module: see~\itemref{MODULE-AND-BODY-DECLARATIONS}.
 For example {\tt std} abbreviates the builtin standard module.
 
 L-Language uses several kinds of names:
@@ -2716,7 +2716,7 @@ computes the value of the
 declared variable, except in the case of a pointer variable whose value is
 set by an {\em allocation-call} in the {\em deferred-assignment-statement}.
 If a {\em deferred-assignment-statement} is in a module
-(\itemref{MODULE-DECLARATIONS}), companions
+(\itemref{MODULE-AND-BODY-DECLARATIONS}), companions
 of its {\em deferred-variable-declarations}
 must be in that module or its bodies.
 
@@ -3095,7 +3095,7 @@ Either {\tt *EXPANDABLE*} or {\tt *EXTERNAL*} may be a
 sub-declaration of a {\em type-declaration}, but not both.
 
 For a {\em type-declaration} with an \ttkey{*EXPANDABLE*} sub-declaration,
-its expansions must be in the same module\pagnote{MODULE-DECLARATIONS}
+its expansions must be in the same module\pagnote{MODULE-AND-BODY-DECLARATIONS}
 as the {\em type-declaration}, or in one of that module's bodies.
 For a {\em type-declaration} with an \ttkey{*EXTERNAL*} sub-declaration
 there is no such restriction, and the expansion may be in
@@ -3131,7 +3131,7 @@ Care must be exercised when using {\tt *LABEL*} and {\tt *ORIGIN*},
 as both type-violations and unexpected field allocations can result.
 Note that if there are multiple {\em type-declarations}
 with the same {\em type-name} in different
-modules and bodies,\pagnote{MODULE-DECLARATIONS}
+modules and bodies,\pagnote{MODULE-AND-BODY-DECLARATIONS}
 the order in which these {\em type-declarations} are processed
 may not be completely determined.
 
@@ -4209,8 +4209,8 @@ Internally this constant is a run-time pointer to the out-of-line function.
 
 
 
-\subsubsubsection{Module Declarations}
-\label{MODULE-DECLARATIONS}
+\subsubsubsection{Module and Body Declarations}
+\label{MODULE-AND-BODY-DECLARATIONS}
 
 A \key{module} is a file whose first statement is a {\em module-declaration}:
 
@@ -4312,14 +4312,32 @@ module's own file are \underline{not} implicitly imported
 to the body.  The body must import whatever other modules it uses
 explicitly.
 
-The {\em after-clauses} name other bodies that extend the same
-module, and determine the order in which bodies are initialized:
+The {\em after-clauses} name other bodies, not necessarily in
+the same module,
+and determine the order in which bodies are initialized:
 see \itemref{PROGRAM-INITIALIZATION}.
 
+\subsubsubsection{Program Initialization}
+\label{PROGRAM-INITIALIZATION}
+
+A module is initialized by executing its top level {\em statements}
+in the order in which they appear in the module.  Similarly
+a body is initialized by executing its top level {\em statements}
+in the order in which they appear in the body.
+
+The order in which modules and bodies are initialized is determined
+by the following rules.
+\begin{enumerate}
+\item If a module or body imports another module, the imported module
+is initialized before the module or body.
+\item A module is initialized before any of its bodies.
+\item If a module or body contains an {\em after-clause}, the module
+or body is initialized after the body named in the {\em after-clause}.
+\end{enumerate}
+
 The conceptual directed graph whose nodes are modules and bodies
-and whose arrows connect each module or body to the modules it imports
-and for a body to the bodies it is `{\tt initialized after}'
-is called
+and whose arrows connect each module or body to the modules and
+bodies it must be initialized after is called
 the `\key{initialization graph}'\label{INITIALIZATION-GRAPH}
 and \underline{must be acyclic}.
 
