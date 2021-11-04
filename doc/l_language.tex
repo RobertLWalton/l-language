@@ -1254,7 +1254,6 @@ have precedence equal to or greater than P:
 \\[0.5ex]
 \emkey{(H+2)-expression} ::= {\em primary}
                          $|$ {\em ma}\QMARK{} \TT{(} {\em expression} \TT{)}
-                         $|$ \TT{[} {\em expression} \TT{]}
 \\[0.5ex]
 \emkey{primary} ::= {\em non-operator}\PLUS{}
 \\[0.5ex]
@@ -1348,8 +1347,10 @@ just syntactic sugar for `\TT{(} {\em ma} {\em expression} \TT{)}', except
 that the {\em expression} is parsed before the {\em ma} is moved inside the
 \TT{()}'s.  Thus if {\tt mom} is a {\em module-abbreviation},
 `{\tt mom ( x + y * z )}' is syntactic sugar for \\
-\centerline{\tt ( mom x "+" ( y "*" z ) )}s
+\centerline{\tt ( mom x "+" ( y "*" z ) )}
 in which parenthesis pair surrounding `{\tt y "*" z}' is implied.
+This allows the {\em module-abbre\-via\-tion} to be applied to the outermost
+operator in the {\em expression}.
 
 The operators can have any combination of the following \key{base fixities}:
 
@@ -4531,12 +4532,12 @@ provided by a declaration
 is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
+TBD
+
 Code produced by {\em include-statements} executed during a call to a
 compile-time function
 \underline{is} compiled in the context of the call.
 See Include Statements (\pagref{INCLUDE-STATEMENTS}).
-
-TBD
 
 An example is:
 \begin{indpar}\begin{verbatim}
