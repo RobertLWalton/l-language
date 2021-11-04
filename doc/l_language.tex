@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 3, 2021
+November 4, 2021
 
 \bigskip
  
@@ -1253,17 +1253,17 @@ have precedence equal to or greater than P:
 \emkey{P-operator} ::= operator of precedence P
 \\[0.5ex]
 \emkey{(H+2)-expression} ::= {\em primary}
+                         $|$ {\em ma}\QMARK{} \TT{(} {\em expression} \TT{)}
+                         $|$ \TT{[} {\em expression} \TT{]}
 \\[0.5ex]
 \emkey{primary} ::= {\em non-operator}\PLUS{}
+\\[0.5ex]
+{\em ma} ::= {\em module-abbreviation} ~~~ [see \pagref{MODULE-ABBREVIATION}]
 \\[2.0ex]
 \hspace*{3em}\begin{tabular}{l}
 where P is any precedence in the range [L,H+1]
 \end{tabular}
 \end{minipage}\end{indpar}
-
-Generally
-a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
-and operators of precedence $P$.
 
 \newpage
 
@@ -1338,6 +1338,18 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \end{boxedfigure}
 
 \newpage
+
+Generally
+a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
+and operators of precedence $P$.
+
+An expression of the form `{\em ma} \TT{(} {\em expression} \TT{)}' is
+just syntactic sugar for `\TT{(} {\em ma} {\em expression} \TT{)}', except
+that the {\em expression} is parsed before the {\em ma} is moved inside the
+\TT{()}'s.  Thus if {\tt mom} is a {\em module-abbreviation},
+`{\tt mom ( x + y * z )}' is syntactic sugar for \\
+\centerline{\tt ( mom x "+" ( y "*" z ) )}s
+in which parenthesis pair surrounding `{\tt y "*" z}' is implied.
 
 The operators can have any combination of the following \key{base fixities}:
 
@@ -1616,7 +1628,7 @@ L-Language uses several kinds of names:
 
 \begin{indpar}
 \emkey{simple-name} ::= \TT{word} not containing any `\TT{.}'s or `\TT{@}'s \\
-\emkey{module-abbreviation} ::= {\em simple-name} \\
+\emkey{module-abbreviation}\label{MODULE-ABBREVIATION} ::= {\em simple-name} \\
 \emkey{ma} ::= {\em module-abbreviation} \\
 \emkey{pointer-type-name}\label{POINTER-TYPE-NAME} ::=
     \MA{} {\em simple-name}
@@ -4224,8 +4236,7 @@ A \key{module} is a file whose first statement is a {\em module-declaration}:
 \emkey{simple-module-declaration} ::= \TT{module} {\em module-name}
         \TT{as} {\em module-abbreviation} \\
 \emkey{module-name}\label{MODULE-NAME} ::= {\em quoted-string} \\
-\emkey{module-abbreviation}\label{MODULE-ABBREVIATION}
-	::= \TT{word} not containing any `\TT{.}'s \\
+{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION} \\
 \emkey{import-clause}\label{IMPORT-CLAUSE}
     ::= \ttkey{import} {\em module-name} \TT{as} {\em module-abbreviation}
 
