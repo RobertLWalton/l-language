@@ -1253,11 +1253,11 @@ have precedence equal to or greater than P:
 \emkey{P-operator} ::= operator of precedence P
 \\[0.5ex]
 \emkey{(H+2)-expression} ::= {\em primary}
-                         $|$ {\em ma}\QMARK{} \TT{(} {\em expression} \TT{)}
 \\[0.5ex]
-\emkey{primary} ::= {\em non-operator}\PLUS{}
+\emkey{primary} ::= {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
 \\[0.5ex]
-{\em ma} ::= {\em module-abbreviation} ~~~ [see \pagref{MODULE-ABBREVIATION}]
+\emkey{primary-element} ::= {\em non-operator-lexeme} $|$
+                            {\em bracketted-subexpression}
 \\[2.0ex]
 \hspace*{3em}\begin{tabular}{l}
 where P is any precedence in the range [L,H+1]
@@ -1341,16 +1341,6 @@ Operator & Meaning & Fixity & Format & Precedence \\
 Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
 and operators of precedence $P$.
-
-An expression of the form `{\em ma} \TT{(} {\em expression} \TT{)}' is
-just syntactic sugar for `\TT{(} {\em ma} {\em expression} \TT{)}', except
-that the {\em expression} is parsed before the {\em ma} is moved inside the
-\TT{()}'s.  Thus if {\tt mom} is a {\em module-abbreviation},
-`{\tt mom ( x + y * z )}' is syntactic sugar for \\
-\centerline{\tt ( mom x "+" ( y "*" z ) )}
-in which parenthesis pair surrounding `{\tt y "*" z}' is implied.
-This allows the {\em module-abbre\-via\-tion} to be applied to the outermost
-operator in the {\em expression}.
 
 The operators can have any combination of the following \key{base fixities}:
 
@@ -1551,6 +1541,7 @@ is {\tt co}, and {\tt x = x + y} if {\tt x} is {\tt *READ-WRITE*}.
 \end{tabular}
 
 \subsection{Primaries}
+\label{PRIMARIES}
 
 A \key{primary} is an {\em expression} that has no operators:
 \begin{indpar}
@@ -1559,6 +1550,7 @@ A \key{primary} is an {\em expression} that has no operators:
     ::= & {\em constant}		& [\pagref{CONSTANTS}] \\
     $|$ & {\em reference-expression}    & [\pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
+    $|$ & {\em bracketted-expression}	& [\pagref{BRACKETTED-EXPRESSIONS}] \\
     \end{tabular}
 \end{indpar}
 
@@ -2172,6 +2164,38 @@ is necessary in omitting parentheses around
 {\em unparenthesized-actual-arguments} when these share lexemes with
 {\em function-term-names} in function prototypes that might be
 matched to the {\em function-call}.
+
+\subsubsection{Bracketted Expressions}
+\label{BRACKETTED-EXPRESSIONS}
+
+The syntax of a {\em bracketted-expression} is:
+
+\begin{indpar}
+\emkey{bracketted-expression}\label{BRACKETTED-EXPRESSION}
+    \begin{tabular}[t]{@{}rl}
+    ::= & {\em ma}\QMARK{} \TT{(} {\em expression} \TT{)} \\
+    $|$ & \TT{[} {\em expression} \TT{]} \\
+    $|$ & \TT{\{} {\em expression} \TT{\}} \\
+    \end{tabular}
+\\[0.5ex]
+{\em ma} ::= {\em module-abbreviation} ~~~ [see \pagref{MODULE-ABBREVIATION}]
+\end{indpar}
+
+Arithmetic subexpressions and function argument lists are bracketted
+with \TT{()} brackets.  Reference expression index lists and function
+argument lists are bracketed with \TT{[]} brackets.
+Expressions that compute map constants
+are bracketed with \TT{\{\}} brackets.
+
+An expression of the form `{\em ma} \TT{(} {\em expression} \TT{)}' is
+just syntactic sugar for `\TT{(} {\em ma} {\em expression} \TT{)}', except
+that the {\em expression} is parsed before the {\em ma} is moved inside the
+\TT{()}'s.  Thus if {\tt mom} is a {\em module-abbreviation},
+`{\tt mom ( x + y * z )}' is syntactic sugar for \\
+\centerline{\tt ( mom x "+" ( y "*" z ) )}
+in which the parenthesis pair surrounding `{\tt y "*" z}' is implied.
+This allows the {\em module-abbre\-via\-tion} to be applied to the outermost
+operator in the {\em expression}.
 
 \subsection{Compile-Time}
 \label{COMPILE-TIME}
