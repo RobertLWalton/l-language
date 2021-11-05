@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 4, 2021
+November 5, 2021
 
 \bigskip
  
@@ -1734,17 +1734,47 @@ Other names are called \key{internal}\label{INTERNAL-NAME}.
 \label{CONSTANTS}
 
 A \key{constant} is a value of type \ttkey{const} computed at
-compile-time.  There are three kinds of constants:
+compile-time.  There are four kinds of constants:
 
 \begin{indpar}
 \emkey{constant}
     \begin{tabular}[t]{rl}
-    ::= & {\em number-constant} \\
+    ::= & {\em special-constant} \\
     $|$ & {\em string-constant} \\
+    $|$ & {\em number-constant} \\
     $|$ & {\em map-constant} \\
     \end{tabular} \\
+\emkey{special-constant} ::= \ttkey{TRUE} $|$ \ttkey{FALSE}
+                         $|$ \ttkey{UNDEF} $|$ \ttkey{NONE} \\
 \emkey{string-constant} ::= {\em quoted-string}
 \end{indpar}
+
+The meanings of the {\em special-constants} are:
+\begin{indpar}[1in]
+\begin{itemize}
+\item[\TT{TRUE}] The boolean value true.
+\item[\TT{FALSE}] The boolean value false.
+\item[\TT{UNDEF}] The value exists but is undefined (unknown).
+\item[\TT{NONE}] The value does not exist.
+\end{itemize}
+\end{indpar}
+A special constant is not equal to any other constant.
+
+A \emkey{string-constant} is just a {\em quoted-string} lexeme
+that denotes a character string: see
+\pagref{QUOTED-STRING} and \pagref{QUOTED-STRING-CONCATENATION}.
+
+String constants can be used to load run-time vectors
+with {\tt uns8}, {\tt uns16}, or {\tt uns32} type elements.
+UTf-8, UTF-16, or UTF-32 encodings are used according to element
+size.
+
+{\em Number-constants} and {\em map-constants} are described in the
+following sections.
+
+
+\subsubsubsection{Number Constants}
+\label{NUMBER-CONSTANTS}
 
 A \emkey{number-constant} is a {\em number} lexeme or sequence of
 lexemes with specific syntax
@@ -1873,14 +1903,8 @@ to a run-time floating type, such as {\tt flt64}, is however
 never a compile error.  If necessary the converted value is
 {\tt +Inf} or {\tt -Inf}.
 
-A \emkey{string-constant} is just a {\em quoted-string} lexeme
-that denotes a character string: see
-\pagref{QUOTED-STRING} and \pagref{QUOTED-STRING-CONCATENATION}.
-
-String constants can be used to load run-time vectors
-with {\tt uns8}, {\tt uns16}, or {\tt uns32} type elements.
-UTf-8, UTF-16, or UTF-32 encodings are used according to element
-size.
+\subsubsubsection{Map Constants}
+\label{MAP-CONSTANTS}
 
 A \emkey{map-constant} has two parts, a list and a dictionary
 (either or both can be empty).  Its syntax is:
