@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 5, 2021
+November 6, 2021
 
 \bigskip
  
@@ -1737,7 +1737,7 @@ A \key{constant} is a value of type \ttkey{const} computed at
 compile-time.  There are four kinds of constants:
 
 \begin{indpar}
-\emkey{constant}
+\emkey{constant}\label{CONSTANT}
     \begin{tabular}[t]{rl}
     ::= & {\em special-constant} \\
     $|$ & {\em string-constant} \\
@@ -1928,25 +1928,33 @@ A \emkey{map-constant} has two parts, a list and a dictionary
 \emkey{dictionary-entry} ::=
     {\em dictionary-label} \TT{=>} {\em dictionary-value}
 \\[0.5ex]
-\emkey{list-element}\label{LIST-ELEMENT} ::= {\em constant-expression}
+\emkey{list-element}\label{LIST-ELEMENT} ::= {\em constant}
 \\[0.5ex]
-\emkey{dictionary-label}\label{MAP-LABEL} ::= {\em constant-expression}
-    evaluating to a string
+\emkey{dictionary-label}\label{MAP-LABEL} ::= {\em data-label}
+    ~~~~~ [see \pagref{DATA-LABEL}]
 \\[0.5ex]
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
-    ::= {\em constant-expression}
+    ::= {\em constant}
 \\[0.5ex]
-\emkey{constant-expression}\label{CONSTANT-EXPRESSION}
-    ::= {\em expression} evaluating at compile-time to a {\tt const} value
+\emkey{constant}
+    ::= see \pagref{CONSTANT}
+\\[0.5ex]
+\emkey{phrase-constant} ::= \TT{\{|} {\em expression} \TT{|\}}
+\\[0.5ex]
+\emkey{expression-constant} ::= \TT{\{*} {\em expression} \TT{*\}}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
-\\[0.5ex]
-\emkey{phrase-constant} ::= \TT{`} {\em name-item}\STAR{} \TT{'}
-\\[0.5ex]
-\emkey{expression-constant} ::= \TT{`{}`} {\em expression} \TT{'{}'}
 \end{indpar}
 
-Maps \underline{cannot} be represented at run-time.
+Maps \underline{cannot} be represented at run-time.  Each {\em map-constant}
+creates a distinct map: no two such maps are \TT{==}.  A map created
+by a {\em map-constant} is initially set so that it and all its dictionary
+entries are read-only.  This can be changed: see \pagref{READ-ONLY-FLAG}.
+
+An {\em expression-constant} is shorthand for the {\em map-constant}
+produced when the {\em expression} is parsed: see \pagref{PARSER-OUTPUT}.
+As an example, {\tt `{}`X = Y 1 + Z'{}'} is equivalent to: \\
+\hspace*{0.5in}\TT{\{"X", "=", \{\{"Y", 1\}, "+", "Z"\}\}}
 
 A {\em phrase-constant} is shorthand for a {\em map-constant}
 of the form: \\
@@ -1955,11 +1963,6 @@ of the form: \\
 \\[0.2ex]
 where {\em quoted-name-item} is a {\em name-item} with {\em non-numbers}
 turned into {\em quoted-strings}.
-
-An {\em expression-constant} is shorthand for the {\em map-constant}
-produced when the {\em expression} is parsed: see \pagref{PARSER-OUTPUT}.
-As an example, {\tt `{}`X = Y 1 + Z'{}'} is equivalent to: \\
-\hspace*{0.5in}\TT{\{"X", "=", \{\{"Y", 1\}, "+", "Z"\}\}}
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 compile-time as if they were variables of type {\tt const}
@@ -4745,7 +4748,8 @@ Storing an integer into the {\tt .length} of a map deletes
 all vector elements with integer indices greater than or equal
 to the integer stored; if there are none the map {\tt .length} not be reset.
 
-A map has a \key{read-only flag} which is set when the map is created
+A map has a \key{read-only flag}\label{READ-ONLY-FLAG}
+which is set when the map is created
 by a {\em map-constant}.  The vector and dictionary elements of a
 read-only map cannot be changed.  The flag may be cleared by the
 {\tt read-write} function and reset by the {\tt read-only} function,
