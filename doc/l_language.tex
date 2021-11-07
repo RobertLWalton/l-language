@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 6, 2021
+November 7, 2021
 
 \bigskip
  
@@ -1975,22 +1975,18 @@ Some examples are:
 			&  ~ "=", \\
 			&  ~ \{ "Y", "X", .separator => "," \} \}
 \\[0.5ex]
-\{* X = Y + 1 *\}	& \{ "X", "=", \{ "Y", "+", 1 \} \}
+\{* X + Y * Z *\}	& \{ "X", "+", \{ "Y", "*", "Z" \} \}
+\\[0.5ex]
+\{* X 3 = Y Z + 1 *\}	& \{ \{ "X", 3 \} "=", \{ \{ "Y", "Z" \} "+", 1 \} \}
 \end{tabular}
 \end{center}
 In an \TT{\{*} {\em expression} \TT{*\}} constant,
 line level operators are recognized if and only if
 they are outside parentheses in the {\em expression}.
 
-TBD
-
-A {\em phrase-constant} is shorthand for a {\em map-constant}
-of the form: \\
-\hspace*{0.5in}\TT{\{}
-    {\em quoted-name-item} \{ \TT{,} {\em quoted-name-item} \}\STAR{}\TT{\}}
-\\[0.2ex]
-where {\em quoted-name-item} is a {\em name-item} with {\em non-numbers}
-turned into {\em quoted-strings}.
+{\em Phrase-constants} are like {\em expression-constants} except that
+operators are not recognized.  Brackets and separators (e.g., `{\tt,}')
+are recognized.
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 compile-time as if they were variables of type {\tt const}
@@ -2036,7 +2032,8 @@ is:
     $|$ & {\em constant-expression} \TT{*} {\em variable-name} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
+\emkey{constant-expression}\label{CONSTANT-EXPRESSION}
+    ::= {\em expression} that evaluates at compile-time to a constant
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
