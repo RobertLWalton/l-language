@@ -1946,15 +1946,43 @@ A \emkey{map-constant} has two parts, a list and a dictionary
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
-Maps \underline{cannot} be represented at run-time.  Each {\em map-constant}
+Maps \underline{cannot} be represented at run-time.
+
+Each {\em map-constant}
 creates a distinct map: no two such maps are \TT{==}.  A map created
 by a {\em map-constant} is initially set so that it and all its dictionary
 entries are read-only.  This can be changed: see \pagref{READ-ONLY-FLAG}.
 
+If some {\em list-elements} or {\em dictionary-values} are
+{\em expressions} that is not {\em constants} but which evaluate
+to {\em constants}, then the {\em map-constant} expression is
+a legal {\em expression} and computes a map.
+
 An {\em expression-constant} is shorthand for the {\em map-constant}
 produced when the {\em expression} is parsed: see \pagref{PARSER-OUTPUT}.
-As an example, {\tt `{}`X = Y 1 + Z'{}'} is equivalent to: \\
-\hspace*{0.5in}\TT{\{"X", "=", \{\{"Y", 1\}, "+", "Z"\}\}}
+Generally, parsing an expression groups expression elements into
+sublists and moves bracket and separator punctuation to dictionary entries.
+Some examples are:
+\begin{center} \tt
+\begin{tabular}{l@{~~~}l}
+\rm The expression:	& \rm Is equivalent to:
+\\\hline
+\{* X = ( Y + 1 ) *\}	& \{ "X", "=", \\
+			&  ~~~~~~~\{ "Y", "+", 1, .initiator =>"(", \\
+			& ~~~~~~~~~~~~~~~~~~~~~~.terminator =>")" \} \}
+\\[0.5ex]
+\{* X, Y = Y, X *\}	& \{ \{ "X", "Y", .separator => "," \}, \\
+			&  ~ "=", \\
+			&  ~ \{ "Y", "X", .separator => "," \} \}
+\\[0.5ex]
+\{* X = Y + 1 *\}	& \{ "X", "=", \{ "Y", "+", 1 \} \}
+\end{tabular}
+\end{center}
+In an \TT{\{*} {\em expression} \TT{*\}} constant,
+line level operators are recognized if and only if
+they are outside parentheses in the {\em expression}.
+
+TBD
 
 A {\em phrase-constant} is shorthand for a {\em map-constant}
 of the form: \\
