@@ -1795,7 +1795,8 @@ The syntax is:
     $|$ & {\em character-constant} \\
     $|$ & \TT{+Inf}
           ~$|$~ \TT{-Inf}
-          ~$|$~ \ttkey{NaN}
+          ~$|$~ \ttkey{NaN} \\
+    $|$ & \TT{Inf} ~~~~~ [equals {\tt +Inf}]
     \end{tabular}
 \\[0.5ex]
 \emkey{sign} :::= \TT{+} $|$ \TT{-} \\
@@ -4679,149 +4680,13 @@ are equivalent if no {\em function-prototype}
 \end{center}
 is in scope, where $ma$ is a module abbreviation other than `{\tt mom}'.
 
-\section{Compile Time}
+\section{Compile Time Functions}
 
-Statements and functions, all of whose variables are of {\tt const}
-type, execute solely during compilation, and never at run time
-(when the compiled program is running).  Constants are all of
-type {\tt const}, and cannot exist at run-time, though number
-and quoted string {\tt const} values can be converted to run-time values.
-
-\subsection{Compile Time Data}
-
-Compile time data consists of {\tt const} values.
-There are 5 types of {\tt const} values: integers, rationals, strings,
+Compile-time is defined in \itemref{COMPILE-TIME}.
+Compile time data are just the constants decribed in \itemref{CONSTANTS}.
+Compile time data all have {\tt const} type and one of
+5 subtypes: integers, rationals, strings,
 special values, and maps.
-
-\key{Integers} are unbounded and can be arbitrarily long.
-Any sequence of lexemes that is a
-number representative
-that evaluates to an integer
-can be used to represent an integer {\tt const}.
-
-\key{Rationals} are pairs of unbounded integers, a numerator and a denominator.
-The denominator must be greater than or equal to 2.  The greatest common divisor
-of the numerator and denominator must be 1.
-Any sequence of lexemes that is a
-number representative
-that evaluates to a non-integer
-can be used to represent a rational {\tt const}, but not all
-rational {\tt const} values can be represented by lexeme sequences
-that are not {\em expressions}.
-
-\key{Strings} are character strings, represented by quoted string lexemes.
-
-The \key{special values} defined at compile-time are the booleans
-\ttkey{TRUE} and \ttkey{FALSE}, and the value \ttkey{UNDEF},
-which denotes the `\key{undefined value}'.
-
-\key{Maps} have two parts.  The \key{vector} part maps small
-natural numbers in the range $[0,n-1]$ to values, where $n$
-is the length of the vector.  The \key{dictionary} part maps
-character string \key{labels} to values.
-
-Labels that begin with '{\tt .}' are \key{hidden} and do not
-print.  Maps that have no non-hidden labels are called \key{lists}.
-
-Maps are represented by comma separated lists of elements inside
-{\tt \{~\}} brackets, with vector elements being represented by
-just their value, and dictionary elements being represented
-by the syntax `{\em dictionary-label} {\tt =>} {\em dictionary-value}'.
-
-The parser translates an input text into nested lists.  These
-lists have a {\tt .position} hidden label whose value specifies
-the position in the input of the text that produced the list.
-Some of the lists have an {\tt .operator} hidden label whose
-value specifies the operator in the list, which has usually
-been moved to the beginning of the list.  Logical lines,
-indented paragraphs, and parenthesized subexpressions
-are lists with {\tt .initiator} and {\tt .terminator}
-hidden attributes.  Comma separated lists are lists with
-a {\tt .separator} hidden attribute.
-
-\subsubsection{Maps}
-\label{MAPS}
-
-A \key{map} is a compile time {\tt const} value that, unlike
-numbers and strings, is mutable.
-A {\em map-constant} computes a map value: see
-\pagref{MAP-CONSTANT}.
-
-Elements of a map can be accessed by {\em list-element-expressions}, which
-are also {\em reference-expressions}:\pagnote{REFERENCE-EXPRESSIONS}
-
-\begin{indpar}
-\emkey{list-element-expression}
-    \begin{tabular}[t]{rl}
-    ::= & {\em map-base} \TT{[} {\em list-index} \TT{]} \\
-    ::= & {\em map-base} {\em map-member} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{map-base} ::= {\em constant-expression} evaluating to a map
-\\[0.5ex]
-\emkey{map-member} :::= \TT{.} {\em map-label} ~~~~[note :::= and not ::=]
-\\[0.5ex]
-\emkey{map-label} ::= see \pagref{MAP-LABEL}
-\\[0.5ex]
-\emkey{constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
-\end{indpar}
-
-A map may be mutable in that its elements may be written as well as read.
-Note that hidden labels turn into {\em map-members} beginning with
-two dots: the {\tt .position} of {\tt x} is {\tt x..position}.
-
-The {\em label} of a map element, when represented as a string, can
-be used in a {\em list-index} to designate the element.  That is,
-given a map {\tt x} and a label {\tt y}, {\tt x.y} and {\tt x["y"]}
-are equivalent.
-
-There is a virtual hidden element of a map, \ttdkey{length}, which is
-the value of the largest integer index of any map element,
-plus 1.  So {\tt \{"A", "B", "C"\}..length == 3}.  If a map has no
-integer indices, its {\tt .length} is 0.
-
-Values may be stored into map elements as well as read from the
-elements.  Storing into a non-existent element creates the element.
-
-Storing {\tt UNDEF} in an element deletes the element, and reading
-from a non-existent element returns {\tt UNDEF} without any other
-indication of there being an error.  Deleting a map vector element
-re-indexes the following vector elements.
-Storing an integer into the {\tt .length} of a map deletes
-all vector elements with integer indices greater than or equal
-to the integer stored; if there are none the map {\tt .length} not be reset.
-
-A map has a \key{read-only flag}\label{READ-ONLY-FLAG}
-which is set when the map is created
-by a {\em map-constant}.  The vector and dictionary elements of a
-read-only map cannot be changed.  The flag may be cleared by the
-{\tt read-write} function and reset by the {\tt read-only} function,
-as in the example:
-\begin{indpar}\begin{verbatim}
-const m = {1, 2, 3}
-read-write ( m )
-m[1] = "X"           // now m == {1, "X", 3}
-read-only ( m )
-m[1] = "Y"           // error: m is now read-only
-\end{verbatim}\end{indpar}
-
-Each {\em map-label} in a map also has a read-only flag, which is
-cleared when a map is created by a {\em map-constant}.
-See \pagref{READ-ONLY-DICTIONARY-FUNCTION}.
-
-A {\tt const} map value is actually a pointer to a map, and
-not the map itself, which is stored in heap.
-A simple assignment {\tt x = y} where {\tt y} is a map makes
-{\tt x} point at the same map that {\tt y} points at.  For
-example, the statement {\tt x[1] = 5} will have the same effect as
-the statement {\tt y[1] = 5}.  If {\tt x} is a (pointer to a) map,
-the expression {\tt x == y} returns
-{\tt TRUE} if and only if {\tt y} points at the same map. 
-There are functions that can be used to make a
-copy of a map that can be altered independently of the
-copied map: see \pagref{MAP-COPY}.
-
-\subsection{Compile Time Functions}
 
 The functions described in the following sections are builtin.
 
@@ -4832,7 +4697,7 @@ otherwise, other errors in arguments (e.g., malformed
 regular expressions given to {\tt compile re}) are treated
 similarly.
 
-\subsubsection{Compile Time General Functions}
+\subsection{Compile Time General Functions}
 
 {\tt const r =} (const v1) \ttkey{"=="} {\tt ( const v2 )} \\
 {\tt const r =} (const v1) \ttkey{"!="} {\tt ( const v2 )}
@@ -4849,7 +4714,7 @@ Returns the type of {\tt v1} as one of the strings: \\
 \end{indpar}
 
 
-\subsubsection{Compile Time Number Functions}
+\subsection{Compile Time Number Functions}
 
 {\tt const r =} \ttkey{"+"} {\tt ( const n1 )} \\
 {\tt const r =} \ttkey{"-"} {\tt ( const n1 )} \\
@@ -4892,7 +4757,7 @@ The denominator is {\tt 1} for integer numbers, and {\tt >= 1}
 for rational numbers.
 \end{indpar}
 
-\subsubsection{Compile Time String Functions}
+\subsection{Compile Time String Functions}
 
 {\tt const r =} \ttkey{"\#"} {\tt ( const s )}
 \begin{indpar}
@@ -4979,7 +4844,7 @@ Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
-\subsubsection{Compile Time Map Functions}
+\subsection{Compile Time Map Functions}
 
 Recall that a {\tt const} map value is actually a pointer to the map,
 and not the whole map itself.
