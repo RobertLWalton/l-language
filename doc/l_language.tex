@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 7, 2021
+November 8, 2021
 
 \bigskip
  
@@ -1985,8 +1985,26 @@ line level operators are recognized if and only if
 they are outside parentheses in the {\em expression}.
 
 {\em Phrase-constants} are like {\em expression-constants} except that
-operators are not recognized.  Brackets and separators (e.g., `{\tt,}')
-are recognized.
+operators (including separators, e.g. `{\tt ,}') are not recognized.
+Brackets are recognized and create sublists.  Some examples contrasting
+with {\em expression-constants} are:
+\begin{center} \tt
+\begin{tabular}{l@{~~~}l}
+\rm The expression:	& \rm Is equivalent to:
+\\\hline
+\{| X = 1 |\}		& \{ "X", "=", 1 \}
+\\[0.5ex]
+\{* X = 1 *\}		& \{ "X", "=", 1 \}
+\\[0.5ex]
+\{| X = Y + 1 |\}	& \{ "X", "=", "Y", "+", 1 \}
+\\[0.5ex]
+\{* X = Y + 1 *\}	& \{ "X", "=", \{ "Y", "+", 1 \} \}
+\\[0.5ex]
+\{| X 3 = Y Z + 1 |\}	& \{ "X", 3, "=", "Y", "Z", "+", 1 \}
+\\[0.5ex]
+\{* X 3 = Y Z + 1 *\}	& \{ \{ "X", 3 \} "=", \{ \{ "Y", "Z" \} "+", 1 \} \}
+\end{tabular}
+\end{center}
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 compile-time as if they were variables of type {\tt const}
