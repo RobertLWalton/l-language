@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 8, 2021
+November 9, 2021
 
 \bigskip
  
@@ -4724,8 +4724,9 @@ Returns the type of {\tt v1} as one of the strings: \\
 {\tt const r =} (const n1) \ttkey{"/"} {\tt ( const n2 )}
 \begin{indpar}
 Standard arithmetic operators on numbers {\tt n1} and {\tt n2},
-done using integer or rational arithmetic.  Dividing by {\tt 0}
-returns {\tt UNDEF} and \underline{no} compiler error message.
+done using integer or rational arithmetic.  Dividing by {\tt 0},
+adding {\tt +Inf} to {\tt -Inf}, a {\tt NaN} argument, etc.~return
+{\tt NaN} and \underline{no} compiler error message.
 \end{indpar}
 
 {\tt const r =} (const i1) \ttkey{"\&"} {\tt ( const i2 )} \\
@@ -4746,6 +4747,11 @@ that are treated as two's complement.
 {\tt const r =} (const n1) \ttkey{">="} {\tt ( const n2 )}
 \begin{indpar}
 Standard comparison operators on numbers {\tt n1} and {\tt n2}.
+Infinities are treated as actual numbers with absolute value
+larger than any real number: e.g., `{\tt x <= +Inf}' is always
+true and `{\tt x == +Inf}' is true iff {\tt x} is {\tt +Inf}.
+If an argument is a {\tt NaN}, all comparisons return false
+except {\tt !=} which returns true.
 \end{indpar}
 
 {\tt const r =} \ttkey{numerator} {\tt ( const number )} \\
@@ -4753,7 +4759,7 @@ Standard comparison operators on numbers {\tt n1} and {\tt n2}.
 \begin{indpar}
 These functions return the numerator and denominator of a number.
 Both numerator and denominator are integers.
-The denominator is {\tt 1} for integer numbers, and {\tt >= 1}
+The denominator is {\tt 1} for integer numbers, and {\tt >= 2}
 for rational numbers.
 \end{indpar}
 
