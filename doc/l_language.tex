@@ -4814,9 +4814,6 @@ by {\tt \textbackslash R} and {\tt \$} are LF, CR, and CRLF (no other
 matches the beginning of {\tt s} and {\tt \$} matches the end.
 This can be changed by the {\tt (?i)} option setter in the
 regular expression.
-
-Note that {\tt const} strings are stored as vectors of
-unsigned 32-bit unicode values.
 \end{indpar}
 
 \ttkey{free re} ( const i )
@@ -4835,6 +4832,10 @@ If there is no match this is an empty list.  If there is
 a match, {\tt r[0]} is the string matched.  If there are
 subpattern matches, {\tt r[i]} is the string matched by the
 {\tt i}'th subpattern.
+
+During matching {\tt s} is stored as an exploded vector of
+unsigned 32-bit unicode values.  Substrings matched are
+subvectors which are imploded to make {\tt const} string values.
 \end{indpar}
 
 {\tt const r =} \ttkey{scan} ( const s  )
