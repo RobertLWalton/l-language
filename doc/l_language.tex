@@ -4856,7 +4856,10 @@ otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 Recall that a {\tt const} map value is actually a pointer to the map,
 and not the whole map itself.
 
-A map may be read-only or read-write:
+A map may be read-write or read-only.  Read-only maps cannot
+be modified.  Each {\em map-constant} makes a separate read-only
+map that can be made read-write permanently or temporarily by
+the following:
 
 {\tt const r =} \ttkey{read-write} {\tt ( const m )} \\
 {\tt const r =} \ttkey{read-only} {\tt ( const m )}
@@ -4892,9 +4895,9 @@ copied recursively by {\tt copy}, but not by
 {\tt copy top}, which copies pointers to the maps.
 
 Changing the values of elements of the new map will \underline{not} change
-the contents of {\tt m}.  For {\tt copy} changing the element values
-will not change corresponding element values, but for {\tt copy top},
-changing element values will change these values in the returned map.
+the contents of {\tt m}.  For {\tt copy} modifying the element values
+themselves will not change {\tt m}, but for {\tt copy top},
+modifying the element values will change the elements of {\tt m}.
 
 \end{indpar}
 
@@ -4907,7 +4910,7 @@ to the map is copied and no new map is made.
 
 {\tt const r =} \ttkey{slice} {\tt ( const m, const i, const n )}
 \begin{indpar}
-Returns a new vector map consisting of just the
+Returns a new map consisting of just a vector of the
 elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.  
 If any of these elements do not exist, they are omitted (e.g.,
 if {\tt i >= m..length}, {\tt i + n <= 0}, or {\tt n <= 0},
@@ -4918,7 +4921,8 @@ the empty map is returned).
 \begin{indpar}
 Edits {\tt m} by replacing the vector element sequence
 {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]} by the
-vector elements of {\tt v}.  Dictionary elements of {\tt v} are ignored.
+vector elements of {\tt v}.  Dictionary elements of {\tt v} are ignored;
+dictionary elements of {\tt m} are unchanged.
 It is an error is any of the elements to be replaced do not exist
 (e.g., if {\tt i < 0} or {\tt i >= m..length}).
 The edited map {\tt m} is returned.
