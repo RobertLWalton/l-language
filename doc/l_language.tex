@@ -1907,8 +1907,8 @@ never a compile error.  If necessary the converted value is
 \subsubsubsection{Map Constants}
 \label{MAP-CONSTANTS}
 
-A \emkey{map-constant} has two parts, a list and a dictionary
-(either or both can be empty).  Its syntax is:
+A {\em map-constant} has two parts, a list (a.k.a, a vector) and a dictionary.
+Either or both can be empty.  The syntax of a {\em map-constant} is:
 
 \begin{indpar}
 \emkey{map-constant}\label{MAP-CONSTANT}
@@ -4856,11 +4856,15 @@ otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 Recall that a {\tt const} map value is actually a pointer to the map,
 and not the whole map itself.
 
+A map may be read-only or read-write:
+
 {\tt const r =} \ttkey{read-write} {\tt ( const m )} \\
 {\tt const r =} \ttkey{read-only} {\tt ( const m )}
 \begin{indpar}
 Makes the map {\tt m} read-write or read-only and returns {\tt m}.
 \end{indpar}
+
+TBD
 
 {\tt const r =} \ttkey{read-write} {\tt ( const m, const s )} \\
 {\tt const r =} \ttkey{read-only} {\tt ( const m, const s )} %
