@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 9, 2021
+November 11, 2021
 
 \bigskip
  
@@ -4450,6 +4450,44 @@ and \underline{must be acyclic}.
 
 \subsubsection{Include Statements}
 \label{INCLUDE-STATEMENTS}
+
+Any inline function call can set the \ttkey{*CODE*} variable
+to a list of parsed statements which will be prepended to
+the list of statements to be compiled once the statement
+containing the function call is compiled.  It is an error
+if there is more than one function call doing this in
+the statement containing the function call that sets the
+{\tt *CODE*} variable.
+
+It is not necessary to include the {\tt .position} dictionary
+entry in {\tt *CODE*} statements or expressions.  Nor it is
+necessary to include the following {\tt .initiator}s or
+{\tt .terminator}s:
+
+\begin{center} \tt
+{\rm \bf Unnecessary Dictionary Entries}
+\\[1ex]
+\begin{tabular}{l@{~~~~~~~~~~}l}
+.initiator & .terminator
+\\[1ex]
+*LOGICAL-LINE* & "<LF>" \\
+"(" & ")" \\
+\end{tabular}
+\end{center}
+
+However, the following must be included appropriately:
+
+\begin{center} \tt
+{\rm \bf Necessary Dictionary Entries}
+\\[1ex]
+\begin{tabular}{l@{~~~~~~~~~~}l}
+.initiator & .terminator
+\\[1ex]
+":" & *INDENTED-PARAGRAPH* \\
+"[" & "]" \\
+\end{tabular}
+\end{center}
+
 
 TBD
 
