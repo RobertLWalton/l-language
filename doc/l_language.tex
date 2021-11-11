@@ -4475,6 +4475,10 @@ necessary to include the following {\tt .initiator}s or
 \end{tabular}
 \end{center}
 
+because logical lines can be identified from context and
+{\tt ()} bracketted subexpressions are equivalent to
+subexpressions with implied brackets.
+
 However, the following must be included appropriately:
 
 \begin{center} \tt
@@ -4488,20 +4492,9 @@ However, the following must be included appropriately:
 \end{tabular}
 \end{center}
 
+A {\tt .separator} token must also be included when indicated.
 
 TBD
-
-The compiler maintains two FIFOs, a \key{local include FIFO} and
-a \key{top level include FIFO}, that hold sequences of statements
-(a list of read-only map values that encode
-logical lines that are statements).
-After the compiler compiles a non-top-level statement, the compiler
-prepends the contents of the local include FIFO to the list of
-statements remaining to be compiled in the current block.
-After the compiler compiles a top-level statement, the compiler
-prepends first the contents of the top level include FIFO and then
-the contents of the local include FIFO to the list of top level
-statements remaining to be compiled.
 
 Statements are pushed to the end of an include FIFO by an
 include statement:
