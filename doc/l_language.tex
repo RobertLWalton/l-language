@@ -1949,6 +1949,13 @@ Either or both can be empty.  The syntax of a {\em map-constant} is:
 
 Maps \underline{cannot} be represented at run-time.
 
+By abuse of language, \key{list} is used to refer to a map whose
+dominant mode of access is to go through the map list elements
+sequentially.  Similarly \key{vector} is used to refer to a map whose
+dominant mode of access is to access the map elements randomly
+using subscripts.  And \key{dictionary} is used to refer to a map
+whose dominant mode of usage is to access the map's dictionary elements.
+
 Each {\em map-constant}
 creates a distinct map: no two such maps are \TT{==}.  A map created
 by a {\em map-constant} is initially set so that it and all its dictionary
@@ -4459,10 +4466,12 @@ if there is more than one function call doing this in
 the statement containing the function call that sets the
 {\tt *CODE*} variable.
 
-It is not necessary to include the {\tt .position} dictionary
-entry in {\tt *CODE*} statements or expressions.  Nor it is
-necessary to include the following {\tt .initiator}s or
-{\tt .terminator}s:
+It is not necessary to include some dictionary
+entries in {\tt *CODE*} statements or expressions.
+
+Specifically, it is \underline{not} necessary to
+include the {\tt .position} entry or
+the following {\tt .initiator}s or {\tt .terminator}s:
 
 \begin{center} \tt
 {\rm \bf Unnecessary Dictionary Entries}
@@ -4475,11 +4484,13 @@ necessary to include the following {\tt .initiator}s or
 \end{tabular}
 \end{center}
 
-because logical lines can be identified from context and
+because the {\tt .position} of the function call will be added
+if no {\tt .position} is given,
+logical lines can be identified from context, and
 {\tt ()} bracketted subexpressions are equivalent to
 subexpressions with implied brackets.
 
-However, the following must be included appropriately:
+However, the {\tt .separator} token and the following must be included:
 
 \begin{center} \tt
 {\rm \bf Necessary Dictionary Entries}
@@ -4492,61 +4503,64 @@ However, the following must be included appropriately:
 \end{tabular}
 \end{center}
 
-A {\tt .separator} token must also be included when indicated.
 
-TBD
-
-Statements are pushed to the end of an include FIFO by an
-include statement:
+The {\em include-statement} can be used to parse statements
+and append them to the end of the list which is the value of
+of a variable:
 
 \begin{indpar}
-\emkey{include-statement}\label{INCLUDE-STATEMENT} ::=
+\emkey{include-statement}\label{INCLUDE-STATEMENT} ::= \\
+\hspace*{0.3in}
     \begin{tabular}[t]{l}
-    \TT{include} {\em include-fifo}\QMARK{}
+    \TT{include} {\em include-variable}\QMARK{}
     	{\em include-argument-list}\QMARK{} \TT{:} \\
     \TT{~~~~}{\em statement}\STAR{} \\
-    \TT{include}  {\em include-fifo}\QMARK{}
+    \TT{include}  {\em include-variable}\QMARK{}
     	{\em include-argument-list}\QMARK{} \TT{:}
 	{\em statement} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{include-fifo} ::= \TT{local} $|$ \TT{top level}
-	~~~~~ [default is {\tt local}]
+\emkey{include-variable} ::= {\em target-label}
+	~~~~~ [see \pagref{TARGET-LABEL}]
 \\[0.5ex]
 \emkey{include-argument-list} ::= \TT{( )} $|$
 	\TT{(} {\em include-argument}
 	\{ \TT{,} {\em include-argument} \}\STAR{} \TT{)}
 \\[0.5ex]
-\emkey{include-argument} ::= {\em word} beginning with a {\em letter}
+\emkey{include-argument} ::= {\em word} beginning with a {\em letter} or
+	with `\TT{\#}' followed by a {\em letter}
 
 \end{indpar}
 
-{\em Include-statements} are executed at compile time.
+An {\em include-statement} is executed at compile time;
+its {\em statements} are parsed and the parser output is
+appended to the list designated by the {\em include-variable},
+which must be a {\tt const} variable.  The {\em include-variable}
+defaults to {\tt *CODE*}, and in this special case, does not
+have to be declared in advance of use: it will be automatically
+declared at the level of the smallest containing inline
+{\em function-declaration} when needed.
+
 Each {\em include-argument} must be a {\tt const} variable assigned
-a value before the {\em include-statement}.  Everywhere this variable
-appears in the {\em statements} of the {\em include-statement},
+a value before the {\em include-state\-ment}.  Everywhere this variable
+appears in the parsed {\em statements} of the {\em include-statement},
 the value of the variable is substituted for the variable name.
-Then the {\em statements} are appended to the designated include FIFO.
 
 Substitution for {\em include-arguments} obeys the following rules:
 \begin{itemize}
-\item A phrase (map value with {\tt .type = "PHRASE"}) is spliced
-into the list containing the {\em include-argument} name.  Thus
-if {\tt X=`A B'} then the {\em statement} {\tt Y = X 1} becomes
-{\tt Y = A B 1}.  The phrase may be empty.
+\item If the {\em include-argument} begins with {\tt \#}, if its
+value is a list, and if the
+instance begin substituted is an element of a list,
+the {\em include-argument} list is spliced into the instance containing
+list.
+Thus if {\tt X = \{"A", "B"\}} then the {\em statement} {\tt Y = X 1} becomes
+{\tt Y = A B 1}.  The {\em include-argument} value list may be empty.
 
-\item An expression (map value with {\tt .type = "EXPRESSION"})
-replaces the {\em include-argument} name.  Thus
-if {\tt X=`{}`A + B'{}'} then the {\em statement} {\tt Y = X * 2} becomes
-{\tt Y = \{| A + B|\} * 2} where {\tt \{|~~|\}} denotes `implied'
-parentheses.
-
-\item A number, string, or special value replaces
-replaces the {\em include-argument} name.
-
-\item A map that is neither a phrase nor an expression replaces the
-{\em include-argument} name with a {\em map-constant}
-(see \pagref{MAP-CONSTANT}) encoding the map.
+\item Otherwise the value of the {\em include-argument} replaces the
+instance in the parsed {\em statement}.
+Thus if {\tt X = \{ "A" "+" "B"\}} then the {\em statement}
+{\tt Y = X * 2} becomes the equivalent of
+{\tt Y = ( A + B ) * 2} where the parentheses are implied.
 \end{itemize}
 
 \subsection{Scope}
