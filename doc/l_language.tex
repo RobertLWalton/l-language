@@ -4550,17 +4550,20 @@ Substitution for {\em include-arguments} obeys the following rules:
 \begin{itemize}
 \item If the {\em include-argument} begins with {\tt \#}, if its
 value is a list, and if the
-instance begin substituted is an element of a list,
+instance being substituted is an element of a list,
 the {\em include-argument} list is spliced into the instance containing
 list.
-Thus if {\tt X = \{"A", "B"\}} then the {\em statement} {\tt Y = X 1} becomes
-{\tt Y = A B 1}.  The {\em include-argument} value list may be empty.
+Thus if {\tt \#X = \{"A", "B"\}} then \\
+\centerline{\tt "Y", "=", \{ "\#X", 1 \}
+            {\rm becomes} "Y", "=", \{ "A", "B", 1 \}}
+The {\em include-argument} value list may be empty.
 
 \item Otherwise the value of the {\em include-argument} replaces the
 instance in the parsed {\em statement}.
-Thus if {\tt X = \{ "A" "+" "B"\}} then the {\em statement}
-{\tt Y = X * 2} becomes the equivalent of
-{\tt Y = ( A + B ) * 2} where the parentheses are implied.
+Thus if {\tt X = \{ "A", "+", "B"\}} then \\
+\centerline{\tt "Y", "=", \{ "X", "*", 2 \}}
+\centerline{\rm becomes}
+\centerline{\tt "Y", "=", \{ \{ "A", "+", "B" \}, "*", 2 \}}
 \end{itemize}
 
 \subsection{Scope}
