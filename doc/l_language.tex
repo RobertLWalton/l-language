@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 11, 2021
+November 13, 2021
 
 \bigskip
  
@@ -1955,6 +1955,9 @@ sequentially.  Similarly \key{vector} is used to refer to a map whose
 dominant mode of access is to access the map elements randomly
 using subscripts.  And \key{dictionary} is used to refer to a map
 whose dominant mode of usage is to access the map's dictionary elements.
+
+Dictionary entries are also called \skey{attribute}s.  For lists and
+vectors, they are also called \skey{annotation}s.
 
 Each {\em map-constant}
 creates a distinct map: no two such maps are \TT{==}.  A map created
@@ -4460,21 +4463,21 @@ and \underline{must be acyclic}.
 
 Any inline function call can set the \ttkey{*CODE*} variable
 to a list of parsed statements which will be prepended to
-the list of statements to be compiled once the statement
+the list of statements remaining to be compiled once the statement
 containing the function call is compiled.  It is an error
 if there is more than one function call doing this in
-the statement containing the function call that sets the
+the statement that sets the
 {\tt *CODE*} variable.
 
-It is not necessary to include some dictionary
-entries in {\tt *CODE*} statements or expressions.
+It is not necessary to include certain annotations
+in {\tt *CODE*} statements or expressions.
 
 Specifically, it is \underline{not} necessary to
-include the {\tt .position} entry or
+include the {\tt .position} or
 the following {\tt .initiator}s or {\tt .terminator}s:
 
 \begin{center} \tt
-{\rm \bf Unnecessary Dictionary Entries}
+{\rm \bf Unnecessary Annotations}
 \\[1ex]
 \begin{tabular}{l@{~~~~~~~~~~}l}
 .initiator & .terminator
@@ -4488,12 +4491,13 @@ because the {\tt .position} of the function call will be added
 if no {\tt .position} is given,
 logical lines can be identified from context, and
 {\tt ()} bracketted subexpressions are equivalent to
-subexpressions with implied brackets.
+subexpressions with implied brackets (i.e., with no
+{\tt .initiator} or {\tt .terminator}).
 
-However, the {\tt .separator} token and the following must be included:
+However, any {\tt .separator} and the following must be included:
 
 \begin{center} \tt
-{\rm \bf Necessary Dictionary Entries}
+{\rm \bf Necessary Annotations}
 \\[1ex]
 \begin{tabular}{l@{~~~~~~~~~~}l}
 .initiator & .terminator
@@ -4554,17 +4558,64 @@ instance being substituted is an element of a list,
 the {\em include-argument} list is spliced into the instance containing
 list.
 Thus if {\tt \#X = \{"A", "B"\}} then \\
-\centerline{\tt "Y", "=", \{ "\#X", 1 \}
-            {\rm becomes} "Y", "=", \{ "A", "B", 1 \}}
+\hspace*{2em}{ \tt
+"Y", "=", \{ "\#X", 1 \} {\rm becomes} "Y", "=", \{ "A", "B", 1 \}
+} \\
 The {\em include-argument} value list may be empty.
+If {\tt \#X = \{\}} then \\
+\hspace*{2em}{ \tt
+"Y", "=", \{ "\#X", 1 \} {\rm becomes} "Y", "=", \{ 1 \}
+}
 
 \item Otherwise the value of the {\em include-argument} replaces the
 instance in the parsed {\em statement}.
 Thus if {\tt X = \{ "A", "+", "B"\}} then \\
-\centerline{\tt "Y", "=", \{ "X", "*", 2 \}}
-\centerline{\rm becomes}
-\centerline{\tt "Y", "=", \{ \{ "A", "+", "B" \}, "*", 2 \}}
+\hspace*{2em}{\tt
+"Y", "=", \{ "X", "*", 2 \}
+{\rm becomes}
+\\\hspace*{2em}%
+"Y", "=", \{ \{ "A", "+", "B" \}, "*", 2 \}
+}
 \end{itemize}
+
+\subsubsection{Parser Output}
+\label{PARSER-OUTPUT}
+
+The output produced by the parser when it parses code is as
+follows.  In the following \ttkey{*LOGICAL-LINE*} and
+\ttkey{*INDENTED-PARAGRAPH*} name special values.
+
+Recall that the input is a sequence of logical lines.
+
+For a logical line, the parser produces a list with the
+annotations: \\
+\hspace*{0.5in}{\tt .initiator => *LOGICAL-LINE*, .terminator => "<LF>"} \\
+The list elements are strings and numbers representing lexemes, and
+lists representing subexpressions.
+
+Recall that an indented paragraph may appear at the end of a logical line.
+
+For an indented paragraph the parser produces a list
+which has the annotations: \\
+\hspace*{0.5in}{\tt .initiator => ":", .terminator => *INDENTED-PARAGRAPH*} \\
+The list elements are logical lines.
+
+For an explicitly bracketed subexpression the parser produces a list which has
+the annotations:
+\hspace*{0.5in}{\tt .initiator => "(", .terminator => ")"} \\
+or \\
+\hspace*{0.5in}{\tt .initiator => "[", .terminator => "]"} \\
+The list elements are strings and numbers representing lexemes, and
+lists representing subexpressions.
+
+For an implicitly bracketed subexpression the parser produces a list which has
+\underline{no} annotations.
+The list elements are strings and numbers representing lexemes, and
+lists representing subexpressions.
+
+An example is:
+
+TBD
 
 \subsection{Scope}
 \label{SCOPE}
