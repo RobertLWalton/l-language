@@ -4609,13 +4609,51 @@ The list elements are strings and numbers representing lexemes, and
 lists representing subexpressions.
 
 For an implicitly bracketed subexpression the parser produces a list which has
-\underline{no} annotations.
+\underline{no} {\tt .initiator} and {\tt .terminator} annotations.
 The list elements are strings and numbers representing lexemes, and
 lists representing subexpressions.
 
+Operators that are separators, such as `\TT{,}', are not included as elements
+of a list, but become a \ttkey{.separator} annotation of the list.
+
+Lists that have a single element and have
+\underline{no} {\tt .initiator}, {\tt .separator},
+or {\tt .initiator} annotations are \underline{not} generated
+by the parser.  What would be their single element is output in
+their place.  In other words, there are no implied parentheses
+around a single string, number, or subexpression.
+
 An example is:
 
-TBD
+\begin{indpar}[1em]
+Parser Input:
+\begin{indpar}[1em]\begin{verbatim}
+if X < Y:
+    X = Y
+    Y = Y + 5 * Z
+    A 1, B = B, A 1
+\end{verbatim}\end{indpar}
+
+\medskip
+
+Parser Output:
+\begin{indpar}[1em]\begin{verbatim}
+{ "if",
+  { "X", "<", "Y" },
+  { { "X", "=", "Y",
+      .initiator => *LOGICAL-LINE*, .terminator => "<LF>" },
+    { "Y", "=",
+      { "Y", "+", { 5, "*", "Z" } },
+      .initiator => *LOGICAL-LINE*, .terminator => "<LF>" },
+    { { { "A", 1 }, "B", .separator => "," }
+      "=",
+      { "B", { "A", 1 }, .separator => "," },
+      .initiator => *LOGICAL-LINE*, .terminator => "<LF>" },
+    .initiator => ":", .terminator => *INDENTED-PARAGRAPH*
+  }
+
+\end{verbatim}\end{indpar}
+\end{indpar}
 
 \subsection{Scope}
 \label{SCOPE}
