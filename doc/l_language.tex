@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 13, 2021
+November 16, 2021
 
 \bigskip
  
@@ -1931,7 +1931,7 @@ Either or both can be empty.  The syntax of a {\em map-constant} is:
 \\[0.5ex]
 \emkey{list-element}\label{LIST-ELEMENT} ::= {\em constant}
 \\[0.5ex]
-\emkey{dictionary-label}\label{MAP-LABEL} ::= {\em data-label}
+\emkey{dictionary-label}\label{DICTIONARY-LABEL} ::= {\em data-label}
     ~~~~~ [see \pagref{DATA-LABEL}]
 \\[0.5ex]
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
@@ -1962,7 +1962,7 @@ vectors, they are also called \skey{annotation}s.
 Each {\em map-constant}
 creates a distinct map: no two such maps are \TT{==}.  A map created
 by a {\em map-constant} is initially set so that it and all its dictionary
-entries are read-only.  This can be changed: see \pagref{READ-ONLY-FLAG}.
+entries are read-only.  This can be changed: see \pagref{READ-ONLY-MAP}.
 
 If some {\em list-elements} or {\em dictionary-values} are
 {\em expressions} that is not {\em constants} but which evaluate
@@ -4764,8 +4764,6 @@ provided by a declaration
 is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
-TBD
-
 Code produced by {\em include-statements} executed during a call to a
 compile-time function
 \underline{is} compiled in the context of the call.
@@ -4990,10 +4988,20 @@ otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 
 \subsection{Compile Time Map Functions}
 
-Recall that a {\tt const} map value is actually a pointer to the map,
+A {\tt const} map value is actually a pointer to the map,
 and not the whole map itself.
+A {\em map-constant} creates a new map, distinct from every
+other map (so you can have multiple different empty maps).
 
-A map may be read-write or read-only.  Read-only maps cannot
+A string {\em const} value represents a {\em dictionary-label}
+if when parsed it is a {\em dictionary-label}.  This means it must
+consist of one or more {\em name-items} each surrounded by whitespace,
+the {\em name-items} must not be {\em quoted-marks} or {\em quoted-separators},
+and only the first {\em name-item} may contain a `\TT{.}'
+(see {\em dictionary-label} on \pagref{DICTIONARY-LABEL}).
+
+A map may be read-write or read-only.\label{READ-ONLY-MAP}
+Read-only maps cannot
 be modified.  Each {\em map-constant} makes a separate read-only
 map that can be made read-write permanently or temporarily by
 the following:
@@ -5002,9 +5010,13 @@ the following:
 {\tt const r =} \ttkey{read-only} {\tt ( const m )}
 \begin{indpar}
 Makes the map {\tt m} read-write or read-only and returns {\tt m}.
+
+When the map is created by a {\em map-constant}, it is made read-only.
 \end{indpar}
 
-TBD
+Each map {\em dictionary-entry} can be separately made read-write or
+read-only.  When created, the entry is read-write.  This can be
+changed by the following:
 
 {\tt const r =} \ttkey{read-write} {\tt ( const m, const s )} \\
 {\tt const r =} \ttkey{read-only} {\tt ( const m, const s )} %
@@ -5014,9 +5026,35 @@ Makes the map label {\tt s} (a string) of the map {\tt m}
 read-write or read-only, and returns {\tt m}.  The map
 itself must be read-write.
 
-When a value is first written at the label, the label is created
+When a value is first written at a label, the label is created
 for the map and set to read-write.
+
+It is a compile error is {\tt s} does not represent a
+{\em dictionary-label}.
 \end{indpar}
+
+If {\tt M} is a {\tt const} valued variable whose value is a map,
+and if {\tt S} is a {\tt const} valued variable, then {\tt M[S]}
+may be used to reference a vector elemement or dictionary entry of
+the value of {\tt M} as follows:
+\begin{enumerate}
+\item If the value of {\tt S} is an integer, the {\tt S}+1'st element
+of the vector of {\tt M} is referenced.  If this is being read and
+it does not exist, {\tt NONE} is returned and there is no compile-time
+error; this always happens if {\tt S} is a negative integer.
+If the element is being written but does not exist, or the map
+is read-only, a compile-time error results; otherwise the element
+value is changed.
+\item If the value of {\tt S} is a string representing a
+{\em dictionary-label}, the dictionary entry
+of {\tt M} with label {\tt S} is referenced.  If this is being read and
+it does not exist, {\tt NONE} is returned.  If it is being written and
+it does not exist, it is created and made read-write.  If it exists and is
+read-only, a compile-time error results.  If it exists and is read-write,
+its value is changed.
+\item Otherwise if {\tt S} is neither an integer or a string representing
+a {\em dictionary-label}, a compile-error results.
+\end{enumerate}
 
 {\tt const r =} \ttkey{copy} {\tt ( const m )} \\
 {\tt const r =} \ttkey{copy top} {\tt ( const m )} %
@@ -5065,15 +5103,42 @@ It is an error is any of the elements to be replaced do not exist
 The edited map {\tt m} is returned.
 \end{indpar}
 
+{\tt const r =} \ttkey{truncate} {\tt ( const m, const i )}
+\begin{indpar}
+An optimized version of {\tt splice} that removes the elements
+{\tt m[i]}, {\tt m[i+1]}, \ldots, from the end of the vector of {\tt v}.
+The edited map {\tt m} is returned.  It is not an error if no elements
+are removed.
+\end{indpar}
+
 {\tt const r =} \ttkey{push} {\tt ( const m, const v )}
 \begin{indpar}
 Appends {\tt v} to the vector of {\tt m} and returns {\tt m}.
+\end{indpar}
+
+{\tt const r =} \ttkey{push} {\tt ( const m, const v, const i )}
+\begin{indpar}
+Executes {\tt push(m,v)} {\tt i} times.  It is an error if {\em i}
+is a negative integer.
+\end{indpar}
+
+{\tt const r =} \ttkey{append} {\tt ( const m1, const m2 )}
+\begin{indpar}
+Appends the vector elements of the map {\tt m2} to the vector of {\tt m1}
+and returns {\tt m1}.
 \end{indpar}
 
 {\tt const r =} \ttkey{pull} {\tt ( const m )}
 \begin{indpar}
 Deletes the last vector element of {\tt m} and returns it.
 It is an error if {\tt m} is empty.
+\end{indpar}
+
+{\tt const r =} \ttkey{pull} {\tt ( const m, const i )}
+\begin{indpar}
+Deletes the last {\tt i} vector elements of {\tt m} and returns a map
+containing them.  It is an error if there are not {\tt i} elements
+in {\tt m}.
 \end{indpar}
 
 \printindex
