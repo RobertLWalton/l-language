@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 06:18:52 EST 2020
+// Date:	Tue Nov 30 19:23:31 EST 2021
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -88,6 +88,6 @@ void LLANG::init_parser ( PAR::parser parser )
           PAR::find_reformatter
               ( binary,
                 OP::reformatter_stack ),
-          min::NULL_STUB,
+          min::MISSING(),
           oper_pass->oper_table );
 }
