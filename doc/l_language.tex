@@ -346,6 +346,43 @@ efficient by keeping variables constant (i.e., {\tt co}), and
 it improves debuggability by retaining the different values of
 the variable for inspection by a debugger.
 
+Loops use the `{\tt next \ldots}' construct.  For example:
+\begin{indpar}\begin{verbatim}
+// Compute sum of 4, 5, and 6.
+//
+int sum = 0
+int i = 4
+next sum, next i = while i <= 6:
+    next sum = sum + i
+    next i = i + 1
+\end{verbatim}\end{indpar}
+which is semantically equal to:
+\begin{indpar}\begin{verbatim}
+int sum = 0
+int i = 4
+next sum, next i:
+    next sum = sum + i
+    next i = i + 1
+next sum, next i:
+    next sum = sum + i
+    next i = i + 1
+next sum, next i:
+    next sum = sum + i
+    next i = i + 1
+\end{verbatim}\end{indpar}
+The `{\tt next sum}' and `{\tt next i}' before the `{\tt :}',
+which are the output variables for the block of code containing
+the two `{\tt +}' statements,
+can also be implied as they appear as output variables
+of the `{\tt +}' statements, so the above loop can be written as:
+\begin{indpar}\begin{verbatim}
+int sum = 0
+int i = 4
+while i <= 6:
+    next sum = sum + i
+    next i = i + 1
+\end{verbatim}\end{indpar}
+
 L-Language has a full set of number types:
 {\tt int8}, {\tt uns8},
 {\tt int16}, {\tt uns16}, {\tt flt16}, \ldots,
@@ -489,7 +526,7 @@ its offset is a multiple of its length.  Alignments must be powers of two.
 A defined type has an
 alignment equal to the least common multiple (in this case just the
 largest) of the
-alignments of its fields.
+alignments of its aligned fields.
 
 A {\tt *LABEL*} is like a zero length field that has no value and
 is used to associate an origin-label with the current offset.
