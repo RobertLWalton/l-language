@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-November 16, 2021
+January 6, 2022
 
 \bigskip
  
@@ -179,6 +179,28 @@ Table of Contents
 
 This document describes \key{L-Language}, the Layered Language
 System Low Level Language.
+
+The L-Language is a system programming language built on the
+following two main ideas:
+
+\begin{indpar}
+
+\key{Type Checking Segregation Hypothesis}~~~~ A strongly typed-checked
+general-purpose computer-efficient language is impossible.
+What is possible is
+to segregate non-type-checkable code into small inline
+library functions and into macro functions,
+with code that uses these functions being
+strongly type-checked.
+
+\key{Fully Capable Macro Sublanguage Hypothesis}~~~~ It is better for
+a programming language to have a builtin macro language that
+is a general purpose interpreted language than it is for the
+programming language to build into itself
+many more limited and specialized type declaration and
+flow control features.
+
+\end{indpar}
 
 \section{Overview}
 
