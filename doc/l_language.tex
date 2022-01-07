@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 6, 2022
+January 7, 2022
 
 \bigskip
  
@@ -470,11 +470,13 @@ type my type:
     flt64   weight           // Object Weight
     align   8
     *LABEL*   extension
+    **
 
 type my type:
     *ORIGIN*  extension
     flt64   height           // Object Height
     flt64   width            // Object Width
+    **
 
 type my type:
     *ORIGIN*  extension
@@ -500,9 +502,9 @@ your type Y:
     Y.name = "John Doe's Lager"
 \end{verbatim}\end{indpar}
 
-Here the definitions of {\tt my type} and {\tt your type} are each
-single statements called declarations.  Each of these two
-declarations contains a sequence of sub-declarations, e.g.,
+Here the definitions of {\tt my type} and {\tt your type} are in
+statements called {\em type-declarations}.  Each of these
+{\em type-declarations} contains a sequence of sub-declarations, e.g.,
 for {\tt my type} the first two sub-declarations are
 `{\tt pack}' and `{\tt uns8 kind}'.  There is a current
 offset in bytes that starts at {\tt 0} and is updated by each sub-declaration.
@@ -533,8 +535,17 @@ is used to associate an origin-label with the current offset.
 Here {\tt extension} has the offset value of 16 bytes.
 The {\tt *ORIGIN*} sub-declaration resets the current offset to the offset
 of a given origin-label.
+
+The `{\tt **}' sub-declaration at the end of a
+{\em type-declaration} defining a user defined type indicates
+that the definition may be continued by a later {\em type-declaration},
+as is done for {\tt my\_type} above.
+The sub-declarations of the later {\em type-declaration} are
+simply appended to those of previous {\em type-declarations}.
+
 The {\tt include} sub-declaration copies all the sub-declarations
-from another user defined type.  If the user defined type is
+from another user defined type.
+If the user defined type is
 defined by multiple {\em type-declarations}, only sub-declarations
 from the {\em type-declarations} in the current scope (see \itemref{SCOPE})
 are copied.
@@ -542,21 +553,29 @@ are copied.
 Defined types can be extended
 (as per the example), and fields can overlay each other.
 A defined type value has a size in bytes just large enough to
-accommodate all its fields.
+accommodate all its fields.  If a defined type has multiple
+{\em type-declarations}, this size may not be known until load time.
 
 Values of {\tt const} type are compile-time values, and are
-not available at run-time.  Number constants are infinite
-precision, with unbounded integers and rational numbers that
-are ratios of unbounded integers.  Number constants
+not available at run-time.  Number constants consisting of
+digits and optional signs, decimal points, and exponents,
+are converted to IEEE 64-bit floating point values, as are
+special lexemes such as {\tt inf}, {\tt +inf}, {\tt -inf}, and
+{\tt nan}.  Other number constants represent
+rationals with unbounded integral numerators
+and denominators; for example,
+{\tt D\#"1/3"} represents the precise rational one-third.
+Number constants
 can be converted to run-time numbers during compilation.
 However it is an compile error
 if the result will not fit into the runtime number.
-This happens, for example, if {\tt 1e20}
+This happens, for example, if either {\tt 1.1} or {\tt 1e20}
 is converted to an {\tt int32}.
 
 Quoted strings denote string {\tt const} values that can be
-converted to run-time vectors
-with {\tt co} unsigned integer elements during compilation.
+converted during compilation to run-time vectors
+with {\tt co} unsigned integer elements that encode the
+string in UTF-8, UTF-16, or UTF-32.
 
 Lastly there are map {\tt const} values that can hold lists
 and dictionaries.  These last can be mutable at compile-time,
