@@ -578,7 +578,7 @@ with {\tt co} unsigned integer elements that encode the
 string in UTF-8, UTF-16, or UTF-32.
 
 Lastly there are map {\tt const} values that can hold lists
-and dictionaries.  These last can be mutable at compile-time,
+and dictionaries.  Map values can be mutable at compile-time,
 but cannot be converted to run-time values.
 
 Expressions, statements, and functions that use only {\tt const} values
@@ -651,23 +651,9 @@ flt32 r5 = flt32(y)                // OK; precision may be lost;
                                    //     converted to infinities
 \end{verbatim}\end{indpar}
 
-TBD
-
-
-A run-time statement with operators on non-{\tt const} data
-that are outside reference expressions must be a variable
-assignment, and all operators must operate on data of the
-type of that variable.  For example:
-
-\begin{indpar}\begin{verbatim}
-// Assume intq is 4*64 bits and so it can hold a 1e60 number.
-int x = 5
-int y = 1e8
-int d = 3
-const e = 1e60
-intq z = x + y / d + e
-    // All 3 operators operate on intq data
-\end{verbatim}\end{indpar}
+There are functions such as `{\tt round}' that will input a floating
+point value and output an integer, though they produce undefined
+values and error flags when the floating point number is too large.
 
 It is possible to define compile-time functions:
 
@@ -734,7 +720,7 @@ than as temporaries during the execution of a single statement,
 and a pair of registers that hold the current function
 execution frame address and current module data address.
 However, registers can be used to cache data that exists in
-RAM memory, or that should exist in RAM memory but do not
+RAM memory, or that should exist in RAM memory but does not
 due to optimization.  We call such registers
 \skey{software cach}{es}.
 
