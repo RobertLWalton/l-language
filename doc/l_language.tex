@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 7, 2022
+January 8, 2022
 
 \bigskip
  
@@ -599,23 +599,60 @@ int y = ...
 int z = max ( x, y )
 \end{verbatim}\end{indpar}
 
-A run-time assignment statement can contain a single function call
-or can contain operators on non-{\tt const} data
-outside reference expressions, but not both.
+In general, L-Language does \underline{not} support implicit
+conversions.  An exception is: any number or rational constant may be
+converted implicitly to any run-time number type as long as
+the number constant value can be stored exactly in a variable
+of the run-time type.  Builtin operators, such as `{\tt +}',
+have the same type of their operands as they have for their
+result.\footnote{In these matters L-Language follows Ada.}
+
 For example, given the definition of {\tt max} above:
 
 \begin{indpar}\begin{verbatim}
+float w = ...
 int x = ...
 int y = ...
 int z = ...
-int u = 5 + max ( x, y )           // Illegal
-int w = max ( x, max ( y, z ) )    // Illegal
-int w1 = max ( y, z )              // OK
-int w2 = max ( x, w1 )             // OK
+int r1 = 5 + max ( x, y )          // OK
+int r2 = max ( x, max ( y, z ) )   // OK
+int r3 = max ( y, w )              // Illegal
+int r4 = max ( x, 123 )            // OK
+int r5 = max ( x, 123.4 )          // Illegal
 const c1 = 100
 const c2 = 1000
-int v = max ( x, c1 + c2 )         // OK
+int r6 = max ( x, c1 + c2 )        // OK
+float64 r7 = 1.1                   // OK
+float32 r8 = 1.1                   // Illegal
+    // 1.1 is stored in the compiler as a float64 and
+    // cannot be converted to float32 without losing
+    // precision.
+float32 r8 = 1.125                 // OK
+    // 1.125 is stored precisely as a float64, because
+    // it is 9/8 and 8 is a power of 2.
 \end{verbatim}\end{indpar}
+
+Explicit conversion functions are provided whose function names
+are the same as the type name of their result, as long as
+all argument values can be converted result values that reasonably
+represent the true argument values.
+Examples:
+
+\begin{indpar}\begin{verbatim}
+int64 x = ...
+float64 y = ...
+int32 z = ...
+int64 r1 = int64(z)                // OK
+int32 r2 = int32(x)                // Illegal
+int64 r3 = int64(y)                // Illegal
+float64 r4 = float64(x)            // OK; precision may be lost
+float32 r5 = float32(y)            // OK; precision may be lost;
+                                   //     some values may be
+                                   //     converted to infinities
+\end{verbatim}\end{indpar}
+
+TBD
+
 
 A run-time statement with operators on non-{\tt const} data
 that are outside reference expressions must be a variable
