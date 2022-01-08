@@ -622,13 +622,13 @@ int r5 = max ( x, 123.4 )          // Illegal
 const c1 = 100
 const c2 = 1000
 int r6 = max ( x, c1 + c2 )        // OK
-float64 r7 = 1.1                   // OK
-float32 r8 = 1.1                   // Illegal
-    // 1.1 is stored in the compiler as a float64 and
-    // cannot be converted to float32 without losing
+flt64 r7 = 1.1                     // OK
+flt32 r8 = 1.1                     // Illegal
+    // 1.1 is stored in the compiler as a flt64 and
+    // cannot be converted to flt32 without losing
     // precision.
-float32 r8 = 1.125                 // OK
-    // 1.125 is stored precisely as a float64, because
+flt32 r8 = 1.125                   // OK
+    // 1.125 is stored precisely as a flt64, because
     // it is 9/8 and 8 is a power of 2.
 \end{verbatim}\end{indpar}
 
@@ -640,13 +640,13 @@ Examples:
 
 \begin{indpar}\begin{verbatim}
 int64 x = ...
-float64 y = ...
+flt64 y = ...
 int32 z = ...
 int64 r1 = int64(z)                // OK
 int32 r2 = int32(x)                // Illegal
 int64 r3 = int64(y)                // Illegal
-float64 r4 = float64(x)            // OK; precision may be lost
-float32 r5 = float32(y)            // OK; precision may be lost;
+flt64 r4 = flt64(x)                // OK; precision may be lost
+flt32 r5 = flt32(y)                // OK; precision may be lost;
                                    //     some values may be
                                    //     converted to infinities
 \end{verbatim}\end{indpar}
