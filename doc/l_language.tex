@@ -754,6 +754,39 @@ ap my pointer @q = ...        // OK
 flt64 v = q.p[0]              // OK
 \end{verbatim}\end{indpar}
 
+Any inline function can create new code that is inserted
+after the statement containing a call to the function.
+The code is expressed as a {\tt const} map value in
+the format output by the code parser.  As a simple
+example, if the inline function contains:
+\begin{indpar}\begin{verbatim}
+const T = my number
+const V = my variable
+include (T, V):
+    T V = x + y
+    T z = max ( {V}, 1000 )
+\end{verbatim}\end{indpar}
+then a statement calling the inline function will be
+followed by the code:
+\begin{indpar}\begin{verbatim}
+my number my variable = x + y
+my number z = max ( my variable, 1000 )
+\end{verbatim}\end{indpar}
+which the parser renders as the {\tt const} map value:
+\begin{indpar}\begin{verbatim}
+{ { { "my", "number", "my", "variable" }, "=", { "x", "+", "y" } },
+  { { "my", "number", "z" }, "=",
+    { "max", { { "my", "variable" }, "1000",
+               .initiator => "(",
+               .separator => ",",
+               .terminator =? ")" } } } }
+\end{verbatim}\end{indpar}
+
+Code to be inserted can also be computed directly as a {\tt const} map
+value without using `{\tt include}' statements.
+
+
+
 
 \section{Syntax}
 
