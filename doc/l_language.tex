@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 8, 2022
+January 9, 2022
 
 \bigskip
  
@@ -764,7 +764,7 @@ const T = my number
 const V = my variable
 include (T, V):
     T V = x + y
-    T z = max ( {V}, 1000 )
+    T z = max ( V, 1000 )
 \end{verbatim}\end{indpar}
 then a statement calling the inline function will be
 followed by the code:
@@ -774,9 +774,10 @@ my number z = max ( my variable, 1000 )
 \end{verbatim}\end{indpar}
 which the parser renders as the {\tt const} map value:
 \begin{indpar}\begin{verbatim}
-{ { { "my", "number", "my", "variable" }, "=", { "x", "+", "y" } },
+{ { { "my", "number", "my", "variable" }, "=",
+    { { "x" }, "+", { "y" } } },
   { { "my", "number", "z" }, "=",
-    { "max", { { "my", "variable" }, "1000",
+    { "max", { { "my", "variable" }, { "1000" },
                .initiator => "(",
                .separator => ",",
                .terminator =? ")" } } } }
