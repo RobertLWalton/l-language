@@ -891,7 +891,7 @@ The following is a special virtual lexeme:
 \begin{indpar}
 \emkey{indent}\label{INDENT} ::=
         virtual lexeme inserted just before the first
-	{\em graphic} character on a line
+	{\em graphic-character} on a line
 \end{indpar}
 
 \key{Indent lexemes} have no characters, but
@@ -1302,6 +1302,7 @@ Since a logical line can end with a block that itself consists
 of a sequence of logical lines, a statement can end with
 a block that itself consists of a sequence of statements.
 
+\newpage
 
 \subsection{Expressions}
 
@@ -1312,6 +1313,75 @@ Operators are characterized by fixity, precedence, and format.
 The L-Language operators are listed in
 Figures~\itemref{L-LANGUAGE-LINE-OPERATORS}
 and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS}.
+
+
+Given this, expressions have the following syntax,
+where an {\em P-expression}
+is an expression all of whose operators that are outside brackets
+have precedence equal to or greater than P:
+
+\begin{indpar}\begin{minipage}{6in}
+\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
+\\[0.5ex]
+\emkey{P-expression}
+    \begin{tabular}[t]{@{}rl}
+    ::= & \{ {\em (P+1)-expression} $|$ {\em P-operator)} \}\PLUS{} \\
+        & where no two {\em (P+1)-expressions} may be adjacent \\ 
+        & and the {\em P-operators} must obey the fixity rules below \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{P-operator} ::= operator of precedence P
+\\[0.5ex]
+\emkey{(H+2)-expression} ::= {\em primary}
+\\[0.5ex]
+\emkey{primary} ::= {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
+\\[0.5ex]
+\emkey{primary-element} ::= {\em non-operator-lexeme} $|$
+                            {\em bracketted-subexpression}
+\\[2.0ex]
+\hspace*{3em}\begin{tabular}{l}
+where P is any precedence in the range [L,H+1]
+\end{tabular}
+\end{minipage}\end{indpar}
+
+
+Generally
+a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
+separated by operators of precedence $P$.
+
+The operators can have any combination of the following \key{base fixities}:
+
+\begin{center}
+\begin{tabular}{lp{5.0in}}
+\ttkey{initial}	& {\em P-operator} must be the first thing
+                  in its {\em P-expression}. \\
+\ttkey{final}	& {\em P-operator} must be the last thing
+                  in its {\em P-expression}. \\
+\ttkey{left}	& {\em P-operator} must be immediately
+                  preceded by a {\em (P+1)-expression}
+                  in its {\em P-expression}. \\
+\ttkey{right}	& {\em P-operator} must be immediately
+                  followed by a {\em (P+1)-expression}
+                  in its {\em P-expression}. \\
+\ttkey{afix}	& {\em P-operator} must be after a (not necessarily
+                  immediately) preceding {\em P-operator}
+                  in its {\em P-expression}. \\
+\end{tabular}
+\end{center}
+
+The following \key{combination fixities} are defined:
+
+\begin{center}
+\begin{tabular}{ll}
+\ttkey{prefix}	& {\tt initial} + {\tt right} \\
+\ttkey{infix}	& {\tt left} + {\tt right} \\
+\ttkey{postfix}	& {\tt left} + {\tt final} \\
+\ttkey{nofix}	& none of {\tt initial}, {\tt final}, {\tt left},
+                  or {\tt right} \\
+\end{tabular}
+\end{center}
+
+All of these but {\tt initial} and {\tt prefix} can be combined with {\tt afix}.
 
 \newpage
 
@@ -1368,40 +1438,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \label{L-LANGUAGE-LINE-OPERATORS}
 \end{boxedfigure}
 
-\newpage
-
-Given this, expressions have the following syntax,
-where an {\em P-expression}
-is an expression all of whose operators that are outside brackets
-have precedence equal to or greater than P:
-
-\begin{indpar}\begin{minipage}{6in}
-\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
-\\[0.5ex]
-\emkey{P-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & \{ {\em (P+1)-expression} $|$ {\em P-operator)} \}\PLUS{} \\
-        & where no two {\em (P+1)-expressions} may be adjacent \\ 
-        & and the {\em P-operators} must obey the fixity rules below \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{P-operator} ::= operator of precedence P
-\\[0.5ex]
-\emkey{(H+2)-expression} ::= {\em primary}
-\\[0.5ex]
-\emkey{primary} ::= {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
-\\[0.5ex]
-\emkey{primary-element} ::= {\em non-operator-lexeme} $|$
-                            {\em bracketted-subexpression}
-\\[2.0ex]
-\hspace*{3em}\begin{tabular}{l}
-where P is any precedence in the range [L,H+1]
-\end{tabular}
-\end{minipage}\end{indpar}
-
-\newpage
-
-\begin{boxedfigure}[!h]
+\begin{boxedfigure}[!t]
 \begin{center}
 Non-Line Level Operators \\
 May Occur Inside or Outside Parentheses and Brackets
@@ -1471,45 +1508,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \label{L-LANGUAGE-NON-LINE-OPERATORS}
 \end{boxedfigure}
 
-\newpage
-
-Generally
-a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
-and operators of precedence $P$.
-
-The operators can have any combination of the following \key{base fixities}:
-
-\begin{center}
-\begin{tabular}{lp{5.0in}}
-\ttkey{initial}	& {\em P-operator} must be the first thing
-                  in its {\em P-expression}. \\
-\ttkey{final}	& {\em P-operator} must be the last thing
-                  in its {\em P-expression}. \\
-\ttkey{left}	& {\em P-operator} must be immediately
-                  preceded by a {\em (P+1)-expression}
-                  in its {\em P-expression}. \\
-\ttkey{right}	& {\em P-operator} must be immediately
-                  followed by a {\em (P+1)-expression}
-                  in its {\em P-expression}. \\
-\ttkey{afix}	& {\em P-operator} must be after a (not necessarily
-                  immediately) preceding {\em P-operator}
-                  in its {\em P-expression}. \\
-\end{tabular}
-\end{center}
-
-The following \key{combination fixities} are defined:
-
-\begin{center}
-\begin{tabular}{ll}
-\ttkey{prefix}	& {\tt initial} + {\tt right} \\
-\ttkey{infix}	& {\tt left} + {\tt right} \\
-\ttkey{postfix}	& {\tt left} + {\tt final} \\
-\ttkey{nofix}	& none of {\tt initial}, {\tt final}, {\tt left},
-                  or {\tt right} \\
-\end{tabular}
-\end{center}
-
-All of these but {\tt initial} and {\tt prefix} can be combined with {\tt afix}.
+\clearpage
 
 The operators in
 Figures~\itemref{L-LANGUAGE-LINE-OPERATORS}
