@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 9, 2022
+January 11, 2022
 
 \bigskip
  
@@ -1598,81 +1598,76 @@ with non-line arithmetic operators
 (\TT{+}, \TT{-}, \TT{/}, \TT{*}, and \TT{**})
 outside parentheses in a subexpression.
 E.g., `{\tt x + (y * \textasciitilde z)}'
-is illegal but `{\tt x + (y * (\textasciitilde z))}' is not.
+is illegal but `{\tt x + (y * (\textasciitilde z))}' is legal.
 \end{enumerate}
 
 
 Full semantics of operators and expressions is described later,
 but the following examples give an idea of some of this semantics:
 
-\begin{tabular}{p{1.5in}p{4.5in}}
-\tt T v \TT{=} x + y * z
-     & Here {\tt T} is the \key{target type} of the expression
-       `{\tt x + y * z}'.  The operands are evaluated and their values
-       are converted to type {\tt T}, and then the operators are evaluated.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1.5in}p{4.5in}}
-\tt x \TT{AND} y & The target type of the whole expression and of {\tt x} and
-                   {\tt y} individually is {\tt bool}.
-		   Evaluates {\tt x}, and if the value of that is {\tt true},
-                   evaluates and returns the value of {\tt y}; otherwise
-		   returns {\tt false}.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1.5in}p{4.5in}}
-\tt x \TT{if} y \TT{else} z 
-    & Evaluates {\tt y} with target type {\tt bool}.  If that value
+\begin{indpar}
+\hspace*{-0.2in}{\tt T v \TT{=} x + y * z} \\
+       Here {\tt T} is the \key{result type} of the expression
+       `{\tt x + y * z}'.  Because it is the result type of {\tt +} and
+       arithmetic operators (with a few exceptions)
+       have operands that are of the same
+       type as their result, {\tt T} is also result type of {\tt *}, and
+       since L-Language does not have implicit conversion (except for
+       constant numbers), {\tt T} must be
+       the type of {\tt x}, {\tt y}, and {\tt z}.
+
+\hspace*{-0.2in}{\tt T v \TT{=} x \TT{if} y \TT{else} z} \\
+      Evaluates {\tt y} with result type {\tt bool}.  If that value
       is {\tt true}, evaluates and returns the value of {\tt x}; otherwise
       evaluates and returns the value of {\tt z}.  Both {\tt x} and {\tt z},
-      if evaluated, have the same target type as the whole expression.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1.5in}p{4.5in}}
-\tt x \TT{<} y \TT{<} z
-    & Here {\tt x}, {\tt y}, and {\tt z} must be primaries (e.g., variable
-      names), which have natural types.  First {\tt x} and {\tt y} are
-      evaluated to their natural type values.  Then if one of their types
-      is implicitly convertible to the other, that is done and `{\tt x < y}'
-      is evaluated to a {\tt bool}.  If that is {\tt false}, then the
-      entire expression evaluates to {\tt false}.  Otherwise `{\tt y < z}'
-      is evaluated and returned.  In doing this, that natural type
-      value of {\tt y} is used even if that has previously been converted
-      to the natural type of {\tt x}.  Note that the value of the expression
-      is the same as the value of `{\tt x < y} AND {\tt y < x}', the only
-      difference being that {\tt y} is evaluated to its natural type only
-      once.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1.5in}p{4.5in}}
-\tt v[x+5] = y
-    & The target type of subscripts such as `{\tt x + 5}' is always {\tt int}.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1.5in}p{4.5in}}
-\tt x = max(y, z)
-    & A run-time function call can only appear as the right operand of
-      an assignment operator (i.e., {\tt =}, {\tt +=}, etc.) or by itself
-      as a whole statement.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1.5in}p{4.5in}}
-\tt \TT{\textasciitilde} x
-             & Evaluates on signed integers as if they were represented
-               in two's complement by binary values of unbounded size,
-	       and similarly for other bitwise operators.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1.5in}p{4.5in}}
-t\tt x \TT{**} y
-             & Requires that {\tt y} be a {\tt const} non-negative integer;
-	       {\tt x ** 0 == 1} for all {\tt x}.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1.5in}p{4.5in}}
-\tt x \TT{+=} y & Means {\tt next x = x + y} if {\tt x}
-is {\tt co}, and {\tt x = x + y} if {\tt x} is {\tt *READ-WRITE*}.
-\end{tabular}
+      if evaluated, must have type {\tt T}.
+
+      However if {\tt y} is a {\tt const} value, {\tt x} or {\tt y}, whichever
+      is not evaluated, is also not compiled, and if it would be in error
+      were it compiled, the error is not detected (unless it is a parsing
+      error).
+
+\hspace*{-0.2in}{\tt x \TT{AND} y} \\
+      If {\tt x} is \underline{not} of type {\tt const},
+      the result type is {\tt bool} and the types of {\tt x} and {\tt y}
+      must be {\tt bool}.  {\tt x} is evaluated first, and if false,
+      {\tt y} is not evaluated.
+
+      If {\tt x} is a true {\tt const} value, {\tt y} is evaluated
+      with result type {\tt bool} or {\tt const}.
+
+      If {\tt x} is a false {\tt const} value, {\tt y} is not compiled
+      or evaluated and the result is a false {\tt const} value.
+      If {\tt y} would be in error were it compiled,
+      the error is not detected (unless it is a parsing error).
+
+\hspace*{-0.2in}{\tt x \TT{<} y \TT{<} z} \\
+      This is equivalent to `{\tt x < y} AND {\tt y < z}', except that
+      {\tt y} is only evaluated once.
+
+      If {\tt x} or {\tt y} is \underline{not} of type {\tt const},
+      `{\tt x < y}' has result type {\tt bool}
+      and is only defined if {\tt x} and {\tt y} have the
+      same type, {\tt T}, in which case {\tt z} must also have type  {\tt T}.
+
+\hspace*{-0.2in}{\tt v[x+5] = y} \\
+      The result type of subscript expressions such as `{\tt x + 5}'
+      must be {\tt int}.
+
+\hspace*{-0.2in}{\tt \TT{\textasciitilde} x} \\
+       The `{\tt \textasciitilde}' operator
+       evaluates on signed integers as if they were represented
+       in two's complement by binary values of unbounded size,
+       and similarly for other bitwise operators.
+
+\hspace*{-0.2in}{\tt x \TT{**} y} \\
+       Requires that {\tt y} be a {\tt const} non-negative integer;
+       {\tt x ** 0 == 1} and {\tt x ** 1 == x} for all {\tt x}.
+
+\hspace*{-0.2in}{\tt x \TT{+=} y} \\
+	Means `{\tt next x = x + y}' if {\tt x} is {\tt co},
+	and `{\tt x = x + y}' if {\tt x} is {\tt *READ-WRITE*}.
+\end{indpar}
 
 \subsection{Primaries}
 \label{PRIMARIES}
