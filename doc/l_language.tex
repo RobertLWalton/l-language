@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 11, 2022
+January 12, 2022
 
 \bigskip
  
@@ -974,13 +974,13 @@ whereas inside {\em quoted-strings} and
 warning messages.
 
 \begin{boxedfigure}[!p]
-\begin{indpar}
 
 \emkey{lexeme}
         \begin{tabular}[t]{rl}
-	::= & {\em word} $|$ {\em mark} $|$ {\em number} $|$
-	      {\em separator} $|$ {\em quoted-string} $|$ {\em indent} \\
-	$|$ & {\em line-break} $|$
+	::= & {\em numeric-word} $|$ {\em word} $|$
+	      {\em natural} $|$ {\em number} $|$ {\em numeric} \\
+	$|$ & {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
+	$|$ & {\em indent} $|${\em line-break} $|$
 	      {\em comment} $|$ {\em end-of-file}
 	\end{tabular}
 \label{LEXEME}
@@ -1015,10 +1015,8 @@ warning messages.
 	$|$ & {\em special-character-representative} \\
 	\end{tabular}
 \\[0.3ex]
-\emkey{special-character-representative} :::= \\
-\hspace*{0.5in}
-    \TT{<} \{ {\em ASCII-upper-case-letter} $|$ {\em ASCII-digit}
-            \}\PLUS{} \TT{>}
+\emkey{special-character-representative} :::=
+    \TT{<} \{ {\em upper-case-letter} $|$ {\em digit} \}\PLUS{} \TT{>}
 \\[1ex]
 \emkey{lexical-item} :::= {\em lexical-item-character}\PLUS{}
                        not beginning with \TT{//}
@@ -1030,36 +1028,71 @@ warning messages.
 \emkey{middle-lexeme} :::= 
 	{\em lexical-item}
 	\begin{tabular}[t]{@{}l@{}}
-	not beginning with a \\
-	{\em leading-separator-character} \\
-	or ending with a \\
-	{\em trailing-separator-character} \\
+	not beginning with a {\em leading-separator-character} \\
+	or ending with a {\em trailing-separator-character} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{number}
-    ::= {\em middle-lexeme} with a {\em digit} before any {\em letter}
+\emkey{numeric-word} :::= {\em sign}\QMARK{} \ttkey{nan}
+                      $|$ {\em sign}\QMARK{} \ttkey{inf}
+		      ~~~~~
+		      [where {\em letters} are \underline{case insensitive}]
 \\[0.5ex]
-\emkey{natural-number}\label{NATURAL-NUMBER}
-	:::= {\em ASCII-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
+\emkey{word} :::= {\em middle-lexeme}
+                  \begin{tabular}[t]{@{}l@{}}
+		  that contains a {\em letter} before any {\em digit} \\
+		  and is not a {\em numeric-word}
+		  \end{tabular}
 \\[0.5ex]
-\emkey{word} :::= {\em middle-lexeme} containing a {\em letter} that is not
-                  a {\em number}
+\emkey{natural}\label{NATURAL}
+	:::= {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$ \TT{0}
 \\[0.5ex]
-\emkey{mark} :::= {\em middle-lexeme} that is not a {\em word} or
-		  {\em number}
+\emkey{number}\label{NUMBER}
+	\begin{tabular}[t]{@{}rl@{}}
+	:::= & {\em sign}\QMARK{} {\em integer-part}
+	                          {\em exponent-part}\QMARK{}
+	     (that is not a {\em natural}) \\
+	 $|$ & {\em sign}\QMARK{} {\em integer-part}\QMARK{}
+	                          {\em fraction-part}
+				  {\em exponent-part}\QMARK{} \\
+	\end{tabular}
 \\[0.5ex]
+\emkey{numeric} :::= {\em middle-lexeme}
+                  \begin{tabular}[t]{@{}l@{}}
+		  that contains a {\em digit} before any {\em letter} \\
+		  and is not a {\em natural} or {\em number}
+		  \end{tabular}
+\\[0.5ex]
+\emkey{integer-part} :::= {\em decimal-digit}\PLUS{}
+\\[0.5ex]
+\emkey{fraction-part} :::= \TT{.} {\em decimal-digit}\PLUS{}
+\\[0.5ex]
+\emkey{exponent-part} :::= {\em exponent-indicator} {\em sign}\QMARK{}
+                           {\em decimal-digit}\PLUS{}
+\\[0.5ex]
+\begin{tabular}[t]{@{}l@{\hspace{1in}}l@{}}
+\emkey{sign} :::= \TT{+} $|$ \TT{-}
+&
+\emkey{exponent-indicator} :::= \TT{e} $|$ \TT{E}
+\end{tabular}
+\\[0.5ex]
+\emkey{mark}\label{MARK} :::= {\em middle-lexeme} not containing a
+                              {\em letter} or a {\em digit}
+\\[0.5ex]
+\begin{tabular}[t]{@{}l@{\hspace{1in}}l@{}}
 {\em indent} ::= see \pagref{INDENT}
-\\[0.5ex]
+&
 {\em line-break} ::= see \pagref{LINE-BREAK}
 \\[0.5ex]
 {\em comment} ::= see \pagref{COMMENT}
-\\[0.5ex]
+&
 {\em end-of-file} ::= see \pagref{END-OF-FILE}
+\end{tabular}
 
-\end{indpar}
-\caption{L-Language Program Lexemes}
+
+\caption{L Language Program Lexemes}
 \label{L-LANGUAGE-PROGRAM-LEXEMES}
 \end{boxedfigure}
+
 
 The lexemes in a L-Language program are specified in
 Figure~\itemref{L-LANGUAGE-PROGRAM-LEXEMES}.  This specification assumes there
@@ -1158,6 +1191,15 @@ Thus the {\em lexical-item}
 the {\em middle-lexeme} `\TT{4,987}',
 and the four {\em trailing-separators} `\TT{?}',
 `\TT{,}' `\TT{,}' and `\TT{::}'.
+
+A {\em numeric-word}, {\em natural}, or {\em number} lexeme
+is a C/C++ constant representing an IEEE double precision number.
+Conversely, a C/C++ constant representing an IEEE double precision number
+and not ending in a {\em decimal-point}
+is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
+
+In contrast, a {\em numeric} represents a character string and in this
+is like a {\em word}.
 
 \subsection{Logical Lines, Blocks, and Statements}
 \label{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}
