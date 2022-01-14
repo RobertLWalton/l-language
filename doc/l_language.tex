@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 12, 2022
+January 14, 2022
 
 \bigskip
  
@@ -1499,6 +1499,8 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{<{}<=} & shift left & & &
 \\\cline{1-2}
 \ttkey{>{}>=} & shift right & & &
+\\\cline{1-2}
+\ttkey{\ABV} & abbreviate & & &
 \\\hline
 \end{tabular}
 \end{center}
@@ -1798,19 +1800,6 @@ begin and end with `\TT{*}' are
 similarly reserved.  For example, words of the form `\TT{T\$}\ldots'
 are reserved for use as type wildcards.
 
-A name can abbreviate another name, using the statement:
-\begin{indpar}
-\emkey{abbreviation-statement} ::=
-    {\em abbreviated-name}~ \ABV{}~ {\em abbreviation-name}
-\end{indpar}
-For example:
-\begin{center}
-\tt bool \ABV{} std bool
-\end{center}
-
-Note that it is whole names that are abbreviated, and not parts of
-names.
-
 A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULE-AND-BODY-DECLARATIONS}.
 For example {\tt std} abbreviates the builtin standard module.
@@ -1926,6 +1915,36 @@ one of the components of the sequence.
 that begin with a {\em module-abbreviation} are called
 \key{external}\label{EXTERNAL-NAME}.
 Other names are called \key{internal}\label{INTERNAL-NAME}.
+
+A name can abbreviate another name, using the statement:
+\begin{indpar}
+\emkey{abbreviation-statement} ::=
+    {\em abbreviating-name}~ \ABV{}~ {\em abbreviated-name}
+\end{indpar}
+For example:
+\begin{center}
+\tt "bool" \ABV{} "std bool"
+\end{center}
+
+Note that it is whole names that are abbreviated, and not parts of
+names.
+
+The \ABV{} operator executes at compile time.  The {\em abbreviated-name}
+must be previously defined, and must be one of the following kinds:
+\begin{center} \em
+pointer-type-name \\
+type-name \\
+pointer-variable \\
+target-variable \\
+statement-label \\
+pointer-member-name \\
+target-member-name
+\end{center}
+The {\em abbreviating-name} will be of the same kind as the
+{\em abbreviated-name}, and must follow the syntax rules of that
+kind.  For example, if the {\em abbreviated-name}
+is a {\em target-name}, the {\em abbreviating-name} cannot begin with
+`\TT{@}'.
 
 
 \subsubsection{Constants}
