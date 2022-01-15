@@ -1570,6 +1570,14 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{-}  & negation & & & 
 \\\cline{1-2}
 \ttkey{\textasciitilde}  & bitwise complement & & & 
+\\\cline{1-2}
+\ttkey{D\#}  & decimal rational & & & 
+\\\cline{1-2}
+\ttkey{B\#}  & binary rational & & & 
+\\\cline{1-2}
+\ttkey{X\#}  & hexadecimal rational & & & 
+\\\cline{1-2}
+\ttkey{C\#}  & character rational & & & 
 \\\hline
 
 \end{tabular}
@@ -1963,7 +1971,6 @@ compile-time.  There are four kinds of constants:
     ::= & {\em special-constant} \\
     $|$ & {\em string-constant} \\
     $|$ & {\em number-constant} \\
-    $|$ & {\em character-constant} \\
     $|$ & {\em rational-constant} \\
     $|$ & {\em map-constant} \\
     \end{tabular} \\
@@ -1996,27 +2003,11 @@ A \emkey{number-constant} is an {\em integer}, {\em number},
 or {\em numeric-word} lexeme converted to an IEEE 64-bit floating
 point number.
 
-A {\em character-constant} denotes plus or minus
-the UNICODE code point of a {\em character-repre\-sentative}.
-The syntax is:
-\begin{indpar}
-\emkey{character-constant} ::=
-	{\em character-constant-prefix}~ {\em character-quoted-body}
-\\[0.5ex]
-\emkey{character-constant-prefix} :::= {\em sign}\QMARK{}~ \TT{C\#}
-\\[0.5ex]
-\emkey{character-quoted-body} :::=
-	\TT{"}~ {\em character-representative}~ \TT{"}
-\\[0.5ex]
-\emkey{character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
-\end{indpar}
-
-A number or character constant may be converted to a run-time
+A number constant may be converted to a run-time
 numeric type such as {\tt int32} or {\tt flt64}.
 It is a compile error to convert to an integer type that cannot
-hold the exact value of the number or character constant.
-Conversion
-to a run-time floating type is however
+hold the exact value of the number.
+Conversion to a run-time floating type is however
 never a compile error.  If necessary the converted value is
 {\tt +Inf} or {\tt -Inf}.
 
@@ -2027,36 +2018,34 @@ following sections.
 \subsubsubsection{Rational Constants}
 \label{RATIONAL-CONSTANTS}
 
-A \emkey{rational-constant} is a sequence of
-lexemes with specific syntax
-that is used to denote a rational number with unbounded
-numerators and denominators.  These are stored so that the
+A \key{rational constant} is a rational number with unbounded
+numerators and denominators, where the
 denominator is at least 1 and the numerator and denominator
 have no common factors.  If the denominator is 1, the
 rational is called a \key{rational integer}.
 
-The syntax is:
+Rational constants are computed at compile-time by the operators:
+\begin{center}
+\begin{tabular}{ll}
+\bf Operator	& Argument String
+\\[1ex]
+\TT{D\#}	& {\em decimal-constant-string} \\
+\TT{B\#}	& {\em binary-constant-string} \\
+\TT{X\#}	& {\em hexadecimal-constant-string} \\
+\TT{C\#}	& {\em character-constant-string} \\
+\end{tabular}
+\end{center}
+
+Each of these operators takes a constant string as its sole argument.
+The syntax of the argument strings is:
 
 \begin{indpar}
-\emkey{rational-constant}\label{RATIONAL-CONSTANT}
-    \begin{tabular}[t]{@{}cl}
-    ::= & {\em decimal-constant} \\
-    $|$ & {\em binary-constant} \\
-    $|$ & {\em hexadecimal-constant} \\
-    \end{tabular}
-\\[0.5ex]
 \emkey{sign} :::= \TT{+} $|$ \TT{-} \\
 \emkey{exponent} :::=
 	\{ \TT{e} $|$ \TT{E} \} {\em sign}\QMARK{} {\em dit}\PLUS{}
 \\[0.5ex]
-\emkey{decimal-constant} ::= {\em decimal-constant-prefix}~
-			     {\em decimal-quoted-body}~
-			     {\em exponent}\QMARK{}
-\\[0.5ex]
-\emkey{decimal-constant-prefix} :::= {\em sign}\QMARK{}~ \TT{D\#}
-\\[0.5ex]
-\emkey{decimal-quoted-body} :::= \TT{"}~ {\em decimal-integer}~
-				 {\em decimal-fraction}\QMARK{}~ \TT{"}
+\emkey{decimal-constant-string} :::=
+    \TT{"}~ {\em decimal-integer}~ {\em decimal-fraction}\QMARK{}~ \TT{"}
 \\[0.5ex]
 \emkey{decimal-integer}
     :::= {\em dit}\PLUS{} 
@@ -2067,15 +2056,9 @@ The syntax is:
 \emkey{dit}\label{DIT}
 	:::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
                     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
- \\[0.5ex]
-\emkey{binary-constant} ::= {\em binary-constant-prefix}~
-                              {\em binary-quoted-body}~
-			      {\em exponent}\QMARK{}
 \\[0.5ex]
-\emkey{binary-constant-prefix} :::= {\em sign}\QMARK{}~ \TT{B\#}
-\\[0.5ex]
-\emkey{binary-quoted-body} :::= \TT{"}~ {\em binary-integer}~
-				{\em binary-fraction}\QMARK{}~ \TT{"}
+\emkey{binary-constant-string} :::=
+    \TT{"}~ {\em binary-integer}~ {\em binary-fraction}\QMARK{}~ \TT{"}
 \\[0.5ex]
 \emkey{binary-integer}
     :::= {\em bit}\PLUS{}
@@ -2084,16 +2067,10 @@ The syntax is:
     \TT{.} \{ {\em bit} {\em bit} {\em bit} {\em bit} \TT{,} \}\STAR{}
     {\em bit}\PLUS{} \\
 \emkey{bit} :::= \TT{0} $|$ \TT{1}
- \\[0.5ex]
-\emkey{hexadecimal-constant} ::= \\
-\hspace*{0.5in}{\em hexadecimal-constant-prefix}~
-               {\em hexadecimal-quoted-body}~
-	       {\em exponent}\QMARK{}
 \\[0.5ex]
-\emkey{hexadecimal-constant-prefix} :::= {\em sign}\QMARK{}~ \TT{X\#}
-\\[0.5ex]
-\emkey{hexadecimal-quoted-body} :::= \TT{"}~ {\em hexadecimal-integer}~
-				     {\em hexadecimal-fraction}\QMARK{}~ \TT{"}
+\emkey{hexadecimal-constant-string} :::=
+    \TT{"}~ {\em hexadecimal-integer}~ {\em hexadecimal-fraction}\QMARK{}~
+    \TT{"}
 \\[0.5ex]
 \emkey{hexadecimal-integer}
     :::= {\em hit}\PLUS{}
@@ -2105,10 +2082,15 @@ The syntax is:
 	     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
 	     $|$ \TT{a} $|$ \TT{b} $|$ \TT{c} $|$ \TT{d} $|$ \TT{e} $|$ \TT{f}
 	     $|$ \TT{A} $|$ \TT{B} $|$ \TT{C} $|$ \TT{D} $|$ \TT{E} $|$ \TT{F}
+\\[0.5ex]
+\emkey{character-constant-string} :::=
+	\TT{"}~ {\em character-representative}~ \TT{"}
+\\[0.5ex]
+\emkey{character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
 \end{indpar}
 
-The integer part of decimal constants may have commas
-every 3 digits from the end and the fractional part may have
+Decimal integers may have commas
+every 3 digits from the end and decimal fractions may have
 commas every 3 digits from the decimal point.
 Similarly for binary integers and fractions with commas every 4 binary
 digits,
@@ -2117,6 +2099,13 @@ hexa-decimal digits.
 If there is a decimal point, there \underline{must}
 be at least one integer digit and
 one fraction digit.
+
+For decimal constants the denominator is a power of \TT{10}; for
+binary constants the denominator is a power of \TT{2}; and for
+hexadecimal constants the denominator is a power of \TT{16}.
+
+The value of a character constant is the integral UNICODE code point of the
+{\em character-representative}.
 
 A rational constant may be converted to a run-time numeric
 type such as {\tt int32} or {\tt flt64}.
