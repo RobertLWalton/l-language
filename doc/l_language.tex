@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 14, 2022
+January 15, 2022
 
 \bigskip
  
@@ -1807,7 +1807,7 @@ For example {\tt std} abbreviates the builtin standard module.
 L-Language uses several kinds of names:
 
 \begin{indpar}
-\emkey{simple-name} ::= \TT{word} not containing any `\TT{.}'s or `\TT{@}'s \\
+\emkey{simple-name} ::= {\em word} not containing any `\TT{.}'s or `\TT{@}'s \\
 \emkey{module-abbreviation}\label{MODULE-ABBREVIATION} ::= {\em simple-name} \\
 \emkey{ma} ::= {\em module-abbreviation} \\
 \emkey{pointer-type-name}\label{POINTER-TYPE-NAME} ::=
@@ -1817,7 +1817,7 @@ L-Language uses several kinds of names:
 	    {\em name} not containing a `\TT{.}', {\em quoted-mark}, or
 	    {\em quoted-separator} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
-    \MA{} {\em basic-name} \\
+    \MA{} {\em basic-name} not containing `\TT{@}'s \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     \MA{} {\em basic-name} \\
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
@@ -1826,7 +1826,7 @@ L-Language uses several kinds of names:
     {\em variable-name} whose {\em basic-name} does \underline{not}
     begin with an \TT{@} \\
 \emkey{statement-label} ::= {\em basic-name}
-    \label{STATEMENT-LABEL}
+    \label{STATEMENT-LABEL} not containing `\TT{@}'s
 \\[1ex]
 \emkey{member-name}\label{MEMBER-NAME}
 	::= \begin{tabular}[t]{@{}l@{}}
@@ -1856,9 +1856,9 @@ L-Language uses several kinds of names:
 {\tt co} abbreviates `constant' meaning `never changes' \\
 {\tt ro} abbreviates `read-only' meaning `other code may change'
 \end{indpar}
-\emkey{operator-name}
+\emkey{operator-word}
     \begin{tabular}[t]{rl}
-    ::= & \TT{if} $|$ \TT{else}
+    ::= & \TT{if} $|$ \TT{else} $|$ \TT{while} $|$ \TT{until}
                   $|$ \TT{AND} $|$ \TT{OR}
 		  $|$ \TT{NOT} $|$ \TT{BUT}
     \end{tabular}
@@ -1880,17 +1880,19 @@ Each {\tt Q\$} name is assigned a sequence of zero or more
 \end{indpar}
 
 where the following rules should be followed, least there be
-various confusing syntax or semantic errors:
+various confusing syntax or semantic errors (some, but not all,
+violations of these rules will be detected as compilation errors):
 \begin{enumerate}
 \item
 A {\em type-name} should not begin with a {\em pointer-type-name}.
 \item
 A {\em pointer-type-name} should not begin with a {\em type-name}.
 \item
-A {\em function-term-name} should not begin with a {\em module-abbreviation}
+{\em Function-term-names} and {\em basic-names}
+should not begin with a {\em module-abbreviation}
 or contain {\em function-keywords}.
 \item
-{\em Names} not used as operators should not contain {\em operator-names}.
+{\em Names} not used as operators should not contain {\em operator-words}.
 \item
 {\em Names} that are not {\em qualifier-names}
 should not contain {\em qualifier-names}.
@@ -1929,8 +1931,10 @@ For example:
 Note that it is whole names that are abbreviated, and not parts of
 names.
 
-The \ABV{} operator executes at compile time.  The {\em abbreviated-name}
-must be previously defined, and must be one of the following kinds:
+The \ABV{} operator executes at compile time.  The {\em abbreviation-statement}
+must be within the scope\pagnote{SCOPE}
+of a definition of the {\em abbreviated-name},
+which must be one of the following kinds:
 \begin{center} \em
 pointer-type-name \\
 type-name \\
