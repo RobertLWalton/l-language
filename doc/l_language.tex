@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 15, 2022
+January 16, 2022
 
 \bigskip
  
@@ -1963,7 +1963,10 @@ is a {\em target-name}, the {\em abbreviating-name} cannot begin with
 \label{CONSTANTS}
 
 A \key{constant} is a value of type \ttkey{const} computed at
-compile-time.  There are four kinds of constants:
+compile-time.  One type of constant, the map constant, is not
+actually constant and can be changed.
+
+There are five of types of constants:
 
 \begin{indpar}
 \emkey{constant}\label{CONSTANT}
@@ -2119,11 +2122,13 @@ never a compile error.  If necessary the converted value is
 \subsubsubsection{Map Constants}
 \label{MAP-CONSTANTS}
 
-A {\em map-constant} has two parts, a list (a.k.a, a vector) and a dictionary.
-Either or both can be empty.  The syntax of a {\em map-constant} is:
+A \key{map constant} has two parts, a list (a.k.a, a vector) and a dictionary.
+Either or both can be empty.
+
+A map constant is computed by a {\em map-expresion} whose syntax is:
 
 \begin{indpar}
-\emkey{map-constant}\label{MAP-CONSTANT}
+\emkey{map-expression}\label{MAP-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & \TT{\{} \TT{\}} \\
     $|$ & \TT{\{} {\em map-list} \TT{\}} \\
@@ -2141,18 +2146,20 @@ Either or both can be empty.  The syntax of a {\em map-constant} is:
 \emkey{dictionary-entry} ::=
     {\em dictionary-label} \TT{=>} {\em dictionary-value}
 \\[0.5ex]
-\emkey{list-element}\label{LIST-ELEMENT} ::= {\em constant}
+\emkey{list-element}\label{LIST-ELEMENT} ::= {\em constant-expression}
 \\[0.5ex]
-\emkey{dictionary-label}\label{DICTIONARY-LABEL} ::= {\em data-label}
-    ~~~~~ [see \pagref{DATA-LABEL}]
+\emkey{dictionary-label}\label{DICTIONARY-LABEL}
+    ::= {\em constant-expression} evaluating to a string
 \\[0.5ex]
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
-    ::= {\em constant}
+    ::= {\em constant-expression}
 \\[0.5ex]
-\emkey{constant}
-    ::= see \pagref{CONSTANT}
+\emkey{constant-expression}
+    ::= {\tt const} valued {\em expression}
 \\[0.5ex]
-\emkey{phrase-constant} ::= \TT{\{|} {\em expression} \TT{|\}}
+\emkey{constant-expression} ::= see \pagref{EXPRESSION}
+\\[0.5ex]
+\emkey{phrase-constant} ::= \TT{`} {\em expression} \TT{'}
 \\[0.5ex]
 \emkey{expression-constant} ::= \TT{\{*} {\em expression} \TT{*\}}
 \\[0.5ex]
@@ -2164,22 +2171,17 @@ Maps \underline{cannot} be represented at run-time.
 By abuse of language, \key{list} is used to refer to a map whose
 dominant mode of access is to go through the map list elements
 sequentially.  Similarly \key{vector} is used to refer to a map whose
-dominant mode of access is to access the map elements randomly
+dominant mode of access is to access the map list elements randomly
 using subscripts.  And \key{dictionary} is used to refer to a map
 whose dominant mode of usage is to access the map's dictionary elements.
 
 Dictionary entries are also called \skey{attribute}s.  For lists and
 vectors, they are also called \skey{annotation}s.
 
-Each {\em map-constant}
+Each {\em map-expression}
 creates a distinct map: no two such maps are \TT{==}.  A map created
-by a {\em map-constant} is initially set so that it and all its dictionary
+by a {\em map-expression} is initially set so that it and all its dictionary
 entries are read-only.  This can be changed: see \pagref{READ-ONLY-MAP}.
-
-If some {\em list-elements} or {\em dictionary-values} are
-{\em expressions} that is not {\em constants} but which evaluate
-to {\em constants}, then the {\em map-constant} expression is
-a legal {\em expression} and computes a map.
 
 An {\em expression-constant} is shorthand for the {\em map-constant}
 produced when the {\em expression} is parsed: see \pagref{PARSER-OUTPUT}.
@@ -2190,17 +2192,18 @@ Some examples are:
 \begin{tabular}{l@{~~~}l}
 \rm The expression:	& \rm Is equivalent to:
 \\\hline
-\{* X = ( Y + 1 ) *\}	& \{ "X", "=", \\
-			&  ~~~~~~~\{ "Y", "+", 1, .initiator =>"(", \\
-			& ~~~~~~~~~~~~~~~~~~~~~~.terminator =>")" \} \}
+\{* X = ( Y + 1 ) *\}	& \{ \{ "X" \}, "=", \\
+			&  ~~\{ \{ "Y" \}, "+", \{ 1 \}, ".initiator" =>"(", \\
+			& ~~~~~~~~~~~~~~~~~~~~~~~~~".terminator" =>")" \} \}
 \\[0.5ex]
-\{* X, Y = Y, X *\}	& \{ \{ "X", "Y", .separator => "," \}, \\
+\{* X, Y = Y, X *\}	& \{ \{ "X", "Y", ".separator" => "," \}, \\
 			&  ~ "=", \\
-			&  ~ \{ "Y", "X", .separator => "," \} \}
+			&  ~ \{ "Y", "X", ".separator" => "," \} \}
 \\[0.5ex]
-\{* X + Y * Z *\}	& \{ "X", "+", \{ "Y", "*", "Z" \} \}
+\{* X + Y * Z *\}	& \{ \{ "X" \}, "+", \{ \{ "Y" \}, "*", \{ "Z" \} \} \}
 \\[0.5ex]
-\{* X 3 = Y Z + 1 *\}	& \{ \{ "X", 3 \} "=", \{ \{ "Y", "Z" \} "+", 1 \} \}
+\{* X 3 = Y Z + 1 *\}	& \{ \{ "X", 3 \} "=",
+                             \{ \{ "Y", "Z" \} "+", \{ 1 \} \} \}
 \end{tabular}
 \end{center}
 In an \TT{\{*} {\em expression} \TT{*\}} constant,
@@ -2215,19 +2218,23 @@ with {\em expression-constants} are:
 \begin{tabular}{l@{~~~}l}
 \rm The expression:	& \rm Is equivalent to:
 \\\hline
-\{| X = 1 |\}		& \{ "X", "=", 1 \}
+`X = Y + 1'			& \{ "X", "=", "Y", "+", 1 \}
 \\[0.5ex]
-\{* X = 1 *\}		& \{ "X", "=", 1 \}
+\{* X = Y + 1 *\}		& \{ \{ "X" \}, "=",
+                                     \{ \{ "Y" \} "+" \{ 1 \} \} \}
 \\[0.5ex]
-\{| X = Y + 1 |\}	& \{ "X", "=", "Y", "+", 1 \}
+`X = ( Y + 1 )'		& \{ "X", "=", \{ "Y", "+", 1, \\
+                        & ~~~~~~~~~~~~~~".initiator" => "(", \\
+                        & ~~~~~~~~~~~~~~".terminator" => ")" \} \}
 \\[0.5ex]
-\{* X = Y + 1 *\}	& \{ "X", "=", \{ "Y", "+", 1 \} \}
-\\[0.5ex]
-\{| X 3 = Y Z + 1 |\}	& \{ "X", 3, "=", "Y", "Z", "+", 1 \}
-\\[0.5ex]
-\{* X 3 = Y Z + 1 *\}	& \{ \{ "X", 3 \} "=", \{ \{ "Y", "Z" \} "+", 1 \} \}
+\{* X = ( Y + 1 ) *\}	& \{ \{ "X" \}, "=", \{ \{ "Y" \}, "+", \{ 1 \}, \\
+                        & ~~~~~~~~~~~~~~~~~~~~".initiator" => "(", \\
+                        & ~~~~~~~~~~~~~~~~~~~~".terminator" => ")" \} \}
 \end{tabular}
 \end{center}
+
+Map constants containing parsed code can be computed
+by {\em include-statements}: see \itemref{INCLUDE-STATEMENTS}.
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 compile-time as if they were variables of type {\tt const}
