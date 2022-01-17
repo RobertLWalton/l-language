@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 16, 2022
+January 17, 2022
 
 \bigskip
  
@@ -2331,22 +2331,31 @@ the reference expression refers to the variable itself,
 to a field or dictionary entry of the variable's value,
 or to a vector or list element of the variable's value.
 
-Compile-time maps are represented internally by pointers to where
+Map constants are represented internally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
 i.e., pointing at, a map, then {\tt Y = X} copies the pointer
-to the map to the variable {\tt Y}.  By default compile-time
-maps can be changed, but it is possible to mark dictionary members
-of a map
-as unchangeable constants.  The following example illustrates
-computation with compile-time maps:
+to the map to the variable {\tt Y}.  By default map constants
+are read-only and cannot be changed, but it is possible to mark
+a whole map as read-write, and to independently mark dictionary members
+as either read-only or read-write.
+By default, dictionary members are marked read-only when they are created.
+
+The following example illustrates
+computation with map constants:
 \begin{indpar}\begin{verbatim}
 const X = {"A", "B"}
+X[0] = "C"               // Illegal, X is read-only.
+read-write ( X )
 X[0] = "C"               // Now X is {"C", "B"}.
 const Y = X              // Now X and Y are both {"C", "B"}. 
 Y[1] = "D"               // Now X and Y are both {"C", "D"}. 
 const Z = { Y, "M" }     // Now Z is {{"C", "D"}, "M"}.
 Z[0].W = "N"             // Now Z is {{"C", "D", "W" => "N"}, "M"},
                          // X and Y are both {"C", "D", "W" => "N"}.
+X.W = "P"                // Illegal, X.W is read-only.
+read-write ( X, "W" )
+X.W = "P"                // X and Y are both {"C", "D", "W" => "P"}.
+                         // Now Z is {{"C", "D", "W" => "P"}, "M"},
 \end{verbatim}\end{indpar}
 
 
