@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 17, 2022
+January 20, 2022
 
 \bigskip
  
@@ -2570,9 +2570,8 @@ The forms of an {\em assignment-statement} are:
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \\
-	& ~~~~~ \{ \TT{=}
-		   \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
+                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \TT{=} \\
+	& ~~~~~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
     $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
@@ -2619,8 +2618,9 @@ The forms of an {\em assignment-statement} are:
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
     $|$ & {\em reference-expression}
-    		& [see \pagref{REFERENCE-EXPRESSIONS}] \\
     \end{tabular}
+\\[0.5ex]
+\emkey{reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
@@ -2667,8 +2667,7 @@ The forms of an {\em assignment-statement} are:
 \emkey{allocation-call} ::= {\em function-call}
 \end{indpar}
 
-Associated with {\em block-assignment-statements},
-{\em companion-assignment-statements}, and
+Associated with {\em block-assignment-statements} and
 {\em loop-assignment-statements}
 there are {\em con\-trol-statements}
 to control the flow of execution within the more complex
@@ -2741,7 +2740,7 @@ its associated pointer.
 A {\em next-variable-declaration} for a {\em variable} {\tt v}
 must occur in the scope of either a {\em result-variable-declaration}
 for {\tt v} or another {\em next-variable-declaration} for {\tt v}.
-Furthermore, {\tt v} cannot be an {\em target-variable} associated
+Furthermore, {\tt v} cannot be a {\em target-variable} associated
 with a {\em pointer-variable}.
 The {\em next-variable-declaration} re-declares {\tt v} making a new
 variable that hides the previously declared {\tt v}.  The new variable
@@ -2756,12 +2755,12 @@ refers to the value of {\tt v} just
 before the {\em assignment-statement} was executed.
 
 Under some circumstances `{\tt next v}' will
-be implicitly added to an {\em assignment-statement}
-{\em block-variable-declaration} list or {\em next-variable-declaration} list
-to legalize the
-use of `{\tt next v}' as an {\em assignment-result} of a {\em statement}
-in the {\em assignment-statement}.
-See \pagref{NEXT-PROMOTION}.
+be implicitly added to the {\em assignment-result}
+list of a {\em call-statement} (see \pagref{CALL-NEXT-PROMOTION}),
+the {\em block-variable-declaration} list
+of a {\em block-assignment-statement} (see \pagref{BLOCK-NEXT-PROMOTION}),
+or the {\em next-variable-declaration} list of a
+{\em loop-assignment-statement} (see \pagref{LOOP-NEXT-PROMOTION}).
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
@@ -2971,7 +2970,7 @@ within an {\em exit-subblock} have scope that ends with the end of
 the subblock.  A function prototype is `used' if and only if it
 matches a {\em function-call}.
 
-If\label{NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
+If\label{BLOCK-NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
 {\em block-assignment-statement} that is not within the scope of
 a {\em result-variable-declaration} for the {\em variable-name}
