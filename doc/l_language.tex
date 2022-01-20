@@ -2281,7 +2281,7 @@ is:
     \end{tabular}
 \\[0.5ex]
 \emkey{constant-expression}\label{CONSTANT-EXPRESSION}
-    ::= {\em expression} that evaluates at compile-time to a constant
+    ::= {\em expression} that evaluates to a {\tt const} value
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
@@ -2400,7 +2400,7 @@ The syntax of function calls is:
     \begin{tabular}[t]{rl}
     ::= & {\em module-abbreviation}\QMARK{}
           {\em call-argument-list}\STAR{}
-          {\em call-term} {\em call-term}\STAR{} \\
+          {\em call-term}\PLUS{} \\
     $|$ & {\em call-argument-list}
           {\em call-argument-list}\PLUS{} \\
     \end{tabular}
@@ -2505,48 +2505,6 @@ that the {\em expression} is parsed before the {\em ma} is moved inside the
 in which the parenthesis pair surrounding `{\tt y "*" z}' is implied.
 This allows the {\em module-abbre\-via\-tion} to be applied to the outermost
 operator in the {\em expression}.
-
-\subsection{Compile-Time}
-\label{COMPILE-TIME}
-
-Variables and values that exist during compilation are called
-\key{compile-time}, while variables and values that exist during
-program execution are called {\em run-time}.
-
-Syntactically \key{compile-time} is defined as follows:
-
-\begin{itemize}
-\item A variable (i.e., {\em variable-name})
-is compile-time if and only if it is of type {\tt const}.
-(Compile-time variables do \underline{not} exist at run-time.)
-\item A {\em constant} is compile-time.
-\item A {\em type-name} and a {\em pointer-type-name} are compile-time
-and denote maps describing the type or pointer type.
-(At run-time a type {\tt T} is declared by the
-equivalent of {\tt type @T = \ldots}, where `{\tt type}' is a
-defined type that is
-used to distinguish types and contain type parameters, and
-similarly for pointer types.)
-\item An {\em expression} with an operator is
-      compile-time if its lowest precedence operator
-      and its operands are compile-time.
-      All the standard operators are compile-time.
-\item A {\em function-call} is compile-time if and only if all its
-      arguments are compile-time and the function called is
-      compile-time.
-\item A user-defined function is compile-time if and only if all its
-      result and argument variables are compile-time (i.e., have
-      {\tt const} type) and all its
-      {\em statements} are compile-time.
-\item Builtin functions are compile-time if their arguments and
-      results are all of {\tt const} type.
-\item A {\em statement} is compile-time if and only if all its
-      variables and expressions are compile-time.
-\end{itemize}
-
-A \key{run-time} {\em variable}, {\em expression}, or {\em statement}
-is a {\em variable}, {\em expression}, or {\em statement} that is
-\underline{not} compile-time.
 
 \subsection{Statements}
 \label{STATEMENTS}
@@ -3128,8 +3086,8 @@ A {\em loop-assignment-statement} has the syntax:
 \\[0.5ex]
 \emkey{bool-expression}\label{BOOL-EXPRESSION} ::=
     \begin{tabular}[t]{@{}l}
-    {\em expression} evaluating at run-time to a {\tt bool} \\
-    or at compile-time to the {\em const} value {\tt "TRUE"} or {\tt "FALSE"}
+    {\em expression} evaluating to a {\tt bool} \\
+    or to a {\em const} value that is either {\tt "TRUE"} or {\tt "FALSE"}
     \end{tabular}
 \\[0.5ex]
 \emkey{loop-control-statement}\label{LOOP-CONTROL-STATEMENT} ::=
@@ -3363,7 +3321,7 @@ The syntax of a type declaration is:
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
-\emkey{dimension-size} ::=  compile-time {\em expression}
+\emkey{dimension-size} ::=  {\tt const} valued {\em expression}
 			    with non-negative integer value
 \\[2ex]
 \emkey{subfield-declaration} ::= \\
@@ -3381,17 +3339,17 @@ The syntax of a type declaration is:
     $|$ &  \TT{[} {\em lowhighbits} \TT{]} \\
     $|$ &  \TT{[} {\em highbit} \TT{-} {\em lowbit} \TT{]}
     \end{tabular} \\
-\emkey{onlybit} ::= compile-time {\em expression}
+\emkey{onlybit} ::= {\tt const} valued {\em expression}
 		    with non-negative integer value \\
 \emkey{lowhighbits} :::= {\em dit}+ \TT{-} {\em dit}+
            ~~~~~ [this is a single lexeme] \\
-\emkey{lowbit} ::= compile-time {\em expression}
+\emkey{lowbit} ::= {\tt const} valued {\em expression}
 		   with non-negative integer value \\
-\emkey{highbit} ::= compile-time {\em expression}
+\emkey{highbit} ::= {\tt const} valued {\em expression}
 		    with non-negative integer value \\
 \emkey{dit} ::= see \pagref{DIT}
 \\[2ex]
-\emkey{alignment} ::= compile-time {\em expression}
+\emkey{alignment} ::= {\tt const} valued {\em expression}
 		      with power of 2 integer value
 \end{indpar}
 
@@ -3975,7 +3933,7 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
-\emkey{required-value} ::= compile-time {\em expression}
+\emkey{required-value} ::= {\tt const} valued {\em expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
@@ -4128,10 +4086,10 @@ F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( false )
 \end{verbatim}\end{indpar}
 
 If a {\em required-value} is given in a prototype, the call must
-have an equal compile-time actual argument value
+have an equal {\tt const} valued actual argument value
 in order for the call to match the prototype.
-Note that the argument variable type need not be compile-time,
-as compile-time values can be converted to run-time values.
+Note that the argument variable type need not be {\tt const},
+as {\tt const} values can be converted to run-time values.
 Matches to prototypes with more {\em required-values}
 are preferred over matches to prototypes with less {\em required-values}.
 Thus the example:
@@ -4145,7 +4103,7 @@ F ( 8 )            // Matches only second F declaration
 F ( 8 ) G ( 5 )    // Matches preferred first F declaration
 F ( 8 ) G ( 6 )    // Matches only second F declaration
 F ( 8 ) G ( z )    // Matches only second F declaration
-                   // (z is not compile-time).
+                   // (z is not const valued).
 \end{verbatim}\end{indpar}
 
 A `{\tt *DEFERRED*}' {\em function-declaration} permits
@@ -4205,7 +4163,7 @@ to the {\em statements} of that same declaration, and therefore
 an inline function can call itself without having any {\tt *DEFERRED*}
 companion.
 
-Recursion in inline function calls must be limited by compile-time
+Recursion in inline function calls must be limited by {\tt const}
 variables such as the counter {\tt i}, for if it is not, there
 will be a compile error when the compiler decides the inline nesting
 is too deep or the code generated by one statement is too much.
@@ -4325,7 +4283,7 @@ Failure of any of these matches causes
 the call-prototype match to fail.
 
 \item If an {\em prototype-argument-declaration} has a {\em required-value},
-its matching {\em actual-argument} must be compile-time with
+its matching {\em actual-argument} must be {\tt const} valued with
 a value equal to the {\em required-value}, else the call-prototype
 match fails.
 
@@ -4992,8 +4950,8 @@ provided by a declaration
 is compiled is the \underline{not} the current context but
 rather the context of that declaration.
 
-Code produced by {\em include-statements} executed during a call to a
-compile-time function
+Code produced by {\em include-statements} executed during a call to an
+inline function
 \underline{is} compiled in the context of the call.
 See Include Statements (\pagref{INCLUDE-STATEMENTS}).
 
