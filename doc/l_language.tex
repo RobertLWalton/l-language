@@ -601,6 +601,7 @@ int z = max ( x, y )
 
 L-Language does \underline{not} support implicit conversions of
 run-time function results\footnote{In this matter L-Language follows ADA.},
+except for pointer types,
 but does support implicit conversion of variables\footnote{Unlike ADA.}
 and constants.  Any number or rational constant may be
 converted implicitly to any run-time number type as long as
@@ -608,19 +609,18 @@ the number constant value can be stored exactly in a variable
 of the run-time type or the run-time type is floating point
 (in which case there may be loss of precision or conversion to
 an infinity).
-Any variable may be implicitly converted
+Any numerically typed variable may be implicitly converted
 at run-time to a type that will hold all the possible values of
-the variable, or to any floating point type if the variable type
-is a number type (in which case the run-time conversion result
+the variable, or to any floating point type
+(in which case the run-time conversion result
 may be less precise or an infinity).
 
 Language expressions have \skey{target type}s.
 For a function call, the function result \underline{cannot}
-be implicitly converted to the target type, except that
-{\tt const} function results can be implicitly converted
-to any target type, unless this conversion violates
-the rules of the last paragraph (e.g., converting `{\tt 1 / 3}'
-to an {\tt int}).
+be implicitly converted to the target type, except for pointer
+type conversions.  However a function call that returns a {\tt const}
+result is replaced by its value at compile time, and this value
+can be implicitly converted to the target type.
 
 Builtin operators, such as `{\tt +}',
 have the operands of the same type as their result.
