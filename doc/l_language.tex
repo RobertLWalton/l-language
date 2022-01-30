@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 20, 2022
+January 30, 2022
 
 \bigskip
  
@@ -599,42 +599,53 @@ int y = ...
 int z = max ( x, y )
 \end{verbatim}\end{indpar}
 
-In general, L-Language does \underline{not} support implicit
-conversions.  An exception is: any number or rational constant may be
+L-Language does \underline{not} support implicit conversions of
+run-time function results\footnote{In this matter L-Language follows ADA.},
+but does support implicit conversion of variables\footnote{Unlike ADA.}
+and constants.  Any number or rational constant may be
 converted implicitly to any run-time number type as long as
 the number constant value can be stored exactly in a variable
-of the run-time type.  Builtin operators, such as `{\tt +}',
-have the same type of their operands as they have for their
-result.\footnote{In these matters L-Language follows Ada.}
+of the run-time type, or the run-time type is floating point
+and the only defect of the conversion is a loss of precision
+(i.e., a non-infinite number cannot be converted to an infinity).
+Any variable may be implicitly converted
+at run-time to a type that will hold all the possible values of
+the variable, or to any floating point type if the variable type
+is a number type (in which case the run-time conversion result
+may be an infinity).
 
-For example, given the definition of {\tt max} above:
+In general, L-Language expressions have \skey{target type}s.
+For a function call, the function result \underline{cannot}
+be implicitly converted to the target type, except that
+{\tt const} function results can be implicitly converted
+to any target type, unless the conversion violates
+the rules of the last paragraph.
+
+Builtin operators, such as `{\tt +}',
+have the same type of their operands as they have for their
+result.
+
+An example of all this is:
 
 \begin{indpar}\begin{verbatim}
-float w = ...
-int x = ...
-int y = ...
-int z = ...
-int r1 = 5 + max ( x, y )          // OK
-int r2 = max ( x, max ( y, z ) )   // OK
-int r3 = max ( y, w )              // Illegal
-int r4 = max ( x, 123 )            // OK
-int r5 = max ( x, 123.4 )          // Illegal
+float w = 1.1               // float is target type of 1.1
+int x = 123		    // int is target type of 123
+int y = 2e5		    // int is target type of 2e5
+int z = 1e10		    // illegal; int is target type of 1e10
+                            // which is too large to fit
+int r1 = 5 + max ( x, y )   // int is target type of 5, max, x, y
+int r3 = max ( y, w )       // illegal; int is target type of w
+int r4 = max ( x, 123 )     // int is target type of max, x, 123
+int r5 = max ( x, 123.4 )   // illegal; int is target type of 123.4
+                            // which cannot be stored in a int
 const c1 = 100
 const c2 = 1000
-int r6 = max ( x, c1 + c2 )        // OK
-flt64 r7 = 1.1                     // OK
-flt32 r8 = 1.1                     // Illegal
-    // 1.1 is stored in the compiler as a flt64 and
-    // cannot be converted to flt32 without losing
-    // precision.
-flt32 r8 = 1.125                   // OK
-    // 1.125 is stored precisely as a flt64, because
-    // it is 9/8 and 8 is a power of 2.
+int r6 = max ( x, c1 + c2 ) // OK; int is target type of const +
 \end{verbatim}\end{indpar}
 
 Explicit conversion functions are provided whose function names
 are the same as the type name of their result, as long as
-all argument values can be converted result values that reasonably
+all argument values can be converted to result values that reasonably
 represent the true argument values.
 Examples:
 
@@ -2785,32 +2796,10 @@ where
 \item The number of {\em expressions} must equal the number
 of {\em assignment-results}.
 
-\item The
-{\em expressions} \underline{cannot} contain a run-time {\em function-call},
-other than a call to a builtin function called by means of an operator.
-For example, {\tt x "+" y} is allowed if {\tt x} and {\tt y} are of
-builtin numeric type or number constants, but not if either is a
-string constant or of a user defined type.
-
-\item For run-time {\em expression-assignment-statements}, if
-there is \underline{more than one} {\em expression}, all these
-{\em expressions} must be {\em reference-expressions} or
-compile-time {\em expressions} (thus run-time computation cannot
-be done except for {\em reference-expression} indices).
-
-\item For run-time {\em expression-assignment-statements} with
-a \underline{single} {\em expression}, the run-time operators
-in the {\em expression} must operate on
-the data type specified by the single {\em assignment-result}.
-Furthermore the parenthesis depth of the {\em expression}
-must not be greater than 4 (i.e., {\tt ((((\ldots))))} is the
-maximum depth allowed).
-
 \end{itemize}
 \end{indpar}
 
-All {\em reference-expression} indices are evaluated first,
-then the {\em expressions} are evaluated,
+The {\em expressions} are evaluated in left to right order, and
 then the {\em expression} values are stored in the {\em assignment-results}.
 
 Variable names declared by {\em result-variable-declarations} that are
@@ -2818,6 +2807,31 @@ Variable names declared by {\em result-variable-declarations} that are
 In particular, if `{\tt next V}' is an {\em assignment-result},
 the name `{\tt V}' in an {\em expression} will refer to the variable
 that exists before the {\em expression-assignment-statement}.
+
+The type of an {\em assignment-result} becomes the \key{target type}
+of its corresponding {\em expression}.  If the {\em expression}
+is a {\em function-call}, the type of the first result of the
+{\em function-prototype} must match the target type of the {\em expression},
+and the types of the prototype arguments become the target types
+of the {\em actual-argument} sub-expressions.
+
+If an {\em expression} is a variable or a constant, it will be implicitly
+converted to its target type if possible.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+int x = 5              // target type of 5 is int
+float y = 6            // target type of 6 is float
+float z = 7            // target type of 7 is float
+float r1 = x + y       // target type of +, x, y is float
+float r2 = x + y * z   // target type of +, x, *, y, z is float
+int x = z              // illegal; target type of z is int
+\end{verbatim}\end{indpar}
+
+Here the {\tt +} and {\tt *} operator functions are only defined
+for cases where their operand types are the same as their result type,
+and {\tt int} variables may be implicitly converted to {\tt float}
+but not vice-versa.
 
 \subsubsubsection{Call Assignment Statements}
 \label{CALL-ASSIGNMENT-STATEMENTS}
