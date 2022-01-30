@@ -605,33 +605,33 @@ but does support implicit conversion of variables\footnote{Unlike ADA.}
 and constants.  Any number or rational constant may be
 converted implicitly to any run-time number type as long as
 the number constant value can be stored exactly in a variable
-of the run-time type, or the run-time type is floating point
-and the only defect of the conversion is a loss of precision
-(i.e., a non-infinite number cannot be converted to an infinity).
+of the run-time type or the run-time type is floating point
+(in which case there may be loss of precision or conversion to
+an infinity).
 Any variable may be implicitly converted
 at run-time to a type that will hold all the possible values of
 the variable, or to any floating point type if the variable type
 is a number type (in which case the run-time conversion result
-may be an infinity).
+may be less precise or an infinity).
 
-In general, L-Language expressions have \skey{target type}s.
+Language expressions have \skey{target type}s.
 For a function call, the function result \underline{cannot}
 be implicitly converted to the target type, except that
 {\tt const} function results can be implicitly converted
-to any target type, unless the conversion violates
-the rules of the last paragraph.
+to any target type, unless this conversion violates
+the rules of the last paragraph (e.g., converting `{\tt 1 / 3}'
+to an {\tt int}).
 
 Builtin operators, such as `{\tt +}',
-have the same type of their operands as they have for their
-result.
+have the operands of the same type as their result.
 
 An example of all this is:
 
 \begin{indpar}\begin{verbatim}
 float w = 1.1               // float is target type of 1.1
-int x = 123		    // int is target type of 123
-int y = 2e5		    // int is target type of 2e5
-int z = 1e10		    // illegal; int is target type of 1e10
+int x = 123                 // int is target type of 123
+int y = 2e5                 // int is target type of 2e5
+int z = 1e100               // illegal; int is target type of 1e100
                             // which is too large to fit
 int r1 = 5 + max ( x, y )   // int is target type of 5, max, x, y
 int r3 = max ( y, w )       // illegal; int is target type of w
@@ -640,7 +640,8 @@ int r5 = max ( x, 123.4 )   // illegal; int is target type of 123.4
                             // which cannot be stored in a int
 const c1 = 100
 const c2 = 1000
-int r6 = max ( x, c1 + c2 ) // OK; int is target type of const +
+int r6 = max ( x, c1 + c2 ) // OK; int is target type of + which
+                            // has const result type
 \end{verbatim}\end{indpar}
 
 Explicit conversion functions are provided whose function names
@@ -701,7 +702,7 @@ const v = max ( x, w )    // T$r is const, all values are const.
 \end{verbatim}\end{indpar}
 
 A wildcard type of a result variable gets its value from the
-type of the result variable in a function call.  The exception
+target type of a function call.  The exception
 is {\tt const}, which can be a wildcard type in a function
 definition if and only if all type wildcards in the function definition
 are assigned the value {\tt const} and doing so makes
@@ -1216,7 +1217,7 @@ which is equivalent to
 
 A {\em numeric-word}, {\em natural}, or {\em number} lexeme
 is a C/C++ constant, and 
-conversely a C/C++ constant representing decimal number
+conversely a C/C++ constant representing a decimal number
 and not ending in a {\em decimal-point} or representing an
 IEEE floating point special value (e.g., {\tt NaN} or {\tt Inf})
 is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
@@ -1232,8 +1233,7 @@ type is {\em natural}.
 For example, this applies to {\tt 1e3}
 which converts to the same value as {\tt 1000}.
 \item Otherwise the new type is {\em number}.
-For example, this applies to {\tt 10000000000}
-which converts to the same value as {\tt 1e10}.
+For example, this applies to {\tt 1e20} or {\tt 1.1}.
 \end{itemize}
 
 In contrast, a {\em numeric} represents a character string and in this
