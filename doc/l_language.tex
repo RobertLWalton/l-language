@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 30, 2022
+January 31, 2022
 
 \bigskip
  
@@ -320,7 +320,7 @@ Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
 ap ro int Z = @Y         // Copies pointer value of Y
-                         // Conversion from *READ-WRITE*
+                         // Variable conversion from *READ-WRITE*
                          // to ro is legal.  As Z does not
                          // begin with @, there is no
                          // corresponding indirect variable.
@@ -601,11 +601,10 @@ int z = max ( x, y )
 
 L-Language does \underline{not} support implicit conversions of
 run-time function results\footnote{In this matter L-Language follows ADA.},
-except for pointer types,
 but does support implicit conversion of variables\footnote{Unlike ADA.}
-and constants.  Any number or rational constant may be
+and constants.  Any number constant or rational constant may be
 converted implicitly to any run-time number type as long as
-the number constant value can be stored exactly in a variable
+the constant value can be stored exactly in a variable
 of the run-time type or the run-time type is floating point
 (in which case there may be loss of precision or conversion to
 an infinity).
@@ -617,13 +616,14 @@ may be less precise or an infinity).
 
 Language expressions have \skey{target type}s.
 For a function call, the function result \underline{cannot}
-be implicitly converted to the target type, except for pointer
-type conversions.  However a function call that returns a {\tt const}
+be implicitly converted to the target type.
+However a function call that returns a {\tt const}
 result is replaced by its value at compile time, and this value
-can be implicitly converted to the target type.
+can be implicitly converted to the target type.  Also, variables
+may be implicitly converted to their target type.
 
 Builtin operators, such as `{\tt +}',
-have the operands of the same type as their result.
+have operands of the same type as their result.
 
 An example of all this is:
 
@@ -633,8 +633,11 @@ int x = 123                 // int is target type of 123
 int y = 2e5                 // int is target type of 2e5
 int z = 1e100               // illegal; int is target type of 1e100
                             // which is too large to fit
-int r1 = 5 + max ( x, y )   // int is target type of 5, max, x, y
-int r3 = max ( y, w )       // illegal; int is target type of w
+float r1 = x                // implicit conversion is legal as x is a
+                            // variable name and not a function call
+int r2 = 5 + max ( x, y )   // int is target type of 5, max, x, y
+int r3 = max ( y, w )       // illegal; int is target type of w and
+                            // float cannot implicitly convert to int
 int r4 = max ( x, 123 )     // int is target type of max, x, 123
 int r5 = max ( x, 123.4 )   // illegal; int is target type of 123.4
                             // which cannot be stored in a int
@@ -667,6 +670,21 @@ There are functions such as `{\tt round}' that will input a floating
 point value and output an integer, though they produce undefined
 values and error flags when the floating point number is too large.
 
+The {\tt ro} qualifier name can be used by itself as an explicit
+conversion function name to convert
+{\tt co} or {\tt *READ-WRITE*} qualifiers to {\tt ro} qualifiers.
+This can handle cases where a function returns a {\tt *READ-WRITE*}
+pointer to set an {\tt ro} pointer.
+
+\begin{indpar}\begin{verbatim}
+function ap *READ-WRITE* int = foo ( ... )
+ap ro int * p = ro ( foo ( ... ) )
+\end{verbatim}\end{indpar}
+
+Although function results cannot be implicitly converted, variables
+can be, and implicit conversion of {\tt co} or {\tt *READ-WRITE*} to
+{\tt ro} is defined for pointer-valued variables.
+
 It is possible to define compile-time functions:
 
 \begin{indpar}\begin{verbatim}
@@ -677,7 +695,7 @@ function const r = max ( const x, const y ):
 const x = 2e5
 const y = 3e6
 const z = 9e4
-const w = max ( x, max( y, z ) )  // Legal!
+const w = max ( x, max( y, z ) )
 \end{verbatim}\end{indpar}
 
 Such functions are not available at run-time, and
@@ -717,15 +735,16 @@ can also be a wild card named by a single word beginning with
 
 \begin{indpar}\begin{verbatim}
 function uns r = strlen ( P$s Q$s uns8 s ):
-    dp ro uns8 sdp = s
+    dp ro uns8 sdp = *UNCHECKED* ( s )
     r = call "strlen" ( sdp )
 \end{verbatim}\end{indpar}
 
 which converts the pointer of type {\tt P\$s} to a pointer of
 type {\tt dp} (direct pointer) and calls the `foreign' C programming
 language subroutine {\tt strlen} with the direct pointer.
-For some pointer types (e.g., field pointer types),
-the pointer conversion may be illegal.
+The {\tt *UNCHECKED*} function is needed to produce a direct pointer
+from other pointer types, though this cannot be done for some pointer types
+(e.g., field pointer types).
 
 L-Language does not necessarily make any use of registers, other
 than as temporaries during the execution of a single statement,
@@ -1697,52 +1716,69 @@ but the following examples give an idea of some of this semantics:
 
 \begin{indpar}
 \hspace*{-0.2in}{\tt T v \TT{=} x + y * z} \\
-       Here {\tt T} is the \key{result type} of the expression
-       `{\tt x + y * z}'.  Because it is the result type of {\tt +} and
+       Here {\tt T} is the \key{target type} of the expression
+       `{\tt x + y * z}' and thus must be the type of the prototype
+       of the `{\tt +}' function, since function results cannot be
+       implicitly converted.  Because it is the result type of {\tt +} and
        arithmetic operators (with a few exceptions)
        have operands that are of the same
-       type as their result, {\tt T} is also result type of {\tt *}, and
-       since L-Language does not have implicit conversion (except for
-       constant numbers), {\tt T} must be
-       the type of {\tt x}, {\tt y}, and {\tt z}.
+       type as their result,
+       {\tt T} is also target type of {\tt x} and {\tt *}, and since it is
+       the target type of {\tt *} it will be the target type of {\tt y}
+       and {\tt z}.  Implicit conversions of variables is allowed,
+       so {\tt x}, {\tt y}, and {\tt z} will all be converted
+       to type {\tt T} before any computation is done.
 
 \hspace*{-0.2in}{\tt T v \TT{=} x \TT{if} y \TT{else} z} \\
-      Evaluates {\tt y} with result type {\tt bool}.  If that value
-      is {\tt true}, evaluates and returns the value of {\tt x}; otherwise
-      evaluates and returns the value of {\tt z}.  Both {\tt x} and {\tt z},
-      if evaluated, must have type {\tt T}.
+      If {\tt y} is not a {\tt const}, it is evaluated with
+      target type {\tt bool}.  If that value
+      is {\tt true}, {\tt x} is evaluated and returned; otherwise
+      {\tt z} is evaluated and returned.  Both {\tt x} and {\tt z},
+      have target type {\tt T}.
 
-      However if {\tt y} is a {\tt const} value, {\tt x} or {\tt y}, whichever
-      is not evaluated, is also not compiled, and if it would be in error
+      However if {\tt y} is a {\tt const} value, the right-side of
+      the statement is replaced by {\tt x} or {\tt y}, whichever
+      is discarded is also not compiled, and if it would be in error
       were it compiled, the error is not detected (unless it is a parsing
       error).
 
-\hspace*{-0.2in}{\tt x \TT{AND} y} \\
-      If {\tt x} is \underline{not} of type {\tt const},
-      the result type is {\tt bool} and the types of {\tt x} and {\tt y}
-      must be {\tt bool}.  {\tt x} is evaluated first, and if false,
-      {\tt y} is not evaluated.
+\hspace*{-0.2in}{\tt bool v = x \TT{AND} y} \\
+      If {\tt y} evaluates to {\tt FALSE}, same as `{\tt bool v = FALSE}',
+      and {\tt x} is not compiled.
 
-      If {\tt x} is a true {\tt const} value, {\tt y} is evaluated
-      with result type {\tt bool} or {\tt const}.
-
-      If {\tt x} is a false {\tt const} value, {\tt y} is not compiled
-      or evaluated and the result is a false {\tt const} value.
-      If {\tt y} would be in error were it compiled,
-      the error is not detected (unless it is a parsing error).
-
+      Otherwise same as `{\tt bool v = y if x else FALSE}'.
+      Both the {\tt const} values {\tt TRUE}
+      and {\tt FALSE} are implicitly convertible to run-time {\tt bool}.
+ 
 \hspace*{-0.2in}{\tt x \TT{<} y \TT{<} z} \\
-      This is equivalent to `{\tt x < y} AND {\tt y < z}', except that
-      {\tt y} is only evaluated once.
+      This is logically equivalent to `{\tt x < y} AND {\tt y < z}', except that
+      {\tt y} is evaluated at most once.
 
-      If {\tt x} or {\tt y} is \underline{not} of type {\tt const},
-      `{\tt x < y}' has result type {\tt bool}
-      and is only defined if {\tt x} and {\tt y} have the
-      same type, {\tt T}, in which case {\tt z} must also have type  {\tt T}.
+      If two operands of a comparison are both {\tt const}, the comparison
+      if reduce to {\tt TRUE} and eliminated, or it is reduced to {tt FALSE}
+      which replaces the entire expression.
+
+      In other cases, some operands need to be evaluated
+      at run-time, and a target type {\tt T} needs to be found.
+
+      If any operand is a function call, \underline{every} prototype
+      of the function must have the same result type, and that becomes
+      type {\tt T} (it is a compile error if two different {\tt T}'s
+      are generated in this manner).
+      E.g., if an operand is `{\tt float ( ... )}', then {\tt T} must
+      be {\tt float}.
+
+      If no operand is a function call, all must be variables or
+      {\tt const} values.  The types of all the variables are tried,
+      and whichever works is selected as the value of {\tt T} (it
+      is a compile error if more than one works).  E.g., if the
+      variables have types {\tt int} and {\tt float}, {\tt float}
+      works because {\tt int} can be converted to {\tt float},
+      but {\tt int} does not work.
 
 \hspace*{-0.2in}{\tt v[x+5] = y} \\
-      The result type of subscript expressions such as `{\tt x + 5}'
-      must be {\tt int}.
+      The target type of subscript expressions such as `{\tt x + 5}'
+      is {\tt int}.
 
 \hspace*{-0.2in}{\tt \TT{\textasciitilde} x} \\
        The `{\tt \textasciitilde}' operator
@@ -2838,40 +2874,24 @@ but not vice-versa.
 
 The syntax of a {\em call-assignment-statement} is:
 \begin{indpar}
-\emkey{call-assignment-statement} ::= \\
-\hspace*{0.5in} {\em assignment-result}
-                \{ \TT{,} {\em assignment-result} \}\QMARK{}
-		\TT{=} {\em function-call}
+\emkey{call-assignment-statement} \\
+\hspace*{0.5in} \begin{tabular}{rl}
+                ::= & {\em assignment-result}
+                      \{ \TT{,} {\em assignment-result} \}\PLUS{}
+		      \TT{=} {\em function-call} \\
+		$|$ & {\em function-call}
+		\end{tabular}
 \\[0.5ex]
 \emkey{assignment-result} ::= see \pagref{ASSIGNMENT-RESULT}
 \\[0.5ex]
 \emkey{function-call} ::= see \pagref{FUNCTION-CALL}
-\\[2.0ex]
-where
-\begin{itemize}
-
-\item The {\em function-call} must be run-time (else the statement is
-an {\em expression-assign\-ment-statement}).
-
-\item The {\em actual-arguments} in the {\em function-call} must be
-{\em reference-expressions} or
-com\-pile-time {\em expressions}.
-
-\item The {\em function-call} and {\em assignment-results} together
-must match a single function prototype as per
-\itemref{INLINE-CALL-PROTOTYPE-MATCHING}.
-\end{itemize}
 \end{indpar}
 
-All {\em reference-expression} indices are evaluated first,
-then the {\em function-call} is evaluated.
-
-Variable names declared by {\em variable-declarations} that are
-{\em assignment-results} are not visible to the {\em actual-arguments}.
-In particular, if `{\tt next V}' is an {\em assignment-result},
-the name `{\tt V}' in an {\em actual-argument} will refer to the variable
-that exists before the {\em call-assignment-statement}.
-
+A {\em call-assignment-statement} follows the same general rules
+as {\em expression-assignment-state\-ments} except that the top
+level {\em function-call} on the right side has either 2 or more
+results or 0 results.  The types of the function prototype cannot
+be implicitly converted to the types of the {\em assignment-results}.
 
 \subsubsubsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
@@ -2939,8 +2959,9 @@ the argument names may be different.
 The called function must allocate a block of
 memory with the required number of bytes and alignment and zero that
 block.  The prototype must have
-exactly one result variable whose type is convertible to
-the data type associated with a pointer type\pagnote{POINTER-ASSOCIATE}.
+exactly one result variable whose type is identical to the
+the data type of the {\em pointer-variable} being set (but the
+prototype result type may contain wildcards).
 
 As a general rule, allocator functions that return a value of
 `{\tt data for av}' or `{\tt data for fv}' type
