@@ -3458,10 +3458,18 @@ module.
 At the beginning of each expansion the offset is set to zero and
 the align/pack switch is set to align.
 
-A \ttkey{*DEFERRED*} {\em type-declaration} is just syntactic
-sugar for a {\em type-declaration} with \underline{no} sub-declarations.
+A \ttkey{*DEFERRED*} {\em type-declaration} declares a {\em type-name}
+without declaring the definition of the named type.
 Such a {\em type-declaration} is typically used allow the {\em type-name}
 to be used as the target type of a pointer.
+For any non-deferred {\em type-declaration} there may be one or more
+deferred {\em type-declarations} of the same {\em type-name}, but for
+any two {\em type-declarations} with the same {\em type-name}
+one must be within the scope of the other.
+
+A {\em member-name} declared within a {\em type-declaration} may
+only be used within the scope\pagnote{SCOPE} of the {\em type-declaration}
+in which the {\em member-name} is declared.
 
 The {\em type-name} in a {\em type-declaration} is declared before
 the {\em type-declaration}'s sub-declarations are processed, so these
@@ -3488,7 +3496,7 @@ modules and bodies,\pagnote{MODULE-AND-BODY-DECLARATIONS}
 the order in which these {\em type-declarations} are processed
 may not be completely determined.
 
-A field of a value of a user defined type are accessed by prepending
+A field of a value of a user defined type is accessed by prepending
 `\TT{.}' to the {\em field-label} to form a {\em member-name} in
 a {\em reference-expression} (see \pagref{FIELD-SELECTION}).
 An example is:
@@ -3677,7 +3685,7 @@ treated in the same manner as a {\em field-declaration} with
 more than one {\em field-dimension}.  For example,
 {\tt [$n1$][$n2$][$n3$]} is
 syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
-{\tt L[$i1$][$i2$][$i3$]} is syntactic sugar for
+{\tt L[$i1$][$i2$][$i3$]} being syntactic sugar for
 {\tt L[$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$]}.
 
 If a {\em field-declaration} with {\em field-label} {\tt F}
