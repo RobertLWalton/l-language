@@ -392,8 +392,8 @@ The types {\tt int}, {\tt uns}, {\tt flt} are just these
 types for the target machine word size.
 The types {\tt intd}, {\tt intq}, {\tt unsd}, {\tt unsq} are just integer
 types for twice (double) or four times (quad) the target machine word size.
-The {\tt bool} type is a single bit interpreted as {\tt true} if
-1 and {\tt false} if 0: it is in essence a 1-bit unsigned integer.
+The {\tt bool} type is a single bit interpreted as true if
+1 and falseif 0: it is in essence a 1-bit unsigned integer.
 
 User defined types have values that
 consist of a sequence of bytes containing fields.
@@ -1732,7 +1732,7 @@ but the following examples give an idea of some of this semantics:
 \hspace*{-0.2in}{\tt T v \TT{=} x \TT{if} y \TT{else} z} \\
       If {\tt y} is not a {\tt const}, it is evaluated with
       target type {\tt bool}.  If that value
-      is {\tt true}, {\tt x} is evaluated and returned; otherwise
+      is {\tt TRUE}, {\tt x} is evaluated and returned; otherwise
       {\tt z} is evaluated and returned.  Both {\tt x} and {\tt z},
       have target type {\tt T}.
 
@@ -2040,13 +2040,17 @@ There are five of types of constants:
 The meanings of the {\em special-constants} are:
 \begin{indpar}[1in]
 \begin{itemize}
-\item[\TT{TRUE}] The boolean value true.
-\item[\TT{FALSE}] The boolean value false.
+\item[\TT{TRUE}] The boolean value true.  Convertable to {\tt bool ( 1 )}.
+\item[\TT{FALSE}] The boolean value false.  Convertable to {\tt bool ( 0 )}.
 \item[\TT{UNDEF}] The value exists but is undefined (unknown).
 \item[\TT{NONE}] The value does not exist.
 \end{itemize}
 \end{indpar}
 A special constant is not equal to any other constant.
+The constant {\tt TRUE} can be implicitly converted to the
+run-time {\tt bool} value {\tt 1}.
+The constant {\tt FALSE} can be implicitly converted to the
+run-time {\tt bool} value {\tt 0}.
 
 A \emkey{string-constant} is just a {\em quoted-string} lexeme
 that denotes a character string: see
@@ -4096,7 +4100,9 @@ F[10] = 6
 \end{verbatim}\end{indpar}
 which is treated as if {\tt =} were a {\em function-term-name}
 that must be the last such in the call, and the comma separated
-values in the call and {\em prototype-argument-declarations} in the prototype
+values after {\tt =}
+in the call and {\em prototype-argument-declarations} after {\tt =}
+in the prototype
 were surrounded by parentheses {\tt (~)}.  Note that for an argument
 list in the prototype to match an argument list in the call, both
 must be surrounded by the same brackets; either both have {\tt (~)}
@@ -4125,11 +4131,11 @@ In the call:
 \begin{center}
 \begin{tabular}{rcl}
 {\em function-term-name} & is equivalent to
-                         & {\em function-term-name} \tt ( true ) \\
+                         & {\em function-term-name} \tt ( TRUE ) \\
 \TT{no} {\em function-term-name} & is equivalent to
-                         & {\em function-term-name} \tt ( false ) \\
+                         & {\em function-term-name} \tt ( FALSE ) \\
 \TT{not} {\em function-term-name} & is equivalent to
-                         & {\em function-term-name} \tt ( false ) \\
+                         & {\em function-term-name} \tt ( FALSE ) \\
 omitted {\em function-term-name} & is equivalent to
                          & {\em function-term-name}
 			   \TT{(} {\em default-value} \TT{)} \\
@@ -4137,11 +4143,11 @@ omitted {\em function-term-name} & is equivalent to
 \end{center}
 Thus the example:
 \begin{indpar}\begin{verbatim}
-function F ( int x ) OPTION ( bool y ?? true )
+function F ( int x ) OPTION ( bool y ?? TRUE )
     . . . . . . . . . .
-F ( 5 )            // Equivalent to F ( 5 ) OPTION ( true )
-F ( 5 ) OPTION     // Equivalent to F ( 5 ) OPTION ( true )
-F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( false )
+F ( 5 )            // Equivalent to F ( 5 ) OPTION ( TRUE )
+F ( 5 ) OPTION     // Equivalent to F ( 5 ) OPTION ( TRUE )
+F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( FALSE )
 \end{verbatim}\end{indpar}
 
 If a {\em required-value} is given in a prototype, the call must
@@ -4170,7 +4176,7 @@ inline functions defined between it and a later
 non-{\tt *DEFERRED*} companion {\em function-declaration} to call the
 function.  An example is:
 \begin{indpar}\begin{verbatim}
-function F2 ( const i): deferred
+function F2 ( const i): *DEFERRED*
 function F1 ( const i):
     if i != 0:
         <do F1 thing>
@@ -4282,7 +4288,7 @@ Then if a {\em call-term-name} is matched to a {\em boolean-pattern-term}
 {\em call-argument-lists}, then if the preceding {\em call-term}
 ends in `\TT{no}' or `\TT{not}', this last is removed from the
 preceding {\em call-term} and `{\tt (false)}' is appended to the
-current {\em call-term}, while otherwise `{\tt (true)}' is appended to the
+current {\em call-term}, while otherwise `{\tt (TRUE)}' is appended to the
 current {\em call-term}.
 
 A {\em call-term}
@@ -5128,10 +5134,11 @@ that are treated as two's complement.
 \begin{indpar}
 Standard comparison operators on numbers {\tt n1} and {\tt n2}.
 Infinities are treated as actual numbers with absolute value
-larger than any real number: e.g., `{\tt x <= +Inf}' is always
-true and `{\tt x == +Inf}' is true iff {\tt x} is {\tt +Inf}.
-If an argument is a {\tt NaN}, all comparisons return false
-except {\tt !=} which returns true.
+larger than any real number: e.g., if {\tt x} is not a {\tt NaN},
+`{\tt x <= +Inf}' is always
+{\tt TRUE} and `{\tt x == +Inf}' is {\tt TRUE} iff {\tt x} is {\tt +Inf}.
+If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
+except {\tt !=} which returns {\tt TRUE}.
 \end{indpar}
 
 {\tt const r =} \ttkey{numerator} {\tt ( const number )} \\
