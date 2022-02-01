@@ -3891,9 +3891,11 @@ function $P2$ Q\$1 T\$1 r = \TT{*UNCHECKED*}
 The example at the beginning of this section contains
 all three kinds of {\tt \ldots{} *POINTER* *CONVERSION*} functions.
 
-An example implementing a new pointer type is:
+In the above function prototypes you can use different wildcard names,
+e.g, {\tt T\$XXX} instead of {\tt T\$1}.  You can also
+use non-wildcards, e.g., {\tt int} instead of {\tt T\$1}.
 
-TBD
+An example implementing a new pointer type is:
 
 \begin{indpar}\begin{verbatim}
 type file:
@@ -3911,27 +3913,24 @@ type data for fd:
 
 pointer type fd is data for fd
 
-function ap Q$1 T$1 r = *ACCESS* *POINTER* *CONVERSION*
-        ( fd Q$1 T$1 p ):
+function ap Q$1 file r = *ACCESS* *POINTER* *CONVERSION*
+        ( fd Q$1 file p ):
     data for fd d = pointer to data ( p )
-    ap file @f = @files[d.index]
-    r = @f
+    ap file *READ_WRITE* @f = @files[d.index]
+    r = @f  // Implicitly converts *READ-WRITE* to Q$1
 
 function fd *READ-WRITE* r = allocate fd:
     data for fd d:
-        d.index = next file
+        d.index = number of files
     r = *UNCHECKED* ( d )
-    next file = next file + 1
+    number of files = number of files + 1
 
-fd *READ-WRITE* @f = allocate fd
+fd *READ-WRITE* file @f =@ allocate fd
 f.name = ...
 . . . . .
 av uns8 n = f.name
 . . . . .
 \end{verbatim}\end{indpar}
-
-
-
 
 \subsubsubsection{Inline Function Declarations}
 \label{INLINE-FUNCTION-DECLARATIONS}
