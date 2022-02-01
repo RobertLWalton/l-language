@@ -3786,12 +3786,12 @@ function $D$ r = pointer to data ( $P$ Q\$1 T\$1 ptr )
 \end{indpar}
 These just copy values changing type.
 
-Reading and writing values using a pointer of type $P$ and
-associated data type $D$ can be accomplished by the functions:
+Reading and writing values using a pointer of type $P$
+can be accomplished by the functions:
 
 \begin{indpar} \tt
-function Q\$1 T\$1 r = *POINTER* *ACCESS* ( $D$ data ) \\
-function *POINTER* *ACCESS* ( $D$ data ) = Q\$1 T\$1 r
+function Q\$1 T\$1 r = *POINTER* *ACCESS* ( $P$ Q\$1 T\$1 p ) \\
+function *POINTER* *ACCESS* ( $P$ Q\$1 T\$1 p ) = Q\$1 T\$1 r
 \end{indpar}
 
 These functions can be defined after $P$ is defined.
@@ -3806,10 +3806,10 @@ of a pointer variable is read or written.  For example:
 ap int @p = local:
 p = 5
   // This translates to:
-  //   *POINTER* *ACCESS* ( pointer to data ( p ) ) = 5
+  //   *POINTER* *ACCESS* ( p ) = 5
 int x = p
   // This translates to:
-  //   x = *POINTER* *ACCESS* ( pointer to data ( p ) )
+  //   int x = *POINTER* *ACCESS* ( p )
 \end{verbatim}\end{indpar}
 
 An alternative strategy is to convert a pointer of type $P1$
@@ -3893,12 +3893,14 @@ all three kinds of {\tt \ldots{} *POINTER* *CONVERSION*} functions.
 
 An example implementing a new pointer type is:
 
+TBD
+
 \begin{indpar}\begin{verbatim}
 type file:
     *READ-WRITE* av uns8 name
     . . . . .
-av *READ-WRITE* file @files = global [1000];
-ap *READ-WRITE* int @next file = global
+av *READ-WRITE* file @files =@ global [1000];
+ap *READ-WRITE* int @number of files =@ global
 
 // Implement a file descriptor (fd) that addresses a file
 // in files.  The fd contains an index and addresses
@@ -3908,11 +3910,12 @@ type data for fd:
     int index
 
 pointer type fd is data for fd
-function data for ap r = *ACCESS* *POINTER* *CONVERSION*
-        ( data for fd d ):
+
+function ap Q$1 T$1 r = *ACCESS* *POINTER* *CONVERSION*
+        ( fd Q$1 T$1 p ):
+    data for fd d = pointer to data ( p )
     ap file @f = @files[d.index]
-    r = pointer to data ( @f )
-        // Qualifiers of @f are ignored by pointer to data.
+    r = @f
 
 function fd *READ-WRITE* r = allocate fd:
     data for fd d:
