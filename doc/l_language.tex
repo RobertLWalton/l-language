@@ -1745,9 +1745,9 @@ but the following examples give an idea of some of this semantics:
 \hspace*{-0.2in}{\tt bool v = x \TT{AND} y} \\
       If either operand evaluates to {\tt FALSE},
       compile-time evaluation stops and the statement is replaced by
-      `{\tt bool v = FALSE}'.
+      `{\tt bool v \TT{=} FALSE}'.
 
-      Otherwise same as `{\tt bool v = y if x else FALSE}'.
+      Otherwise same as `{\tt bool v \TT{=} y if x else FALSE}'.
 
       The {\tt const} values {\tt TRUE}
       and {\tt FALSE} are implicitly convertible to run-time {\tt bool}
@@ -1782,7 +1782,7 @@ but the following examples give an idea of some of this semantics:
       works because {\tt int} variables can be implicitly
       converted to {\tt float}, but {\tt int} does not work.
 
-\hspace*{-0.2in}{\tt v[x+5] = y} \\
+\hspace*{-0.2in}{\tt v[x+5] \TT{=} y} \\
       The target type of subscript expressions such as `{\tt x + 5}'
       is {\tt int}.
 
@@ -1794,11 +1794,11 @@ but the following examples give an idea of some of this semantics:
 
 \hspace*{-0.2in}{\tt x \TT{**} y} \\
        Requires that {\tt y} be a {\tt const} non-negative integer;
-       {\tt x ** 0 == 1} and {\tt x ** 1 == x} for all {\tt x}.
+       {\tt x ** 0 \TT{==} 1} and {\tt x ** 1 \TT{==} x} for all {\tt x}.
 
 \hspace*{-0.2in}{\tt x \TT{+=} y} \\
 	Means `{\tt next x = x + y}' if {\tt x} is {\tt co},
-	and `{\tt x = x + y}' if {\tt x} is {\tt *READ-WRITE*}.
+	and `{\tt x \TT{=} x + y}' if {\tt x} is {\tt *READ-WRITE*}.
 \end{indpar}
 
 \subsection{Primaries}
@@ -1956,7 +1956,9 @@ or contain {\em function-keywords}.
 {\em Names} not used as operators should not contain {\em operator-words}.
 \item
 {\em Names} that are not {\em qualifier-names}
-should not contain {\em qualifier-names}.
+should not contain {\em qualifier-names}, with the
+exception that a {\em qualifier-name} by itself can be
+a {\em function-term}.
 \end{enumerate}
 \end{indpar}
 
@@ -2623,8 +2625,10 @@ The forms of an {\em assignment-statement} are:
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \TT{=} \\
-	& ~~~~~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
+                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \\
+	& ~~~~~ \{ \TT{=}
+	           \ttkey{do} {\em block-label}\QMARK{} $|$ \TT{=} \}\QMARK{}
+		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
     $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
@@ -2914,7 +2918,8 @@ The syntax of {\em block-assignment-statements} is:
         & {\em block-variable-declaration}
                 \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \\
 	& ~~~~~ \{ \TT{=}
-		   \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{} \TT{:} \\
+	           \ttkey{do} {\em block-label}\QMARK{} $|$ \TT{=} \}\QMARK{}
+		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
     $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
@@ -3012,7 +3017,11 @@ Note that declarations not in {\em exit-subblocks} have scope
 that includes the {\em exit-subblocks}, but declarations
 within an {\em exit-subblock} have scope that ends with the end of
 the subblock.  A function prototype is `used' if and only if it
-matches a {\em function-call}.
+matches a {\em function-call}.\footnote{Stack space for every
+stack variable that might be used by an out-of-line function is
+allocated when the out-of-line function is called.  Space allocated
+by the \TT{local} function is treated differently.  See
+Memory Management, \itemref{MEMORY-MANAGEMENT}.}
 
 If\label{BLOCK-NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
@@ -3070,9 +3079,6 @@ must be in that module or its bodies.
 A pointer variable may have an {\em allocation-call} in either its
 {\em deferred-assignment-statement} or in its companion, but not
 both.
-
-A {\em deferred-assignment-statement} initializes the variables it declares
-in the same manner as a {\em block-assignment-statement}.
 
 {\em Deferred-assignment-statement} variable initialization is the
 same as {\em block-assignment-state\-ment} variable initialization,
@@ -3156,7 +3162,7 @@ A simple example is:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
-next sum, next i = while sum < 4:
+next sum, next i = while i < 4:
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
@@ -3201,7 +3207,7 @@ above example could be written as:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
-next sum = while sum < 4
+next sum = while i < 4
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
@@ -3209,7 +3215,7 @@ or
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
-while sum < 4
+while i < 4
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
