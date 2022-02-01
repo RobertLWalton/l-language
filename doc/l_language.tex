@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-January 31, 2022
+February 1, 2022
 
 \bigskip
  
@@ -1743,22 +1743,28 @@ but the following examples give an idea of some of this semantics:
       error).
 
 \hspace*{-0.2in}{\tt bool v = x \TT{AND} y} \\
-      If {\tt y} evaluates to {\tt FALSE}, same as `{\tt bool v = FALSE}',
-      and {\tt x} is not compiled.
+      If either operand evaluates to {\tt FALSE},
+      compile-time evaluation stops and the statement is replaced by
+      `{\tt bool v = FALSE}'.
 
       Otherwise same as `{\tt bool v = y if x else FALSE}'.
-      Both the {\tt const} values {\tt TRUE}
-      and {\tt FALSE} are implicitly convertible to run-time {\tt bool}.
+
+      The {\tt const} values {\tt TRUE}
+      and {\tt FALSE} are implicitly convertible to run-time {\tt bool}
+      {\tt 1} and {\tt 0}, respectively.
  
 \hspace*{-0.2in}{\tt x \TT{<} y \TT{<} z} \\
       This is logically equivalent to `{\tt x < y} AND {\tt y < z}', except that
       {\tt y} is evaluated at most once.
 
-      If two operands of a comparison are both {\tt const}, the comparison
-      if reduce to {\tt TRUE} and eliminated, or it is reduced to {tt FALSE}
-      which replaces the entire expression.
+      If any comparison evaluates to {\tt FALSE},
+      compile-time evaluation stops and the entire expression is replaced by
+      `{\tt FALSE}'.
 
-      In other cases, some operands need to be evaluated
+      If a comparison evaluates to {\tt TRUE} it is eliminated.
+
+      If run-time evaluation is necessary,
+      some operands need to be evaluated
       at run-time, and a target type {\tt T} needs to be found.
 
       If any operand is a function call, \underline{every} prototype
@@ -1773,8 +1779,8 @@ but the following examples give an idea of some of this semantics:
       and whichever works is selected as the value of {\tt T} (it
       is a compile error if more than one works).  E.g., if the
       variables have types {\tt int} and {\tt float}, {\tt float}
-      works because {\tt int} can be converted to {\tt float},
-      but {\tt int} does not work.
+      works because {\tt int} variables can be implicitly
+      converted to {\tt float}, but {\tt int} does not work.
 
 \hspace*{-0.2in}{\tt v[x+5] = y} \\
       The target type of subscript expressions such as `{\tt x + 5}'
@@ -2835,7 +2841,10 @@ of {\em assignment-results}.
 \end{itemize}
 \end{indpar}
 
-The {\em expressions} are evaluated in left to right order, and
+Sub-{\em expressions} computable at compile-time are evaluated
+in left to right order and replaced by their {\tt const} values
+before the {\em statement} is compiled into run-time code.
+At run-time {\em expressions} are evaluated in left-to-right order and
 then the {\em expression} values are stored in the {\em assignment-results}.
 
 Variable names declared by {\em result-variable-declarations} that are
