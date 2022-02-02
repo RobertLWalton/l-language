@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 1, 2022
+February 2, 2022
 
 \bigskip
  
@@ -4440,7 +4440,7 @@ The syntax of an out-of-line function declaration is:
     {\em module-abbreviation}\QMARK{} {\em basic-name}
     $|$ {\em foreign-function-name}
 \\[0.5ex]
-{\em foreign-function-name} ::= {\em quoted-string}
+\emkey{foreign-function-name} ::= {\em quoted-string}
 \\[0.5ex]
 {\em prototype-result-list} ::= see \pagref{PROTOTYPE-RESULT-LIST}
 \\[0.5ex]
@@ -4458,16 +4458,16 @@ The rules for inline {\em function-declarations} on
 `{\tt ??}' {\tt bool} defaults are not allowed.
 \item
 Wild-cards are not allowed.
+\item Functions with {\em foreign-function-names} are called \key{foreign}.
+These must all be declared as {\tt *DEFERRED*}.
 \item
-The rules for inline `{\tt *DEFERRED*}' {\em function-declarations} and
+The rules for inline `{\tt *DEFERRED*}' \underline{non-foreign}
+{\em function-declarations} and
 their companions on \pagref{COMPANION-DECLARATION}
-must be followed for {\tt *DEFERRED*} {\tt out-of-line-function-declarations}
+must be followed for {\tt *DEFERRED*} {\tt out-of-line-function-declar\-ations}
 and their companions.
 \end{itemize}
 \end{indpar}
-
-An out-of-line function with a {\em quoted-string} as its
-{\em out-of-line-function-name} is \key{foreign}.
 
 A non-foreign out-of-line function can be called with a normal
 {\em function-call}.\pagnote{FUNCTION-CALL}  A foreign
@@ -4489,10 +4489,7 @@ declaration is not a compile-time error, but will be a
 run-time error if the function is actually called at run-time.
 
 Like inline functions, a {\tt *DEFERRED*} {\em out-of-line-function-declaration}
-can have only one companion.  It is common for the {\tt *DEFERRED*}
-declaration to be in a module and its companion to be in a body of
-that module.
-
+can have only one companion.
 If\label{OUT-OF-LINE-EXTERNAL-COMPANION}
 a {\tt *DEFERRED*} {\em out-of-line-function-declaration}
 is external,\pagnote{EXTERNAL-FUNCTION}
@@ -4511,7 +4508,9 @@ functions may be declared by:
     \ttkey{type} {\tt function-type-name} \TT{is}
                  {\em function-type-prototype}
 \\[0.5ex]
-\emkey{function-type-name} ::= {\em target-name}
+\emkey{function-type-name} ::= {\em type-name}
+\\[0.5ex]
+{\em type-name} ::= see \pagref{TYPE-NAME}
 \\[0.5ex]
 \emkey{function-type-prototype}%
 	\label{FUNCTION-TYPE-PROTOTYPE} ::= \\
@@ -4554,9 +4553,11 @@ A function constant can be declared by:
     \begin{tabular}[t]{rl}
         &  {\em function-type-name} {\em function-constant-name} \TT{:} \\
 	& \TT{~~~~~}{\em statement}\PLUS{} \\
-    \end{tabular} \\
-\emkey{function-constant-name} ::=
-    {\em module-abbreviation}\QMARK{} {\em basic-name}
+    \end{tabular}
+\\[0.5ex]
+\emkey{function-constant-name} ::= {\em target-variable}
+\\[0.5ex]
+{\em target-variable} ::= see \pagref{TARGET-VARIABLE}
 \end{indpar}
 
 Here the first line behaves like an {\em out-of-line-function-prototype}
