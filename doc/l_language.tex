@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 2, 2022
+February 3, 2022
 
 \bigskip
  
@@ -4464,7 +4464,8 @@ These must all be declared as {\tt *DEFERRED*}.
 The rules for inline `{\tt *DEFERRED*}' \underline{non-foreign}
 {\em function-declarations} and
 their companions on \pagref{COMPANION-DECLARATION}
-must be followed for {\tt *DEFERRED*} {\tt out-of-line-function-declar\-ations}
+must be followed for
+{\tt *DEFERRED*} {\tt out-of-line-function-de\-clar\-ations}
 and their companions.
 \end{itemize}
 \end{indpar}
@@ -4602,11 +4603,9 @@ distinct, and all {\em module-names} must be distinct.
 \end{itemize}
 \end{indpar}
 
-A {\em module-name} is a POSIX file name.
-The {\em module-name} of a {\em module-declaration} must match the
-name of the file containing the
-{\em module-declaration}, relative to one of several directories
-specified separately to the compiler.
+The compiler maps {\em module-names} to POSIX file names in an
+implementation dependent manner.  The file that contains the
+module cannot contain anything else.
 
 The {\em module-abbreviation} associated with a {\em module-name}
 may differ in different files.  Specifically, the {\em module-abbreviation}
@@ -4657,11 +4656,9 @@ and all {\em module-names} and {\em body-names} must be distinct.
 
 \end{indpar}
 
-A {\em body-name} is a POSIX file name.
-The {\em body-name} of a {\em body-declaration} must match the
-name of the file containing the
-{\em body-declaration}, relative to one of several directories
-specified separately to the compiler.
+The compiler maps {\em body-names} to POSIX file names in an
+implementation dependent manner.  The file that contains the
+body cannot anything else.
 
 A \key{body} is an extension of the module named in the first
 line of the {\em body-declaration}.
@@ -4692,8 +4689,8 @@ by the following rules.
 \item If a module or body imports another module, the imported module
 is initialized before the module or body.
 \item A module is initialized before any of its bodies.
-\item If a module or body contains an {\em after-clause}, the module
-or body is initialized after the body named in the {\em after-clause}.
+\item If a body contains an {\em after-clause}, the body
+is initialized after the body named in the {\em after-clause}.
 \end{enumerate}
 
 The conceptual directed graph whose nodes are modules and bodies
@@ -4705,13 +4702,18 @@ and \underline{must be acyclic}.
 \subsubsection{Include Statements}
 \label{INCLUDE-STATEMENTS}
 
-Any inline function call can set the \ttkey{*CODE*} variable
-to a list of parsed statements which will be prepended to
-the list of statements remaining to be compiled once the statement
-containing the function call is compiled.  It is an error
-if there is more than one function call doing this in
-the statement that sets the
-{\tt *CODE*} variable.
+Each {\em statement} $S$ has its own \ttkey{*CODE*} {\tt const} variable
+that contains a list of {\em statements} that is prepended
+immediately after the compilation of $S$ is finished
+to the current list of {\em statements} to be compiled. 
+Before $S$ is compiled its {\tt *CODE*} variable is initialized
+to the empty list.  Inline functions compiled during the compilation of $S$
+can read and write the {\tt *CODE*} variable of $S$.
+
+Since {\em statements} can be nested, compilation of {\em statements}
+can be nested, and at any given time the innermost {\tt *CODE*}
+variable hides outer {\tt *CODE*} variables.  Thus at any time
+during compilation there is a current {\tt *CODE} variable.
 
 It is not necessary to include certain annotations
 in {\tt *CODE*} statements or expressions.
@@ -4754,7 +4756,7 @@ However, any {\tt .separator} and the following must be included:
 
 The {\em include-statement} can be used to parse statements
 and append them to the end of the list which is the value of
-of a variable:
+of a {\tt const} variable:
 
 \begin{indpar}
 \emkey{include-statement}\label{INCLUDE-STATEMENT} ::= \\
@@ -4784,41 +4786,46 @@ An {\em include-statement} is executed at compile time;
 its {\em statements} are parsed and the parser output is
 appended to the list designated by the {\em include-variable},
 which must be a {\tt const} variable.  The {\em include-variable}
-defaults to {\tt *CODE*}, and in this special case, does not
-have to be declared in advance of use: it will be automatically
-declared at the level of the smallest containing inline
-{\em function-declaration} when needed.
+defaults to {\tt *CODE*}.
 
 Each {\em include-argument} must be a {\tt const} variable assigned
-a value before the {\em include-state\-ment}.  Everywhere this variable
+a value before the {\em include-state\-ment} compiles.
+Everywhere this variable
 appears in the parsed {\em statements} of the {\em include-statement},
 the value of the variable is substituted for the variable name.
 
 Substitution for {\em include-arguments} obeys the following rules:
 \begin{itemize}
-\item If the {\em include-argument} begins with {\tt \#}, if its
+\item If the {\em include-argument}
 value is a list, and if the
 instance being substituted is an element of a list,
 the {\em include-argument} list is spliced into the instance containing
 list.
-Thus if {\tt \#X = \{"A", "B"\}} then \\
+\\[0.5ex]
+Thus if {\tt X = \{"A", "B"\}} then \\
 \hspace*{2em}{ \tt
-"Y", "=", \{ "\#X", 1 \} {\rm becomes} "Y", "=", \{ "A", "B", 1 \}
+"Y", "=", \{ "X" \} {\rm becomes} "Y", "=", \{ "A", "B" \}
 } \\
 The {\em include-argument} value list may be empty.
-If {\tt \#X = \{\}} then \\
+If {\tt X = \{\}} then \\
 \hspace*{2em}{ \tt
-"Y", "=", \{ "\#X", 1 \} {\rm becomes} "Y", "=", \{ 1 \}
-}
+"Y", "=", \{ "foo", "X" \} {\rm becomes} "Y", "=", \{ "foo" \}
+} \\
+If you do not want a list valued {\em include-argument} to be spliced in,
+use {\tt (~)} parentheses around the instance being substituted.
+Thus if {\tt X = \{"A", "*",  "B"\}} then \\
+\hspace*{2em}%
+     \begin{tabular}{l}
+     \tt "Y", "=", \{ ("X"), "+", 1 \} \\
+     becomes \\
+     \tt "Y", "=", \{ ("A", "*", "B"), "+", 1 \}
+     \end{tabular}
 
-\item Otherwise the value of the {\em include-argument} replaces the
+\item Otherwise the non-list value of the {\em include-argument} replaces the
 instance in the parsed {\em statement}.
-Thus if {\tt X = \{ "A", "+", "B"\}} then \\
+Thus if {\tt X = "A"} then \\
 \hspace*{2em}{\tt
-"Y", "=", \{ "X", "*", 2 \}
-{\rm becomes}
-\\\hspace*{2em}%
-"Y", "=", \{ \{ "A", "+", "B" \}, "*", 2 \}
+"Y", "=", \{ "X", "*", 2 \} {\rm becomes} "Y", "=", \{ "A", "*", 2 \}
 }
 \end{itemize}
 
