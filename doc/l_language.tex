@@ -2293,7 +2293,7 @@ with {\em expression-constants} are:
 \end{center}
 
 Map constants containing parsed code can be computed
-by {\em include-statements}: see \itemref{INCLUDE-STATEMENTS}.
+by {\em include-statements}: see \itemref{INCLUDE-STATEMENT}.
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 compile-time as if they were variables of type {\tt const}
@@ -2581,7 +2581,7 @@ The following is a complete list of the kinds of statements:
     $|$ & {\em declaration-statement}
         & [\pagref{DECLARATION-STATEMENT}] \\
     $|$ & {\em include-statement}
-        & [\pagref{INCLUDE-STATEMENTS}] \\
+        & [\pagref{INCLUDE-STATEMENT}] \\
     \end{tabular}
 \end{indpar}
 
@@ -3457,7 +3457,9 @@ as the {\em type-declaration}, or in one of that module's bodies.
 For a {\em type-declaration} with an \ttkey{*EXTERNAL*} sub-declaration
 there is no such restriction, and the expansion may be in
 in any module or body that imports the {\em type-declaration}'s
-module.
+module.  However a {\em type-declaration} that is {\tt *EXTERNAL*}
+must have a {\em type-name} beginning with a {\em module-abbreviation}, so
+the {\em type-name} is external.\pagnote{EXTERNAL-NAME}
 
 At the beginning of each expansion the offset is set to zero and
 the align/pack switch is set to align.
@@ -4336,10 +4338,8 @@ arguments in the {\em call-argument-list} have {\em default-values}
 in the {\em pattern-argument-list}, the {\em default-values} corresponding
 to the omitted arguments are inserted into
 the {\em call-argument-list}.
-The {\em default-values} are inserted syntactically and evaluate in the
-context of the call, and \underline{not} in the context of the
-prototype.\footnote{L-Language differs from other compiled languages
-in this respect.}
+The {\em default-values} are compiled in the contest of the prototype
+and not the context of the call: see \pagref{DEFAULT-CONTEXT}.
 
 At this point the {\em pattern-argument-lists} in the prototype
 {\em pattern-term} must match in order all the {\em call-argument-lists}
@@ -4699,24 +4699,24 @@ bodies it must be initialized after is called
 the `\key{initialization graph}'\label{INITIALIZATION-GRAPH}
 and \underline{must be acyclic}.
 
-\subsubsection{Include Statements}
-\label{INCLUDE-STATEMENTS}
+\subsubsection{Inclusions}
+\label{INCLUSIONS}
 
-Each {\em statement} $S$ has its own \ttkey{*CODE*} {\tt const} variable
+Each {\em statement} $S$ has its own \ttkey{*INCLUDE*} {\tt const} variable
 that contains a list of {\em statements} that is prepended
 immediately after the compilation of $S$ is finished
 to the current list of {\em statements} to be compiled. 
-Before $S$ is compiled its {\tt *CODE*} variable is initialized
+Before $S$ is compiled its {\tt *INCLUDE*} variable is initialized
 to the empty list.  Inline functions compiled during the compilation of $S$
-can read and write the {\tt *CODE*} variable of $S$.
+can read and write the {\tt *INCLUDE*} variable of $S$.
 
 Since {\em statements} can be nested, compilation of {\em statements}
-can be nested, and at any given time the innermost {\tt *CODE*}
-variable hides outer {\tt *CODE*} variables.  Thus at any time
-during compilation there is a current {\tt *CODE} variable.
+can be nested, and at any given time the innermost {\tt *INCLUDE*}
+variable hides outer {\tt *INCLUDE*} variables.  Thus at any time
+during compilation there is a current {\tt *INCLUDE} variable.
 
 It is not necessary to include certain annotations
-in {\tt *CODE*} statements or expressions.
+in {\tt *INCLUDE*} statements or expressions.
 
 Specifically, it is \underline{not} necessary to
 include the {\tt .position} or
@@ -4786,7 +4786,7 @@ An {\em include-statement} is executed at compile time;
 its {\em statements} are parsed and the parser output is
 appended to the list designated by the {\em include-variable},
 which must be a {\tt const} variable.  The {\em include-variable}
-defaults to {\tt *CODE*}.
+defaults to {\tt *INCLUDE*}.
 
 Each {\em include-argument} must be a {\tt const} variable assigned
 a value before the {\em include-state\-ment} compiles.
@@ -4939,20 +4939,18 @@ The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
 
-A deferred external declaration may have a companion in a body of its module,
-but not in modules or bodies that import the declaration's module.
-As an exception, a deferred
-{\em out-of-line-function-declaration} may have a companion
-anywhere within the scope of the original declaration.
-
 A {\em result-variable-declaration}
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.
 
-A {\em next-variable-declaration} may not be external, and its
-{variable-name} may not begin with a {\em module-abbreviation}.
+A {\em next-variable-declaration}
+is external if the {variable-name} declared begins with a
+{\em module-abbreviation}.  However, the {\em next-variable-declaration}
+must be in the same module as the {\em result-variable-declaration}
+whose variable name it shares.
 
 A {\em type-declaration} or {\em pointer-type-declaration}
+\label{EXTERNAL-TYPE-NAME}
 is external if the {type-name} or {\em pointer-type-name}
 declared begins with a
 {\em module-abbreviation}.
@@ -4966,10 +4964,28 @@ is immediately preceded by a {\em module-abbreviation}.
 {\em variable-names} cannot begin with a {\em module-abbreviation},
 and therefore these {\em declarations} can never be external.
 
+A deferred external declaration may have a companion in a body of its module,
+but not in modules or bodies that import the declaration's module.
+As an exception, a deferred {\em out-of-line-function-declaration}
+may have a companion
+anywhere within the scope of the original declaration.
+
+{\tt *EXTERNAL*} {\em type-declarations} must have external {\em type-names}
+(beginning with a {\em module-abbreviation}).
+Expansions of an {\tt *EXTERNAL*} {\em type-declaration} may appear
+anywhere within scope of the initial non-expansion {\em type-declaration},
+but must have a {\em type-name} that references the same module
+as what they are expanding (they need not use the same
+{\em module-abbreviation} to do so).
+Sub-declarations of any {\em type-declaration} have the scope of
+{\em type-declaration} in which they appear, and if they appear in
+an expansion, their scope is that of the expansion and not
+the {\em type-declaration} being expanded.  
+
 A {\em module-abbreviation} that makes a {\em declaration} external
 must abbreviate the module in which the {\em declaration} occurs,
 with the exception of expansions of
-{\tt *EXTERNAL} {\em type-declar\-ations}\pagnote{*EXTERNAL*}
+{\tt *EXTERNAL*} {\em type-declar\-ations}\pagnote{*EXTERNAL*}
 and companions of deferred
 {\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
 
@@ -4990,9 +5006,9 @@ the same syntax as a {\em reference-expression}, and its use
 as an implicitly {\tt *WRITE-ONLY*} {\em reference-expression}
 is allowed within smaller blocks.
 
-{\em Type-declarations} \underline{cannot} hide each other.  The second
-declaration appends sub-declarations
-to the first.\pagnote{TYPE-DECLARATION-APPEND}
+{\em Type-declarations} do not hide each other; instead the second
+declaration expands (appends sub-declarations to)
+the first.\pagnote{TYPE-DECLARATION-APPEND}
 
 Prototypes \underline{cannot} hide each other.  If the
 current scope contains two declarations whose prototypes
@@ -5013,14 +5029,13 @@ the context of the compilation is \underline{not} the current context but
 rather the context of the inline {\em function-declaration}
 that provided the {\em statements} executed by the call.
 Also the context in which any {\em default-value} expression
-provided by a declaration
-is compiled is the \underline{not} the current context but
+provided by a declaration is compiled\label{DEFAULT-CONTEXT}
+is the \underline{not} the current context but
 rather the context of that declaration.
 
-Code produced by {\em include-statements} executed during a call to an
-inline function
-\underline{is} compiled in the context of the call.
-See Include Statements (\pagref{INCLUDE-STATEMENTS}).
+Code produced by inclusions during {\em statement} compilation
+is compiled in the context immediately following
+the {\em statement}.  See Inclusions (\pagref{INCLUSIONS}).
 
 An example is:
 \begin{indpar}\begin{verbatim}
