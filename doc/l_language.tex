@@ -4723,7 +4723,7 @@ include the {\tt .position} or
 the following {\tt .initiator}s or {\tt .terminator}s:
 
 \begin{center} \tt
-{\rm \bf Unnecessary Annotations}
+{\rm \bf Unnecessary Annotations}\label{UNNECESSARY-ANNOTATIONS}
 \\[1ex]
 \begin{tabular}{l@{~~~~~~~~~~}l}
 .initiator & .terminator
@@ -4796,7 +4796,7 @@ the value of the variable is substituted for the variable name.
 
 Substitution for {\em include-arguments} obeys the following rules:
 \begin{itemize}
-\item If the {\em include-argument}
+\item \label{INCLUDE-SPLICING} If the {\em include-argument}
 value is a list, and if the
 instance being substituted is an element of a list,
 the {\em include-argument} list is spliced into the instance containing
@@ -4867,12 +4867,12 @@ lists representing subexpressions.
 Operators that are separators, such as `\TT{,}', are not included as elements
 of a list, but become a \ttkey{.separator} annotation of the list.
 
-Lists that have a single element and have
-\underline{no} {\tt .initiator}, {\tt .separator},
-or {\tt .initiator} annotations are \underline{not} generated
-by the parser.  What would be their single element is output in
-their place.  In other words, there are no implied parentheses
-around a single string, number, or subexpression.
+Operator operands become lists in parser output;
+for example, the statement `{\tt X = Y}' outputs
+`{\tt \{ \{ "X" \}, "=", \{ "Y" \} \}}' (with some unnecessary annotations as
+per \pagref{UNNECESSARY-ANNOTATIONS}).
+This is done so that {\em include-variable} substitutions will splice
+into operands appropriately.\pagnote{INCLUDE-SPLICING}
 
 An example is:
 
@@ -4890,15 +4890,15 @@ if X < Y:
 Parser Output:
 \begin{indpar}[1em]\begin{verbatim}
 { "if",
-  { "X", "<", "Y" },
-  { { "X", "=", "Y",
+  { { "X" }, "<", { "Y" } },
+  { { { "X" }, "=", { "Y" },
       .initiator => *LOGICAL-LINE*, .terminator => "<LF>" },
-    { "Y", "=",
-      { "Y", "+", { 5, "*", "Z" } },
+    { { "Y" }, "=",
+      { { "Y" }, "+", { { 5 }, "*", { "Z" } } },
       .initiator => *LOGICAL-LINE*, .terminator => "<LF>" },
-    { { { "A", 1 }, "B", .separator => "," }
+    { { { "A", 1 }, { "B" }, .separator => "," },
       "=",
-      { "B", { "A", 1 }, .separator => "," },
+      { { "B" }, { "A", 1 }, .separator => "," },
       .initiator => *LOGICAL-LINE*, .terminator => "<LF>" },
     .initiator => ":", .terminator => *INDENTED-PARAGRAPH*
   }
