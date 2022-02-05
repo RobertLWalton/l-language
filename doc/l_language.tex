@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 4, 2022
+February 5, 2022
 
 \bigskip
  
@@ -4970,6 +4970,13 @@ As an exception, a deferred {\em out-of-line-function-declaration}
 may have a companion
 anywhere within the scope of the original declaration.
 
+A deferred external {\em type-declaration} must have its
+companion in the same module as the deferred {\em type-declaration},
+but that companion may have the {\tt *EXPANABLE*} or {\tt *EXTERNAL*}
+sub-declaration that allows it to have expansions in the bodies of
+its module, and in the {\tt *EXTERNAL*} case, in other modules and
+bodies that import the module.
+
 {\tt *EXTERNAL*} {\em type-declarations} must have external {\em type-names}
 (beginning with a {\em module-abbreviation}).
 Expansions of an {\tt *EXTERNAL*} {\em type-declaration} may appear
@@ -5018,8 +5025,8 @@ a subblock of the scope of the other.
 
 {\em Statement-labels}, that is {\em block-labels},
 {\em exit-labels}, and {\em loop-labels}, have as their scope
-the block in which they are defined.  {\em Statement-labels}
-\underline{cannot} hide each other.
+the block in which they are defined.  It is a compile
+error if {\em statement-labels} hide each other.
 
 The \key{context}\label{CONTEXT} of a statement is the set of declarations
 whose scope the statement is in.
@@ -5029,9 +5036,9 @@ the context of the compilation is \underline{not} the current context but
 rather the context of the inline {\em function-declaration}
 that provided the {\em statements} executed by the call.
 Also the context in which any {\em default-value} expression
-provided by a declaration is compiled\label{DEFAULT-CONTEXT}
+provided by a {\em function-declaration} is compiled\label{DEFAULT-CONTEXT}
 is the \underline{not} the current context but
-rather the context of that declaration.
+rather the context of that {\em function-declaration}.
 
 Code produced by inclusions during {\em statement} compilation
 is compiled in the context immediately following
