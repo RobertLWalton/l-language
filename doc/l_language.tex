@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 5, 2022
+February 6, 2022
 
 \bigskip
  
@@ -5086,16 +5086,22 @@ int32 y = my external function ( x )
 \end{verbatim}\end{indpar}
 are equivalent if no {\em function-prototype}
 \begin{center}
-\tt function int32 r = $ma$\QMARK{} my external function ( int32 v )
+\tt function int32 r = $ma$ my external function ( int32 v )
 \end{center}
-is in scope, where $ma$ is a module abbreviation other than `{\tt mom}'.
+is in scope, where $ma$ is a module abbreviation for a module
+other than `{\tt my\_own\_module}'.
+
+\subsection{Memory Management}
+\label{MEMORY-MANAGEMENT}
+
+TBD
 
 \section{Compile Time Functions}
 
 Compile-time is defined in \itemref{COMPILE-TIME}.
 Compile time data are just the constants decribed in \itemref{CONSTANTS}.
 Compile time data all have {\tt const} type and one of
-5 subtypes: integers, rationals, strings,
+5 subtypes: numbers, rationals, strings,
 special values, and maps.
 
 The functions described in the following sections are builtin.
