@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 6, 2022
+February 10, 2022
 
 \bigskip
  
@@ -5094,7 +5094,132 @@ other than `{\tt my\_own\_module}'.
 \subsection{Memory Management}
 \label{MEMORY-MANAGEMENT}
 
-TBD
+Space for variables allocated by {\em variable-declarations}
+is reserved when an out-of-line function is entered.  At this
+time space is reserved for each of 4 or more iterations of
+each loop, and the loop cycles between these iteration spaces.
+Asside from loops reusing iteration spaced, there is no
+freeing of these variables until the out-of-line function
+terminates.  This aids debugging and simplifies compiling.
+
+Other data is allocated to the heap, including data allocated
+by the {\tt local} function.
+
+Pointers to the heap (heap pointers) use the stub-body concept:
+the heap pointer data points not at the body of a heap datum, but instead at a
+stub which begins with a body pointer at the body.  This can be
+used in a variety of garbage collection schemes.  All these
+schemes require that some special action be taken when a heap
+pointer is read into a stack variable, or alternatively when
+a heap pointer is written into a heap datum.
+
+We will discuss in detail three kinds of garbage collection (GC):
+copying, marking, and reference counting.  All three kinds
+run interleaved with non-GC execution.
+
+\subsubsection{Copying Garbage Collection}
+
+In copying garbage collection the stub of a datum is its
+first word when the datum is allocated.  At this time the
+stub points at itself.  The during GC the body will be
+copied and for a time have two stubs, the stub in the old
+body that was the source of the copy, and the stub of the
+new body that was the destination of the copy.  Both will
+point at the new body, and the new body will hold the
+datum itself, while the old body will no longer be accessed
+except for its stub.
+
+GC works in cycles.  At the start of each cycle, all heap
+data are in a contiguous virtual memory space called the
+old space.  A new large continuous virtual memory space
+is allocated called the new space.  The boundary address
+between these can be use to tell if a body is in old space
+or new space: just compare the body pointer with the boundary
+address.  The object of the GC cycle is to copy all active
+data from old space to new space, update all active heap pointers
+to point at new space stubs, and then discard old space
+completely.
+
+GC performs a basic operation on heap pointers which
+we will call pointer-update.  In this a heap pointer is
+checked to see if it points at new space, and if not,
+is replaced by a pointer that points at new space.
+If the heap pointer points at a body pointer in old space
+that itself points at old space, the body pointed at is
+moved to new space, and the heap pointer is replaced by
+a pointer to the body in new space.  If the heap pointer
+points at a body pointer that points to new space, the
+heap pointer is simply replaced by the body pointer.
+
+When new body is created, it is allocated to new space.
+Places for new or copied bodies in new space are
+allocated at the `end' of new space.
+
+GC goes through new space from beginning to end updating
+all the pointers in bodies it encounters.  This is called
+`scavenging'.
+
+The GC can be either read-oriented or write-oriented.
+
+A read-oriented GC updates heap pointers when they are read
+from bodies by non-GC execution.
+The GC begins by updating all heap pointers in the
+stack, and from this point on, all pointers in the stack
+point to new space and no special action is required when
+a pointer is written to a body (which itself will be in new
+space) by non-GC execution.
+
+A write-oriented GC updates heap pointers when they are
+written into scavenged bodies by non-GC execution. 
+Whenever all objects in new space have been scavenged,
+the GC updates all pointers in the stack, and if now
+new bodies are moved to new space, GC is done; otherwise
+GC resumes scavanging.  Heap pointers in the stack are
+not generally updated, and no special action is taken
+when reading a heap pointer from a body.
+
+The advantage of write-oriented over read-oriented is
+that write operations are less frequent than read
+operations and therefore write-oriented may be more
+efficient.  A disadvantage is that to end the GC
+must check the entire stack for updatable heap pointers
+without non-GC execution changing the stack.
+
+\subsubsection{Marking Garbage Collection}
+
+In marking GC stubs are allocated to a separate space
+from bodies, and bodies are not copied during GC.
+Bodies are copied by a separate activity called
+compaction that is independent of GC.  The advantage
+is that there is less body copying and less memory
+space is required.
+
+The simplest marking GC uses stubs that begin with
+a body pointer followed by two list pointers,
+a marked flag, and a scavenged flag.  The stubs are
+put on two lists: an old space list and a new space
+list.  To move a stub from old space to new space,
+it is unlinked from the old space list and linked
+onto the end of the new space list, and its marked
+flag is set.  When a datum is scavenged, its scavenged
+flag is set.
+
+Otherwise marking GC is just like copying GC.
+
+A variant has only one list pointer associated with
+the stub and there is just one stbu list.  The
+marked and scavenged flags are used as befoe.
+At the end of GC goes through the list of all stubs
+and frees unmarked stubs along with their bodies.
+However, the list of stubs to be scavenged must
+be maintained separately, typically as a list of
+vectors whose elements point at stubs to be scavenged.
+When a stub is first marked it is put on the list
+of stubs to be scavenged.
+
+\subsubsection{Reference Counting Garbage Collection}
+
+
 
 \section{Compile Time Functions}
 
