@@ -5185,6 +5185,17 @@ efficient.  A disadvantage is that to end the GC
 must check the entire stack for updatable heap pointers
 without non-GC execution changing the stack.
 
+It is possible to implement a deallocate operation
+which deallocates a body, except for its body pointer.
+A deallocated body has a body pointer pointing at
+a large area of inaccessible virtual memory, so a
+memory fault will occur if the body is accessed.
+To copy a deallocated body one just makes a copy
+of just the body pointer without changing the old body pointer,
+which is left pointing at inaccessible memory.
+The update operation must do extra work if deallocated
+bodies are permitted.
+
 \subsubsection{Marking Garbage Collection}
 
 In marking GC stubs are allocated to a separate space
@@ -5192,7 +5203,8 @@ from bodies, and bodies are not copied during GC.
 Bodies are copied by a separate activity called
 compaction that is independent of GC.  The advantage
 is that there is less body copying and less memory
-space is required.
+space is required.  Also deallocated bodies do not
+require that the update operation does extra work.
 
 The simplest marking GC uses stubs that begin with
 a body pointer followed by two list pointers,
@@ -5219,7 +5231,28 @@ of stubs to be scavenged.
 
 \subsubsection{Reference Counting Garbage Collection}
 
+In reference counting GC each stub has a reference
+count.  The fundamental non-GC operation is storing
+a pointer P in a location.  The required steps are:
+\begin{center}
+\begin{tabular}{rl}
+(1) & save the location's previous value S \\
+(2) & add one to the reference count of the stub pointer at by P \\
+(3) & subtract one from the reference count of the stub pointer at by S; \\
+    & if that reference count is now zero, collect the stub and its body \\
+(4) & store P in the location
+\end{tabular}
+\end{center}
 
+This operation must be used when a pointer location is updated
+in the stack or in a body.
+
+Bodies may or may not be allocated separately from stubs.
+If separate, deallocated bodies may be implemented and
+bodies may be compacted separately from GC.
+
+Of course reference counting GC cannot collect data containing
+pointer loops, such as circular lists.
 
 \section{Compile Time Functions}
 
