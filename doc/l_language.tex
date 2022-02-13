@@ -5312,69 +5312,87 @@ pointer loops, such as circular lists.
 
 \section{Compile Time Functions}
 
-Compile-time is defined in \itemref{COMPILE-TIME}.
-Compile time data are just the constants decribed in \itemref{CONSTANTS}.
-Compile time data all have {\tt const} type and one of
-5 subtypes: numbers, rationals, strings,
-special values, and maps.
-
-The functions described in the following sections are builtin.
-
-If an argument is of the wrong type for a function, all the
-function results will be the {\tt UNDEF} special value, and
-a compiler error message will be produced.  Unless stated
-otherwise, other errors in arguments (e.g., malformed
-regular expressions given to {\tt compile re}) are treated
-similarly.
+Inline functions that that {\tt const} results and arguments
+execute at compile-time.  The functions described in the
+following sections are builtin compile-time functions.
+Unless stated otherwise, they obey the following rules:
+\begin{enumerate}
+\item
+Boolean values are represented by the special values
+{\tt TRUE} and {\tt FALSE}.
+\item
+Errors in arguments, such as passing a {\tt string} when a
+{\tt number} or {\tt rational} is required, result in the
+function doing nothing but returning
+the {\tt UNDEF} special value and producing
+a compiler error message.
+\item
+If a result or argument is said to be an integer, it may
+be either a {\tt number} with an integral value, or a
+{\tt rational} with denominator {\tt 1}.
+\item
+A function (e.g., {\tt "+"} or {\tt "=="})
+with at least one {\tt number} argument will
+convert all {\tt rational} arguments to {\tt numbers}
+before using them, will do all internal calculations with
+{\tt numbers} and not {\tt ratonals},
+and will return any numeric results as {\tt numbers}.
+\item
+{\tt Number} values too positive or negative to store
+are converted to {\tt +Inf} or {\tt -Inf}.
+\end{enumerate}
 
 \subsection{Compile Time General Functions}
 
-{\tt const r =} (const v1) \ttkey{"=="} {\tt ( const v2 )} \\
-{\tt const r =} (const v1) \ttkey{"!="} {\tt ( const v2 )}
+{\tt const r = (const v1) \ttkey{"=="} ( const v2 )} \\
+{\tt const r = (const v1) \ttkey{"!="} ( const v2 )}
 \begin{indpar}
 Comparisons of {\tt const} values of different types treat
 the values as unequal.
 \end{indpar}
 
-{\tt const r =} \ttkey{type} {\tt ( const v1 )}
+{\tt const r = \ttkey{type} ( const v1 )}
 \begin{indpar}
 Returns the type of {\tt v1} as one of the strings: \\
 \hspace*{0.5in}{\tt
-"special" ~  "integer" ~ "rational" ~ "string" ~ \tt "map"}
+"special" ~  "number" ~ "rational" ~ "string" ~ \tt "map"}
 \end{indpar}
 
 
 \subsection{Compile Time Number Functions}
 
-{\tt const r =} \ttkey{"+"} {\tt ( const n1 )} \\
-{\tt const r =} \ttkey{"-"} {\tt ( const n1 )} \\
-{\tt const r =} (const n1) \ttkey{"+"} {\tt ( const n2 )} \\
-{\tt const r =} (const n1) \ttkey{"-"} {\tt ( const n2 )} \\
-{\tt const r =} (const n1) \ttkey{"*"} {\tt ( const n2 )} \\
-{\tt const r =} (const n1) \ttkey{"/"} {\tt ( const n2 )}
+{\tt const r = \ttkey{"+"} ( const n1 )} \\
+{\tt const r = \ttkey{"-"} ( const n1 )} \\
+{\tt const r = (const n1) \ttkey{"+"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"-"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"*"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"/"} ( const n2 )}
 \begin{indpar}
 Standard arithmetic operators on numbers {\tt n1} and {\tt n2},
-done using integer or rational arithmetic.  Dividing by {\tt 0},
+done using IEEE number or rational arithmetic.
+Dividing by {\tt 0},
 adding {\tt +Inf} to {\tt -Inf}, a {\tt NaN} argument, etc.~return
 {\tt NaN} and \underline{no} compiler error message.
 \end{indpar}
 
-{\tt const r =} (const i1) \ttkey{"\&"} {\tt ( const i2 )} \\
-{\tt const r =} (const i1) \ttkey{"|"} {\tt ( const i2 )} \\
-{\tt const r =} (const i1) \ttkey{"\textasciicircum"} {\tt ( const i2 )} \\
-{\tt const r =} (const i1) \ttkey{"<{}<"} {\tt ( const i2 )} \\
-{\tt const r =} (const i1) \ttkey{">{}>"} {\tt ( const i2 )}
+{\tt const r = (const i1) \ttkey{"\&"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"|"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"\textasciicircum"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"<{}<"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{">{}>"} ( const i2 )}
 \begin{indpar}
 Standard bitwise operators on integers {\tt i1} and {\tt i2}
-that are treated as two's complement.
+that are treated as two's complement.  For the shift operators
+{\tt "<{}<}" and {\tt ">{}>"}, {\tt i2}, the amount of the shift,
+must not be negative.
 \end{indpar}
 
-{\tt const r =} (const n1) \ttkey{"=="} {\tt ( const n2 )} \\
-{\tt const r =} (const n1) \ttkey{"!="} {\tt ( const n2 )} \\
-{\tt const r =} (const n1) \ttkey{"<"} {\tt ( const n2 )} \\
-{\tt const r =} (const n1) \ttkey{"<="} {\tt ( const n2 )} \\
-{\tt const r =} (const n1) \ttkey{">"} {\tt ( const n2 )} \\
-{\tt const r =} (const n1) \ttkey{">="} {\tt ( const n2 )}
+{\tt const r = (const n1) \ttkey{"=="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"!="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"<"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"<="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{">"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{">="} ( const n2 )}
 \begin{indpar}
 Standard comparison operators on numbers {\tt n1} and {\tt n2}.
 Infinities are treated as actual numbers with absolute value
@@ -5385,20 +5403,34 @@ If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
 except {\tt !=} which returns {\tt TRUE}.
 \end{indpar}
 
-{\tt const r =} \ttkey{numerator} {\tt ( const number )} \\
-{\tt const r =} \ttkey{denominator} {\tt ( const number )}
+{\tt const r1, const r2 = \ttkey{floor} (const n1, const n2 )} \\
+{\tt const r1, const r2 = \ttkey{ceiling} (const n1, const n2 )} \\
+{\tt const r1, const r2 = \ttkey{remainder} (const n1, const n2 )} \\
+{\tt const r1, const r2 = \ttkey{round} (const n1, const n2 )}
 \begin{indpar}
-These functions return the numerator and denominator of a number.
-Both numerator and denominator are integers.
-The denominator is {\tt 1} for integer numbers, and {\tt >= 2}
-for rational numbers.
+These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
+result rounded to an integer and {\tt r2} as the remainder.
+Here {\tt floor} rounds toward negative infinity, {\tt ceiling}
+rounds towards positive infinity, {\tt remainder} rounds toward
+zero, and {\tt round} rounds to the nearest integer, or to the
+even integer if there are two nearest integers.
+\end{indpar}
+
+{\tt const r =} \ttkey{numerator} {\tt ( const rational )} \\
+{\tt const r =} \ttkey{denominator} {\tt ( const rational )}
+\begin{indpar}
+These functions return the numerator and denominator of a rational.
+Both numerator and denominator are integer {\tt rationals}.
 \end{indpar}
 
 \subsection{Compile Time String Functions}
 
 {\tt const r =} \ttkey{"\#"} {\tt ( const s )}
 \begin{indpar}
-Returns the length of string {\tt s} as a non-negative integer.
+Returns the length of string {\tt s} as a non-negative integer
+{\tt number}.\footnote{The length of a {\tt string} cannot
+be above $2^{48}$ while
+{\tt numbers} can precisely store integers up to $2^{53}$.}
 \end{indpar}
 
 {\tt const r =} (const s1) \ttkey{"+"} {\tt ( const s2 )}
@@ -5415,19 +5447,27 @@ and string {\tt s2}.
 {\tt const r =} (const s1) \ttkey{">="} {\tt ( const s2 )}
 \begin{indpar}
 Standard lexigraphic comparison operators on strings {\tt s1} and {\tt s2}.
-Characters are compared by comparing their UNICODE codes as unsigned
-32-bit integers.
+Characters are compared by comparing their {\tt UTF-8} representations
+as strings of unsigned 8-bit bytes.  With exceptions for unnormallized
+{\tt UTF-8} encodings,\footnote{
+An unnormallized {\tt UTF-8} encoding for a character is one taking
+more bytes than necessary.  For example, {\tt NUL} with UNICODE code {\tt 0},
+can be encoded in 1-byte if normalized, or in 2-, 3-, or 4- bytes
+unnormalized.}
+this is equivalent to comparing the characters
+by comparing their UNICODE codes as unsigned 32-bit integers.
 \end{indpar}
 
 {\tt const r =} \ttkey{explode} {\tt ( const s )}
 \begin{indpar}
-Returns a map that is a vector whose elements are unsigned integers equal
-to the UNICODE codes of the characters of string {\tt s}.
+Returns a map that is a vector whose elements are unsigned integer {\tt numbers}
+equal to the UNICODE codes of the characters of string {\tt s}.
 \end{indpar}
 
 {\tt const r =} \ttkey{implode} {\tt ( const m )}
 \begin{indpar}
-Given a map {\tt m} that is a vector whose elements are unsigned integers
+Given a map {\tt m} that is a vector whose elements are unsigned integer
+{\tt numbers}
 that are UNICODE codes of characters, return the string whose characters
 are those specified by the map elements in the order specified by the map.
 \end{indpar}
