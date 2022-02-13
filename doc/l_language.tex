@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 10, 2022
+February 13, 2022
 
 \bigskip
  
@@ -5095,7 +5095,8 @@ other than `{\tt my\_own\_module}'.
 \label{MEMORY-MANAGEMENT}
 
 Space for variables allocated by {\em variable-declarations}
-is reserved when an out-of-line function is entered.  At this
+is reserved in the stack frame of an out-of-line function when the
+function is entered.  At this
 time space is reserved for each of 4 or more iterations of
 each loop, and the loop cycles between these iteration spaces.
 Asside from loops reusing iteration spaced, there is no
@@ -5105,23 +5106,66 @@ terminates.  This aids debugging and simplifies compiling.
 Other data is allocated to the heap, including data allocated
 by the {\tt local} function.
 
-Pointers to the heap (heap pointers) use the stub-body concept:
-the heap pointer data points not at the body of a heap datum, but instead at a
+Pointers to the heap (\skey{heap pointer}s) normally use the stub-body concept:
+the heap pointer points not at the body of a heap datum, but instead at a
 stub which begins with a body pointer at the body.  This can be
 used in a variety of garbage collection schemes.  All these
 schemes require that some special action be taken when a heap
-pointer is read into a stack variable, or alternatively when
-a heap pointer is written into a heap datum.
+pointer is read into a stack variable, or when
+a heap pointer is written into a heap datum, or when any location
+in the stack or heap that stores a heap pointer has its value
+changed.
 
-We will discuss in detail three kinds of garbage collection (GC):
-copying, marking, and reference counting.  All three kinds
-run interleaved with non-GC execution.
+However instead of using stub-body, heap pointers can optionally be
+interpreted as pointing directly at the heap datum.
+
+Specifically, the compiler recognizes the following options:
+
+\begin{indpar}
+
+\ttkey{stub} or \ttkey{no-stub}
+\begin{indpar}
+With the {\tt stub} option, heap pointers point at a stub and the
+first word of the stub points at the heap datum body.  With the
+{\tt no-stub} option, heap pointers point directly at the body.
+\end{indpar}
+
+\ttkey{copying-gc}, \ttkey{marking-gc}, \ttkey{counting-gc}, or \ttkey{no-gc}
+\begin{indpar}
+These options specify garbage collection (\key{GC})
+algorithm being used.  These algorithms are described below.
+\end{indpar}
+
+\ttkey{read-gc} or \ttkey{write-gc}
+\begin{indpar}
+These are sub-options of GC, indicating whether the GC is
+read-oriented or write-oriented.  See the descriptions
+of GC below.
+\end{indpar}
+
+\end{indpar}
+
+All kinds of GC run interleaved with non-GC execution.
+These compiler options control default inline functions that do the
+following during non-GC execution:
+\begin{itemize}
+\item Read a non-pointer from a heap datum.
+\item Read a pointer from a heap datum.
+\item Write a pointer to a heap datum.
+\item Write a non-pointer to a heap datum.
+\item Write a pointer to a non-loop iteration stack variable.
+\item Write a pointer to a loop iteration stack variable.
+\item Deallocate a location that contains a pointer.
+\end{itemize}
+
+The three kinds of GC are discussed in detail in the following sub-sections.
+
 
 \subsubsection{Copying Garbage Collection}
 
 In copying garbage collection the stub of a datum is its
 first word when the datum is allocated.  At this time the
-stub points at itself.  The during GC the body will be
+stub points at itself.  Then during GC the body will be
 copied and for a time have two stubs, the stub in the old
 body that was the source of the copy, and the stub of the
 new body that was the destination of the copy.  Both will
@@ -5148,8 +5192,8 @@ If the heap pointer points at a body pointer in old space
 that itself points at old space, the body pointed at is
 moved to new space, and the heap pointer is replaced by
 a pointer to the body in new space.  If the heap pointer
-points at a body pointer that points to new space, the
-heap pointer is simply replaced by the body pointer.
+points at a body pointer in old space that points at new space, the
+heap pointer is simply replaced by that body pointer.
 
 When new body is created, it is allocated to new space.
 Places for new or copied bodies in new space are
@@ -5157,7 +5201,11 @@ allocated at the `end' of new space.
 
 GC goes through new space from beginning to end updating
 all the pointers in bodies it encounters.  This is called
-`scavenging'.
+`scavenging'.  At any time there is an address that is the
+boundary between the scavenged bodies at the beginning
+of new space and the non-scavenged bodies at the end of
+new space.  This address can be use to tell if a new space
+body has been scavenged.
 
 The GC can be either read-oriented or write-oriented.
 
@@ -5172,16 +5220,16 @@ space) by non-GC execution.
 A write-oriented GC updates heap pointers when they are
 written into scavenged bodies by non-GC execution. 
 Whenever all objects in new space have been scavenged,
-the GC updates all pointers in the stack, and if now
-new bodies are moved to new space, GC is done; otherwise
+the GC updates all pointers in the stack, and this does \underline{not}
+move any bodies to new space, GC is done; otherwise
 GC resumes scavanging.  Heap pointers in the stack are
-not generally updated, and no special action is taken
+may not be updated, and no special action is taken
 when reading a heap pointer from a body.
 
 The advantage of write-oriented over read-oriented is
 that write operations are less frequent than read
 operations and therefore write-oriented may be more
-efficient.  A disadvantage is that to end the GC
+efficient.  A disadvantage is that in order to finish, the GC
 must check the entire stack for updatable heap pointers
 without non-GC execution changing the stack.
 
@@ -5191,24 +5239,28 @@ A deallocated body has a body pointer pointing at
 a large area of inaccessible virtual memory, so a
 memory fault will occur if the body is accessed.
 To copy a deallocated body one just makes a copy
-of just the body pointer without changing the old body pointer,
+of just the body pointer without changing this body pointer,
 which is left pointing at inaccessible memory.
-The update operation must do extra work if deallocated
-bodies are permitted.
+The update operation must do extra work to detect
+deallocated bodies if they are permitted.
+
+The {\tt no-stub} option may \underline{not} be used with
+copying GC.
 
 \subsubsection{Marking Garbage Collection}
 
-In marking GC stubs are allocated to a separate space
+In marking GC, stubs are allocated to a separate space
 from bodies, and bodies are not copied during GC.
 Bodies are copied by a separate activity called
-compaction that is independent of GC.  The advantage
-is that there is less body copying and less memory
+compaction that is independent of GC.  The advantages
+are that there is less body copying and also that less memory
 space is required.  Also deallocated bodies do not
-require that the update operation does extra work.
+require the update operation to do extra work.
 
 The simplest marking GC uses stubs that begin with
 a body pointer followed by two list pointers,
-a marked flag, and a scavenged flag.  The stubs are
+a marked flag, and a scavenged flag (the flags can generally
+be put in the same words as the list pointers).  The stubs are
 put on two lists: an old space list and a new space
 list.  To move a stub from old space to new space,
 it is unlinked from the old space list and linked
@@ -5219,8 +5271,8 @@ flag is set.
 Otherwise marking GC is just like copying GC.
 
 A variant has only one list pointer associated with
-the stub and there is just one stbu list.  The
-marked and scavenged flags are used as befoe.
+the stub and there is just one stub list.  The
+marked and scavenged flags are used as before.
 At the end of GC goes through the list of all stubs
 and frees unmarked stubs along with their bodies.
 However, the list of stubs to be scavenged must
@@ -5229,9 +5281,9 @@ vectors whose elements point at stubs to be scavenged.
 When a stub is first marked it is put on the list
 of stubs to be scavenged.
 
-\subsubsection{Reference Counting Garbage Collection}
+\subsubsection{Counting Garbage Collection}
 
-In reference counting GC each stub has a reference
+In counting GC each stub has a reference
 count.  The fundamental non-GC operation is storing
 a pointer P in a location.  The required steps are:
 \begin{center}
@@ -5245,11 +5297,15 @@ a pointer P in a location.  The required steps are:
 \end{center}
 
 This operation must be used when a pointer location is updated
-in the stack or in a body.
+in the stack or in a body.  There is also an operation for
+deallocating a location containing a ponter, which omits steps
+(2) and (4).
 
 Bodies may or may not be allocated separately from stubs.
 If separate, deallocated bodies may be implemented and
 bodies may be compacted separately from GC.
+Or the {\tt no-stub} option \underline{may} be used with
+counting GC.
 
 Of course reference counting GC cannot collect data containing
 pointer loops, such as circular lists.
