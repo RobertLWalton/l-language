@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 13, 2022
+February 22, 2022
 
 \bigskip
  
@@ -2907,8 +2907,18 @@ The syntax of a {\em call-assignment-statement} is:
 A {\em call-assignment-statement} follows the same general rules
 as {\em expression-assignment-state\-ments} except that the top
 level {\em function-call} on the right side has either 2 or more
-results or 0 results.  The types of the function prototype cannot
+results or 0 results or an implied `\TT{next} $v$'.
+The types of the function prototype cannot
 be implicitly converted to the types of the {\em assignment-results}.
+
+\label{CALL-NEXT-PROMOTION}
+The right side of a {\em call-assignment-statement} may have
+an implied `\TT{next} $v$' if the {\em function-prototype} has 
+a `\TT{next} $w$' {\em prototype-result-declaration}
+and a {\em prototype-argument-declaration} of the
+form `\dots{} {\em type-name} $w$', and $v$ is a {\em variable-name}
+that by itself is the actual argument matched to $w$.
+See \pagref{PROTOTYPE-NEXT-RESULT}.
 
 \subsubsubsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
@@ -4044,6 +4054,7 @@ in the same {\em prototype-pattern}.
 Result and argument {\em variable-names} and {\em function-variable-names}
 in a {\em function-prototype} must not begin with a {\em module-abbreviation}.
 \item
+\label{PROTOTYPE-NEXT-RESULT}
 For a {\em prototype-result-declaration} of the form `\TT{next} $v$',
 $v$ must be the {\em vari\-able-name} in an {\em prototype-argument-declaration}
 of the form `\dots{} {\em type-name} $v$', and
