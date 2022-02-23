@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 22, 2022
+February 23, 2022
 
 \bigskip
  
@@ -5322,7 +5322,7 @@ counting GC.
 Of course reference counting GC cannot collect data containing
 pointer loops, such as circular lists.
 
-\section{Compile Time Functions}
+\section{Compile Time Functions and Compiler Constants}
 
 Inline functions that that {\tt const} results and arguments
 execute at compile-time.  The functions described in the
@@ -5579,6 +5579,11 @@ for the map and set to read-write.
 
 It is a compile error is {\tt s} does not represent a
 {\em dictionary-label}.
+
+In addition, map labels may be \key{protected}.  Such entries
+are read-only to the code being compiled, and may either be
+permanently read-only or may be written only by the compiler
+during compilation.
 \end{indpar}
 
 If {\tt M} is a {\tt const} valued variable whose value is a map,
@@ -5689,6 +5694,66 @@ containing them.  It is an error if there are not {\tt i} elements
 in {\tt m}.
 \end{indpar}
 
-\printindex
+\subsection{Type Maps}
+\label{TYPE-MAPS}
+
+At compile-time a type-name is a {\tt const} map value
+called a \key{type map}.
+A type map is read-write as a whole, but some of its
+labels are protected.  The following are protected labels
+provided by the compiler.  Unless otherwise specified,
+these have values that do not change during compilation.
+
+Compiled code may add its own labels to a type map.
+To prevent conflict, the labels provided by the compiler
+begin with `{\tt .}', so
+that to use them you must use double dots: `{\tt ..}'.
+E.g. {\tt int..size}.
+
+\ttkey{.size} \\
+\ttkey{.alignment}
+\begin{indpar}
+The {\tt .size} is the number of bits taken by a value of the given type at
+run-time.
+The {\tt .alignment} is the alignment in bits
+of an aligned value of the given type at
+run-time.
+\\ E.g., {\tt int64..size == 64, int64..alignment == 64}.
+
+May be {\tt UNDEF} for {\tt *DEFERRED*} types not yet defined by the
+compilation.
+
+May increase during compilation of {\tt *EXPANDABLE*} or
+{\tt *EXTERNAL*} types.
+\end{indpar}
+
+\ttkey{.expandable} \\
+\ttkey{.external}
+\begin{indpar}
+The {\tt .expandable} attribute is {\tt TRUE} if the
+type is {\tt *EXPANDABLE*} \underline{or} {\tt *EXTERNAL*},
+and {\tt FALSE} otherwise.
+The {\tt .external} attribute is {\tt TRUE} if the type is
+{\tt *EXTERNAL*}, and {\tt FALSE} otherwise.
+
+These may be {\tt UNDEF} for {\tt *DEFERRED*} types not yet defined
+by the compilation.
+\end{indpar}
+
+\ttkey{.fields}
+\begin{indpar}
+Dictionary of field maps for the fields of the type.  The labels
+of the dictionary entries are the names of the fields.
+
+May be {\tt UNDEF} for {\tt *DEFERRED*} types not yet defined
+by the compilation.
+\end{indpar}
+
+\subsection{Field Maps}
+\label{FIELD-MAPS}
+
+Each field of a type has a {\tt const} map value called
+a \key{field map} which is in the {\tt .fields} dictionary of
+a type map.  The compiler defined labels of a field map are:
 
 \end{document}
