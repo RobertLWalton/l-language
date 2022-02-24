@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 23, 2022
+February 24, 2022
 
 \bigskip
  
@@ -5327,7 +5327,13 @@ pointer loops, such as circular lists.
 Inline functions that that {\tt const} results and arguments
 execute at compile-time.  The functions described in the
 following sections are builtin compile-time functions.
-Unless stated otherwise, they obey the following rules:
+
+Some compilation related functions and
+constants are in the `{\tt compiler}' module,
+which is abbreviated here as `{\tt com}'.
+
+Unless stated otherwise, builtin compile-time functions
+obey the following rules:
 \begin{enumerate}
 \item
 Boolean values are represented by the special values
@@ -5541,13 +5547,6 @@ and not the whole map itself.
 A {\em map-constant} creates a new map, distinct from every
 other map (so you can have multiple different empty maps).
 
-A string {\em const} value represents a {\em dictionary-label}
-if when parsed it is a {\em dictionary-label}.  This means it must
-consist of one or more {\em name-items} each surrounded by whitespace,
-the {\em name-items} must not be {\em quoted-marks} or {\em quoted-separators},
-and only the first {\em name-item} may contain a `\TT{.}'
-(see {\em dictionary-label} on \pagref{DICTIONARY-LABEL}).
-
 A map may be read-write or read-only.\label{READ-ONLY-MAP}
 Read-only maps cannot
 be modified.  Each {\em map-constant} makes a separate read-only
@@ -5694,21 +5693,72 @@ containing them.  It is an error if there are not {\tt i} elements
 in {\tt m}.
 \end{indpar}
 
-\subsection{Type Maps}
-\label{TYPE-MAPS}
+\subsection{Type, Field, and Subfield Maps}
+\label{TYPE-FIELD-SUBFIELD-MAPS}
 
-At compile-time a type-name is a {\tt const} map value
-called a \key{type map}.
-A type map is read-write as a whole, but some of its
-labels are protected.  The following are protected labels
+Types, fields, and subfields are described
+at compile-time by {\tt const} map values which
+user code can access.
+These are read-write as a whole, but some of their
+labels are protected.  The following sections describe protected labels
 provided by the compiler.  Unless otherwise specified,
 these have values that do not change during compilation.
 
-Compiled code may add its own labels to a type map.
+Compiled code may add its own labels to these maps.
 To prevent conflict, the labels provided by the compiler
 begin with `{\tt .}', so
-that to use them you must use double dots: `{\tt ..}'.
+that to use them to access a map dictionary entry
+you must use double dots: `{\tt ..}'.
 E.g. {\tt int..size}.
+
+In the following a \key{name string} is a string
+consisting of a sequence of one or more {\em words}
+and {\em natural-numbers}, separated
+by single spaces, and beginning with a {\em word}.
+{\em Natural-numbers} are represented
+by strings of 1 to 9 decimal digits with no high-order
+zeros (zero is represented by `{\tt 0}').
+Name strings are used to represent type and field
+names.
+
+{\em Module abbreviations} in a name string are
+replaced by \key{compiler module abbreviations}
+which are words of the form {\tt M\$$n$}, wehre
+$n$ is a natural number.  {\tt M\$0} is always
+the abbreviation for the {\tt std} module.
+These compiler module abbreviations are specific to the
+entire compilation and are not dependent on which
+module are body a definition appears in.
+
+{\tt com module dictionary}
+\begin{indpar}
+A dictionary mapping compiler module abbreviations
+to strings that are {\em module-names}.  For example,
+\\
+\hspace*{1.5in}{\tt com module dictionary["M\$0"] == "standard"}
+\end{indpar}
+
+\subsection{Type Maps}
+\label{TYPE-MAPS}
+
+At compile-time a {\em type-name} is a {\tt const} map value
+called a \key{type map}.
+
+{\tt com type dictionary}
+\begin{indpar}
+A dictionary mapping \underline{top-level} {\em type-names}
+represented by name strings to type maps descibing the
+named types.  Note that non-top-level {\em type-names}
+are not included, but their maps may be referenced by using
+their {\em type-names} as names of {\tt const} constants.
+\end{indpar}
+
+The compiler defined attributes of a type map are:
+
+\ttkey{.name}
+\begin{indpar}
+The name of the type as a name string.
+\end{indpar}
 
 \ttkey{.size} \\
 \ttkey{.alignment}
@@ -5754,6 +5804,89 @@ by the compilation.
 
 Each field of a type has a {\tt const} map value called
 a \key{field map} which is in the {\tt .fields} dictionary of
-a type map.  The compiler defined labels of a field map are:
+a type map.  The compiler defined attributes of a field map are:
+
+\ttkey{.name}
+\begin{indpar}
+The name of the field ({\em taget-label} or {\em pointer-label})
+as a name string.  May be {\tt NONE} for a field with subfields.
+\end{indpar}
+
+\ttkey{.parent}
+\begin{indpar}
+Type map of the type of containing this field.
+\end{indpar}
+
+\ttkey{.pointer-type}
+\begin{indpar}
+Pointer type map representing the pointer type of the field,
+or {\tt NONE}.
+\end{indpar}
+
+\ttkey{.pointer-qualifiers}
+\begin{indpar}
+List of strings, each a {\em word}, naming the qualifiers
+of the field pointer type, or {\tt NONE} if there is no
+pointer type.  May be empty list.
+\end{indpar}
+
+\ttkey{.type}
+\begin{indpar}
+Type map representing the type of the field.
+\end{indpar}
+
+\ttkey{.qualifiers}
+\begin{indpar}
+List of strings, each a {\em word}, naming the qualifiers
+of the type of the field.  May be empty list.
+\end{indpar}
+
+\ttkey{.dimensions}
+\begin{indpar}
+List of numbers, the dimensions of the field, or {\tt NONE}
+if no dimensions.
+\end{indpar}
+
+\ttkey{.subfields}
+\begin{indpar}
+Dictionary of subfield maps for the subfields of the type.  The labels
+of the dictionary entries are the names of the subfields.
+Or {\tt NONE} if there are no subfields.
+\end{indpar}
+
+\subsection{Subfield Maps}
+\label{SUBFIELD-MAPS}
+
+Each subfield of a field has a {\tt const} map value called
+a \key{subfield map} which is in the {\tt .subfields} dictionary of
+a field map.  The compiler defined attributes of a subfield map are:
+
+\ttkey{.name}
+\begin{indpar}
+The name of the subfield ({\em taget-label})
+as a name string.
+\end{indpar}
+
+\ttkey{.parent}
+\begin{indpar}
+Field map of the field of containing this subfield.
+\end{indpar}
+
+\ttkey{.bits}
+\begin{indpar}
+A list of two integers: {\tt \{{\rm \em lowbit},{\rm \em highbit}\}}.
+\end{indpar}
+
+\ttkey{.type}
+\begin{indpar}
+Type map representing the type of the subfield.
+This is always a {\tt std} number type.
+\end{indpar}
+
+\ttkey{.dimensions}
+\begin{indpar}
+List of numbers, the dimensions of the subfield, or {\tt NONE}
+if no dimensions.
+\end{indpar}
 
 \end{document}
