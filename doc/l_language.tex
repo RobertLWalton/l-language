@@ -823,7 +823,7 @@ value without using `{\tt include}' statements.
 
 \section{Syntax}
 
-In this section we describe the syntax of L-Language programs
+In this chapter we describe the syntax of L-Language programs
 and briefly indicate the associated semantics, which is
 described in detail in later sections.
 
@@ -1256,7 +1256,8 @@ which converts to the same value as {\tt 1000}.
 For example, this applies to {\tt 1e20} or {\tt 1.1}.
 \end{itemize}
 
-In contrast, a {\em numeric} represents a character string and in this
+In contrast, a {\em numeric}, like {\tt 02/28/2022},
+represents a character string and in this
 is like a {\em word}.
 
 \subsection{Logical Lines, Blocks, and Statements}
@@ -1694,9 +1695,9 @@ and `operand' to mean {\em (P+1)-expression}:
       The expression must consist of alternating operands
       and operators and end with an operand (it may begin with
       an operator).
-      Each subsequence of the form `\TT{-} operand' is
-      replaced by `\TT{+} \TT{\{|} \TT{-} operand \TT{|\}}', and then
-      any \TT{+} at the beginning of the expression is deleted.
+      Each subsequence of the form `{\tt "-" operand}' is
+      replaced by `{\tt "+" \{ "-" operand \}}', and then
+      any {\tt "+"} at the beginning of the expression is deleted.
 \end{tabular}
 \end{center}
 
@@ -1718,7 +1719,7 @@ but the following examples give an idea of some of this semantics:
 \begin{indpar}
 \hspace*{-0.2in}{\tt T v \TT{=} x + y * z} \\
        Here {\tt T} is the \key{target type} of the expression
-       `{\tt x + y * z}' and thus must be the type of the prototype
+       `{\tt x + y * z}' and thus must be the result type of the prototype
        of the `{\tt +}' function, since function results cannot be
        implicitly converted.  Because it is the result type of {\tt +} and
        arithmetic operators (with a few exceptions)
@@ -1726,7 +1727,7 @@ but the following examples give an idea of some of this semantics:
        type as their result,
        {\tt T} is also target type of {\tt x} and {\tt *}, and since it is
        the target type of {\tt *} it will be the target type of {\tt y}
-       and {\tt z}.  Implicit conversions of variables is allowed,
+       and {\tt z}.  Implicit conversions of variables are allowed,
        so {\tt x}, {\tt y}, and {\tt z} will all be converted
        to type {\tt T} before any computation is done.
 
@@ -1762,7 +1763,7 @@ but the following examples give an idea of some of this semantics:
       compile-time evaluation stops and the entire expression is replaced by
       `{\tt FALSE}'.
 
-      If a comparison evaluates to {\tt TRUE} it is eliminated.
+      If a comparison evaluates to {\tt TRUE} it is removed from the expression.
 
       If run-time evaluation is necessary,
       some operands need to be evaluated
@@ -1805,7 +1806,8 @@ but the following examples give an idea of some of this semantics:
 \subsection{Primaries}
 \label{PRIMARIES}
 
-A \key{primary} is an {\em expression} that has no operators:
+A \key{primary} is an {\em expression} that has no operators outside
+parentheses or brackets:
 \begin{indpar}
 \emkey{primary}
     \begin{tabular}[t]{@{}rll}
