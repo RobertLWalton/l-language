@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-February 24, 2022
+March 17, 2022
 
 \bigskip
  
@@ -319,7 +319,7 @@ ap *READ-WRITE* int @Y =@ local
 Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
-ap ro int Z = @Y         // Copies pointer value of Y
+ap ro int Z = @Y         // Copies pointer value of Y.
                          // Variable conversion from *READ-WRITE*
                          // to ro is legal.  As Z does not
                          // begin with @, there is no
@@ -403,12 +403,12 @@ An example is:
 \begin{indpar}\begin{verbatim}
 type my type:
              uns32                    // Container for:
-    [24-31]  uns8 op code             //   Operation
+    [31-24]  uns8 op code             //   Operation
     [31]     bool has constant        //   Format indicator
-    [0-23]   int constant             //   Constant
-    [16-23]  uns8 src1                //   Source Register
-    [8-15]   uns8 src2                //   Source Register
-    [0-7]    uns8 des                 //   Destination Register
+    [23-0]   int constant             //   Constant
+    [23-16]  uns8 src1                //   Source Register
+    [15-8]   uns8 src2                //   Source Register
+    [7-0]    uns8 des                 //   Destination Register
 
 . . . . . . . . . . . .
 
@@ -470,20 +470,21 @@ type my type:
     flt64   weight           // Object Weight
     align   8
     *LABEL*   extension
-    **
+    ***                      // Enables type extension.
 
 type my type:
     *ORIGIN*  extension
     flt64   height           // Object Height
     flt64   width            // Object Width
-    **
+    ***                      // Enables type extension.
 
 type my type:
     *ORIGIN*  extension
     flt64   volume           // Object Volume
+                             // No further type extension allowed.
 
 type your type:
-    include my type   // Copy sub-declarations of my type
+    *INCLUDE* my type // Copy sub-declarations of my type
     dp uns8 name      // Direct pointer to name
                       // character string
 
@@ -502,7 +503,7 @@ your type Y:
     Y.name = "John Doe's Lager"
 \end{verbatim}\end{indpar}
 
-Here the definitions of {\tt my type} and {\tt your type} are in
+Here {\tt my type} and {\tt your type} are defined by
 statements called {\em type-declarations}.  Each of these
 {\em type-declarations} contains a sequence of sub-declarations, e.g.,
 for {\tt my type} the first two sub-declarations are
@@ -536,14 +537,14 @@ Here {\tt extension} has the offset value of 16 bytes.
 The {\tt *ORIGIN*} sub-declaration resets the current offset to the offset
 of a given origin-label.
 
-The `{\tt **}' sub-declaration at the end of a
+The `{\tt ***}' sub-declaration at the end of a
 {\em type-declaration} defining a user defined type indicates
 that the definition may be continued by a later {\em type-declaration},
 as is done for {\tt my\_type} above.
 The sub-declarations of the later {\em type-declaration} are
 simply appended to those of previous {\em type-declarations}.
 
-The {\tt include} sub-declaration copies all the sub-declarations
+The {\tt *INCLUDE*} sub-declaration copies all the sub-declarations
 from another user defined type.
 If the user defined type is
 defined by multiple {\em type-declarations}, only sub-declarations
@@ -643,8 +644,8 @@ int r5 = max ( x, 123.4 )   // illegal; int is target type of 123.4
                             // which cannot be stored in a int
 const c1 = 100
 const c2 = 1000
-int r6 = max ( x, c1 + c2 ) // OK; int is target type of + which
-                            // has const result type
+int r6 = max ( x, c1 + c2 ) // legal; c1 + c2 is replaced by 1100
+                            // which has int target type
 \end{verbatim}\end{indpar}
 
 Explicit conversion functions are provided whose function names
@@ -791,8 +792,8 @@ The code is expressed as a {\tt const} map value in
 the format output by the code parser.  As a simple
 example, if the inline function contains:
 \begin{indpar}\begin{verbatim}
-const T = my number
-const V = my variable
+const T = `my number'     // == {"my", "number"}
+const V = `my variable'   // == {"my", "variable"}
 include (T, V):
     T V = x + y
     T z = max ( V, 1000 )
