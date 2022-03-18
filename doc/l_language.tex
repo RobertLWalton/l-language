@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 17, 2022
+March 18, 2022
 
 \bigskip
  
@@ -2064,7 +2064,7 @@ with {\tt uns8}, {\tt uns16}, or {\tt uns32} type elements.
 UTf-8, UTF-16, or UTF-32 encodings are used according to element
 size.
 
-A \emkey{number-constant} is an {\em integer}, {\em number},
+A \emkey{number-constant} is an {\em natural}, {\em number},
 or {\em numeric-word} lexeme converted to an IEEE 64-bit floating
 point number.
 
@@ -2109,10 +2109,16 @@ The syntax of the argument strings is:
 \emkey{exponent} :::=
 	\{ \TT{e} $|$ \TT{E} \} {\em sign}\QMARK{} {\em dit}\PLUS{}
 \\[0.5ex]
-\emkey{decimal-constant-string} :::=
-    \TT{"}~ {\em decimal-integer}~ {\em decimal-fraction}\QMARK{}~ \TT{"}
+\emkey{decimal-constant-string} \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rl}
+    :::= & \TT{"}~ {\em decimal-natural}~ {\em decimal-fraction}\QMARK{}~
+    				          {\em exponent}\QMARK{}~ \TT{"} \\
+     $|$ & \TT{"}~ {\em decimal-natural}~ \TT{/}~
+                   {\em decimal-natural}~ \TT{"} \\
+    \end{tabular}
 \\[0.5ex]
-\emkey{decimal-integer}
+\emkey{decimal-natural}
     :::= {\em dit}\PLUS{} 
          \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
 \emkey{decimal-fraction} :::=
@@ -2122,10 +2128,16 @@ The syntax of the argument strings is:
 	:::= \TT{0} $|$ \TT{1} $|$ \TT{2} $|$ \TT{3} $|$ \TT{4}
                     $|$ \TT{5} $|$ \TT{6} $|$ \TT{7} $|$ \TT{8} $|$ \TT{9}
 \\[0.5ex]
-\emkey{binary-constant-string} :::=
-    \TT{"}~ {\em binary-integer}~ {\em binary-fraction}\QMARK{}~ \TT{"}
+\emkey{binary-constant-string} \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rl}
+    :::= & \TT{"}~ {\em binary-natural}~ {\em binary-fraction}\QMARK{}~
+    				          {\em exponent}\QMARK{}~ \TT{"} \\
+     $|$ & \TT{"}~ {\em binary-natural}~ \TT{/}~
+                   {\em binary-natural}~ \TT{"} \\
+    \end{tabular}
 \\[0.5ex]
-\emkey{binary-integer}
+\emkey{binary-natural}
     :::= {\em bit}\PLUS{}
            \{ \TT{,} {\em bit} {\em bit} {\em bit} {\em bit} \}\STAR{} \\
 \emkey{binary-fraction} :::=
@@ -2133,11 +2145,17 @@ The syntax of the argument strings is:
     {\em bit}\PLUS{} \\
 \emkey{bit} :::= \TT{0} $|$ \TT{1}
 \\[0.5ex]
-\emkey{hexadecimal-constant-string} :::=
-    \TT{"}~ {\em hexadecimal-integer}~ {\em hexadecimal-fraction}\QMARK{}~
-    \TT{"}
+\emkey{hexadecimal-constant-string} \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rl}
+    :::= & \TT{"}~ {\em hexadecimal-natural}~
+                   {\em hexadecimal-fraction}\QMARK{}~
+		   {\em exponent}\QMARK{}~ \TT{"} \\
+     $|$ & \TT{"}~ {\em hexadecimal-natural}~ \TT{/}~
+                   {\em hexadecimal-natural}~ \TT{"} \\
+    \end{tabular}
 \\[0.5ex]
-\emkey{hexadecimal-integer}
+\emkey{hexadecimal-natural}
     :::= {\em hit}\PLUS{}
            \{ \TT{,} {\em hit} {\em hit} \}\STAR{} \\
 \emkey{hexadecimal-fraction} :::=
@@ -2152,22 +2170,28 @@ The syntax of the argument strings is:
 	\TT{"}~ {\em character-representative}~ \TT{"}
 \\[0.5ex]
 \emkey{character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
+\\[1ex]
+where
+\begin{itemize}
+\item Denominators in fractions must not be zero.
+\end{itemize}
+
 \end{indpar}
 
-Decimal integers may have commas
+Decimal naturals may have commas
 every 3 digits from the end and decimal fractions may have
 commas every 3 digits from the decimal point.
-Similarly for binary integers and fractions with commas every 4 binary
+Similarly for binary naturals and fractions with commas every 4 binary
 digits,
-and with hexa-decimal integers and fractions with commas every 2
+and with hexa-decimal naturals and fractions with commas every 2
 hexa-decimal digits.
 If there is a decimal point, there \underline{must}
 be at least one integer digit and
 one fraction digit.
 
-For decimal constants the denominator is a power of \TT{10}; for
-binary constants the denominator is a power of \TT{2}; and for
-hexadecimal constants the denominator is a power of \TT{16}.
+For decimal constants without \TT{/} the denominator is a power of \TT{10}; for
+binary constants without \TT{/} the denominator is a power of \TT{2}; and for
+hexadecimal constants without \TT{/} the denominator is a power of \TT{16}.
 
 The value of a character constant is the integral UNICODE code point of the
 {\em character-representative}.
@@ -2302,7 +2326,7 @@ by {\em include-statements}: see \itemref{INCLUDE-STATEMENT}.
 compile-time as if they were variables of type {\tt const}
 with map values.  These map values are partly read-only,
 with the read-only part including elements with labels like
-{\tt size} for the size in bits of run-time values of the type.
+{\tt .size} for the size in bits of run-time values of the type.
 Users can add their own elements if these do not conflict
 with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 
