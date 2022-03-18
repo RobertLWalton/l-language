@@ -2558,16 +2558,19 @@ The syntax of a {\em bracketted-expression} is:
     ::= & {\em ma}\QMARK{} \TT{(} {\em expression} \TT{)} \\
     $|$ & \TT{[} {\em expression} \TT{]} \\
     $|$ & \TT{\{} {\em expression} \TT{\}} \\
+    $|$ & \TT{`} {\em expression} \TT{'} \\
+    $|$ & \TT{\{*} {\em expression} \TT{*\}} \\
     \end{tabular}
 \\[0.5ex]
 {\em ma} ::= {\em module-abbreviation} ~~~ [see \pagref{MODULE-ABBREVIATION}]
 \end{indpar}
 
 Arithmetic subexpressions and function argument lists are bracketted
-with \TT{()} brackets.  Reference expression index lists and function
+with \TT{()} brackets.  Reference expression index lists and some function
 argument lists are bracketed with \TT{[]} brackets.
 Expressions that compute map constants
-are bracketed with \TT{\{\}} brackets.
+are bracketed with \TT{\{~\}}, \TT{`~'}, or \TT{\{*~*\}},
+brackets (see \itemref{MAP-CONSTANTS}).
 
 An expression of the form `{\em ma} \TT{(} {\em expression} \TT{)}' is
 just syntactic sugar for `\TT{(} {\em ma} {\em expression} \TT{)}', except
@@ -2590,7 +2593,7 @@ The following is a complete list of the kinds of statements:
         & [\pagref{ASSIGNMENT-STATEMENTS}] \\
     $|$ & {\em control-statement}
         & [\pagref{CONTROL-STATEMENT}] \\
-    $|$ & {\em condition-statement}
+    $|$ & {\em conditional-statement}
         & [\pagref{CONDITIONAL-STATEMENTS}] \\
     $|$ & {\em declaration-statement}
         & [\pagref{DECLARATION-STATEMENT}] \\
