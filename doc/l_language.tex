@@ -2354,20 +2354,7 @@ is:
 \emkey{index-list} ::= {\em index} \{ \TT{,} {\em index} \}\STAR{}
 \\[0.5ex]
 \emkey{index}\label{REFERENCE-INDEX}
-    ::= {\em sign}\QMARK{} {\em index-term}
-        \{ {\em sign} {\em index-term} \}\STAR{}
-\\[0.5ex]
-\emkey{sign} ::= \TT{+} $|$ \TT{-}
-\\[0.5ex]
-\emkey{index-term}
-    \begin{tabular}[t]{rl}
-    ::= & {\em constant-expression} \\
-    $|$ & {\em variable-name} \\
-    $|$ & {\em constant-expression} \TT{*} {\em variable-name} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{constant-expression}\label{CONSTANT-EXPRESSION}
-    ::= {\em expression} that evaluates to a {\tt const} value
+    ::= {\em expression}
 \\[0.5ex]
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
@@ -2389,9 +2376,10 @@ string.  For a run-time {\em reference-expression} a string
 to `{\tt .M}'.  For a compile-time {\em reference-expression}
 the string is used to select a map {\em dictionary-entry}.
 Otherwise the
-index must be a positive or negative integer.  Bounds imposed
+{\em index} must be a positive or negative integer.  Bounds imposed
 by user defined types or stored in a pointer are used to
-check that the index is within range.
+check that the {\em index} is within range.
+The target type of a run-time {\em index} is \TT{int}.
 
 
 Within an {\em index-list} the comma (\TT{,}) is treated
@@ -2424,7 +2412,7 @@ to the map to the variable {\tt Y}.  By default map constants
 are read-only and cannot be changed, but it is possible to mark
 a whole map as read-write, and to independently mark dictionary members
 as either read-only or read-write.
-By default, dictionary members are marked read-only when they are created.
+Dictionary members are marked read-only when they are initially created.
 
 The following example illustrates
 computation with map constants:
@@ -2447,9 +2435,8 @@ X.W = "P"                // X and Y are both {"C", "D", "W" => "P"}.
 
 Inline functions may be defined that syntactically and semantically mimic
 {\em reference-\EOL expres\-sions}, and calls to such functions
-can be used as {\em reference-expressions} (this is an exception
-to the rule that a run-time statement can contain at most one function
-call).  If the inline function returns a value, a call to the function
+can be used like {\em reference-expressions}.
+If the inline function returns a value, a call to the function
 can only be used to read a value from an apparent
 location.  However if the inline function returns a pointer at a target
 with writable qualifiers, a call to the function can be used
