@@ -306,11 +306,12 @@ containing a byte address; this is most useful for calling
 C language functions.
 New pointer types may be defined by the user.
 
-If the value of a variable {\tt @V} is a pointer and the name of
-the variable begins with an `{\tt @}', the variable's name with the
-initial `{\tt @}' removed, in this case {\tt V}, is called the
-indirect variable associated to {\tt @V}
-and names the value pointed at by {\tt @V}.
+Variables whose names begin with `{\tt @}' take pointer values, and
+the variable's name with the
+initial `{\tt @}' removed is called the associated
+target variable and names the value pointed at.
+Thus {\tt @V} is a pointer valued variable and {\tt V} is the value
+{\tt @V} points at.
 For example:
 
 \begin{indpar}\begin{verbatim}
@@ -678,8 +679,8 @@ This can handle cases where a function returns a {\tt *READ-WRITE*}
 pointer to set an {\tt ro} pointer.
 
 \begin{indpar}\begin{verbatim}
-function ap *READ-WRITE* int = foo ( ... )
-ap ro int * p = ro ( foo ( ... ) )
+function ap *READ-WRITE* int r = foo ( ... )
+ap ro int @p = ro ( foo ( ... ) )
 \end{verbatim}\end{indpar}
 
 Although function results cannot be implicitly converted, variables
@@ -735,9 +736,9 @@ can also be a wild card named by a single word beginning with
 {\tt Q\$}.  An example is:
 
 \begin{indpar}\begin{verbatim}
-function uns r = strlen ( P$s Q$s uns8 s ):
-    dp ro uns8 sdp = *UNCHECKED* ( s )
-    r = call "strlen" ( sdp )
+function uns r = strlen ( P$s Q$s uns8 @s ):
+    dp ro uns8 @sdp = *UNCHECKED* ( @s )
+    r = call "strlen" ( @sdp )
 \end{verbatim}\end{indpar}
 
 which converts the pointer of type {\tt P\$s} to a pointer of
@@ -775,10 +776,10 @@ in which {\tt @cr} is a constant pointing at a volatile
 Pointer types cannot be cascaded, but there is a work-around
 using defined types:
 \begin{indpar}\begin{verbatim}
-ap av flt64 p = .....         // Illegal!
+ap av flt64 @p = .....        // Illegal!
 
 struct my pointer
-    av flt64 p
+    av flt64 @p
 
 . . . . . . . . . .
 
@@ -2606,11 +2607,13 @@ The following is a complete list of the kinds of statements:
 \label{ASSIGNMENT-STATEMENTS}
 
 {\em Assignment-statements} have a list of variables on the
-left side which receive values from a list of expressions or
-a block of code on the right side.  The left-side variables
+left side of an \TT{"="} operator
+which receive values from a list of expressions or
+a block of code on the right side of the operator.  The left-side variables
+and the \TT{"="}
 may be omitted if the right side produces no values,
-or if a left-side variable
-has the form of `{\tt next} {\em variable-name}' and is
+or if all left-side variables
+have the form of `{\tt next} {\em variable-name}' and are
 implied by the right side.
 
 The forms of an {\em assignment-statement} are:
@@ -3768,10 +3771,10 @@ type data for ap:
     dp ro int @base
     int offset
 
-function dp Q$1 T$1 r = *UNCHECKED* ( data for dp dap )
-function ap Q$1 T$1 r = *UNCHECKED* ( data for ap dap )
-function data for dp r = pointer to data ( dp Q$1 T$1 ptr )
-function data for ap r = pointer to data ( ap Q$1 T$1 ptr )
+function dp Q$1 T$1 @r = *UNCHECKED* ( data for dp dap )
+function ap Q$1 T$1 @r = *UNCHECKED* ( data for ap dap )
+function data for dp r = pointer to data ( dp Q$1 T$1 @ptr )
+function data for ap r = pointer to data ( ap Q$1 T$1 @ptr )
     // These functions just copy the argument value to the
     // result value changing the type of the value.  Here
     // Q$1 is a wild-card that matches any list of qualifier-names,
@@ -3856,7 +3859,7 @@ pointer type $P2$ is $D2$
 
 Then we can define a function with the prototype:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 r = *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 p )
+function $P2$ Q\$1 T\$1 @r = *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
 which converts a pointer of type $P1$ to a pointer of type $P2$.
 Only one such function can be defined for each pointer type $P1$.
@@ -3876,11 +3879,11 @@ function $D2$ r = \ttkey{*ACCESS* *POINTER* *CONVERSION*} ( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 r = \ttkey{*ACCESS* *CONVERSION*}
-	( $P1$ Q\$1 T\$1 p1 ): \\
-\hspace*{0.3in}$D1$ d1 = pointer to data ( p1 ) \\
+function $P2$ Q\$1 T\$1 @r = \ttkey{*ACCESS* *CONVERSION*}
+	( $P1$ Q\$1 T\$1 @p1 ): \\
+\hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 = *ACCESS* *POINTER* *CONVERSION* ( d1 ) \\
-\hspace*{0.3in}r = *UNCHECKED* ( d2 )
+\hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
 
 If a pointer of type $P1$ is to be implicitly
@@ -3889,7 +3892,7 @@ pointer to a function or storing the pointer in memory,
 the above functions are not used.  Instead a function with
 the prototype:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 r = *IMPLIED* *CONVERSION* ( $P1$ Q\$1 T\$1 p )
+function $P2$ Q\$1 T\$1 @r = *IMPLIED* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
 is called.  You can define this, or you can define
 \begin{indpar} \tt
@@ -3897,17 +3900,17 @@ function $D2$ r = \ttkey{*IMPLIED* *POINTER* *CONVERSION*} ( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 r = \ttkey{*IMPLIED* *CONVERSION*}
-	( $P1$ Q\$1 T\$1 p1 ): \\
-\hspace*{0.3in}$D1$ d1 = pointer to data ( p1 ) \\
+function $P2$ Q\$1 T\$1 @r = \ttkey{*IMPLIED* *CONVERSION*}
+	( $P1$ Q\$1 T\$1 @p1 ): \\
+\hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
 \hspace*{0.3in}$D2$ dd = *IMPLIED* *POINTER* *CONVERSION* ( d1 ) \\
-\hspace*{0.3in}r = *UNCHECKED* ( d2 )
+\hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
 
 You may want the conversion from $P1$ to $P2$ to
 be unchecked instead of implied.  This can be achieved by defining:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 r = *UNCHECKED* ( $P1$ Q\$1 T\$1 p )
+function $P2$ Q\$1 T\$1 @r = *UNCHECKED* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
 Alternatively you can define a function with prototype
 \begin{indpar} \tt
@@ -3915,11 +3918,11 @@ function $D2$ r = \ttkey{*UNCHECKED* *POINTER* *CONVERSION*} ( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 r = \TT{*UNCHECKED*}
-	( $P1$ Q\$1 T\$1 p1 ): \\
-\hspace*{0.3in}$D1$ d1 = pointer to data ( p1 ) \\
+function $P2$ Q\$1 T\$1 @r = \TT{*UNCHECKED*}
+	( $P1$ Q\$1 T\$1 @p1 ): \\
+\hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
 \hspace*{0.3in}$D2$ dd = *IMPLIED* *POINTER* *CONVERSION* ( d1 ) \\
-\hspace*{0.3in}r = *UNCHECKED* ( d2 )
+\hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
 
 The example at the beginning of this section contains
@@ -3933,7 +3936,7 @@ An example implementing a new pointer type is:
 
 \begin{indpar}\begin{verbatim}
 type file:
-    *READ-WRITE* av uns8 name
+    *READ-WRITE* av uns8 @name
     . . . . .
 av *READ-WRITE* file @files =@ global [1000];
 ap *READ-WRITE* int @number of files =@ global
@@ -3947,22 +3950,22 @@ type data for fd:
 
 pointer type fd is data for fd
 
-function ap Q$1 file r = *ACCESS* *POINTER* *CONVERSION*
-        ( fd Q$1 file p ):
-    data for fd d = pointer to data ( p )
+function ap Q$1 file @r = *ACCESS* *POINTER* *CONVERSION*
+        ( fd Q$1 file @p ):
+    data for fd d = pointer to data ( @p )
     ap file *READ_WRITE* @f = @files[d.index]
-    r = @f  // Implicitly converts *READ-WRITE* to Q$1
+    @r = @f  // Implicitly converts *READ-WRITE* to Q$1
 
-function fd *READ-WRITE* r = allocate fd:
+function fd *READ-WRITE* @r = allocate fd:
     data for fd d:
         d.index = number of files
-    r = *UNCHECKED* ( d )
+    @r = *UNCHECKED* ( d )
     number of files = number of files + 1
 
 fd *READ-WRITE* file @f =@ allocate fd
-f.name = ...
+f.@name = ...
 . . . . .
-av uns8 n = f.name
+av uns8 @n = f.@name
 . . . . .
 \end{verbatim}\end{indpar}
 
