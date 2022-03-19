@@ -2786,8 +2786,8 @@ Value returned by the {\em allocation-call}.
 The variables declared by {\em block-variable-declarations}
 \underline{without} {\em allocation-calls}
 are {\tt *WRITE-\EOL ONLY*} in {\em statements}
-of the {\em assignment-statement} and {\tt co} after the
-{\em assignment-statement}.
+of the {\em block-assignment-statement} and {\tt co} after the
+{\em block-assignment-statement}.
 Zeroed numbers are zero, while zeroed pointers typically
 cause segmentation faults when de-referenced.
 
@@ -2798,9 +2798,9 @@ are initialized by the {\em allocation-call}
 {\tt co}, but the memory
 pointed at is zeroed initially, 
 {\tt *WRITE-\EOL ONLY*} in {\em statements}
-of the {\em assignment-statement}, and 
+of the {\em block-assignment-statement}, and 
 subject to the {\em pointer-variable} {\em qualifiers} after
-the {\em assignment-statement}.
+the {\em block-assignment-statement}.
 
 If a {\em result-variable-declaration} declares a {\em pointer-variable},
 an associated {\em target-variable} is implicitly declared at the same time
@@ -3008,11 +3008,11 @@ The called function must allocate a block of
 memory with the required number of bytes and alignment and zero that
 block.  The prototype must have
 exactly one result variable whose type is identical to the
-the data type of the {\em pointer-variable} being set (but the
+the pointer type of the {\em pointer-variable} being set (but the
 prototype result type may contain wildcards).
 
 As a general rule, allocator functions that return a value of
-`{\tt data for av}' or `{\tt data for fv}' type
+type {\tt av} or {\tt fv} or a user defined vector pointer
 have a {\tt []} argument list
 with a single argument giving a vector size {\tt N}.
 The allocator allocates not a single block of the given length
@@ -3242,7 +3242,7 @@ above example could be written as:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
-next sum = while i < 4
+next sum = while i < 4:
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
@@ -3250,7 +3250,7 @@ or
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1;
-while i < 4
+while i < 4:
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
