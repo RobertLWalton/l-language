@@ -2036,18 +2036,24 @@ There are five of types of constants:
     $|$ & {\em rational-constant} \\
     $|$ & {\em map-constant} \\
     \end{tabular} \\
-\emkey{special-constant} ::= \ttkey{TRUE} $|$ \ttkey{FALSE}
-                         $|$ \ttkey{UNDEF} $|$ \ttkey{NONE} \\
+\emkey{special-constant} 
+    \begin{tabular}[t]{@{}rl}
+    ::= & \ttkey{TRUE} $|$ \ttkey{FALSE}
+                       $|$ \ttkey{UNDEF} $|$ \ttkey{NONE} \\
+    $|$ & \ttkey{*LOGICAL-LINE*} $|$ \ttkey{*INDENTED-PARAGRAPH*} \\
+    \end{tabular} \\
 \emkey{string-constant} ::= {\em quoted-string}
 \end{indpar}
 
 The meanings of the {\em special-constants} are:
-\begin{indpar}[1in]
+\begin{indpar}[1.6in]
 \begin{itemize}
 \item[\TT{TRUE}] The boolean value true.  Convertable to {\tt bool ( 1 )}.
 \item[\TT{FALSE}] The boolean value false.  Convertable to {\tt bool ( 0 )}.
 \item[\TT{UNDEF}] The value exists but is undefined (unknown).
 \item[\TT{NONE}] The value does not exist.
+\item[\TT{*LOGICAL-LINE*}] see \itemref{PARSER-OUTPUT}
+\item[\TT{*INDENTED-PARAGRAPH*}] see \itemref{PARSER-OUTPUT}
 \end{itemize}
 \end{indpar}
 A special constant is not equal to any other constant.
@@ -4880,7 +4886,7 @@ Thus if {\tt X = "A"} then \\
 
 The output produced by the parser when it parses code is as
 follows.  In the following \ttkey{*LOGICAL-LINE*} and
-\ttkey{*INDENTED-PARAGRAPH*} name special values.
+\ttkey{*INDENTED-PARAGRAPH*} name special constants.
 
 Recall that the input is a sequence of logical lines.
 
@@ -4948,7 +4954,7 @@ Parser Output:
       .initiator => *LOGICAL-LINE*, .terminator => "<LF>" },
     .initiator => ":", .terminator => *INDENTED-PARAGRAPH*
   },
-  .initiator => ":", .terminator => *INDENTED-PARAGRAPH*
+  .initiator => "*LOGICAL-LINE*", .terminator => "<LF>"
 }
 
 \end{verbatim}\end{indpar}
@@ -5370,13 +5376,13 @@ Unless stated otherwise, builtin compile-time functions
 obey the following rules:
 \begin{enumerate}
 \item
-Boolean values are represented by the special values
+Boolean values are represented by the special constants
 {\tt TRUE} and {\tt FALSE}.
 \item
 Errors in arguments, such as passing a {\tt string} when a
 {\tt number} or {\tt rational} is required, result in the
 function doing nothing but returning
-the {\tt UNDEF} special value and producing
+the {\tt UNDEF} special constant and producing
 a compiler error message.
 \item
 If a result or argument is said to be an integer, it may
