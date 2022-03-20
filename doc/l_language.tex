@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 18, 2022
+March 19, 2022
 
 \bigskip
  
@@ -3351,13 +3351,13 @@ The syntax of a type declaration is:
 \emkey{type-subdeclaration}
     \begin{tabular}[t]{@{}rl}
     ::= &  {\em field-declaration} \\
-    $|$ &  \ttkey{*EXPANDABLE*} \\
-    $|$ &  \ttkey{*EXTERNAL*} \\
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
     $|$ &  \ttkey{include} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
+    $|$ &  \ttkey{***} \\
+    $|$ &  \ttkey{*EXTERNAL*} \\
     \end{tabular}
 \\[2ex]
 \emkey{field-declaration}
@@ -3401,8 +3401,10 @@ The syntax of a type declaration is:
     an `\TT{@}' \\
 \emkey{target-label}\label{TARGET-LABEL} ::=
     {\em field-label} that is \underline{not} a {\em pointer-label} \\
-\emkey{origin-label}\label{ORIGIN-LABEL} ::=  {\em target-label} \\
-\emkey{data-label} ::=  see \pagref{DATA-LABEL}
+\emkey{origin-label}\label{ORIGIN-LABEL} ::=
+    {\em basic-name} not beginning with \TT{@} \\
+\emkey{data-label} ::=  see \pagref{DATA-LABEL} \\
+\emkey{basic-name} ::=  see \pagref{BASIC-NAME}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
 \emkey{dimension-size} ::=  {\tt const} valued {\em expression}
@@ -3420,17 +3422,17 @@ The syntax of a type declaration is:
 \emkey{bit-range}
     \begin{tabular}[t]{@{}rl}
     ::= &  \TT{[} {\em onlybit} \TT{]} \\
-    $|$ &  \TT{[} {\em lowhighbits} \TT{]} \\
+    $|$ &  \TT{[} {\em highlowbits} \TT{]} \\
     $|$ &  \TT{[} {\em highbit} \TT{-} {\em lowbit} \TT{]}
     \end{tabular} \\
 \emkey{onlybit} ::= {\tt const} valued {\em expression}
 		    with non-negative integer value \\
-\emkey{lowhighbits} :::= {\em dit}+ \TT{-} {\em dit}+
+\emkey{highlowbits} :::= {\em dit}+ \TT{-} {\em dit}+
            ~~~~~ [this is a single lexeme] \\
-\emkey{lowbit} ::= {\tt const} valued {\em expression}
-		   with non-negative integer value \\
 \emkey{highbit} ::= {\tt const} valued {\em expression}
 		    with non-negative integer value \\
+\emkey{lowbit} ::= {\tt const} valued {\em expression}
+		   with non-negative integer value \\
 \emkey{dit} ::= see \pagref{DIT}
 \\[2ex]
 \emkey{alignment} ::= {\tt const} valued {\em expression}
@@ -3467,22 +3469,22 @@ A \ttkey{include} sub-declaration copies all the {\em type-subdeclarations}
 of the given defined type into the current sequence of
 {\em type-subdeclarations}.
 
-If the first sub-declaration of a {\em type-declaration}
-is either {\tt *EXPANDABLE*}\label{*EXPANDABLE*}
-or {\tt *EXTERNAL*}\label{*EXTERNAL*} there may
-be multiple {\em type-declarations} with the same
-{\em type-name}, all of which must have the same first
-sub-declaration.  All act
-to append {\em type-subdeclarations}\label{TYPE-DECLARATION-APPEND}
-to the current list of such for the {\em type-name}.
-All {\em type-declarations} for a given {\em type-name} but the first
-must be within the scope (see \itemref{SCOPE}) of the first
-{\em type-declaration}.   All but the first are called
-\skey{expansion}s of the first {\em type-declaration}.
-Either {\tt *EXPANDABLE*} or {\tt *EXTERNAL*} may be a
-sub-declaration of a {\em type-declaration}, but not both.
+If the last sub-declaration of a {\em type-declaration}
+is either {\tt ***}\label{***} or {\tt *EXTERNAL*}\label{*EXTERNAL*}
+there may be a subsequent {\em type-declaration} with the same
+{\em type-name} which \skey{expand}s the current {\em type-declaration}.
+The current declaration is said to be \key{expandable} and
+the subsequent declaration is said to be an \key{expansion}
+of the current declaration.
+The list of {\em type-subdeclarations}\label{TYPE-DECLARATION-APPEND}
+of an expansion is simply appended to the list of
+{\em type-subdeclarations} of the {\em type-declaration} being expanded.
+The expansion {\em type-declaration}
+must be within the scope (see \itemref{SCOPE}) of the {\em type-declaration}
+being expanded.   All expandable {\em type-declarations} must end with
+either the {\tt ***} or the {\tt *EXTERNAL*} sub-declaration.
 
-For a {\em type-declaration} with an \ttkey{*EXPANDABLE*} sub-declaration,
+For a {\em type-declaration} with an \ttkey{***} sub-declaration,
 its expansions must be in the same module\pagnote{MODULE-AND-BODY-DECLARATIONS}
 as the {\em type-declaration}, or in one of that module's bodies.
 For a {\em type-declaration} with an \ttkey{*EXTERNAL*} sub-declaration
@@ -3579,7 +3581,7 @@ list element @Y:
 // pointers to local memory.
 \end{verbatim}\end{indpar}
 
-The size and alignment of a defined type with an {\tt *EXPANDABLE*}
+The size and alignment of a defined type with an {\tt ***}
 or {\tt *EXTERNAL*}
 sub-declara\-tion are not known at compile-time.  They are computed
 during load-time and used as run-time constants.
@@ -3601,19 +3603,19 @@ my type Z = X       // Legal, Z is allocated as per `local'
                     // and the value at @X is copied to
                     // the location of Z.  However in this
                     // case the value is zero.
+
 type my type:
-    *EXPANDABLE*
     *LABEL* origin  // `origin' is set to offset 0
     int I
+    ***
 X.I = 55            // Legal, .I has been declared.
 
-type my type:       // Extension of my type
-    *EXPANDABLE*
+type my type:       // Expansion of my type
     int J           // Now X.J == 0
+    ***
 X.J = 66            // Legal, .J has been declared.
 
-type my type:
-    *EXPANDABLE*
+type my type:       // Expansion of my type
     *ORIGIN* origin
     int K1
     int K2
@@ -5793,7 +5795,7 @@ run-time.
 May be {\tt UNDEF} for {\tt *DEFERRED*} types not yet defined by the
 compilation.
 
-May increase during compilation of {\tt *EXPANDABLE*} or
+May increase during compilation of {\tt ***} or
 {\tt *EXTERNAL*} types.
 \end{indpar}
 
@@ -5801,7 +5803,7 @@ May increase during compilation of {\tt *EXPANDABLE*} or
 \ttkey{.external}
 \begin{indpar}
 The {\tt .expandable} attribute is {\tt TRUE} if the
-type is {\tt *EXPANDABLE*} \underline{or} {\tt *EXTERNAL*},
+type is {\tt ***} \underline{or} {\tt *EXTERNAL*},
 and {\tt FALSE} otherwise.
 The {\tt .external} attribute is {\tt TRUE} if the type is
 {\tt *EXTERNAL*}, and {\tt FALSE} otherwise.
