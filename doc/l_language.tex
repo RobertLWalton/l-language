@@ -394,7 +394,7 @@ types for the target machine word size.
 The types {\tt intd}, {\tt intq}, {\tt unsd}, {\tt unsq} are just integer
 types for twice (double) or four times (quad) the target machine word size.
 The {\tt bool} type is a single bit interpreted as true if
-1 and falseif 0: it is in essence a 1-bit unsigned integer.
+1 and false if 0: it is in essence a 1-bit unsigned integer.
 
 User defined types have values that
 consist of a sequence of bytes containing fields.
@@ -2531,7 +2531,7 @@ omitted, and then only if they surround exactly one {\em actual-argument}
 that is a {\em constant} or {\em variable-name}.
 
 {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
-equivalent to `{\tt x(false)}'.
+equivalent to `{\tt x(FALSE)}'.
 
 {\em Function-calls} are matched to function prototypes.  The
 {\em call-term-names} in a match are identical to the
@@ -4058,8 +4058,10 @@ The syntax of a function declaration is:
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}p{5in}@{}}
-    {\em function-term-name} $N$ that appears in a {\em function-prototype}
-    of the form `{\tt function $N$ = \ldots}'
+    {\em variable-name} $N$ which also has the form: \\
+    \hspace*{1in}{\em module-abbreviation}\QMARK{} {\em function-term-name} \\
+    and that appears in a {\em function-prototype} of the form: \\
+    \hspace*{1in}{\tt function $N$ = \ldots}
     \end{tabular}
 \\[0.5ex]
 \emkey{pattern-argument-list}\label{PATTERN-ARGUMENT-LIST} \\
@@ -4080,27 +4082,28 @@ A {\em prototype-pattern} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
 in the same {\em prototype-pattern}.
 \item
-Result and argument {\em variable-names} and {\em function-variable-names}
+Result and argument {\em variable-names}
 in a {\em function-prototype} must not begin with a {\em module-abbreviation}.
 \item
 \label{PROTOTYPE-NEXT-RESULT}
 For a {\em prototype-result-declaration} of the form `\TT{next} $v$',
-$v$ must be the {\em vari\-able-name} in an {\em prototype-argument-declaration}
+$v$ must be the {\em vari\-able-name} in a {\em prototype-argument-declaration}
 of the form `\dots{} {\em type-name} $v$', and
 any actual argument associated to the {\em prototype-argument-declaration}
+by some {\em function-call}
 must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
 {\em assignment-statement} {\em next-variable-declaration}.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must
-be distinct, with an exception for the previous paragraph.
+be distinct, with an exception for the previous note.
 \item
 The first {\em prototype-argument-declaration} in an {\em input-variable-list}
 must not have a {\em default-value}.
 \item
 In a {\em pattern-argument-list} or {\em input-variable-list}
-an {\em prototype-argument-declaration} with no {\em de\-fault-value} cannot
-follow an {\em prototype-argument-declaration} with a {\em default-value}.
+a {\em prototype-argument-declaration} with no {\em de\-fault-value} cannot
+follow a {\em prototype-argument-declaration} with a {\em default-value}.
 \item
 A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
 is treated in a {\em function-prototype} as a {\em type-name}.
@@ -4330,7 +4333,7 @@ Next if a {\em call-term-name} is matched to a {\em boolean-pattern-term}
 {\em function-term-name} and if its {\em call-term} has no
 {\em call-argument-lists}, then if the preceding {\em call-term}
 ends in `\TT{no}' or `\TT{not}', this last is removed from the
-preceding {\em call-term} and `{\tt (false)}' is appended to the
+preceding {\em call-term} and `{\tt (FALSE)}' is appended to the
 current {\em call-term}, while otherwise `{\tt (TRUE)}' is appended to the
 current {\em call-term}.
 
@@ -4378,7 +4381,7 @@ arguments in the {\em call-argument-list} have {\em default-values}
 in the {\em pattern-argument-list}, the {\em default-values} corresponding
 to the omitted arguments are inserted into
 the {\em call-argument-list}.
-The {\em default-values} are compiled in the contest of the prototype
+The {\em default-values} are compiled in the context of the prototype
 and not the context of the call: see \pagref{DEFAULT-CONTEXT}.
 
 At this point the {\em pattern-argument-lists} in the prototype
@@ -4393,7 +4396,7 @@ in the prototype according to the rules that follow.
 Failure of any of these matches causes
 the call-prototype match to fail.
 
-\item If an {\em prototype-argument-declaration} has a {\em required-value},
+\item If a {\em prototype-argument-declaration} has a {\em required-value},
 its matching {\em actual-argument} must be {\tt const} valued with
 a value equal to the {\em required-value}, else the call-prototype
 match fails.  Note that the argument type need not itself be {\tt const}.
@@ -4407,7 +4410,8 @@ match fails.
 
 If the {\em function-call} is \underline{not} the right side in a
 {\em call-assignment-statement}, the situation is treated as if
-it were with the left side consisting of the call's target type
+it were the right side of a {\em call-assignment-statement}
+whose left side consists of the call's target type
 followed by a virtual {\em variable-name}.
 
 The {\em assignment-results} are matched to the
@@ -4421,7 +4425,9 @@ in the corresponding assignment result type.  If a wildcard gets more
 than one value from this process, the call-prototype match fails.
 
 Then if any prototype type is not identical to its corresponding
-assignment result type, the call-prototype match fails.
+assignment result type, the call-prototype match fails
+(i.e., there is \underline{no} implied conversion of function result
+types).
 
 \item {\em Prototype-argument-declarations} are matched to
 an {\em actual-arguments} and processed left to right.
