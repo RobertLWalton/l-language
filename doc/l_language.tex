@@ -433,7 +433,7 @@ In this example there is one field in a {\tt my type} value,
 an unlabeled {\tt uns32} integer.
 Inside this unlabeled field there are 6 subfields, the first of which is
 an {\tt uns8} integer occupying the highest order 8
-bits of the unlabeled field, bits 24-31,
+bits of the unlabeled field, bits 31-24,
 where bits are numbered 0, 1, 2, \ldots{} from
 low to high order.  The second subfield is a 1-bit {\tt bool}
 value that occupies the high order bit, bit 31, of the unlabeled field.
@@ -446,7 +446,7 @@ the location of {\tt OP} is an {\tt ap} aligned pointer.  Although
 the {\tt constant} subfield is on a byte boundary, it is
 shorter than an {\tt int}, and therefore the
 location of {\tt C} must be an {\tt fp} field pointer.
-If `{\tt op code}' where in bits 23-30 instead of 24-31, it would
+If `{\tt op code}' where in bits 30-23 instead of 31-24, it would
 not be on a byte boundary and the location of {\tt OP} would
 also have to be an {\tt fp} field pointer.
 
@@ -3558,32 +3558,34 @@ associated {\em target-label} is declared consisting of the
 {\em pointer-label} minus its first `{\tt @}'.  The {\em target-label}
 references a virtual field consisting of the target value stored
 at the location pointed at by the {\em pointer-label} field's pointer.
-An example is:
+An example\footnote{As `{\tt next}' is a keyword, we use `{\tt after}'
+here.} is:
 
 \begin{indpar}\begin{verbatim}
 type list element:
     int value
-    ap list element @next
+    ap list element @after
 
 // Make doubly linked circular list.
 //
 list element @Y =@ local = *DEFERRED*
 list element @X =@ local:
     X.value = 1
-    X.@next = @Y
+    X.@after = @Y
 list element @Y:
     Y.value = 2
-    Y.@next = @X
+    Y.@after = @X
 //
-// Now X.value == 1 and X.next.value == 2 and
-// similarly Y.value == 2 and Y.next.value == 1,
-// while X.@next == @Y and Y.@next == @X are
+// Now X.value == 1 and X.after.value == 2 and
+// similarly Y.value == 2 and Y.after.value == 1,
+// while X.@after == @Y and Y.@after == @X are
 // pointers to local memory.
 \end{verbatim}\end{indpar}
 
 The size and alignment of a defined type with an {\tt ***}
 or {\tt *EXTERNAL*}
-sub-declara\-tion are not known at compile-time.  They are computed
+sub-declara\-tion may not be known at compile-time.
+In this case, they are computed
 during load-time and used as run-time constants.
 Allocators use this size and alignment to allocate memory for a value of
 the type and then zero that memory.
@@ -3621,8 +3623,8 @@ type my type:       // Expansion of my type
     int K2
 
 // Now X.K1 == X.I == 55; X.K2 == X.J == 66,
-// but you must be sure about how packing is
-// done to believe this.
+// but you must know how offsets are assigned to
+// believe this.
 \end{verbatim}\end{indpar}
 
 Subfields are parts of the previously declared numeric field.
@@ -3709,7 +3711,7 @@ For example:
 \begin{indpar}\begin{verbatim}
 type hex digits:
     uns32
-    [0-3] uns hex digit [8]
+    [3-0] uns hex digit [8]
 
 hex digits X:
     int i = 0;
