@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 19, 2022
+March 20, 2022
 
 \bigskip
  
@@ -3788,7 +3788,7 @@ function data for ap r = pointer to data ( ap Q$1 T$1 @ptr )
 // `ap ...', where the latter has the constant 0 for a base
 // and the dp value for its offset.
 // 
-function data for ap r = *IMPLIED* *POINTER* *CONVERSION*
+function data for ap r = *POINTER* *IMPLIED* *CONVERSION*
         ( data for dp d ):
     dp int @zero = constant int 0
         // constant int 0 allocates an int equal to 0 to co memory
@@ -3801,7 +3801,7 @@ function data for ap r = *IMPLIED* *POINTER* *CONVERSION*
 // `dp ...' where the latter is the sum of the base and offset
 // of the ap.
 //
-function data for dp r = *UNCHECKED* *POINTER* *CONVERSION*
+function data for dp r = *POINTER* *UNCHECKED* *CONVERSION*
         ( data for ap d ):
     data for dp ddp:
         ddp.address = d.base + d.offset
@@ -3812,7 +3812,7 @@ function data for dp r = *UNCHECKED* *POINTER* *CONVERSION*
 // member or element of a value.  The dp is the sum of the
 // base and offset of the ap.
 //
-function data for dp r = *ACCESS* *POINTER* *CONVERSION*
+function data for dp r = *POINTER* *ACCESS* *CONVERSION*
         ( data for ap d ):
     data for dp ddp:
         ddp.address = d.base + d.offset
@@ -3863,7 +3863,8 @@ pointer type $P2$ is $D2$
 
 Then we can define a function with the prototype:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
+function $P2$ Q\$1 T\$1 @r = \\
+\hspace*{1in}*POINTER* *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
 which converts a pointer of type $P1$ to a pointer of type $P2$.
 Only one such function can be defined for each pointer type $P1$.
@@ -3873,20 +3874,21 @@ be accessed, in preference to calling the {\tt *POINTER* *ACCESS*}
 functions.  Then if $P2$ is {\tt dp}, {\tt ap}, {\tt fp}, {\tt av},
 or {\tt fv}, the $P2$ pointer can be used to not only read or write
 the value, but to also read or write members or elements of the
-value.  Note, however, that only one {\tt *ACCESS* *CONVERSION*}
+value.  Note, however, that only one {\tt *POINTER* *ACCESS* *CONVERSION*}
 function can be called per access: these functions do not
 automatically chain.
 
 Alternatively you can define a function with prototype
 \begin{indpar} \tt
-function $D2$ r = \ttkey{*ACCESS* *POINTER* *CONVERSION*} ( $D1$ data )
+function $D2$ r = \ttkey{*POINTER* *ACCESS* *CONVERSION*} ( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = \ttkey{*ACCESS* *CONVERSION*}
+function $P2$ Q\$1 T\$1 @r = \\
+\hspace*{1in}\ttkey{*POINTER* *ACCESS* *CONVERSION*}
 	( $P1$ Q\$1 T\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
-\hspace*{0.3in}$D2$ d2 = *ACCESS* *POINTER* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}$D2$ d2 = *POINTER* *ACCESS* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
 
@@ -3896,18 +3898,20 @@ pointer to a function or storing the pointer in memory,
 the above functions are not used.  Instead a function with
 the prototype:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = *IMPLIED* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
+function $P2$ Q\$1 T\$1 @r = \\
+\hspace*{1in}*POINTER* *IMPLIED* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
 is called.  You can define this, or you can define
 \begin{indpar} \tt
-function $D2$ r = \ttkey{*IMPLIED* *POINTER* *CONVERSION*} ( $D1$ data )
+function $D2$ r = \ttkey{*POINTER* *IMPLIED* *CONVERSION*} ( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = \ttkey{*IMPLIED* *CONVERSION*}
+function $P2$ Q\$1 T\$1 @r = \\
+\hspace*{1in}\ttkey{*POINTER* *IMPLIED* *CONVERSION*}
 	( $P1$ Q\$1 T\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
-\hspace*{0.3in}$D2$ dd = *IMPLIED* *POINTER* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}$D2$ dd = *POINTER* *IMPLIED* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
 
@@ -3918,19 +3922,19 @@ function $P2$ Q\$1 T\$1 @r = *UNCHECKED* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
 Alternatively you can define a function with prototype
 \begin{indpar} \tt
-function $D2$ r = \ttkey{*UNCHECKED* *POINTER* *CONVERSION*} ( $D1$ data )
+function $D2$ r = \ttkey{*POINTER* *UNCHECKED* *CONVERSION*} ( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 @r = \TT{*UNCHECKED*}
 	( $P1$ Q\$1 T\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
-\hspace*{0.3in}$D2$ dd = *IMPLIED* *POINTER* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}$D2$ dd = *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
 
 The example at the beginning of this section contains
-all three kinds of {\tt \ldots{} *POINTER* *CONVERSION*} functions.
+all three kinds of {\tt *POINTER* \ldots{} *CONVERSION*} functions.
 
 In the above function prototypes you can use different wildcard names,
 e.g, {\tt T\$XXX} instead of {\tt T\$1}.  You can also
@@ -3954,7 +3958,7 @@ type data for fd:
 
 pointer type fd is data for fd
 
-function ap Q$1 file @r = *ACCESS* *POINTER* *CONVERSION*
+function ap Q$1 file @r = *POINTER* *ACCESS* *CONVERSION*
         ( fd Q$1 file @p ):
     data for fd d = pointer to data ( @p )
     ap file *READ_WRITE* @f = @files[d.index]
