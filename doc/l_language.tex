@@ -4704,7 +4704,7 @@ and all {\em module-names} and {\em body-names} must be distinct.
 
 The compiler maps {\em body-names} to POSIX file names in an
 implementation dependent manner.  The file that contains the
-body cannot anything else.
+body cannot contain anything else.
 
 A \key{body} is an extension of the module named in the first
 line of the {\em body-declaration}.
@@ -4733,7 +4733,7 @@ The order in which modules and bodies are initialized is determined
 by the following rules.
 \begin{enumerate}
 \item If a module or body imports another module, the imported module
-is initialized before the module or body.
+is initialized before the importing module or body.
 \item A module is initialized before any of its bodies.
 \item If a body contains an {\em after-clause}, the body
 is initialized after the body named in the {\em after-clause}.
@@ -4759,7 +4759,7 @@ can read and write the {\tt *INCLUDE*} variable of $S$.
 Since {\em statements} can be nested, compilation of {\em statements}
 can be nested, and at any given time the innermost {\tt *INCLUDE*}
 variable hides outer {\tt *INCLUDE*} variables.  Thus at any time
-during compilation there is a current {\tt *INCLUDE} variable.
+during compilation there is a current {\tt *INCLUDE*} variable.
 
 It is not necessary to include certain annotations
 in {\tt *INCLUDE*} statements or expressions.
@@ -4772,7 +4772,7 @@ the following {\tt .initiator}s or {\tt .terminator}s:
 {\rm \bf Unnecessary Annotations}\label{UNNECESSARY-ANNOTATIONS}
 \\[1ex]
 \begin{tabular}{l@{~~~~~~~~~~}l}
-.initiator & .terminator
+\underline{.initiator} & \underline{.terminator}
 \\[1ex]
 *LOGICAL-LINE* & "<LF>" \\
 "(" & ")" \\
@@ -4792,7 +4792,7 @@ However, any {\tt .separator} and the following must be included:
 {\rm \bf Necessary Annotations}
 \\[1ex]
 \begin{tabular}{l@{~~~~~~~~~~}l}
-.initiator & .terminator
+\underline{.initiator} & \underline{.terminator}
 \\[1ex]
 ":" & *INDENTED-PARAGRAPH* \\
 "[" & "]" \\
@@ -4816,8 +4816,8 @@ of a {\tt const} variable:
 	{\em statement} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{include-variable} ::= {\em target-label}
-	~~~~~ [see \pagref{TARGET-LABEL}]
+\emkey{include-variable} ::= {\em target-variable}
+	~~~~~ [see \pagref{TARGET-VARIABLE}]
 \\[0.5ex]
 \emkey{include-argument-list} ::= \TT{( )} $|$
 	\TT{(} {\em include-argument}
