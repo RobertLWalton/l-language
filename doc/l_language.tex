@@ -5555,6 +5555,19 @@ Returns the concatenation of string {\tt s1}
 and string {\tt s2}.
 \end{indpar}
 
+{\tt const r =} \ttkey{sprintf}
+    {\tt ( \begin{tabular}[t]{@{}l}
+            const format, const a1, \\
+	    const a2 = "", const a3 = "", const a4 = "" )
+	    \end{tabular} }
+\begin{indpar}
+Returns the string make by applying the UNIX {\tt sprintf} function to the
+arguments {\tt a1}, {\tt a2}, {\tt a3}, and {\tt a4} (not all of which need
+be used).  Arguments may be numbers or strings.
+Rational arguments are converted to numbers first.  Map arguments
+are not allowed.
+\end{indpar}
+
 {\tt const r =} (const s1) \ttkey{"=="} {\tt ( const s2 )} \\
 {\tt const r =} (const s1) \ttkey{"!="} {\tt ( const s2 )} \\
 {\tt const r =} (const s1) \ttkey{"<"} {\tt ( const s2 )} \\
@@ -5627,13 +5640,27 @@ subvectors which are imploded to make {\tt const} string values.
 
 {\tt const r =} \ttkey{scan} ( const s  )
 \begin{indpar}
-Scan the string {\tt s} and return a map that is a vector
+Equivalent to {\tt `{\rm \em value of} s'}.
+
+Specifically,
+scan the string {\tt s} and return a map that is a vector
 containing the list of lexemes in {\tt s}.  Brackets and
 operators are not specially recognized and are returned
 as strings.  Quoted strings inside {\tt s} are returned
 as vector elements that are maps of the form: \\
-\hspace*{1in}{\tt \{ {\rm \em represented-string}, .type => "<Q>" \}}
+\hspace*{0.2in}{ \tt \{~{\rm \em represented-string},
+	         .initiator => "<Q>",
+	         .terminator => "<Q>" \}}
 
+Syntax errors produce compiler error messages and are
+otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
+\end{indpar}
+
+{\tt const r =} \ttkey{parse} ( const s  )
+\begin{indpar}
+Equivalent to {\tt \{* {\rm \em value of} s *\}}.
+
+Specifically, parse the string {\tt s} and return a map.
 Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
