@@ -1604,6 +1604,8 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-2}
 \ttkey{\textasciitilde}  & bitwise complement & & & 
 \\\cline{1-2}
+\ttkey{\#}  & length & & & 
+\\\cline{1-2}
 \ttkey{D\#}  & decimal rational & & & 
 \\\cline{1-2}
 \ttkey{B\#}  & binary rational & & & 
@@ -5549,6 +5551,7 @@ Returns the length of string {\tt s} as a non-negative integer
 {\tt number}.\footnote{The length of a {\tt string} cannot
 be above $2^{48}$ while
 {\tt numbers} can precisely store integers up to $2^{53}$.}
+Note that {\tt \#} is a prefix operator.
 \end{indpar}
 
 {\tt const r =} (const s1) \ttkey{"+"} {\tt ( const s2 )}
@@ -5714,37 +5717,50 @@ itself must be read-write.
 When a value is first written at a label, the label is created
 for the map and set to read-write.
 
-It is a compile error is {\tt s} does not represent a
-{\em dictionary-label}.
-
 In addition, map labels may be \key{protected}.  Such entries
 are read-only to the code being compiled, and may either be
 permanently read-only or may be written only by the compiler
 during compilation.
 \end{indpar}
 
-If {\tt M} is a {\tt const} valued variable whose value is a map,
-and if {\tt S} is a {\tt const} valued variable, then {\tt M[S]}
-may be used to reference a vector element or dictionary entry of
-the value of {\tt M} as follows:
+{\tt const r =} \ttkey{"\#"} {\tt ( const m )}
+\begin{indpar}
+Returns the length of the vector part of the map {\tt m}
+as a non-negative integer
+{\tt number}.\footnote{The length of a {\tt map} cannot
+be above $2^{48}$ while
+{\tt numbers} can precisely store integers up to $2^{53}$.}
+Note that {\tt \#} is a prefix operator.
+\end{indpar}
+
+
+{\tt const r =} {\tt ( const m ) [ const s ]}
+\begin{indpar}
+Here {\tt m} is map and {\tt m[s]} is used to reference a
+vector element or dictionary entry of {\tt m} as follows:
 \begin{enumerate}
-\item If the value of {\tt S} is an integer, the {\tt S}+1'st element
-of the vector of {\tt M} is referenced.  If this is being read and
+\item If the value of {\tt s} is a non-negative integer,
+the {\tt s}+1'st element
+of the vector of {\tt m} is referenced.  If this is being read and
 it does not exist, {\tt NONE} is returned and there is no compile-time
-error; this always happens if {\tt S} is a negative integer.
+error.
 If the element is being written but does not exist, or the map
 is read-only, a compile-time error results; otherwise the element
 value is changed.
-\item If the value of {\tt S} is a string representing a
-{\em dictionary-label}, the dictionary entry
-of {\tt M} with label {\tt S} is referenced.  If this is being read and
+\item If the value of {\tt s} is a negative integer,
+{\tt s} is replaced by {\tt \# m + s}, and things
+are as in the last paragraph (note {\tt \# m + s < \# m}.  The element
+does not exist if {\tt \# m + s < 0}.
+\item If the value of {\tt s} is a string, the dictionary entry
+of {\tt m} with label {\tt s} is referenced.  If this is being read and
 it does not exist, {\tt NONE} is returned.  If it is being written and
-it does not exist, it is created and made read-write.  If it exists and is
-read-only, a compile-time error results.  If it exists and is read-write,
-its value is changed.
-\item Otherwise if {\tt S} is neither an integer or a string representing
-a {\em dictionary-label}, a compile-error results.
+it does not exist, it is created and made read-write.
+Else if it exists and is read-write, its value is changed.
+Else if it exists and is read-only, a compile-time error results.
+\item Otherwise if {\tt s} is neither an integer or a string,
+a compile-error results.
 \end{enumerate}
+\end{indpar}
 
 {\tt const r =} \ttkey{copy} {\tt ( const m )} \\
 {\tt const r =} \ttkey{copy top} {\tt ( const m )} %
@@ -5757,12 +5773,13 @@ corresponding labels in {\tt m} are.
 
 If any vector or dictionary element values are maps, they are
 copied recursively by {\tt copy}, but not by
-{\tt copy top}, which copies pointers to the maps.
+{\tt copy top}, which only copies the element values of {\tt m}
+and does not copy recursively.
 
 Changing the values of elements of the new map will \underline{not} change
 the contents of {\tt m}.  For {\tt copy} modifying the element values
-themselves will not change {\tt m}, but for {\tt copy top},
-modifying the element values will change the elements of {\tt m}.
+that are maps will not change {\tt m}, but for {\tt copy top},
+modifying these element values will change the elements of {\tt m}.
 
 \end{indpar}
 
@@ -5775,22 +5792,30 @@ to the map is copied and no new map is made.
 
 {\tt const r =} \ttkey{slice} {\tt ( const m, const i, const n )}
 \begin{indpar}
-Returns a new map consisting of just a vector of the
+If {\tt i >= 0}, returns a new map consisting of just a vector of the
 elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.  
 If any of these elements do not exist, they are omitted (e.g.,
-if {\tt i >= m..length}, {\tt i + n <= 0}, or {\tt n <= 0},
+if {\tt i >= \# m}, {\tt i + n <= 0}, or {\tt n <= 0},
 the empty map is returned).
+
+If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
+{\tt i} is incremented by 1 and {\tt n} decremented by 1 until 
+{\tt \# m + i == 0}.
 \end{indpar}
 
 {\tt const r =} \ttkey{splice} {\tt ( const m, const i, const n, const v )}
 \begin{indpar}
-Edits {\tt m} by replacing the vector element sequence
+If {\tt i >= 0}, edits {\tt m} by replacing the vector element sequence
 {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]} by the
 vector elements of {\tt v}.  Dictionary elements of {\tt v} are ignored;
 dictionary elements of {\tt m} are unchanged.
-It is an error is any of the elements to be replaced do not exist
-(e.g., if {\tt i < 0} or {\tt i >= m..length}).
+If {\tt i >= \# m} the elements of {\tt v} are pushed to the end of {\tt m},
+else if {\tt i + n > \# m}, {\tt n} is decreased until {\tt i + n == \# m}.
 The edited map {\tt m} is returned.
+
+If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
+{\tt i} is incremented by 1 and {\tt n} decremented by 1 until 
+{\tt \# m + i == 0}.
 \end{indpar}
 
 {\tt const r =} \ttkey{truncate} {\tt ( const m, const i )}
@@ -5799,6 +5824,9 @@ An optimized version of {\tt splice} that removes the elements
 {\tt m[i]}, {\tt m[i+1]}, \ldots, from the end of the vector of {\tt v}.
 The edited map {\tt m} is returned.  It is not an error if no elements
 are removed.
+
+If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
+all elements of the vector are removed.
 \end{indpar}
 
 {\tt const r =} \ttkey{push} {\tt ( const m, const v )}
