@@ -5849,14 +5849,14 @@ and returns {\tt m1}.
 {\tt const r =} \ttkey{pull} {\tt ( const m )}
 \begin{indpar}
 Deletes the last vector element of {\tt m} and returns it.
-It is an error if {\tt m} is empty.
+Returns {\tt NONE} if {\tt m} is empty.
 \end{indpar}
 
 {\tt const r =} \ttkey{pull} {\tt ( const m, const i )}
 \begin{indpar}
 Deletes the last {\tt i} vector elements of {\tt m} and returns a map
-containing them.  It is an error if there are not {\tt i} elements
-in {\tt m}.
+containing them.  If there are fewer than {\tt i} vector elements
+in {\tt m}, the returned vector will have only {\tt \# m} elements.
 \end{indpar}
 
 \subsection{Type, Field, and Subfield Maps}
