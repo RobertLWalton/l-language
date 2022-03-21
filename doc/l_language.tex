@@ -2220,7 +2220,7 @@ never a compile error.  If necessary the converted value is
 A \key{map constant} has two parts, a list (a.k.a, a vector) and a dictionary.
 Either or both can be empty.
 
-A map constant is computed by a {\em map-expresion} whose syntax is:
+A map constant is computed by a {\em map-expression} whose syntax is:
 
 \begin{indpar}
 \emkey{map-expression}\label{MAP-EXPRESSION}
@@ -2231,6 +2231,8 @@ A map constant is computed by a {\em map-expresion} whose syntax is:
     $|$ & \TT{\{} {\em map-list}\TT{,} {\em map-dictionary} \TT{\}} \\
     $|$ & {\em phrase-constant} \\
     $|$ & {\em expression-constant} \\
+    $|$ & {\em type-constant} \\
+    $|$ & {\em pointer-type-constant} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{map-list} ::= {\em list-element} \{ \TT{,} {\em list-element} \}\STAR{}
@@ -2259,6 +2261,14 @@ A map constant is computed by a {\em map-expresion} whose syntax is:
 \emkey{expression-constant} ::= \TT{\{*} {\em expression} \TT{*\}}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
+\\[0.5ex]
+\emkey{type-constant} ::= {\em type-name}
+\\[0.5ex]
+\emkey{pointer-type-constant} ::= {\em pointer-type-name}
+\\[0.5ex]
+\emkey{type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+\emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \end{indpar}
 
 Maps \underline{cannot} be represented at run-time.
@@ -5734,6 +5744,13 @@ be above $2^{48}$ while
 Note that {\tt \#} is a prefix operator.
 \end{indpar}
 
+{\tt const r =} \ttkey{labels} {\tt ( const m )}
+\begin{indpar}
+Returns a list of the {\em dictionary-labels}
+(see \pagref{DICTIONARY-LABEL}) of map {\tt m}.
+The {\em dictionary-labels} are strings.  The list may be empty.
+\end{indpar}
+
 
 {\tt const r =} {\tt ( const m ) [ const s ]}
 \begin{indpar}
@@ -5876,7 +5893,7 @@ To prevent conflict, the labels provided by the compiler
 begin with `{\tt .}', so
 that to use them to access a map dictionary entry
 you must use double dots: `{\tt ..}'.
-E.g. {\tt int..size}.
+E.g., {\tt int..size}.
 
 In the following a \key{name string} is a string
 consisting of a sequence of one or more {\em words}
@@ -5885,7 +5902,7 @@ by single spaces, and beginning with a {\em word}.
 {\em Natural-numbers} are represented
 by strings of 1 to 9 decimal digits with no high-order
 zeros (zero is represented by `{\tt 0}').
-Name strings are used to represent type and field
+Name strings are used to represent type, field, and subfield
 names.
 
 {\em Module abbreviations} in a name string are
@@ -5895,7 +5912,7 @@ $n$ is a natural number.  {\tt M\$0} is always
 the abbreviation for the {\tt std} module.
 These compiler module abbreviations are specific to the
 entire compilation and are not dependent on which
-module are body a definition appears in.
+module or body a definition appears in.
 
 {\tt com module dictionary}
 \begin{indpar}
@@ -5913,11 +5930,10 @@ called a \key{type map}.
 
 {\tt com type dictionary}
 \begin{indpar}
-A dictionary mapping \underline{top-level} {\em type-names}
+A dictionary mapping {\em type-names}
 represented by name strings to type maps descibing the
-named types.  Note that non-top-level {\em type-names}
-are not included, but their maps may be referenced by using
-their {\em type-names} as names of {\tt const} constants.
+named types.  The {\em type-names} mapped depend upon
+the current context.
 \end{indpar}
 
 The compiler defined attributes of a type map are:
@@ -5937,24 +5953,25 @@ of an aligned value of the given type at
 run-time.
 \\ E.g., {\tt int64..size == 64, int64..alignment == 64}.
 
-May be {\tt UNDEF} for {\tt *DEFERRED*} types not yet defined by the
+These may increase during compilation of type expansions, and will be
+{\tt UNDEF} for {\tt *DEFERRED*} types not yet defined by the
 compilation.
-
-May increase during compilation of {\tt ***} or
-{\tt *EXTERNAL*} types.
 \end{indpar}
 
 \ttkey{.expandable} \\
 \ttkey{.external}
 \begin{indpar}
 The {\tt .expandable} attribute is {\tt TRUE} if the
-type is {\tt ***} \underline{or} {\tt *EXTERNAL*},
+current list of type subdeclarations ends with
+{\tt ***} \underline{or} {\tt *EXTERNAL*},
 and {\tt FALSE} otherwise.
-The {\tt .external} attribute is {\tt TRUE} if the type is
+The {\tt .external} attribute is {\tt TRUE} if the current
+list of type subdeclarations ends with
 {\tt *EXTERNAL*}, and {\tt FALSE} otherwise.
 
-These may be {\tt UNDEF} for {\tt *DEFERRED*} types not yet defined
-by the compilation.
+These may change during compilation of type expansions, and are
+{\tt UNDEF} for {\tt *DEFER\-RED*} types not yet defined by the
+compilation.
 \end{indpar}
 
 \ttkey{.fields}
@@ -5962,8 +5979,9 @@ by the compilation.
 Dictionary of field maps for the fields of the type.  The labels
 of the dictionary entries are the names of the fields.
 
-May be {\tt UNDEF} for {\tt *DEFERRED*} types not yet defined
-by the compilation.
+Fields may be added during compilation of type expansions, and {\tt .fields}
+will be empty for {\tt *DEFERRED*} types not yet defined by the
+compilation.
 \end{indpar}
 
 \subsection{Field Maps}
@@ -5984,6 +6002,11 @@ as a name string.  May be {\tt NONE} for a field with subfields.
 Type map of the type of containing this field.
 \end{indpar}
 
+\ttkey{.offset}
+\begin{indpar}
+Offset in bits of the field within a value of its type.
+\end{indpar}
+
 \ttkey{.pointer-type}
 \begin{indpar}
 Pointer type map representing the pointer type of the field,
@@ -5999,7 +6022,8 @@ pointer type.  May be empty list.
 
 \ttkey{.type}
 \begin{indpar}
-Type map representing the type of the field.
+Type map representing the type of the field, or {\tt NONE}
+for a {\tt *LABEL*}.
 \end{indpar}
 
 \ttkey{.qualifiers}
@@ -6010,7 +6034,7 @@ of the type of the field.  May be empty list.
 
 \ttkey{.dimensions}
 \begin{indpar}
-List of numbers, the dimensions of the field, or {\tt NONE}
+List of strictly positive integers, the dimensions of the field, or {\tt NONE}
 if no dimensions.
 \end{indpar}
 
@@ -6041,7 +6065,7 @@ Field map of the field of containing this subfield.
 
 \ttkey{.bits}
 \begin{indpar}
-A list of two integers: {\tt \{{\rm \em lowbit},{\rm \em highbit}\}}.
+A list of two integers: {\tt \{{\rm \em highbit},{\rm \em lowbit}\}}.
 \end{indpar}
 
 \ttkey{.type}
@@ -6052,8 +6076,8 @@ This is always a {\tt std} number type.
 
 \ttkey{.dimensions}
 \begin{indpar}
-List of numbers, the dimensions of the subfield, or {\tt NONE}
-if no dimensions.
+List of strictly positive integers,
+the dimensions of the subfield, or {\tt NONE} if no dimensions.
 \end{indpar}
 
 \end{document}
