@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 20, 2022
+March 21, 2022
 
 \bigskip
  
@@ -2276,7 +2276,8 @@ creates a distinct map: no two such maps are \TT{==}.  A map created
 by a {\em map-expression} is initially set so that it and all its dictionary
 entries are read-only.  This can be changed: see \pagref{READ-ONLY-MAP}.
 
-An {\em expression-constant} is shorthand for the {\em map-constant}
+An \emkey{expression-constant}\label{EXPRESSION-CONSTANT}
+is shorthand for the {\em map-constant}
 produced when the {\em expression} is parsed: see \pagref{PARSER-OUTPUT}.
 Generally, parsing an expression groups expression elements into
 sublists and moves bracket and separator punctuation to dictionary entries.
@@ -2303,13 +2304,14 @@ In an \TT{\{*} {\em expression} \TT{*\}} constant,
 line level operators are recognized if and only if
 they are outside parentheses in the {\em expression}.
 
-{\em Phrase-constants} are like {\em expression-constants} except that
+\emkey{Phrase-constants}\label{PHRASE-CONSTANT}
+are like {\em expression-constants} except that
 operators (including separators, e.g. `{\tt ,}') are not recognized.
 Brackets are recognized and create sublists.  Some examples contrasting
 with {\em expression-constants} are:
 \begin{center} \tt
 \begin{tabular}{l@{~~~}l}
-\rm The expression:	& \rm Is equivalent to:
+\rm The Expression:	& \rm Is Equivalent To:
 \\\hline
 `X = Y + 1'			& \{ "X", "=", "Y", "+", 1 \}
 \\[0.5ex]
@@ -5561,10 +5563,12 @@ and string {\tt s2}.
 	    const a2 = "", const a3 = "", const a4 = "" )
 	    \end{tabular} }
 \begin{indpar}
-Returns the string make by applying the UNIX {\tt sprintf} function to the
-arguments {\tt a1}, {\tt a2}, {\tt a3}, and {\tt a4} (not all of which need
-be used).  Arguments may be numbers or strings.
-Rational arguments are converted to numbers first.  Map arguments
+Returns the string make by calling the UNIX {\tt sprintf} function as per: \\
+\hspace*{1in}{\tt sprintf ( format, a1, a2, a3, a4 )} \\
+where {\tt format} is a string.  Not all of the data arguments
+{\tt a1}, {\tt a2}, {\tt a3}, and {\tt a4} need be used by the {\tt format}.
+Data arguments may be numbers or strings.
+Rational data arguments are converted to numbers first.  Map data arguments
 are not allowed.
 \end{indpar}
 
@@ -5640,10 +5644,7 @@ subvectors which are imploded to make {\tt const} string values.
 
 {\tt const r =} \ttkey{scan} ( const s  )
 \begin{indpar}
-Equivalent to {\tt `{\rm \em value of} s'}.
-
-Specifically,
-scan the string {\tt s} and return a map that is a vector
+Scan the string {\tt s} and return a map that is a vector
 containing the list of lexemes in {\tt s}.  Brackets and
 operators are not specially recognized and are returned
 as strings.  Quoted strings inside {\tt s} are returned
@@ -5656,9 +5657,21 @@ Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
+{\tt const r =} \ttkey{parse brackets} ( const s  )
+\begin{indpar}
+Equivalent to {\tt `{\rm \em value of} s'}.
+See {\em phrase-constants}: \pagref{PHRASE-CONSTANT}.
+
+Specifically, parse the string {\tt s} recognizing brackets
+but not recognizing operators and return a map.
+Syntax errors produce compiler error messages and are
+otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
+\end{indpar}
+
 {\tt const r =} \ttkey{parse} ( const s  )
 \begin{indpar}
 Equivalent to {\tt \{* {\rm \em value of} s *\}}.
+See {\em expression-constants}: \pagref{EXPRESSION-CONSTANT}.
 
 Specifically, parse the string {\tt s} and return a map.
 Syntax errors produce compiler error messages and are
@@ -5712,7 +5725,7 @@ during compilation.
 
 If {\tt M} is a {\tt const} valued variable whose value is a map,
 and if {\tt S} is a {\tt const} valued variable, then {\tt M[S]}
-may be used to reference a vector elemement or dictionary entry of
+may be used to reference a vector element or dictionary entry of
 the value of {\tt M} as follows:
 \begin{enumerate}
 \item If the value of {\tt S} is an integer, the {\tt S}+1'st element
