@@ -5877,10 +5877,10 @@ containing them.  If there are fewer than {\tt i} vector elements
 in {\tt m}, the returned vector will have only {\tt \# m} elements.
 \end{indpar}
 
-\subsection{Type, Field, and Subfield Maps}
+\subsection{Type, Field, Subfield, and Pointer Type Maps}
 \label{TYPE-FIELD-SUBFIELD-MAPS}
 
-Types, fields, and subfields are described
+Types, fields, subfields, and pointer types are described
 at compile-time by {\tt const} map values which
 user code can access.
 These are read-write as a whole, but some of their
@@ -5922,7 +5922,7 @@ to strings that are {\em module-names}.  For example,
 \hspace*{1.5in}{\tt com module dictionary["M\$0"] == "standard"}
 \end{indpar}
 
-\subsection{Type Maps}
+\subsubsection{Type Maps}
 \label{TYPE-MAPS}
 
 At compile-time a {\em type-name} is a {\tt const} map value
@@ -5984,7 +5984,7 @@ will be empty for {\tt *DEFERRED*} types not yet defined by the
 compilation.
 \end{indpar}
 
-\subsection{Field Maps}
+\subsubsection{Field Maps}
 \label{FIELD-MAPS}
 
 Each field of a type has a {\tt const} map value called
@@ -6009,7 +6009,7 @@ Offset in bits of the field within a value of its type.
 
 \ttkey{.pointer-type}
 \begin{indpar}
-Pointer type map representing the pointer type of the field,
+Pointer type map for the pointer type of the field,
 or {\tt NONE}.
 \end{indpar}
 
@@ -6022,7 +6022,7 @@ pointer type.  May be empty list.
 
 \ttkey{.type}
 \begin{indpar}
-Type map representing the type of the field, or {\tt NONE}
+Type map for the type of the field, or {\tt NONE}
 for a {\tt *LABEL*}.
 \end{indpar}
 
@@ -6045,7 +6045,7 @@ of the dictionary entries are the names of the subfields.
 Or {\tt NONE} if there are no subfields.
 \end{indpar}
 
-\subsection{Subfield Maps}
+\subsubsection{Subfield Maps}
 \label{SUBFIELD-MAPS}
 
 Each subfield of a field has a {\tt const} map value called
@@ -6070,7 +6070,7 @@ A list of two integers: {\tt \{{\rm \em highbit},{\rm \em lowbit}\}}.
 
 \ttkey{.type}
 \begin{indpar}
-Type map representing the type of the subfield.
+Type map for the type of the subfield.
 This is always a {\tt std} number type.
 \end{indpar}
 
@@ -6078,6 +6078,32 @@ This is always a {\tt std} number type.
 \begin{indpar}
 List of strictly positive integers,
 the dimensions of the subfield, or {\tt NONE} if no dimensions.
+\end{indpar}
+
+\subsubsection{Pointer Type Maps}
+\label{POINTER-TYPE-MAPS}
+
+At compile-time a {\em pointer-type-name} is a {\tt const} map value
+called a \key{pointer type map}.
+
+{\tt com pointer type dictionary}
+\begin{indpar}
+A dictionary mapping {\em pointer-type-names}
+represented by name strings to pointer type maps descibing the
+named pointer types.  The {\em pointer-type-names} mapped depend upon
+the current context.
+\end{indpar}
+
+The compiler defined attributes of a pointer type map are:
+
+\ttkey{.name}
+\begin{indpar}
+The name of the pointer type as a name string.
+\end{indpar}
+
+\ttkey{.data type}
+\begin{indpar}
+Type map for the data type of the pointer type.
 \end{indpar}
 
 \end{document}
