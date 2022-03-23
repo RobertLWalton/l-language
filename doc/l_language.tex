@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 22, 2022
+March 23, 2022
 
 \bigskip
  
@@ -6190,11 +6190,11 @@ the implicit conversions are defined as follows:
 \begin{center}
 \begin{tabular}{l|c|c|c|}
 \multicolumn{1}{c}{}	& \multicolumn{3}{c}{\tt N1} \\
-\tt N2  & \tt float64 & \tt float32 & \tt float16
+\tt N2  & \tt flt64 & \tt flt32 & \tt flt16
 \\\hline
-\tt float64 & no & yes & yes \\
-\tt float32 & no & no & yes \\
-\tt float16 & no & no & no
+\tt flt64 & no & yes & yes \\
+\tt flt32 & no & no & yes \\
+\tt flt16 & no & no & no
 \\\hline
 \tt int\ldots{} & no & no & no \\
 \tt uns\ldots{} & no & no & no \\
@@ -6206,9 +6206,9 @@ the implicit conversions are defined as follows:
 \multicolumn{1}{c}{}	& \multicolumn{4}{c}{\tt N1} \\
 \tt N2  & \tt int64 & \tt int32 & \tt int16 & int8
 \\\hline
-\tt float64 & no & yes & yes & yes \\
-\tt float32 & no & no & yes & yes \\
-\tt float16 & no & no & no & yes
+\tt flt64 & no & yes & yes & yes \\
+\tt flt32 & no & no & yes & yes \\
+\tt flt16 & no & no & no & yes
 \\\hline
 \tt int64 & no & yes & yes & yes \\
 \tt int32 & no & no & yes & yes \\
@@ -6224,9 +6224,9 @@ the implicit conversions are defined as follows:
 \multicolumn{1}{c}{}	& \multicolumn{5}{c}{\tt N1} \\
 \tt N2  & \tt uns64 & \tt uns32 & \tt uns16 & uns8 & bool
 \\\hline
-\tt float64 & no & yes & yes & yes & yes \\
-\tt float32 & no & no & yes & yes & yes \\
-\tt float16 & no & no & no & yes & yes
+\tt flt64 & no & yes & yes & yes & yes \\
+\tt flt32 & no & no & yes & yes & yes \\
+\tt flt16 & no & no & no & yes & yes
 \\\hline
 \tt int64 & no & yes & yes & yes & yes \\
 \tt int32 & no & no & yes & yes & yes \\
@@ -6284,6 +6284,111 @@ is not defined.  The value {\tt v} is truncated, which may lose high
 order bits and change the sign of the value.
 \end{itemlist}
 
+\subsection{Builtin Arithmetic Operations}
+\label{BUILTIN-ARITHMETIC-OPERATIONS}
+
+
+{\tt N r = \ttkey{"+"} ( N n1 )} \\
+{\tt N r = \ttkey{"-"} ( N n1 )} \\
+{\tt N r = (N n1) \ttkey{"+"} ( N n2 )} \\
+{\tt N r = (N n1) \ttkey{"-"} ( N n2 )} \\
+{\tt N r = (N n1) \ttkey{"*"} ( N n2 )} \\
+{\tt N r = (N n1) \ttkey{"/"} ( N n2 )}
+\begin{indpar}Where {\tt N} is one of the types:
+\\[1ex]
+\hspace*{1in}\begin{tabular}{llll}
+	     \tt flt & \tt flt64 & \tt flt32 \\	
+	     \tt int & \tt int64 & \tt int32 \\	
+	     \tt uns & \tt uns64 & \tt uns32 \\	
+	     \end{tabular}
+\\[1ex]
+Standard arithmetic operators on numbers {\tt n1} and {\tt n2},
+done using IEEE floating point, two's complement, or binary integer arithmetic.
+
+For floating point, the following produce a {\tt NaN} result:
+\\[1ex]
+\hspace*{1in}\begin{tabular}{l@{\hspace*{1in}}l}
+	     \tt +Inf + -Inf & \tt -Inf + +Inf \\
+	     \tt +Inf - +Inf & \tt -Inf - -Inf \\
+	     \tt +Inf * 0 & \tt 0 * +Inf \\
+	     \tt -Inf * 0 & \tt 0 * -Inf \\
+	     \tt +Inf / +Inf & \tt +Inf / -Inf \\
+	     \tt -Inf / +Inf & \tt -Inf / -Inf \\
+	     \tt \ldots{} / 0 \\
+	     \end{tabular}
+\\[1ex]
+For floating point, operations may set the following floating point
+flags:
+\begin{itemlist}
+\item[Invalid]
+\item[Divide by Zero]
+\item[Overflow]
+\item[Underflow]
+\item[Inexact]
+\end{itemlist}
+\end{indpar}
+
+{\tt const r = (const i1) \ttkey{"\&"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"|"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"\textasciicircum"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"<{}<"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{">{}>"} ( const i2 )}
+\begin{indpar}
+TBD
+
+Standard bitwise operators on integers {\tt i1} and {\tt i2}
+that are treated as two's complement.
+{\tt "<{}<}" and {\tt ">{}>"}, {\tt i2}, the amount of the shift,
+must not be negative.  Overflows for number {\tt <{}<} shift
+produce an {\tt UNDEF} result and a compiler error message.
+\end{indpar}
+
+{\tt const r = (const n1) \ttkey{"=="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"!="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"<"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"<="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{">"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{">="} ( const n2 )}
+\begin{indpar}
+TBD
+
+Standard comparison operators on numbers or rationals {\tt n1} and {\tt n2}.
+Infinities are treated as actual numbers with absolute value
+larger than any real number: e.g., if {\tt x} is not a {\tt NaN},
+`{\tt x <= +Inf}' is always
+{\tt TRUE} and `{\tt x == +Inf}' is {\tt TRUE} iff {\tt x} is {\tt +Inf}.
+If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
+except {\tt !=} which returns {\tt TRUE}.
+\end{indpar}
+
+{\tt const r1, const r2 = \ttkey{floor} (const n1, const n2 )} \\
+{\tt const r1, const r2 = \ttkey{ceiling} (const n1, const n2 )} \\
+{\tt const r1, const r2 = \ttkey{remainder} (const n1, const n2 )} \\
+{\tt const r1, const r2 = \ttkey{round} (const n1, const n2 )}
+\begin{indpar}
+TBD
+
+These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
+result rounded to an integer and {\tt r2} as the remainder.
+Here {\tt floor} rounds toward negative infinity, {\tt ceiling}
+rounds towards positive infinity, {\tt remainder} rounds toward
+zero, and {\tt round} rounds to the nearest integer, or to the
+even integer if there are two nearest integers.
+
+If an argument is a number, return {\tt NaN}s if the divsor is
+zero, an argument is a {\tt NaN}, or both arguments are infinities, but
+do \underline{not} output a compiler error message.  If both
+arguments are rationals and the divisor is zero, return
+{\tt UNDEF}s and output a compiler error message.
+\end{indpar}
+
+{\tt const r =} \ttkey{is nan} {\tt ( const v1 )}
+\begin{indpar}
+TBD
+
+Return {\tt TRUE} if {\tt v1} is a Nan number, and {\tt FALSE}
+otherwise.
+\end{indpar}
 	
 
 \end{document}
