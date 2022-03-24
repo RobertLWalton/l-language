@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 23, 2022
+March 24, 2022
 
 \bigskip
  
@@ -6284,47 +6284,55 @@ is not defined.  The value {\tt v} is truncated, which may lose high
 order bits and change the sign of the value.
 \end{itemlist}
 
-\subsection{Builtin Arithmetic Operations}
-\label{BUILTIN-ARITHMETIC-OPERATIONS}
+\subsection{Builtin Floating Point Operations}
+\label{BUILTIN-FLOATING-POINT-OPERATIONS}
 
+A floating point {\tt NaN}
+is a quiet NaN with zero significand bits, except for the
+highest order bit which is one (to indicate that the NaN is quiet).
 
-{\tt N r = \ttkey{"+"} ( N n1 )} \\
-{\tt N r = \ttkey{"-"} ( N n1 )} \\
-{\tt N r = (N n1) \ttkey{"+"} ( N n2 )} \\
-{\tt N r = (N n1) \ttkey{"-"} ( N n2 )} \\
-{\tt N r = (N n1) \ttkey{"*"} ( N n2 )} \\
-{\tt N r = (N n1) \ttkey{"/"} ( N n2 )}
-\begin{indpar}Where {\tt N} is one of the types:
-\\[1ex]
-\hspace*{1in}\begin{tabular}{llll}
-	     \tt flt & \tt flt64 & \tt flt32 \\	
-	     \tt int & \tt int64 & \tt int32 \\	
-	     \tt uns & \tt uns64 & \tt uns32 \\	
-	     \end{tabular}
-\\[1ex]
-Standard arithmetic operators on numbers {\tt n1} and {\tt n2},
-done using IEEE floating point, two's complement, or binary integer arithmetic.
+\subsubsection{Builtin Floating Point Arithmetic}
+\label{BUILTIN-FLOATING-POINT-ARITHMETIC}
 
-For floating point, the following produce a {\tt NaN} result:
+{\tt F r = \ttkey{"+"} ( F v1 )} \\
+{\tt F r = \ttkey{"-"} ( F v1 )} \\
+{\tt F r = (F v1) \ttkey{"+"} ( F v2 )} \\
+{\tt F r = (F v1) \ttkey{"-"} ( F v2 )} \\
+{\tt F r = (F v1) \ttkey{"*"} ( F v2 )} \\
+{\tt F r = (F v1) \ttkey{"/"} ( F v2 )}
+\begin{indpar}
+Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 \\[1ex]
-\hspace*{1in}\begin{tabular}{l@{\hspace*{1in}}l}
+Standard arithmetic operators on numbers {\tt v1} and {\tt v2},
+done using IEEE floating point arithmetic.
+
+Floating point operations may set the following floating point flags:
+\begin{itemlist}
+\item[Invalid]  Set in the following cases.  Returns {\tt NaN}.
+\\[1ex]
+\hspace*{0.5in}\begin{tabular}{l@{\hspace*{1in}}l}
 	     \tt +Inf + -Inf & \tt -Inf + +Inf \\
 	     \tt +Inf - +Inf & \tt -Inf - -Inf \\
 	     \tt +Inf * 0 & \tt 0 * +Inf \\
 	     \tt -Inf * 0 & \tt 0 * -Inf \\
 	     \tt +Inf / +Inf & \tt +Inf / -Inf \\
 	     \tt -Inf / +Inf & \tt -Inf / -Inf \\
-	     \tt \ldots{} / 0 \\
+	     \tt +0 / +0 & \tt +0 / -0 \\
+	     \tt -0 / +0 & \tt -0 / -0 \\
 	     \end{tabular}
-\\[1ex]
-For floating point, operations may set the following floating point
-flags:
-\begin{itemlist}
-\item[Invalid]
-\item[Divide by Zero]
-\item[Overflow]
-\item[Underflow]
-\item[Inexact]
+\item[Divide by Zero]  Set when a non-zero value is divided by a zero value.
+Returns {\tt +Inf} or {\tt -Inf} with sign determined by the signs
+of the zero and non-zero values in the usual way.
+\item[Overflow]  Set when the computed value is a number outside the range that
+can be stored because its absolute value is too large.
+Returns {\tt +Inf} or {\tt -Inf}.
+\item[Underflow] Set when the computed value is a number outside the range that
+can be stored because its absolute value is too small.
+Returns {\tt +0} or {\tt -0}.
+\item[Inexact] Set when the computed value cannot be precisely stored but
+is inside the range of absolute values that can be stored.  Returns
+the nearest value that can be stored, with ties
+going to the value whose least significant bit is zero.
 \end{itemlist}
 \end{indpar}
 
@@ -6382,12 +6390,60 @@ arguments are rationals and the divisor is zero, return
 {\tt UNDEF}s and output a compiler error message.
 \end{indpar}
 
-{\tt const r =} \ttkey{is nan} {\tt ( const v1 )}
+{\tt bool r =} \ttkey{is nan} {\tt ( F v1 )}
 \begin{indpar}
-TBD
-
-Return {\tt TRUE} if {\tt v1} is a Nan number, and {\tt FALSE}
+Where {\tt F} is one of {\tt flt}, {\tt flt64}, {\tt flt32}, or {\tt flt16}.
+\\[1ex]
+Return {\tt 1} if {\tt v1} is any NaN number (not just {\tt NaN}), and {\tt 0}
 otherwise.
+\end{indpar}
+
+\subsubsection{Builtin Integer Arithmetic}
+\label{BUILTIN-INTEGER-ARITHMETIC}
+
+{\tt I r = \ttkey{"+"} ( I v1 )} \\
+{\tt I r = \ttkey{"-"} ( I v1 )} \\
+{\tt I r = (I v1) \ttkey{"+"} ( I v2 )} \\
+{\tt I r = (I v1) \ttkey{"-"} ( I v2 )} \\
+{\tt I r = (I v1) \ttkey{"*"} ( I v2 )} \\
+{\tt I r = (I v1) \ttkey{"/"} ( I v2 )}
+\begin{indpar}Where {\tt I} is one of:
+	\begin{tabular}[t]{l}
+	\tt int  int64  int32  int16  int8 \\
+	\tt uns  uns64  uns32  uns16  uns8 \\
+	\end{tabular}
+\\[1ex]
+Standard arithmetic operators on numbers {\tt v1} and {\tt v2},
+done using IEEE floating point arithmetic.
+
+Floating point operations may set the following floating point flags:
+\begin{itemlist}
+\item[Invalid]  Set in the following cases.  Returns {\tt NaN}.
+\\[1ex]
+\hspace*{0.5in}\begin{tabular}{l@{\hspace*{1in}}l}
+	     \tt +Inf + -Inf & \tt -Inf + +Inf \\
+	     \tt +Inf - +Inf & \tt -Inf - -Inf \\
+	     \tt +Inf * 0 & \tt 0 * +Inf \\
+	     \tt -Inf * 0 & \tt 0 * -Inf \\
+	     \tt +Inf / +Inf & \tt +Inf / -Inf \\
+	     \tt -Inf / +Inf & \tt -Inf / -Inf \\
+	     \tt +0 / +0 & \tt +0 / -0 \\
+	     \tt -0 / +0 & \tt -0 / -0 \\
+	     \end{tabular}
+\item[Divide by Zero]  Set when a non-zero value is divided by a zero value.
+Returns {\tt +Inf} or {\tt -Inf} with sign determined by the signs
+of the zero and non-zero values in the usual way.
+\item[Overflow]  Set when the computed value is a number outside the range that
+can be stored because its absolute value is too large.
+Returns {\tt +Inf} or {\tt -Inf}.
+\item[Underflow] Set when the computed value is a number outside the range that
+can be stored because its absolute value is too small.
+Returns {\tt +0} or {\tt -0}.
+\item[Inexact] Set when the computed value cannot be precisely stored but
+is inside the range of absolute values that can be stored.  Returns
+the nearest value that can be stored, with ties
+going to the value whose least significant bit is zero.
+\end{itemlist}
 \end{indpar}
 	
 
