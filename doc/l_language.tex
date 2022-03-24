@@ -6336,39 +6336,6 @@ going to the value whose least significant bit is zero.
 \end{itemlist}
 \end{indpar}
 
-{\tt const r = (const i1) \ttkey{"\&"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"|"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"\textasciicircum"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"<{}<"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{">{}>"} ( const i2 )}
-\begin{indpar}
-TBD
-
-Standard bitwise operators on integers {\tt i1} and {\tt i2}
-that are treated as two's complement.
-{\tt "<{}<}" and {\tt ">{}>"}, {\tt i2}, the amount of the shift,
-must not be negative.  Overflows for number {\tt <{}<} shift
-produce an {\tt UNDEF} result and a compiler error message.
-\end{indpar}
-
-{\tt const r = (const n1) \ttkey{"=="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"!="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"<"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"<="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{">"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{">="} ( const n2 )}
-\begin{indpar}
-TBD
-
-Standard comparison operators on numbers or rationals {\tt n1} and {\tt n2}.
-Infinities are treated as actual numbers with absolute value
-larger than any real number: e.g., if {\tt x} is not a {\tt NaN},
-`{\tt x <= +Inf}' is always
-{\tt TRUE} and `{\tt x == +Inf}' is {\tt TRUE} iff {\tt x} is {\tt +Inf}.
-If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
-except {\tt !=} which returns {\tt TRUE}.
-\end{indpar}
-
 {\tt const r1, const r2 = \ttkey{floor} (const n1, const n2 )} \\
 {\tt const r1, const r2 = \ttkey{ceiling} (const n1, const n2 )} \\
 {\tt const r1, const r2 = \ttkey{remainder} (const n1, const n2 )} \\
@@ -6401,49 +6368,64 @@ otherwise.
 \subsubsection{Builtin Integer Arithmetic}
 \label{BUILTIN-INTEGER-ARITHMETIC}
 
-{\tt I r = \ttkey{"+"} ( I v1 )} \\
-{\tt I r = \ttkey{"-"} ( I v1 )} \\
-{\tt I r = (I v1) \ttkey{"+"} ( I v2 )} \\
-{\tt I r = (I v1) \ttkey{"-"} ( I v2 )} \\
-{\tt I r = (I v1) \ttkey{"*"} ( I v2 )} \\
-{\tt I r = (I v1) \ttkey{"/"} ( I v2 )}
-\begin{indpar}Where {\tt I} is one of:
+{\tt I r, bool cout, bool ovfl = \ttkey{"+"} ( I v1, bool cin = 0 )} \\
+{\tt I r, bool cout, bool ovfl = \ttkey{"-"} ( I v1, bool cin = 1 )} \\
+{\tt I r, bool cout, bool ovfl = (I v1) \ttkey{"+"} ( I v2, bool cin = 0 )} \\
+{\tt I r, bool cout, bool ovfl = (I v1) \ttkey{"-"} ( I v2, bool cin = 1 )}
+\begin{indpar}
+Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
 	\tt int  int64  int32  int16  int8 \\
 	\tt uns  uns64  uns32  uns16  uns8 \\
 	\end{tabular}
 \\[1ex]
-Standard arithmetic operators on numbers {\tt v1} and {\tt v2},
-done using IEEE floating point arithmetic.
+Standard arithmetic operators on {\tt v1} and {\tt v2}
+treated as binary unsigned integers.  When values are
+interpreted as two's complement signed integers, these
+operations also work.
 
-Floating point operations may set the following floating point flags:
-\begin{itemlist}
-\item[Invalid]  Set in the following cases.  Returns {\tt NaN}.
-\\[1ex]
-\hspace*{0.5in}\begin{tabular}{l@{\hspace*{1in}}l}
-	     \tt +Inf + -Inf & \tt -Inf + +Inf \\
-	     \tt +Inf - +Inf & \tt -Inf - -Inf \\
-	     \tt +Inf * 0 & \tt 0 * +Inf \\
-	     \tt -Inf * 0 & \tt 0 * -Inf \\
-	     \tt +Inf / +Inf & \tt +Inf / -Inf \\
-	     \tt -Inf / +Inf & \tt -Inf / -Inf \\
-	     \tt +0 / +0 & \tt +0 / -0 \\
-	     \tt -0 / +0 & \tt -0 / -0 \\
-	     \end{tabular}
-\item[Divide by Zero]  Set when a non-zero value is divided by a zero value.
-Returns {\tt +Inf} or {\tt -Inf} with sign determined by the signs
-of the zero and non-zero values in the usual way.
-\item[Overflow]  Set when the computed value is a number outside the range that
-can be stored because its absolute value is too large.
-Returns {\tt +Inf} or {\tt -Inf}.
-\item[Underflow] Set when the computed value is a number outside the range that
-can be stored because its absolute value is too small.
-Returns {\tt +0} or {\tt -0}.
-\item[Inexact] Set when the computed value cannot be precisely stored but
-is inside the range of absolute values that can be stored.  Returns
-the nearest value that can be stored, with ties
-going to the value whose least significant bit is zero.
-\end{itemlist}
+{\tt cin} is added to the result; {\tt cout} is the carry from
+the result.  Operands are made negative by bitwise complementing
+them and adding 1 by setting {\tt cin = 1}.
+
+{\tt ovfl} is set to {\tt 1} if and only if the operation overflows
+when values are interpreted as signed two's complement integers.
+If S0, S1, and Sr are the signs of {\tt v1}, {\tt v2}, and {\tt r},
+for two operand "+" this would equal {\tt S0 $=$ S1 $\neq$ Sr}.
+
+\end{indpar}
+
+{\tt const r = (const i1) \ttkey{"\&"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"|"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"\textasciicircum"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{"<{}<"} ( const i2 )} \\
+{\tt const r = (const i1) \ttkey{">{}>"} ( const i2 )}
+\begin{indpar}
+TBD
+
+Standard bitwise operators on integers {\tt i1} and {\tt i2}
+that are treated as two's complement.
+{\tt "<{}<}" and {\tt ">{}>"}, {\tt i2}, the amount of the shift,
+must not be negative.  Overflows for number {\tt <{}<} shift
+produce an {\tt UNDEF} result and a compiler error message.
+\end{indpar}
+
+{\tt const r = (const n1) \ttkey{"=="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"!="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"<"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{"<="} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{">"} ( const n2 )} \\
+{\tt const r = (const n1) \ttkey{">="} ( const n2 )}
+\begin{indpar}
+TBD
+
+Standard comparison operators on numbers or rationals {\tt n1} and {\tt n2}.
+Infinities are treated as actual numbers with absolute value
+larger than any real number: e.g., if {\tt x} is not a {\tt NaN},
+`{\tt x <= +Inf}' is always
+{\tt TRUE} and `{\tt x == +Inf}' is {\tt TRUE} iff {\tt x} is {\tt +Inf}.
+If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
+except {\tt !=} which returns {\tt TRUE}.
 \end{indpar}
 	
 
