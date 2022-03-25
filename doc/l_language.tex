@@ -5584,13 +5584,13 @@ except {\tt !=} which returns {\tt TRUE}.
 
 {\tt const r1, const r2 = \ttkey{floor} (const n1, const n2 )} \\
 {\tt const r1, const r2 = \ttkey{ceiling} (const n1, const n2 )} \\
-{\tt const r1, const r2 = \ttkey{remainder} (const n1, const n2 )} \\
+{\tt const r1, const r2 = \ttkey{truncate} (const n1, const n2 )} \\
 {\tt const r1, const r2 = \ttkey{round} (const n1, const n2 )}
 \begin{indpar}
 These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
 result rounded to an integer and {\tt r2} as the remainder.
 Here {\tt floor} rounds toward negative infinity, {\tt ceiling}
-rounds towards positive infinity, {\tt remainder} rounds toward
+rounds towards positive infinity, {\tt truncate} rounds toward
 zero, and {\tt round} rounds to the nearest integer, or to the
 even integer if there are two nearest integers.
 
@@ -6336,32 +6336,42 @@ going to the value whose least significant bit is zero.
 \end{itemlist}
 \end{indpar}
 
-{\tt F r1, F r2 = \ttkey{floor} (F v1, F v2 )} \\
-{\tt F r1, F r2 = \ttkey{ceiling} (F v1, F v2 )} \\
-{\tt F r1, F r2 = \ttkey{remainder} (F v1, F v2 )} \\
-{\tt F r1, F r2 = \ttkey{round} (F v1, F v2 )}
+{\tt F r = \ttkey{floor} (F v1, F v2 = 1.0 )} \\
+{\tt F r = \ttkey{ceiling} (F v1, F v2 = 1.0 )} \\
+{\tt F r = \ttkey{truncate} (F v1, F v2 = 1.0 )} \\
+{\tt F r = \ttkey{round} (F v1, F v2 = 1.0 )}
 \begin{indpar}
+Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 
-These divide {\tt v1} by {\tt v2} and return {\tt r1} as the
-result rounded to an integer and {\tt r2} as the remainder.
+These divide {\tt v1} by {\tt v2} and return {\tt r} as the
+result rounded to an integer.
 Here {\tt floor} rounds toward negative infinity, {\tt ceiling}
-rounds towards positive infinity, {\tt remainder} rounds toward
+rounds towards positive infinity, {\tt truncate} rounds toward
 zero, and {\tt round} rounds to the nearest integer, or to the
 even integer if there are two nearest integers.
 
-If an argument is a number, return {\tt NaN}s if the divsor is
-zero, an argument is a {\tt NaN}, or both arguments are infinities, but
-do \underline{not} output a compiler error message.  If both
-arguments are rationals and the divisor is zero, return
-{\tt UNDEF}s and output a compiler error message.
+The floating point flags set are those set by division (see above), plus the
+inexact flag may be set if the division quotient is not a integer.
+If the division quotient is an infinity, no flags are set and {\tt r}
+is set to the quotient.
 \end{indpar}
 
-{\tt bool r =} \ttkey{is nan} {\tt ( F v1 )}
+{\tt bool r =} \ttkey{is nan} {\tt ( F v1 )} \\
+{\tt bool r =} \ttkey{is infinity} {\tt ( F v1 )} \\
+{\tt bool r =} \ttkey{is finite} {\tt ( F v1 )}
 \begin{indpar}
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, {\tt flt32}, or {\tt flt16}.
-\\[1ex]
-Return {\tt 1} if {\tt v1} is any NaN number (not just {\tt NaN}), and {\tt 0}
+\begin{itemlist}
+\item[\tt is nan]
+Returns {\tt 1} if {\tt v1} is any NaN number (not just {\tt NaN}), and {\tt 0}
 otherwise.
+\item[\tt is infinity]
+Returns {\tt 1} if {\tt v1} is {\tt +Inf} or {\tt -Inf}, and {\tt 0}
+otherwise.
+\item[\tt is finite]
+Returns {\tt 1} if {\tt is nan} and {\tt is infinity} both return {\tt 0},
+and returns {\tt 0} otherwise.
+\end{itemlist}
 \end{indpar}
 
 \subsubsection{Builtin Integer Arithmetic}
@@ -6418,6 +6428,32 @@ integers to produce a 2N-bit product to which \underline{both}
 {\tt cin1} and {\tt cin2} are
 added.  Of the result {\tt r} is the low order N bits
 and {\tt cout} is the high order N bits.
+
+\end{indpar}
+
+{\tt I r = (I v1) \ttkey{"/"} ( I v2 )} \\
+{\tt U r, U cout = (U v1, U cin = 0) \ttkey{"/"} ( U v2 )}
+\begin{indpar}
+Where {\tt I} is one of:
+	\begin{tabular}[t]{l}
+	\tt int  int128 int64  int32  int16 \\
+	\tt uns  uns128 uns64  uns32  uns16 \\
+	\end{tabular}
+\\[1ex]
+and {\tt U} is one of:
+	\begin{tabular}[t]{l}
+	\tt uns  uns64  uns32 \\
+	\end{tabular}
+\\[1ex]
+The version without carries is the standard arithmetic divide.
+An exception trap occurs if {\tt v2 $=$ 0}.
+
+The version with carries is integer divide of a 2N-bit unsigned
+dividend made by concatenating {\tt cin} (high order) and
+{\tt v1} (low order) by an N-bit unsigned divisor {\tt v2}.  The result
+is an N-bit quotient {\tt r} and an N-bit remainder {\tt cout}.
+An exception trap occurs if {\tt v2 $\leq$ cin} (this includes
+that case where {\tt v2 $=$ 0}).
 
 \end{indpar}
 
