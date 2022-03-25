@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 24, 2022
+March 25, 2022
 
 \bigskip
  
@@ -6336,14 +6336,13 @@ going to the value whose least significant bit is zero.
 \end{itemlist}
 \end{indpar}
 
-{\tt const r1, const r2 = \ttkey{floor} (const n1, const n2 )} \\
-{\tt const r1, const r2 = \ttkey{ceiling} (const n1, const n2 )} \\
-{\tt const r1, const r2 = \ttkey{remainder} (const n1, const n2 )} \\
-{\tt const r1, const r2 = \ttkey{round} (const n1, const n2 )}
+{\tt F r1, F r2 = \ttkey{floor} (F v1, F v2 )} \\
+{\tt F r1, F r2 = \ttkey{ceiling} (F v1, F v2 )} \\
+{\tt F r1, F r2 = \ttkey{remainder} (F v1, F v2 )} \\
+{\tt F r1, F r2 = \ttkey{round} (F v1, F v2 )}
 \begin{indpar}
-TBD
 
-These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
+These divide {\tt v1} by {\tt v2} and return {\tt r1} as the
 result rounded to an integer and {\tt r2} as the remainder.
 Here {\tt floor} rounds toward negative infinity, {\tt ceiling}
 rounds towards positive infinity, {\tt remainder} rounds toward
@@ -6375,14 +6374,14 @@ otherwise.
 \begin{indpar}
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
-	\tt int  int64  int32  int16  int8 \\
-	\tt uns  uns64  uns32  uns16  uns8 \\
+	\tt int  int128 int64  int32  int16  int8 \\
+	\tt uns  int128 uns64  uns32  uns16  uns8 \\
 	\end{tabular}
 \\[1ex]
 Standard arithmetic operators on {\tt v1} and {\tt v2}
 treated as binary unsigned integers.  When values are
 interpreted as two's complement signed integers, these
-operations also work.
+operations also give valid results.
 
 {\tt cin} is added to the result; {\tt cout} is the carry from
 the result.  Operands are made negative by bitwise complementing
@@ -6392,6 +6391,33 @@ them and adding 1 by setting {\tt cin = 1}.
 when values are interpreted as signed two's complement integers.
 If S0, S1, and Sr are the signs of {\tt v1}, {\tt v2}, and {\tt r},
 for two operand "+" this would equal {\tt S0 $=$ S1 $\neq$ Sr}.
+{\tt ovfl} is computed by some hardware, but is expensive to
+compute if not supported by hardware.  See
+{\tt com hardware["ovfl"]}.
+
+\end{indpar}
+
+{\tt I r = (I v1) \ttkey{"*"} ( I v2 )} \\
+{\tt U r, U cout = (U v1) \ttkey{"*"} ( U v2, U cin1 = 0, U cin2 = 0 )}
+\begin{indpar}
+Where {\tt I} is one of:
+	\begin{tabular}[t]{l}
+	\tt int  int128 int64  int32  int16 \\
+	\tt uns  uns128 uns64  uns32  uns16 \\
+	\end{tabular}
+\\[1ex]
+and {\tt U} is one of:
+	\begin{tabular}[t]{l}
+	\tt uns  uns64  uns32 \\
+	\end{tabular}
+\\[1ex]
+The version without carries is the standard arithmetic multiply.
+
+The version with carries is integer multiply of N-bit unsigned
+integers to produce a 2N-bit product to which \underline{both}
+{\tt cin1} and {\tt cin2} are
+added.  Of the result {\tt r} is the low order N bits
+and {\tt cout} is the high order N bits.
 
 \end{indpar}
 
