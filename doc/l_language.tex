@@ -4590,7 +4590,34 @@ Then if there is a single match with maximum rank, that match
 is accepted, and otherwise all matches fail and there is
 a compile error.
 
-TBD: Examples
+The following are examples using the builtin prototypes
+\begin{indpar}
+{\tt N r = std (N v1) "+" ( N v2 )} \\
+{\tt bool r = std (N v1) "==" ( N v2 )} \\
+{\tt float64 r = std float64 (N v1)}
+\end{indpar}
+which exist for every builtin numeric type {\tt N} except
+{\tt bool}.
+\begin{indpar}[1em]\begin{verbatim}
+int32 x = ...
+float64 r1 = x + 5
+    // Target type float64 selects N = float64 for "+".
+bool b1 = ( x == 5 )
+    // Target type bool and *EXACT* argument x select
+    // N = int32 for "==".
+float64 y = 5.5
+bool b2 = ( x == y )
+    // Target type bool and *EXACT* argument y select
+    // N = float64 for "==";  N = int32 version of "=="
+    // fails when it tries to implicitly convert y to
+    // int32.
+bool b2 = ( float64 ( x ) == 5 )
+    // All float64 functions have float64 result type,
+    // and as there is no implicit conversion of float64
+    // function results, "==" must have N = float64.
+    // The only float64 function with *EXACT* argument
+    // is the one with N = int32.
+\end{verbatim}\end{indpar}
 
 \subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
