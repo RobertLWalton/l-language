@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 26, 2022
+March 27, 2022
 
 \bigskip
  
@@ -6378,9 +6378,6 @@ A floating point {\tt NaN}
 is a quiet NaN with zero significand bits, except for the
 highest order bit which is one (to indicate that the NaN is quiet).
 
-\subsubsection{Builtin Floating Point Arithmetic}
-\label{BUILTIN-FLOATING-POINT-ARITHMETIC}
-
 {\tt F r = \ttkey{"+"} ( F v1 )} \\
 {\tt F r = \ttkey{"-"} ( F v1 )} \\
 {\tt F r = (F v1) \ttkey{"+"} ( F v2 )} \\
@@ -6443,6 +6440,24 @@ If the division quotient is an infinity, no flags are set and {\tt r}
 is set to the quotient.
 \end{indpar}
 
+{\tt bool r = (F v1) \ttkey{"=="} ( F v2 )} \\
+{\tt bool r = (F v1) \ttkey{"!="} ( F v2 )} \\
+{\tt bool r = (F v1) \ttkey{"<"} ( F v2 )} \\
+{\tt bool r = (F v1) \ttkey{"<="} ( F v2 )} \\
+{\tt bool r = (F v1) \ttkey{">"} ( F v2 )} \\
+{\tt bool r = (F v1) \ttkey{">="} ( F v2 )}
+\begin{indpar}
+Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
+
+Standard comparison operators on floating point numbers {\tt v1} and {\tt v2}.
+Infinities are treated as actual numbers with absolute value
+larger than any real number: e.g., if {\tt x} is not a {\tt NaN},
+`{\tt x <= +Inf}' is always
+true and `{\tt x == +Inf}' is true iff {\tt x} is {\tt +Inf}.
+If an argument is a {\tt NaN}, the result is undefined and an invalid
+flag is set.
+\end{indpar}
+
 {\tt bool r =} \ttkey{is nan} {\tt ( F v1 )} \\
 {\tt bool r =} \ttkey{is infinity} {\tt ( F v1 )} \\
 {\tt bool r =} \ttkey{is finite} {\tt ( F v1 )}
@@ -6461,8 +6476,9 @@ and returns {\tt 0} otherwise.
 \end{itemlist}
 \end{indpar}
 
-\subsubsection{Builtin Integer Arithmetic}
-\label{BUILTIN-INTEGER-ARITHMETIC}
+\subsection{Builtin Integer Operations}
+\label{BUILTIN-INTEGER-OPERATIONS}
+
 
 {\tt I r, bool cout, bool ovfl = \ttkey{"+"} ( I v1, bool cin = 0 )} \\
 {\tt I r, bool cout, bool ovfl = \ttkey{"-"} ( I v1, bool cin = 1 )} \\
@@ -6544,37 +6560,54 @@ that case where {\tt v2 $=$ 0}).
 
 \end{indpar}
 
-{\tt const r = (const i1) \ttkey{"\&"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"|"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"\textasciicircum"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"<{}<"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{">{}>"} ( const i2 )}
+{\tt I r =        \ttkey{"\textasciitilde"} ( I v1 )} \\
+{\tt I r = (I v1) \ttkey{"\&"} ( I v2 )} \\
+{\tt I r = (I v1) \ttkey{"|"} ( I v2 )} \\
+{\tt I r = (I v1) \ttkey{"\textasciicircum"} ( I v2 )}
 \begin{indpar}
-TBD
-
-Standard bitwise operators on integers {\tt i1} and {\tt i2}
-that are treated as two's complement.
-{\tt "<{}<}" and {\tt ">{}>"}, {\tt i2}, the amount of the shift,
-must not be negative.  Overflows for number {\tt <{}<} shift
-produce an {\tt UNDEF} result and a compiler error message.
+Where {\tt I} is one of:
+	\begin{tabular}[t]{l}
+	\tt int  int128 int64  int32  int16 int8 \\
+	\tt uns  uns128 uns64  uns32  uns16 uns8 bool \\
+	\end{tabular}
+\\[1ex]
+Standard bitwise operators, not ({\tt \textasciitilde}),
+and ({\tt \&}), or ({\tt |}), and exclusive or ({\tt \textasciicircum}),
+on integers {\tt v1} and {\tt v2}
+that are treated as two's complement if signed.
 \end{indpar}
 
-{\tt const r = (const n1) \ttkey{"=="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"!="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"<"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"<="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{">"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{">="} ( const n2 )}
+{\tt I r = (I v1) \ttkey{"<{}<"} ( int v2 )} \\
+{\tt I r = (I v1) \ttkey{">{}>"} ( int v2 )}
 \begin{indpar}
-TBD
+Where {\tt I} is one of:
+	\begin{tabular}[t]{l}
+	\tt int  int128 int64  int32  int16 int8 \\
+	\tt uns  uns128 uns64  uns32  uns16 uns8 \\
+	\end{tabular}
+\\[1ex]
+Standard bitwise shifts of integer {\tt v1} by the amount {\tt v2}.
+If signed, {\tt v1} is treated as two's complement.
+The amount of shift, {\tt v2}, must be in the range
+[0,{\tt I..size}); values out of range produce undefined results.
+Bits shifted out at the left or
+right side are discarded.
+\end{indpar}
 
-Standard comparison operators on numbers or rationals {\tt n1} and {\tt n2}.
-Infinities are treated as actual numbers with absolute value
-larger than any real number: e.g., if {\tt x} is not a {\tt NaN},
-`{\tt x <= +Inf}' is always
-{\tt TRUE} and `{\tt x == +Inf}' is {\tt TRUE} iff {\tt x} is {\tt +Inf}.
-If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
-except {\tt !=} which returns {\tt TRUE}.
+{\tt bool r = (I v1) \ttkey{"=="} ( I v2 )} \\
+{\tt bool r = (I v1) \ttkey{"!="} ( I v2 )} \\
+{\tt bool r = (I v1) \ttkey{"<"} ( I v2 )} \\
+{\tt bool r = (I v1) \ttkey{"<="} ( I v2 )} \\
+{\tt bool r = (I v1) \ttkey{">"} ( I v2 )} \\
+{\tt bool r = (I v1) \ttkey{">="} ( I v2 )}
+\begin{indpar}
+Where {\tt I} is one of:
+	\begin{tabular}[t]{l}
+	\tt int  int128 int64  int32  int16 int8 \\
+	\tt uns  uns128 uns64  uns32  uns16 uns8 bool \\
+	\end{tabular}
+\\[1ex]
+Standard comparison operators on integers {\tt v1} and {\tt v2}.
 \end{indpar}
 	
 
