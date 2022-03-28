@@ -4592,9 +4592,9 @@ a compile error.
 
 The following are examples using the builtin prototypes
 \begin{indpar}
-{\tt N r = std (N v1) "+" ( N v2 )} \\
-{\tt bool r = std (N v1) "==" ( N v2 )} \\
-{\tt float64 r = std float64 (N v1)}
+{\tt function N r = std (N v1) "+" ( N v2 )} \\
+{\tt function bool r = std (N v1) "==" ( N v2 )} \\
+{\tt function float64 r = std float64 (N v1)}
 \end{indpar}
 which exist for every builtin numeric type {\tt N} except
 {\tt bool}.
@@ -5575,8 +5575,8 @@ are converted to {\tt +Inf} or {\tt -Inf}.
 
 \subsection{Compile Time General Functions}
 
-{\tt const r = (const v1) \ttkey{"=="} ( const v2 )} \\
-{\tt const r = (const v1) \ttkey{"!="} ( const v2 )}
+{\tt function const r = (const v1) \ttkey{"=="} ( const v2 )} \\
+{\tt function const r = (const v1) \ttkey{"!="} ( const v2 )}
 \begin{indpar}
 If any argument is a number and the other is rational,
 the rational is converted to a number before the comparison.
@@ -5584,7 +5584,7 @@ Otherwise comparisons of {\tt const} values of different types treat
 the values as unequal.
 \end{indpar}
 
-{\tt const r = \ttkey{type} ( const v1 )}
+{\tt function const r = \ttkey{type} ( const v1 )}
 \begin{indpar}
 Returns the type of {\tt v1} as one of the strings: \\
 \hspace*{0.5in}{\tt
@@ -5598,8 +5598,8 @@ If one argument is a number and the others are rational,
 the rational arguments are converted to numbers before
 the function executes.
 
-{\tt const r = \ttkey{number} ( const v1 )} \\
-{\tt const r = \ttkey{rational} ( const v1 )}
+{\tt function const r = \ttkey{number} ( const v1 )} \\
+{\tt function const r = \ttkey{rational} ( const v1 )}
 \begin{indpar}
 These convert their argument to a number or rational.  If
 a single argument is a string, it must have the format of
@@ -5624,12 +5624,12 @@ Note that numbers can always be converted to rationals
 and vice versa (results may be {\tt +Inf} or {\tt -Inf}).
 \end{indpar}
 
-{\tt const r = \ttkey{"+"} ( const n1 )} \\
-{\tt const r = \ttkey{"-"} ( const n1 )} \\
-{\tt const r = (const n1) \ttkey{"+"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"-"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"*"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"/"} ( const n2 )}
+{\tt function const r = \ttkey{"+"} ( const n1 )} \\
+{\tt function const r = \ttkey{"-"} ( const n1 )} \\
+{\tt function const r = (const n1) \ttkey{"+"} ( const n2 )} \\
+{\tt function const r = (const n1) \ttkey{"-"} ( const n2 )} \\
+{\tt function const r = (const n1) \ttkey{"*"} ( const n2 )} \\
+{\tt function const r = (const n1) \ttkey{"/"} ( const n2 )}
 \begin{indpar}
 Standard arithmetic operators on numbers {\tt n1} and {\tt n2},
 done using IEEE number or rational arithmetic.
@@ -5640,11 +5640,11 @@ arguments.  Dividing by {\tt 0} returns {\tt UNDEF} and outputs a
 compiler error message if all arguments are rational.
 \end{indpar}
 
-{\tt const r = (const i1) \ttkey{"\&"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"|"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"\textasciicircum"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{"<{}<"} ( const i2 )} \\
-{\tt const r = (const i1) \ttkey{">{}>"} ( const i2 )}
+{\tt function const r = (const i1) \ttkey{"\&"} ( const i2 )} \\
+{\tt function const r = (const i1) \ttkey{"|"} ( const i2 )} \\
+{\tt function const r = (const i1) \ttkey{"\textasciicircum"} ( const i2 )} \\
+{\tt function const r = (const i1) \ttkey{"<{}<"} ( const i2 )} \\
+{\tt function const r = (const i1) \ttkey{">{}>"} ( const i2 )}
 \begin{indpar}
 Standard bitwise operators on integers {\tt i1} and {\tt i2}
 that are treated as two's complement.  For the shift operators
@@ -5653,12 +5653,12 @@ must not be negative.  Overflows for number {\tt <{}<} shift
 produce an {\tt UNDEF} result and a compiler error message.
 \end{indpar}
 
-{\tt const r = (const n1) \ttkey{"=="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"!="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"<"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{"<="} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{">"} ( const n2 )} \\
-{\tt const r = (const n1) \ttkey{">="} ( const n2 )}
+{\tt function const r = (const n1) \ttkey{"=="} ( const n2 )} \\
+{\tt function const r = (const n1) \ttkey{"!="} ( const n2 )} \\
+{\tt function const r = (const n1) \ttkey{"<"} ( const n2 )} \\
+{\tt function const r = (const n1) \ttkey{"<="} ( const n2 )} \\
+{\tt function const r = (const n1) \ttkey{">"} ( const n2 )} \\
+{\tt function const r = (const n1) \ttkey{">="} ( const n2 )}
 \begin{indpar}
 Standard comparison operators on numbers or rationals {\tt n1} and {\tt n2}.
 Infinities are treated as actual numbers with absolute value
@@ -5669,10 +5669,10 @@ If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
 except {\tt !=} which returns {\tt TRUE}.
 \end{indpar}
 
-{\tt const r1, const r2 = \ttkey{floor} (const n1, const n2 )} \\
-{\tt const r1, const r2 = \ttkey{ceiling} (const n1, const n2 )} \\
-{\tt const r1, const r2 = \ttkey{truncate} (const n1, const n2 )} \\
-{\tt const r1, const r2 = \ttkey{round} (const n1, const n2 )}
+{\tt function const r1, const r2 = \ttkey{floor} (const n1, const n2 )} \\
+{\tt function const r1, const r2 = \ttkey{ceiling} (const n1, const n2 )} \\
+{\tt function const r1, const r2 = \ttkey{truncate} (const n1, const n2 )} \\
+{\tt function const r1, const r2 = \ttkey{round} (const n1, const n2 )}
 \begin{indpar}
 These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
 result rounded to an integer and {\tt r2} as the remainder.
@@ -5688,14 +5688,14 @@ arguments are rationals and the divisor is zero, return
 {\tt UNDEF}s and output a compiler error message.
 \end{indpar}
 
-{\tt const r =} \ttkey{numerator} {\tt ( const r1 )} \\
-{\tt const r =} \ttkey{denominator} {\tt ( const r1 )}
+{\tt function const r =} \ttkey{numerator} {\tt ( const r1 )} \\
+{\tt function const r =} \ttkey{denominator} {\tt ( const r1 )}
 \begin{indpar}
 These functions return the numerator and denominator of a rational.
 Both numerator and denominator are integer {\tt rationals}.
 \end{indpar}
 
-{\tt const r =} \ttkey{is nan} {\tt ( const v1 )}
+{\tt function const r =} \ttkey{is nan} {\tt ( const v1 )}
 \begin{indpar}
 Return {\tt TRUE} if {\tt v1} is a Nan number, and {\tt FALSE}
 otherwise.
@@ -5703,7 +5703,7 @@ otherwise.
 
 \subsection{Compile Time String Functions}
 
-{\tt const r =} \ttkey{"\#"} {\tt ( const s )}
+{\tt function const r =} \ttkey{"\#"} {\tt ( const s )}
 \begin{indpar}
 Returns the length of string {\tt s} as a non-negative integer
 {\tt number}.\footnote{The length of a {\tt string} cannot
@@ -5712,13 +5712,13 @@ be above $2^{48}$ while
 Note that {\tt \#} is a prefix operator.
 \end{indpar}
 
-{\tt const r =} (const s1) \ttkey{"+"} {\tt ( const s2 )}
+{\tt function const r =} (const s1) \ttkey{"+"} {\tt ( const s2 )}
 \begin{indpar}
 Returns the concatenation of string {\tt s1}
 and string {\tt s2}.
 \end{indpar}
 
-{\tt const r =} \ttkey{sprintf}
+{\tt function const r =} \ttkey{sprintf}
     {\tt ( \begin{tabular}[t]{@{}l}
             const format, const a1, \\
 	    const a2 = "", const a3 = "", const a4 = "" )
@@ -5733,12 +5733,12 @@ Rational data arguments are converted to numbers first.  Map data arguments
 are not allowed.
 \end{indpar}
 
-{\tt const r =} (const s1) \ttkey{"=="} {\tt ( const s2 )} \\
-{\tt const r =} (const s1) \ttkey{"!="} {\tt ( const s2 )} \\
-{\tt const r =} (const s1) \ttkey{"<"} {\tt ( const s2 )} \\
-{\tt const r =} (const s1) \ttkey{"<="} {\tt ( const s2 )} \\
-{\tt const r =} (const s1) \ttkey{">"} {\tt ( const s2 )} \\
-{\tt const r =} (const s1) \ttkey{">="} {\tt ( const s2 )}
+{\tt function const r =} (const s1) \ttkey{"=="} {\tt ( const s2 )} \\
+{\tt function const r =} (const s1) \ttkey{"!="} {\tt ( const s2 )} \\
+{\tt function const r =} (const s1) \ttkey{"<"} {\tt ( const s2 )} \\
+{\tt function const r =} (const s1) \ttkey{"<="} {\tt ( const s2 )} \\
+{\tt function const r =} (const s1) \ttkey{">"} {\tt ( const s2 )} \\
+{\tt function const r =} (const s1) \ttkey{">="} {\tt ( const s2 )}
 \begin{indpar}
 Standard lexigraphic comparison operators on strings {\tt s1} and {\tt s2}.
 Characters are compared by comparing their {\tt UTF-8} representations
@@ -5752,13 +5752,13 @@ this is equivalent to comparing the characters
 by comparing their UNICODE codes as unsigned 32-bit integers.
 \end{indpar}
 
-{\tt const r =} \ttkey{explode} {\tt ( const s )}
+{\tt function const r =} \ttkey{explode} {\tt ( const s )}
 \begin{indpar}
 Returns a map that is a vector whose elements are unsigned integer {\tt numbers}
 equal to the UNICODE codes of the characters of string {\tt s}.
 \end{indpar}
 
-{\tt const r =} \ttkey{implode} {\tt ( const m )}
+{\tt function const r =} \ttkey{implode} {\tt ( const m )}
 \begin{indpar}
 Given a map {\tt m} that is a vector whose elements are unsigned integer
 {\tt numbers}
@@ -5766,7 +5766,7 @@ that are UNICODE codes of characters, return the string whose characters
 are those specified by the map elements in the order specified by the map.
 \end{indpar}
 
-{\tt const r =} \ttkey{compile re} ( const s )
+{\tt function const r =} \ttkey{compile re} ( const s )
 \begin{indpar}
 Compile the regular expression represented by the string {\tt s}
 and return an integer that references the compiled expression.
@@ -5781,14 +5781,14 @@ This can be changed by the {\tt (?i)} option setter in the
 regular expression.
 \end{indpar}
 
-\ttkey{free re} ( const i )
+{\tt function} \ttkey{free re} ( const i )
 \begin{indpar}
 Free the memory used by the compiled regular expression
 referenced by the integer {\tt i}.  Does nothing if {\tt i}
 does not reference a compiled regular expression.
 \end{indpar}
 
-{\tt const r =} \ttkey{match re} ( const i, const s  )
+{\tt function const r =} \ttkey{match re} ( const i, const s  )
 \begin{indpar}
 Matches the string {\tt s} to the compiled regular expression
 referenced by the integer {\tt i}.
@@ -5803,7 +5803,7 @@ unsigned 32-bit unicode values.  Substrings matched are
 subvectors which are imploded to make {\tt const} string values.
 \end{indpar}
 
-{\tt const r =} \ttkey{scan} ( const s  )
+{\tt function const r =} \ttkey{scan} ( const s  )
 \begin{indpar}
 Scan the string {\tt s} and return a map that is a vector
 containing the list of lexemes in {\tt s}.  Brackets and
@@ -5818,7 +5818,7 @@ Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
-{\tt const r =} \ttkey{parse brackets} ( const s  )
+{\tt function const r =} \ttkey{parse brackets} ( const s  )
 \begin{indpar}
 Equivalent to {\tt `{\rm \em value of} s'}.
 See {\em phrase-constants}: \pagref{PHRASE-CONSTANT}.
@@ -5829,7 +5829,7 @@ Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
-{\tt const r =} \ttkey{parse} ( const s  )
+{\tt function const r =} \ttkey{parse} ( const s  )
 \begin{indpar}
 Equivalent to {\tt \{* {\rm \em value of} s *\}}.
 See {\em expression-constants}: \pagref{EXPRESSION-CONSTANT}.
@@ -5852,8 +5852,8 @@ be modified.  Each {\em map-constant} makes a separate read-only
 map that can be made read-write permanently or temporarily by
 the following:
 
-{\tt const r =} \ttkey{read-write} {\tt ( const m )} \\
-{\tt const r =} \ttkey{read-only} {\tt ( const m )}
+{\tt function const r =} \ttkey{read-write} {\tt ( const m )} \\
+{\tt function const r =} \ttkey{read-only} {\tt ( const m )}
 \begin{indpar}
 Makes the map {\tt m} read-write or read-only and returns {\tt m}.
 
@@ -5864,8 +5864,8 @@ Each map {\em dictionary-entry} can be separately made read-write or
 read-only.  When created, the entry is read-write.  This can be
 changed by the following:
 
-{\tt const r =} \ttkey{read-write} {\tt ( const m, const s )} \\
-{\tt const r =} \ttkey{read-only} {\tt ( const m, const s )} %
+{\tt function const r =} \ttkey{read-write} {\tt ( const m, const s )} \\
+{\tt function const r =} \ttkey{read-only} {\tt ( const m, const s )} %
 \label{READ-ONLY-DICTIONARY-FUNCTION}
 \begin{indpar}
 Makes the map label {\tt s} (a string) of the map {\tt m}
@@ -5881,7 +5881,7 @@ permanently read-only or may be written only by the compiler
 during compilation.
 \end{indpar}
 
-{\tt const r =} \ttkey{"\#"} {\tt ( const m )}
+{\tt function const r =} \ttkey{"\#"} {\tt ( const m )}
 \begin{indpar}
 Returns the length of the vector part of the map {\tt m}
 as a non-negative integer
@@ -5891,7 +5891,7 @@ be above $2^{48}$ while
 Note that {\tt \#} is a prefix operator.
 \end{indpar}
 
-{\tt const r =} \ttkey{labels} {\tt ( const m )}
+{\tt function const r =} \ttkey{labels} {\tt ( const m )}
 \begin{indpar}
 Returns a list of the {\em dictionary-labels}
 (see \pagref{DICTIONARY-LABEL}) of map {\tt m}.
@@ -5899,7 +5899,7 @@ The {\em dictionary-labels} are strings.  The list may be empty.
 \end{indpar}
 
 
-{\tt const r =} {\tt ( const m ) [ const s ]}
+{\tt function const r =} {\tt ( const m ) [ const s ]}
 \begin{indpar}
 Here {\tt m} is map and {\tt m[s]} is used to reference a
 vector element or dictionary entry of {\tt m} as follows:
@@ -5927,8 +5927,8 @@ a compile-error results.
 \end{enumerate}
 \end{indpar}
 
-{\tt const r =} \ttkey{copy} {\tt ( const m )} \\
-{\tt const r =} \ttkey{copy top} {\tt ( const m )} %
+{\tt function const r =} \ttkey{copy} {\tt ( const m )} \\
+{\tt function const r =} \ttkey{copy top} {\tt ( const m )} %
 \label{MAP-COPY}
 \begin{indpar}
 Returns a new map whose contents is a copy of the contents of
@@ -5948,14 +5948,14 @@ modifying these element values will change the elements of {\tt m}.
 
 \end{indpar}
 
-{\tt const r =} \ttkey{duplicate} {\tt ( const m )} \\
-{\tt const r =} \ttkey{duplicate top} {\tt ( const m )}
+{\tt function const r =} \ttkey{duplicate} {\tt ( const m )} \\
+{\tt function const r =} \ttkey{duplicate top} {\tt ( const m )}
 \begin{indpar}
 Ditto, but if any read-only map is to be copied, the pointer
 to the map is copied and no new map is made.
 \end{indpar}
 
-{\tt const r =} \ttkey{slice} {\tt ( const m, const i, const n )}
+{\tt function const r =} \ttkey{slice} {\tt ( const m, const i, const n )}
 \begin{indpar}
 If {\tt i >= 0}, returns a new map consisting of just a vector of the
 elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.  
@@ -5968,7 +5968,8 @@ If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
 {\tt \# m + i == 0}.
 \end{indpar}
 
-{\tt const r =} \ttkey{splice} {\tt ( const m, const i, const n, const v )}
+{\tt function const r =} \ttkey{splice}
+    {\tt ( const m, const i, const n, const v )}
 \begin{indpar}
 If {\tt i >= 0}, edits {\tt m} by replacing the vector element sequence
 {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]} by the
@@ -5983,7 +5984,7 @@ If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
 {\tt \# m + i == 0}.
 \end{indpar}
 
-{\tt const r =} \ttkey{truncate} {\tt ( const m, const i )}
+{\tt function const r =} \ttkey{truncate} {\tt ( const m, const i )}
 \begin{indpar}
 An optimized version of {\tt splice} that removes the elements
 {\tt m[i]}, {\tt m[i+1]}, \ldots, from the end of the vector of {\tt v}.
@@ -5994,30 +5995,30 @@ If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
 all elements of the vector are removed.
 \end{indpar}
 
-{\tt const r =} \ttkey{push} {\tt ( const m, const v )}
+{\tt function const r =} \ttkey{push} {\tt ( const m, const v )}
 \begin{indpar}
 Appends {\tt v} to the vector of {\tt m} and returns {\tt m}.
 \end{indpar}
 
-{\tt const r =} \ttkey{push} {\tt ( const m, const v, const i )}
+{\tt function const r =} \ttkey{push} {\tt ( const m, const v, const i )}
 \begin{indpar}
 Executes {\tt push(m,v)} {\tt i} times.  It is an error if {\em i}
 is a negative integer.
 \end{indpar}
 
-{\tt const r =} \ttkey{append} {\tt ( const m1, const m2 )}
+{\tt function const r =} \ttkey{append} {\tt ( const m1, const m2 )}
 \begin{indpar}
 Appends the vector elements of the map {\tt m2} to the vector of {\tt m1}
 and returns {\tt m1}.
 \end{indpar}
 
-{\tt const r =} \ttkey{pull} {\tt ( const m )}
+{\tt function const r =} \ttkey{pull} {\tt ( const m )}
 \begin{indpar}
 Deletes the last vector element of {\tt m} and returns it.
 Returns {\tt NONE} if {\tt m} is empty.
 \end{indpar}
 
-{\tt const r =} \ttkey{pull} {\tt ( const m, const i )}
+{\tt function const r =} \ttkey{pull} {\tt ( const m, const i )}
 \begin{indpar}
 Deletes the last {\tt i} vector elements of {\tt m} and returns a map
 containing them.  If there are fewer than {\tt i} vector elements
@@ -6273,7 +6274,11 @@ See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 Any value of number type {\tt N1} can be implicitly converted to a value
 of number type {\tt N2} if every value of type {\tt N1} can be
 precisely represented by a value of type {\tt N2}.  More specifically,
-the implicit conversions are defined as follows:
+the implicit conversions are defined by:
+\begin{indpar} \tt
+function N2 r = *IMPLICIT* *CONVERSION* ( N1 v )
+\end{indpar}
+in the following cases:
 \begin{center}
 \begin{tabular}{l|c|c|c|}
 \multicolumn{1}{c}{}	& \multicolumn{3}{c}{\tt N1} \\
@@ -6340,7 +6345,7 @@ See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 Explict conversion from values of number type {\tt N1} to values
 of number type {\tt N2} are defined by:
 \begin{indpar} \tt
-function N2 r = *IMPLICIT* *CONVERSION* ( N1 v )
+function N2 r = N2 ( N1 v )
 \end{indpar}
 in the following cases:
 \begin{itemlist}[0.5in]
@@ -6363,9 +6368,9 @@ in the following cases:
 Unchecked explict conversion from values of number type {\tt N1} to values
 of number type {\tt N2} are defined as follows:
 \begin{itemlist}[0.5in]
-\item[\tt int\ldots{}~r1 = *UNCHECKED* ( N1 v )]
-\item[\tt uns\ldots{}~r1 = *UNCHECKED* ( N1 v )] \vspace*{-0.1in}
-\item[\tt bool = *UNCHECKED* ( N1 v )] \vspace*{-0.1in} ~\\
+\item[\tt function int\ldots{}~r1 = *UNCHECKED* ( N1 v )]
+\item[\tt function uns\ldots{}~r1 = *UNCHECKED* ( N1 v )] \vspace*{-0.1in}
+\item[\tt function bool = *UNCHECKED* ( N1 v )] \vspace*{-0.1in} ~\\
 These are defined only if an explicit conversion {\tt N2(v)}
 is not defined.  The value {\tt v} is truncated, which may lose high
 order bits and change the sign of the value.
@@ -6378,12 +6383,12 @@ A floating point {\tt NaN}
 is a quiet NaN with zero significand bits, except for the
 highest order bit which is one (to indicate that the NaN is quiet).
 
-{\tt F r = \ttkey{"+"} ( F v1 )} \\
-{\tt F r = \ttkey{"-"} ( F v1 )} \\
-{\tt F r = (F v1) \ttkey{"+"} ( F v2 )} \\
-{\tt F r = (F v1) \ttkey{"-"} ( F v2 )} \\
-{\tt F r = (F v1) \ttkey{"*"} ( F v2 )} \\
-{\tt F r = (F v1) \ttkey{"/"} ( F v2 )}
+{\tt function F r = \ttkey{"+"} ( F v1 )} \\
+{\tt function F r = \ttkey{"-"} ( F v1 )} \\
+{\tt function F r = (F v1) \ttkey{"+"} ( F v2 )} \\
+{\tt function F r = (F v1) \ttkey{"-"} ( F v2 )} \\
+{\tt function F r = (F v1) \ttkey{"*"} ( F v2 )} \\
+{\tt function F r = (F v1) \ttkey{"/"} ( F v2 )}
 \begin{indpar}
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 \\[1ex]
@@ -6420,10 +6425,10 @@ going to the value whose least significant bit is zero.
 \end{itemlist}
 \end{indpar}
 
-{\tt F r = \ttkey{floor} (F v1, F v2 = 1.0 )} \\
-{\tt F r = \ttkey{ceiling} (F v1, F v2 = 1.0 )} \\
-{\tt F r = \ttkey{truncate} (F v1, F v2 = 1.0 )} \\
-{\tt F r = \ttkey{round} (F v1, F v2 = 1.0 )}
+{\tt function F r = \ttkey{floor} (F v1, F v2 = 1.0 )} \\
+{\tt function F r = \ttkey{ceiling} (F v1, F v2 = 1.0 )} \\
+{\tt function F r = \ttkey{truncate} (F v1, F v2 = 1.0 )} \\
+{\tt function F r = \ttkey{round} (F v1, F v2 = 1.0 )}
 \begin{indpar}
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 
@@ -6440,12 +6445,12 @@ If the division quotient is an infinity, no flags are set and {\tt r}
 is set to the quotient.
 \end{indpar}
 
-{\tt bool r = (F v1) \ttkey{"=="} ( F v2 )} \\
-{\tt bool r = (F v1) \ttkey{"!="} ( F v2 )} \\
-{\tt bool r = (F v1) \ttkey{"<"} ( F v2 )} \\
-{\tt bool r = (F v1) \ttkey{"<="} ( F v2 )} \\
-{\tt bool r = (F v1) \ttkey{">"} ( F v2 )} \\
-{\tt bool r = (F v1) \ttkey{">="} ( F v2 )}
+{\tt function bool r = (F v1) \ttkey{"=="} ( F v2 )} \\
+{\tt function bool r = (F v1) \ttkey{"!="} ( F v2 )} \\
+{\tt function bool r = (F v1) \ttkey{"<"} ( F v2 )} \\
+{\tt function bool r = (F v1) \ttkey{"<="} ( F v2 )} \\
+{\tt function bool r = (F v1) \ttkey{">"} ( F v2 )} \\
+{\tt function bool r = (F v1) \ttkey{">="} ( F v2 )}
 \begin{indpar}
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 
@@ -6458,9 +6463,9 @@ If an argument is a {\tt NaN}, the result is undefined and an invalid
 flag is set.
 \end{indpar}
 
-{\tt bool r =} \ttkey{is nan} {\tt ( F v1 )} \\
-{\tt bool r =} \ttkey{is infinity} {\tt ( F v1 )} \\
-{\tt bool r =} \ttkey{is finite} {\tt ( F v1 )}
+{\tt function bool r =} \ttkey{is nan} {\tt ( F v1 )} \\
+{\tt function bool r =} \ttkey{is infinity} {\tt ( F v1 )} \\
+{\tt function bool r =} \ttkey{is finite} {\tt ( F v1 )}
 \begin{indpar}
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, {\tt flt32}, or {\tt flt16}.
 \begin{itemlist}
@@ -6476,14 +6481,37 @@ and returns {\tt 0} otherwise.
 \end{itemlist}
 \end{indpar}
 
+{\tt
+type~\ttkey{FP flags}: \\
+\begin{tabular}[t]{@{~~~~~}l}
+\tt uns flags \\
+\tt [\ldots] bool invalid \\
+\tt [\ldots] bool divide by zero \\
+\tt [\ldots] bool overflow \\
+\tt [\ldots] bool underflow \\
+\tt [\ldots] bool inexact \\
+\end{tabular} \\
+}
+{\tt function FP flags r =} \ttkey{FP flags register} \\
+{\tt function} \ttkey{FP flags register} {\tt = FP flags v}
+\begin{indpar}
+The hardware floating point flags can be read into a datum of type
+{\tt FP flags} and an {\tt FP flags} datum can be written
+to the hardware floating point flags by using the {\tt FP flags register}
+functions.  The exact bits in the data that contain the flags
+are implementation dependent, and are here represented by `{\tt \ldots{}}'.
+\end{indpar}
+
 \subsection{Builtin Integer Operations}
 \label{BUILTIN-INTEGER-OPERATIONS}
 
 
-{\tt I r, bool cout, bool ovfl = \ttkey{"+"} ( I v1, bool cin = 0 )} \\
-{\tt I r, bool cout, bool ovfl = \ttkey{"-"} ( I v1, bool cin = 1 )} \\
-{\tt I r, bool cout, bool ovfl = (I v1) \ttkey{"+"} ( I v2, bool cin = 0 )} \\
-{\tt I r, bool cout, bool ovfl = (I v1) \ttkey{"-"} ( I v2, bool cin = 1 )}
+{\tt function I r, bool cout, bool ovfl = \ttkey{"+"} ( I v1, bool cin = 0 )} \\
+{\tt function I r, bool cout, bool ovfl = \ttkey{"-"} ( I v1, bool cin = 1 )} \\
+{\tt function I r, bool cout, bool ovfl =
+    (I v1) \ttkey{"+"} ( I v2, bool cin = 0 )} \\
+{\tt function I r, bool cout, bool ovfl =
+    (I v1) \ttkey{"-"} ( I v2, bool cin = 1 )}
 \begin{indpar}
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
@@ -6510,8 +6538,8 @@ compute if not supported by hardware.  See
 
 \end{indpar}
 
-{\tt I r = (I v1) \ttkey{"*"} ( I v2 )} \\
-{\tt U r, U cout = (U v1) \ttkey{"*"} ( U v2, U cin1 = 0, U cin2 = 0 )}
+{\tt function I r = (I v1) \ttkey{"*"} ( I v2 )} \\
+{\tt function U r, U cout = (U v1) \ttkey{"*"} ( U v2, U cin1 = 0, U cin2 = 0 )}
 \begin{indpar}
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
@@ -6534,8 +6562,8 @@ and {\tt cout} is the high order N bits.
 
 \end{indpar}
 
-{\tt I r = (I v1) \ttkey{"/"} ( I v2 )} \\
-{\tt U r, U cout = (U v1, U cin = 0) \ttkey{"/"} ( U v2 )}
+{\tt function I r = (I v1) \ttkey{"/"} ( I v2 )} \\
+{\tt function U r, U cout = (U v1, U cin = 0) \ttkey{"/"} ( U v2 )}
 \begin{indpar}
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
@@ -6560,10 +6588,10 @@ that case where {\tt v2 $=$ 0}).
 
 \end{indpar}
 
-{\tt I r =        \ttkey{"\textasciitilde"} ( I v1 )} \\
-{\tt I r = (I v1) \ttkey{"\&"} ( I v2 )} \\
-{\tt I r = (I v1) \ttkey{"|"} ( I v2 )} \\
-{\tt I r = (I v1) \ttkey{"\textasciicircum"} ( I v2 )}
+{\tt function I r =        \ttkey{"\textasciitilde"} ( I v1 )} \\
+{\tt function I r = (I v1) \ttkey{"\&"} ( I v2 )} \\
+{\tt function I r = (I v1) \ttkey{"|"} ( I v2 )} \\
+{\tt function I r = (I v1) \ttkey{"\textasciicircum"} ( I v2 )}
 \begin{indpar}
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
@@ -6577,8 +6605,8 @@ on integers {\tt v1} and {\tt v2}
 that are treated as two's complement if signed.
 \end{indpar}
 
-{\tt I r = (I v1) \ttkey{"<{}<"} ( int v2 )} \\
-{\tt I r = (I v1) \ttkey{">{}>"} ( int v2 )}
+{\tt function I r = (I v1) \ttkey{"<{}<"} ( int v2 )} \\
+{\tt function I r = (I v1) \ttkey{">{}>"} ( int v2 )}
 \begin{indpar}
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
@@ -6594,12 +6622,12 @@ Bits shifted out at the left or
 right side are discarded.
 \end{indpar}
 
-{\tt bool r = (I v1) \ttkey{"=="} ( I v2 )} \\
-{\tt bool r = (I v1) \ttkey{"!="} ( I v2 )} \\
-{\tt bool r = (I v1) \ttkey{"<"} ( I v2 )} \\
-{\tt bool r = (I v1) \ttkey{"<="} ( I v2 )} \\
-{\tt bool r = (I v1) \ttkey{">"} ( I v2 )} \\
-{\tt bool r = (I v1) \ttkey{">="} ( I v2 )}
+{\tt function bool r = (I v1) \ttkey{"=="} ( I v2 )} \\
+{\tt function bool r = (I v1) \ttkey{"!="} ( I v2 )} \\
+{\tt function bool r = (I v1) \ttkey{"<"} ( I v2 )} \\
+{\tt function bool r = (I v1) \ttkey{"<="} ( I v2 )} \\
+{\tt function bool r = (I v1) \ttkey{">"} ( I v2 )} \\
+{\tt function bool r = (I v1) \ttkey{">="} ( I v2 )}
 \begin{indpar}
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
