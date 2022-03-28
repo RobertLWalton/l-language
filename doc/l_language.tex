@@ -1670,7 +1670,7 @@ and `operand' to mean {\em (P+1)-expression}:
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
-\ttkey{separator}
+\ttkey{separator}\label{SEPARATOR-FORMAT}
     & All operators in the expression must be identical.
       There are no other constraints on the expression.  An implied empty
       operand is inserted between two consecutive operators,
@@ -5534,6 +5534,85 @@ counting GC.
 Of course reference counting GC cannot collect data containing
 pointer loops, such as circular lists.
 
+\section{Non-Function Operators}
+
+The marjority of operators map onto functions.  For example, \\
+\centerline{{\tt x + y} maps onto {\tt x "+" y}}
+
+However the following operators do \underline{not} map onto functions:
+
+\begin{itemlist}[0.2in]
+\item[prefix \TT{if}]
+\item[prefix \TT{else if}] \vspace*{-0.15in}
+\item[initial \TT{else}] \vspace*{-0.15in} ~\\
+See Conditional Statments\pagnote{CONDITIONAL-STATEMENTS}.
+
+\item[prefix \TT{while}]
+\item[prefix \TT{until}] \vspace*{-0.15in} ~\\
+See Loop Assignment Statments\pagnote{LOOP-ASSIGNMENT-STATEMENTS}.
+
+\item[infix \TT{=}] ~\\
+See Assignment Statments\pagnote{ASSIGNMENT-STATEMENTS}.
+
+\item[infix \TT{+=}]
+\item[infix \TT{-=}] \vspace*{-0.15in}
+\item[infix \TT{*=}] \vspace*{-0.15in}
+\item[infix \TT{/=}] \vspace*{-0.15in}
+\item[infix \TT{|=}] \vspace*{-0.15in}
+\item[infix \TT{\&=}] \vspace*{-0.15in}
+\item[infix \TT{\textasciicircum=}] \vspace*{-0.15in}
+\item[infix \TT{<{}<{}=}] \vspace*{-0.15in}
+\item[infix \TT{>{}>{}=}] \vspace*{-0.15in} ~\\
+The statement `{\tt x += y}' is syntactic sugar for `{\tt x = x + y}'.
+
+Similarly for the other operators of the form `\TT{$B$=}'
+where $B$ is a binary operator,
+the statement `{\tt x $B$= y}' is syntactic sugar for `{\tt x = x $B$ y}'.
+
+\item[infix \TT{-{}-{}-{}>}] ~\\
+See Abbreviation Statments\pagnote{ABBREVIATION-STATEMENT}.
+
+\item[nofix \TT{,}] ~\\
+Becomes a {\tt .separator} annotation on a list.  See
+the operator separator format\pagnote{SEPARATOR-FORMAT}.
+
+\item[infix \TT{if}]
+\item[infix afix \TT{else}] \vspace*{-0.15in} ~\\
+Must be used in an {\em else-expression} with target
+type $T$ which has the syntax:
+\begin{indpar}[0.2in]
+\emkey{else-expression} ::=
+    {\em if-expression}~ \{ \ttkey{else}~ {\em if-expression} \}\STAR{}~
+    \ttkey{else}~ {\em T-expression} 
+\\[0.5ex]
+\emkey{if-expression} ::=
+    {\em T-expression}~ \ttkey{if}~ {\em bool-expression}
+\\[0.5ex]
+{\em bool-expression} ::= {\em expression} with target type {\tt bool}
+\\[0.5ex]
+{\em T-expression} ::= {\em expression} with target type $T$
+\end{indpar}
+The {\em bool-expressions} are evaluated left to right until one
+evaluates to {\tt true}.  Then the cooresponding {\em $T$-expression}
+(the one in the same {\em if-expression} as the {\em bool-expression})
+is evaluated and returned.  If all {\em bool-expressions} evaluate to
+{\tt false}, the {\em $T$-expression} after the last {\tt else}
+is evaluated and returned.
+
+\item[infix \TT{BUT NOT}] ~\\
+`{\tt x BUT NOT y}' is syntactic sugar for `{\tt x AND ( NOT ( y ) )}'.
+
+\item[infix \TT{AND}] ~\\
+`{\tt x AND y}' is syntactic sugar for `{\tt y if x else false}'.
+
+\item[infix \TT{OR}] ~\\
+`{\tt x OR y}' is syntactic sugar for `{\tt true if x else y}'.
+
+\item[infix \TT{NOT}] ~\\
+`{\tt NOT x}' is syntactic sugar for `{\tt false if x else true}'.
+
+\end{itemlist}
+
 \section{Builtin Abbreviations}
 
 {\em Module-abbreviations} are automatically attached to function
@@ -5562,7 +5641,9 @@ uns32		& \ABV & std uns32 \\
 uns64		& \ABV & std uns64 \\
 uns128		& \ABV & std uns128
 \\[1ex]
-bool		& \ABV & std bool
+bool		& \ABV & std bool \\
+true		& \ABV & std true \\
+false		& \ABV & std false
 \\[1ex]
 flt		& \ABV & std flt \\
 fltd		& \ABV & std fltd \\
@@ -6312,6 +6393,15 @@ parts that execute at compile-time, and may even return
 The L-Language built-in run-time functions are very basic
 and provide only functionality that cannot be efficiently
 provided by library functions.
+
+\subsection{Builtin Run-Time Constants}
+\label{BUILTIN-RUN-TIME-CONSTANTS}
+
+\begin{indpar} \tt
+bool std true = 1 \\
+bool std false = 0
+\end{indpar}
+
 
 \subsection{Builtin Implicit Conversions}
 \label{BUILTIN-IMPLICIT-CONVERSIONS}
