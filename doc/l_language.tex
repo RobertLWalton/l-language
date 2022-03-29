@@ -1439,7 +1439,7 @@ have precedence equal to or greater than P:
 \emkey{primary} ::= {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
 \\[0.5ex]
 \emkey{primary-element} ::= {\em non-operator-lexeme} $|$
-                            {\em bracketted-subexpression}
+                            {\em bracketed-subexpression}
 \\[2.0ex]
 \hspace*{3em}\begin{tabular}{l}
 where P is any precedence in the range [L,H+1]
@@ -1817,7 +1817,7 @@ parentheses or brackets:
     ::= & {\em constant}		& [\pagref{CONSTANTS}] \\
     $|$ & {\em reference-expression}    & [\pagref{REFERENCE-EXPRESSIONS}] \\
     $|$ & {\em function-call}		& [\pagref{FUNCTION-CALLS}] \\
-    $|$ & {\em bracketted-expression}	& [\pagref{BRACKETTED-EXPRESSIONS}] \\
+    $|$ & {\em bracketed-expression}	& [\pagref{BRACKETED-EXPRESSIONS}] \\
     \end{tabular}
 \end{indpar}
 
@@ -2050,8 +2050,8 @@ There are five of types of constants:
 The meanings of the {\em special-constants} are:
 \begin{indpar}[1.6in]
 \begin{itemize}
-\item[\TT{TRUE}] The boolean value true.  Convertable to {\tt bool ( 1 )}.
-\item[\TT{FALSE}] The boolean value false.  Convertable to {\tt bool ( 0 )}.
+\item[\TT{TRUE}] The boolean value true.  Convertible to {\tt bool ( 1 )}.
+\item[\TT{FALSE}] The boolean value false.  Convertible to {\tt bool ( 0 )}.
 \item[\TT{UNDEF}] The value exists but is undefined (unknown).
 \item[\TT{NONE}] The value does not exist.
 \item[\TT{*LOGICAL-LINE*}] see \itemref{PARSER-OUTPUT}
@@ -2070,7 +2070,7 @@ that denotes a character string: see
 
 String constants can be used to load run-time vectors
 with {\tt uns8}, {\tt uns16}, or {\tt uns32} type elements.
-UTf-8, UTF-16, or UTF-32 encodings are used according to element
+UTF-8, UTF-16, or UTF-32 encodings are used according to element
 size.
 
 A \emkey{number-constant} is an {\em natural}, {\em number},
@@ -2568,13 +2568,13 @@ is necessary in omitting parentheses around
 {\em function-term-names} in function prototypes that might be
 matched to the {\em function-call}.
 
-\subsubsection{Bracketted Expressions}
-\label{BRACKETTED-EXPRESSIONS}
+\subsubsection{Bracketed Expressions}
+\label{BRACKETED-EXPRESSIONS}
 
-The syntax of a {\em bracketted-expression} is:
+The syntax of a {\em bracketed-expression} is:
 
 \begin{indpar}
-\emkey{bracketted-expression}\label{BRACKETTED-EXPRESSION}
+\emkey{bracketed-expression}\label{BRACKETED-EXPRESSION}
     \begin{tabular}[t]{@{}rl}
     ::= & {\em ma}\QMARK{} \TT{(} {\em expression} \TT{)} \\
     $|$ & \TT{[} {\em expression} \TT{]} \\
@@ -2586,7 +2586,7 @@ The syntax of a {\em bracketted-expression} is:
 {\em ma} ::= {\em module-abbreviation} ~~~ [see \pagref{MODULE-ABBREVIATION}]
 \end{indpar}
 
-Arithmetic subexpressions and function argument lists are bracketted
+Arithmetic subexpressions and function argument lists are bracketed
 with \TT{()} brackets.  Reference expression index lists and some function
 argument lists are bracketed with \TT{[]} brackets.
 Expressions that compute map constants
@@ -2674,10 +2674,10 @@ The forms of an {\em assignment-statement} are:
 	           \ttkey{do} {\em block-label}\QMARK{} $|$ \TT{=} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
     $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{deferred-assignment-statement} ::= \\
@@ -2694,10 +2694,10 @@ The forms of an {\em assignment-statement} are:
 		\TT{=} \\
 	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~ {\em exit-subblock}\STAR{} \\
     $|$ & {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{exit-subblock} ::=
@@ -2975,10 +2975,10 @@ The syntax of {\em block-assignment-statements} is:
 	           \ttkey{do} {\em block-label}\QMARK{} $|$ \TT{=} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
     $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
 {\em block-variable-declaration} ::=
@@ -3166,10 +3166,10 @@ A {\em loop-assignment-statement} has the syntax:
 		\TT{=} \\
 	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~ {\em exit-subblock}\STAR{} \\
     $|$ & {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-sublock}\STAR{} \\
+        & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{iteration-control}\label{ITERATION-CONTROL}
@@ -3838,7 +3838,7 @@ An {\tt *UNCHECKED*} conversion is defined from the associated data
 type to data with the given pointer type, and an normal conversion
 is defined in the other direction.
 
-It is important that there be a 1-1 correspondance between
+It is important that there be a 1-1 correspondence between
 pointer types and their associated data types.  In particular,
 {\tt int} must not be used as the associated data type of
 more than one pointer type.  This is why associated data types
@@ -4488,7 +4488,7 @@ is found, and instead a {\em constant} or {\em reference-expression}
 is found, {\tt (~)} parentheses are placed around the
 {\em constant} or {\em reference-expression}.  This cannot be
 done twice in succession.  Note that {\em constants} and
-{\em refererence-expressions} can have neither {\tt ()}'s nor operators
+{\em reference-expressions} can have neither {\tt ()}'s nor operators
 outside {\tt []} brackets.
 
 If in a left-to-right scan of a {\em call-term},
@@ -4527,8 +4527,8 @@ a value equal to the {\em required-value}, else the call-prototype
 match fails.  Note that the argument type need not itself be {\tt const}.
 
 \item If the {\em function-call} is the right side (part after {\tt =})
-in a {\em call-assigment-statement},
-the number of {\em assignment-results} in the {\em call-assigment-statement}
+in a {\em call-assignment-statement},
+the number of {\em assignment-results} in the {\em call-assignment-statement}
 must not be greater than the number of
 {\em prototype-result-variable-declarations}, else the call-prototype
 match fails.
@@ -4949,7 +4949,7 @@ the following {\tt .initiator}s or {\tt .terminator}s:
 because the {\tt .position} of the function call will be added
 if no {\tt .position} is given,
 logical lines can be identified from context, and
-{\tt ()} bracketted subexpressions are equivalent to
+{\tt ()} bracketed subexpressions are equivalent to
 subexpressions with implied brackets (i.e., with no
 {\tt .initiator} or {\tt .terminator}).
 
@@ -5322,7 +5322,7 @@ is reserved in the stack frame of an out-of-line function when the
 function is entered.  At this
 time space is reserved for each of 4 or more iterations of
 each loop, and the loop cycles between these iteration spaces.
-Asside from loops reusing iteration space, there is no
+Aside from loops reusing iteration space, there is no
 freeing of stack frame variables until the out-of-line function
 terminates.  This aids debugging and simplifies compiling.
 
@@ -5445,7 +5445,7 @@ written into scavenged bodies by non-GC execution.
 Whenever all objects in new space have been scavenged,
 the GC updates all pointers in the stack, and if this does \underline{not}
 move any bodies to new space, GC is done; otherwise
-GC resumes scavanging.  Heap pointers in the stack are
+GC resumes scavenging.  Heap pointers in the stack are
 may not be updated, and no special action is taken
 when reading a heap pointer from a body.
 
@@ -5521,7 +5521,7 @@ a pointer P in a location.  The required steps are:
 
 This operation must be used when a pointer location is updated
 in the stack or in a body.  There is also an operation for
-deallocating a location containing a ponter, which omits steps
+deallocating a location containing a pointer, which omits steps
 (2) and (4).
 
 Bodies may or may not be allocated separately from stubs.
@@ -5536,7 +5536,7 @@ pointer loops, such as circular lists.
 
 \section{Non-Function Operators}
 
-The marjority of operators map onto functions.  For example, \\
+The majority of operators map onto functions.  For example, \\
 \centerline{{\tt x + y} maps onto {\tt x "+" y}}
 
 However the following operators do \underline{not} map onto functions:
@@ -5545,14 +5545,14 @@ However the following operators do \underline{not} map onto functions:
 \item[prefix \TT{if}]
 \item[prefix \TT{else if}] \vspace*{-0.15in}
 \item[initial \TT{else}] \vspace*{-0.15in} ~\\
-See Conditional Statments\pagnote{CONDITIONAL-STATEMENTS}.
+See Conditional Statements\pagnote{CONDITIONAL-STATEMENTS}.
 
 \item[prefix \TT{while}]
 \item[prefix \TT{until}] \vspace*{-0.15in} ~\\
-See Loop Assignment Statments\pagnote{LOOP-ASSIGNMENT-STATEMENTS}.
+See Loop Assignment Statement\pagnote{LOOP-ASSIGNMENT-STATEMENTS}.
 
 \item[infix \TT{=}] ~\\
-See Assignment Statments\pagnote{ASSIGNMENT-STATEMENTS}.
+See Assignment Statements\pagnote{ASSIGNMENT-STATEMENTS}.
 
 \item[infix \TT{+=}]
 \item[infix \TT{-=}] \vspace*{-0.15in}
@@ -5570,7 +5570,7 @@ where $B$ is a binary operator,
 the statement `{\tt x $B$= y}' is syntactic sugar for `{\tt x = x $B$ y}'.
 
 \item[infix \TT{-{}-{}-{}>}] ~\\
-See Abbreviation Statments\pagnote{ABBREVIATION-STATEMENT}.
+See Abbreviation Statements\pagnote{ABBREVIATION-STATEMENT}.
 
 \item[nofix \TT{,}] ~\\
 Becomes a {\tt .separator} annotation on a list.  See
@@ -5593,7 +5593,7 @@ type $T$ which has the syntax:
 {\em T-expression} ::= {\em expression} with target type $T$
 \end{indpar}
 The {\em bool-expressions} are evaluated left to right until one
-evaluates to {\tt true}.  Then the cooresponding {\em $T$-expression}
+evaluates to {\tt true}.  Then the corresponding {\em $T$-expression}
 (the one in the same {\em if-expression} as the {\em bool-expression})
 is evaluated and returned.  If all {\em bool-expressions} evaluate to
 {\tt false}, the {\em $T$-expression} after the last {\tt else}
@@ -5688,7 +5688,7 @@ A function (e.g., {\tt "+"} or {\tt "=="})
 with at least one {\tt number} argument will
 convert all {\tt rational} arguments to {\tt numbers}
 before using them, will do all internal calculations with
-{\tt numbers} and not {\tt ratonals},
+{\tt numbers} and not {\tt rationals},
 and will return any numeric results as {\tt numbers}.
 \item
 {\tt Number} values too positive or negative to store
@@ -5805,7 +5805,7 @@ rounds towards positive infinity, {\tt truncate} rounds toward
 zero, and {\tt round} rounds to the nearest integer, or to the
 even integer if there are two nearest integers.
 
-If an argument is a number, return {\tt NaN}s if the divsor is
+If an argument is a number, return {\tt NaN}s if the divisor is
 zero, an argument is a {\tt NaN}, or both arguments are infinities, but
 do \underline{not} output a compiler error message.  If both
 arguments are rationals and the divisor is zero, return
@@ -5872,9 +5872,9 @@ are not allowed.
 \begin{indpar}
 Standard lexigraphic comparison operators on strings {\tt s1} and {\tt s2}.
 Characters are compared by comparing their {\tt UTF-8} representations
-as strings of unsigned 8-bit bytes.  With exceptions for unnormallized
+as strings of unsigned 8-bit bytes.  With exceptions for unnormalized
 {\tt UTF-8} encodings,\footnote{
-An unnormallized {\tt UTF-8} encoding for a character is one taking
+An unnormalized {\tt UTF-8} encoding for a character is one taking
 more bytes than necessary.  For example, {\tt NUL} with UNICODE code {\tt 0},
 can be encoded in 1-byte if normalized, or in 2-, 3-, or 4- bytes
 unnormalized.}
@@ -6185,7 +6185,7 @@ names.
 
 {\em Module abbreviations} in a name string are
 replaced by \key{compiler module abbreviations}
-which are words of the form {\tt M\$$n$}, wehre
+which are words of the form {\tt M\$$n$}, where
 $n$ is a natural number.  {\tt M\$0} is always
 the abbreviation for the {\tt std} module.
 These compiler module abbreviations are specific to the
@@ -6209,7 +6209,7 @@ called a \key{type map}.
 {\tt com type dictionary}
 \begin{indpar}
 A dictionary mapping {\em type-names}
-represented by name strings to type maps descibing the
+represented by name strings to type maps describing the
 named types.  The {\em type-names} mapped depend upon
 the current context.
 \end{indpar}
@@ -6271,7 +6271,7 @@ a type map.  The compiler defined attributes of a field map are:
 
 \ttkey{.name}
 \begin{indpar}
-The name of the field ({\em taget-label} or {\em pointer-label})
+The name of the field ({\em target-label} or {\em pointer-label})
 as a name string.  May be {\tt NONE} for a field with subfields.
 \end{indpar}
 
@@ -6332,7 +6332,7 @@ a field map.  The compiler defined attributes of a subfield map are:
 
 \ttkey{.name}
 \begin{indpar}
-The name of the subfield ({\em taget-label})
+The name of the subfield ({\em target-label})
 as a name string.
 \end{indpar}
 
@@ -6367,7 +6367,7 @@ called a \key{pointer type map}.
 {\tt com pointer type dictionary}
 \begin{indpar}
 A dictionary mapping {\em pointer-type-names}
-represented by name strings to pointer type maps descibing the
+represented by name strings to pointer type maps describing the
 named pointer types.  The {\em pointer-type-names} mapped depend upon
 the current context.
 \end{indpar}
@@ -6481,7 +6481,7 @@ See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 
 \subsubsection{Numeric Explicit Conversions}
 
-Explict conversion from values of number type {\tt N1} to values
+Explicit conversion from values of number type {\tt N1} to values
 of number type {\tt N2} are defined by:
 \begin{indpar} \tt
 function N2 r = std N2 ( N1 v )
@@ -6504,7 +6504,7 @@ in the following cases:
     This is defined only when {\tt N1} and {\tt N2} are identical.
 \end{itemlist}
 
-Unchecked explict conversion from values of number type {\tt N1} to values
+Unchecked explicit conversion from values of number type {\tt N1} to values
 of number type {\tt N2} are defined as follows:
 \begin{itemlist}[0.5in]
 \item[\tt function int\ldots{}~r = std *UNCHECKED* ( N1 v )]
