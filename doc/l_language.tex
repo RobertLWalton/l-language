@@ -450,7 +450,7 @@ the location of {\tt OP} is an {\tt ap} aligned pointer.  Although
 the {\tt constant} subfield is on a byte boundary, it is
 shorter than an {\tt int}, and therefore the
 location of {\tt C} must be an {\tt fp} field pointer.
-If `{\tt op code}' where in bits 30-23 instead of 31-24, it would
+If `{\tt op code}' were in bits 30-23 instead of 31-24, it would
 not be on a byte boundary and the location of {\tt OP} would
 also have to be an {\tt fp} field pointer.
 
@@ -458,7 +458,7 @@ Note that `{\tt Y.op code}' is a {\tt *READ-WRITE*}
 {\tt uns8} while `{\tt @Y.op code}' is a {\tt co} pointer to
 a {\tt *READ-WRITE*} {\tt uns8}.
 
-Note that names in L-Language can have multiple lexemes, as in
+Names in L-Language can have multiple lexemes, as in
 the type name `{\tt my type}', the subfield name `{\tt op code}',
 and what L-Language calls the
 associated member name `{\tt .op code}' which can be used to access
