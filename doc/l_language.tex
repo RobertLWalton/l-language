@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 28, 2022
+April 19, 2022
 
 \bigskip
  
@@ -252,17 +252,23 @@ can be used with different types of pointers, can be used
 without restrictions for structure members, and can be used
 with mutable pointers.}
 
-The qualifier {\tt *READ-WRITE*} says that a value can be written,
+The qualifier {\tt *READ-WRITE*} says that a value can be read or written,
 the default qualifier {\tt co}, or `constant',
-says a value will \underline{never} be written no matter what,
+says a value can be read but will \underline{never} be written no matter what,
 the qualifier {\tt ro}, or read-only, says that
-the value cannot be written using the variable name given, but might be
+the value can be read but
+cannot be written using the variable name given, though it might be
 written by some other piece of code that accesses the value under another
-name, and the qualifier {\tt *VOLATILE*} says a value may be
-written by some device other than the processor, or by some process
-independent of the current process, at any time.
-A {\tt *VOLATILE*} value must also be either {\tt *READ-WRITE*}
-or {\tt ro}, with {\tt ro} being the default.
+name.  The qualifier {\tt *WRITE-ONLY*} says that the value cannot be
+read but can be written using the variable name given,
+but might be read by some other piece of code or other device.
+The {\tt *VOLATILE*} qualifier says a value may be
+read or written by some device other than the processor, or by some process
+independent of the current process, at any time, and the
+{\tt *ATOMIC*} qualifier says that the entire value must be read
+or written without any other process trying to read or write part of the
+value at the same time.
+A {\tt *VOLATILE*} or {\tt *ATOMIC*} value cannot be {\tt co}.
 
 Variables in function frames and module memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z}, and values
@@ -320,11 +326,9 @@ ap *READ-WRITE* int @Y =@ local
 Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
-ap ro int Z = @Y         // Copies pointer value of Y.
+ap ro int @Z = @Y        // Copies pointer value @Y.
                          // Variable conversion from *READ-WRITE*
-                         // to ro is legal.  As Z does not
-                         // begin with @, there is no
-                         // corresponding indirect variable.
+                         // to ro is legal.
 \end{verbatim}\end{indpar}
 
 Here `{\tt =@ local}' allocates an {\tt int} to the current
@@ -361,17 +365,17 @@ which is semantically equal to:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 4
-next sum, next i:
+next sum, next i =:
     next sum = sum + i
     next i = i + 1
-next sum, next i:
+next sum, next i =:
     next sum = sum + i
     next i = i + 1
-next sum, next i:
+next sum, next i =:
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
-The `{\tt next sum}' and `{\tt next i}' before the `{\tt :}',
+The `{\tt next sum}' and `{\tt next i}' before the `{\tt =:}',
 which are the output variables for the block of code containing
 the two `{\tt +}' statements,
 can also be implied as they appear as output variables
@@ -415,7 +419,7 @@ type my type:
 
 my type X:
     X.op code = 5       // This is an initialization block
-    X.src1 = 2          // for X in which X is write-only.
+    X.src1 = 2          // for X in which X is *WRITE-ONLY*.
     X.src2 = 3
     X.des = 3
 uns op = X.op code      // Now op == 5
@@ -3576,7 +3580,7 @@ type my type:
     flt weight
 
 my type X:
-    // Within this block X is write-only.
+    // Within this block X is *WRITE-ONLY*.
     X.kind = HIPPOPOTAMUS
     X.weight = 152.34
 uns8 kind = X.kind
@@ -3682,7 +3686,7 @@ type my type:
     flt weight
 
 my type X:
-    // Within this block X is write-only.
+    // Within this block X is *WRITE-ONLY*.
     X.kind = HIPPOPOTAMUS
         // Also sets animal and vegetable bits.
     X.weight = 152.34
