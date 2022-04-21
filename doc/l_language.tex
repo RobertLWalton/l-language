@@ -514,7 +514,7 @@ statements called {\em type-declarations}.  Each of these
 {\em type-declarations} contains a sequence of sub-declarations, e.g.,
 for {\tt my type} the first two sub-declarations are
 `{\tt pack}' and `{\tt uns8 kind}'.  There is a current
-offset in bytes that starts at {\tt 0} and is updated by each sub-declaration.
+offset in bits that starts at {\tt 0} and is updated by each sub-declaration.
 A sub-declaration such as `{\tt uns8 kind}' allocates a field
 (i.e., {\tt kind})
 at the current offset and adds the size of the field to the
@@ -539,10 +539,10 @@ alignments of its aligned fields.
 
 A {\tt *LABEL*} is like a zero length field that has no value and
 is used to associate an origin-label with the current offset.
-Here {\tt extension} has the offset value of 16 bytes.
+Here {\tt extension} has the offset value of 128 bits (16 bytes).
 The {\tt *ORIGIN*} sub-declaration resets the current offset to the offset
 of a given origin-label, or to {\tt *SIZE*}, which denotes the current
-size of the type in bytes (which may increase with later sub-declarations).
+size of the type in bits (which may increase with later sub-declarations).
 
 The `{\tt ***}' sub-declaration at the end of a
 {\em type-declaration} defining a user defined type indicates
@@ -575,7 +575,7 @@ and denominators; for example,
 {\tt D\#"1/3"} represents the precise rational one-third.
 Number constants
 can be converted to run-time numbers during compilation.
-However it is an compile error
+However it is a compile error
 if the result will not fit into the runtime number.
 This happens, for example, if either {\tt 1.1} or {\tt 1e20}
 is converted to an {\tt int32}.
@@ -636,16 +636,16 @@ have operands of the same type as their result.
 An example of all this is:
 
 \begin{indpar}\begin{verbatim}
-float w = 1.1               // float is target type of 1.1
+flt w = 1.1                 // flt is target type of 1.1
 int x = 123                 // int is target type of 123
 int y = 2e5                 // int is target type of 2e5
 int z = 1e100               // illegal; int is target type of 1e100
                             // which is too large to fit
-float r1 = x                // implicit conversion is legal as x is a
+flt r1 = x                  // implicit conversion is legal as x is a
                             // variable name and not a function call
 int r2 = 5 + max ( x, y )   // int is target type of 5, max, x, y
 int r3 = max ( y, w )       // illegal; int is target type of w and
-                            // float cannot implicitly convert to int
+                            // flt cannot implicitly convert to int
 int r4 = max ( x, 123 )     // int is target type of max, x, 123
 int r5 = max ( x, 123.4 )   // illegal; int is target type of 123.4
                             // which cannot be stored in a int
@@ -1782,16 +1782,16 @@ but the following examples give an idea of some of this semantics:
       of the function must have the same result type, and that becomes
       type {\tt T} (it is a compile error if two different {\tt T}'s
       are generated in this manner).
-      E.g., if an operand is `{\tt float ( ... )}', then {\tt T} must
-      be {\tt float}.
+      E.g., if an operand is `{\tt flt ( ... )}', then {\tt T} must
+      be {\tt flt}.
 
       If no operand is a function call, all must be variables or
       {\tt const} values.  The types of all the variables are tried,
       and whichever works is selected as the value of {\tt T} (it
       is a compile error if more than one works).  E.g., if the
-      variables have types {\tt int} and {\tt float}, {\tt float}
+      variables have types {\tt int} and {\tt flt}, {\tt flt}
       works because {\tt int} variables can be implicitly
-      converted to {\tt float}, but {\tt int} does not work.
+      converted to {\tt flt}, but {\tt int} does not work.
 
 \hspace*{-0.2in}{\tt v[x+5] \TT{=} y} \\
       The target type of subscript expressions such as `{\tt x + 5}'
@@ -2922,16 +2922,16 @@ converted to its target type if possible.
 An example is:
 \begin{indpar}\begin{verbatim}
 int x = 5              // target type of 5 is int
-float y = 6            // target type of 6 is float
-float z = 7            // target type of 7 is float
-float r1 = x + y       // target type of +, x, y is float
-float r2 = x + y * z   // target type of +, x, *, y, z is float
+flt y = 6              // target type of 6 is flt
+flt z = 7              // target type of 7 is flt
+flt r1 = x + y         // target type of +, x, y is flt
+flt r2 = x + y * z     // target type of +, x, *, y, z is flt
 int x = z              // illegal; target type of z is int
 \end{verbatim}\end{indpar}
 
 Here the {\tt +} and {\tt *} operator functions are only defined
 for cases where their operand types are the same as their result type,
-and {\tt int} variables may be implicitly converted to {\tt float}
+and {\tt int} variables may be implicitly converted to {\tt flt}
 but not vice-versa.
 
 \subsubsubsection{Call Assignment Statements}
@@ -4629,28 +4629,30 @@ The following are examples using the builtin prototypes
 \begin{indpar}
 {\tt function N r = std (N v1) "+" ( N v2 )} \\
 {\tt function bool r = std (N v1) "==" ( N v2 )} \\
-{\tt function float64 r = std float64 (N v1)}
+{\tt function flt64 r = std flt64 (N v1)}
 \end{indpar}
 which exist for every builtin numeric type {\tt N} except
 {\tt bool}.
 \begin{indpar}[1em]\begin{verbatim}
 int32 x = ...
-float64 r1 = x + 5
-    // Target type float64 selects N = float64 for "+".
+flt64 r1 = x + 5
+    // Target type flt64 selects N = flt64 for "+".
 bool b1 = ( x == 5 )
     // Target type bool and *EXACT* argument x select
-    // N = int32 for "==".
-float64 y = 5.5
+    // N = int32 for "==".  (There is also a const
+    // version or "==" which fails when it tries to
+    // implicitly convert const to int32.)
+flt64 y = 5.5
 bool b2 = ( x == y )
     // Target type bool and *EXACT* argument y select
-    // N = float64 for "==";  N = int32 version of "=="
+    // N = flt64 for "==";  N = int32 version of "=="
     // fails when it tries to implicitly convert y to
     // int32.
-bool b2 = ( float64 ( x ) == 5 )
-    // All float64 functions have float64 result type,
-    // and as there is no implicit conversion of float64
-    // function results, "==" must have N = float64.
-    // The only float64 function with *EXACT* argument
+bool b2 = ( flt64 ( x ) == 5 )
+    // All flt64 functions have flt64 result type,
+    // and as there is no implicit conversion of flt64
+    // function results, "==" must have N = flt64.
+    // The only flt64 function with *EXACT* argument
     // is the one with N = int32.
 \end{verbatim}\end{indpar}
 
@@ -6523,7 +6525,7 @@ function N2 r = std N2 ( N1 v )
 \end{indpar}
 in the following cases:
 \begin{itemlist}[0.5in]
-\item[\tt float\ldots{}~( N1 v )] ~\\
+\item[\tt flt\ldots{}~( N1 v )] ~\\
     This is defined for all number
     types {\tt N1}.  Values may be converted to {\tt +Inf} or {\tt -Inf}
     and precision may be lost.
