@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 19, 2022
+April 21, 2022
 
 \bigskip
  
@@ -473,7 +473,7 @@ type my type:
     [7] bool animal          // True if Animal
     [6] bool vegetable       // True if Vegetable
     flt64   weight           // Object Weight
-    align   8
+    align   64
     *LABEL*   extension
     ***                      // Enables type extension.
 
@@ -485,11 +485,12 @@ type my type:
 
 type my type:
     *ORIGIN*  extension
-    flt64   volume           // Object Volume
+    flt64   volume           // Object Volume; overlays height.
                              // No further type extension allowed.
 
 type your type:
     *INCLUDE* my type // Copy sub-declarations of my type
+    *ORIGIN* *SIZE*   // *SIZE* is max origin seen so far.
     dp uns8 name      // Direct pointer to name
                       // character string
 
@@ -527,8 +528,8 @@ so that since {\tt kind} has offset 0 bytes and size 1 byte,
 {\tt weight} has offset 1 byte.  Subfields {\tt animal}
 and {\tt vegetable} are 1-bit values inside {\tt kind}.
 
-The {\tt align 8} sub-declaration moves the current offset
-forward to a 8-byte boundary and causes fields beyond it
+The {\tt align 64} sub-declaration moves the current offset
+forward to a 64-bit boundary and causes fields beyond it
 to be aligned and not packed.  A number is aligned if
 its offset is a multiple of its length.  Alignments must be powers of two.
 A defined type has an
@@ -540,7 +541,8 @@ A {\tt *LABEL*} is like a zero length field that has no value and
 is used to associate an origin-label with the current offset.
 Here {\tt extension} has the offset value of 16 bytes.
 The {\tt *ORIGIN*} sub-declaration resets the current offset to the offset
-of a given origin-label.
+of a given origin-label, or to {\tt *SIZE*}, which denotes the current
+size of the type in bytes (which may increase with later sub-declarations).
 
 The `{\tt ***}' sub-declaration at the end of a
 {\em type-declaration} defining a user defined type indicates
@@ -2247,18 +2249,18 @@ A map constant is computed by a {\em map-expression} whose syntax is:
 \emkey{dictionary-entry} ::=
     {\em dictionary-label} \TT{=>} {\em dictionary-value}
 \\[0.5ex]
-\emkey{list-element}\label{LIST-ELEMENT} ::= {\em constant-expression}
+\emkey{list-element}\label{LIST-ELEMENT} ::= {\em const-expression}
 \\[0.5ex]
 \emkey{dictionary-label}\label{DICTIONARY-LABEL}
-    ::= {\em constant-expression} evaluating to a string
+    ::= {\em const-expression} evaluating to a string
 \\[0.5ex]
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
-    ::= {\em constant-expression}
+    ::= {\em const-expression}
 \\[0.5ex]
-\emkey{constant-expression}
-    ::= {\tt const} valued {\em expression}
+\emkey{const-expression}
+    ::= {\tt const} valued {\em expression} evaluatable at compile-time
 \\[0.5ex]
-\emkey{constant-expression} ::= see \pagref{EXPRESSION}
+\emkey{expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
 \emkey{phrase-constant} ::= \TT{`} {\em expression} \TT{'}
 \\[0.5ex]
@@ -2912,7 +2914,9 @@ is a {\em function-call}, the type of the first result of the
 and the types of the prototype arguments become the target types
 of the {\em actual-argument} sub-expressions.
 
-If an {\em expression} is a variable or a constant, it will be implicitly
+If an {\em expression} is a variable or a {\em const-expression}
+(which is replaced by a constant),
+it will be implicitly
 converted to its target type if possible.
 
 An example is:
@@ -3380,6 +3384,8 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{include} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
+    $|$ &  \ttkey{*ORIGIN*} {\em integer-const-expression} \\
+    $|$ &  \ttkey{*ORIGIN*} \ttkey{*SIZE*} \\
     $|$ &  \ttkey{***} \\
     $|$ &  \ttkey{*EXTERNAL*} \\
     \end{tabular}
@@ -3489,7 +3495,7 @@ align/pack switch to `align'.
 
 A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
-A \ttkey{include} sub-declaration copies all the {\em type-subdeclarations}
+Am \ttkey{*INCLUDE*} sub-declaration copies all the {\em type-subdeclarations}
 of the given defined type into the current sequence of
 {\em type-subdeclarations}.
 
@@ -3518,15 +3524,17 @@ module.  However a {\em type-declaration} that is {\tt *EXTERNAL*}
 must have a {\em type-name} beginning with a {\em module-abbreviation}, so
 the {\em type-name} is external.\pagnote{EXTERNAL-NAME}
 
-At the beginning of each expansion the offset is set to zero and
-the align/pack switch is set to align.
+At the beginning of each expansion the align/pack switch is set to align
+but the offset value is undefined.  It must be set by an {\tt *ORIGIN*}
+statement before it is used.
 
-The size and alignment of a defined type with an {\tt ***}
+The final size and alignment of a defined type with an {\tt ***}
 or {\tt *EXTERNAL*}
-sub-declara\-tion may not be known at compile-time.
-In this case, they are computed
-during load-time and used as run-time constants.
-Allocators use this size and alignment to allocate memory for a value of
+sub-declara\-tion may not be known until load time.  When these are not known,
+values of the type cannot be allocated to the stack, but
+they can be allocated using allocator functions which are passed
+the load-time values.
+Allocators use the size and alignment to allocate memory for a value of
 the type and then zero that memory.
 
 A \ttkey{*DEFERRED*} {\em type-declaration} declares a {\em type-name}
@@ -3550,14 +3558,37 @@ A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
 given {\em origin-label} and provides the {\em origin-label}
 for use by subsequent {\tt *ORIGIN*} sub-declarations.
 
-An \ttkey{*ORIGIN*} sub-declaration changes the current offset to that
+An `\ttkey{*ORIGIN*} {\em origin-label}' sub-declaration
+changes the current offset to that
 of the given {\em origin-label}.
 The {\em origin-label} must be defined by a preceding
 {\tt *LABEL*} sub-declaration.
+An {\em origin-label} may not be re-defined within the same
+{\em type-declaration}.
 
-An {\em origin-label} may be re-used.  Its use in an {\tt *ORIGIN*}
-sub-declaration refers to its most recent previous use in a {\tt *LABEL*}
-statement.
+An `\ttkey{*ORIGIN*} {\em integer-const-expression}' sub-declaration
+changes the current offset to an integer.  Offsets set this way
+may be negative.
+
+An `\ttkey{*ORIGIN*} \ttkey{*SIZE*}' sub-declaration
+changes the current offset to the size of values of the type
+begin defined, as it is computed at the point where the {\tt *ORIGIN* *SIZE*}
+sub-declaration is encountered.  This is just the maximum of all
+current offset values computed by previous sub-declarations.
+
+A {\em type-declaration} and its expansions form a tree-graph
+with the parent of an expansion X being the the {\em type-declaration}
+or expansion with smallest scope containing X.
+
+Consider the case where X is a {\em type-declaration} with expansions
+Xa and Xb both beginning with {\tt *ORIGIN* *SIZE*}.  If Xb is not
+within the scope of Xa and vice-versa, then they will both begin
+with an offset that is the size computed by just X, that is, the maximum
+offset computed while compiling X.  In this case the fields of Xa will
+overlap the fields of Xb.  However if
+Xb is within the scope of Xa, it will begin with an offset that
+is the size of X extended by Xa, the maximum offset computed while
+compiling Xa.  In this case the fields of Xa and Xb will not overlap.
 
 Care must be exercised when using {\tt *LABEL*} and {\tt *ORIGIN*},
 as both type-violations and unexpected field allocations can result.
@@ -3565,7 +3596,8 @@ Note that if there are multiple {\em type-declarations}
 with the same {\em type-name} in different
 modules and bodies,\pagnote{MODULE-AND-BODY-DECLARATIONS}
 the order in which these {\em type-declarations} are processed
-may not be completely determined.
+may not be completely determined, but it is guarenteed that
+an expansion will not be compiled until after its parent is compiled.
 
 \subsubsubsubsection{Type Fields}
 
@@ -4488,12 +4520,11 @@ matches that of their associated {\em pattern-terms}.
 
 If in a left-to-right scan of a {\em call-term},
 a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
-is found, and instead a {\em constant} or {\em reference-expression}
+is found, and instead a {\em constant} or {\em variable}
 is found, {\tt (~)} parentheses are placed around the
-{\em constant} or {\em reference-expression}.  This cannot be
+{\em constant} or {\em variable}.  This cannot be
 done twice in succession.  Note that {\em constants} and
-{\em reference-expressions} can have neither {\tt ()}'s nor operators
-outside {\tt []} brackets.
+{\em variables} cannot contain brackets.
 
 If in a left-to-right scan of a {\em call-term},
 a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
@@ -4783,7 +4814,7 @@ made by taking the {\em function-type-prototype} specified by the
 {\em function-type-name} and replacing the {\tt ()}
 {\em out-of-line-function-name} by the {\em function-constant-name}
 while adding `{\tt out-of-line}' to its beginning.  In addition
-the {\em function-constant-name} is declared as a constant whose
+the {\em function-constant-name} is declared as a run-time constant whose
 value has the type named by the {\em function-type-name}.
 Internally this constant is a run-time pointer to the out-of-line function.
 
