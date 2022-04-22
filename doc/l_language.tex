@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 21, 2022
+April 22, 2022
 
 \bigskip
  
@@ -398,7 +398,8 @@ types for the target machine word size.
 The types {\tt intd}, {\tt intq}, {\tt unsd}, {\tt unsq} are just integer
 types for twice (double) or four times (quad) the target machine word size.
 The {\tt bool} type is a single bit interpreted as true if
-1 and false if 0: it is in essence a 1-bit unsigned integer.
+1 and false if 0: it is in essence a 1-bit unsigned integer, but it
+is not considered to be a number type.
 
 User defined types have values that
 consist of a sequence of bytes containing fields.
@@ -655,28 +656,62 @@ int r6 = max ( x, c1 + c2 ) // legal; c1 + c2 is replaced by 1100
                             // which has int target type
 \end{verbatim}\end{indpar}
 
-Explicit conversion functions are provided whose function names
-are the same as the type name of their result, as long as
-all argument values can be converted to result values that reasonably
-represent the true argument values.
-Examples:
+For each type {\tt T}, a function:
+\begin{center} \tt
+\begin{tabular}{l}
+function T r = T ( T v ); \\
+~~~~r = v
+\end{tabular}
+\end{center}
+is provided.  Such an `identity' function might seem useless,
+but in fact it can be used in an expression `{\tt T($e$)}' to
+force the target type of $e$ to be {\tt T}.  As an example
+consider the following, where there are builtin functions:
+\begin{center} \tt
+\begin{tabular}{l}
+function N r = ( N v1 ) "+" ( N v2 ) \\
+function bool r = ( N v1 ) "<" ( N v2 ) \\
+\end{tabular}
+\end{center}
+for every number type {\tt N}:
 
 \begin{indpar}\begin{verbatim}
-int64 x = ...
-flt64 y = ...
-int32 z = ...
-int64 r1 = int64(z)                // OK
-int32 r2 = int32(x)                // Illegal
-int64 r3 = int64(y)                // Illegal
-flt64 r4 = flt64(x)                // OK; precision may be lost
-flt32 r5 = flt32(y)                // OK; precision may be lost;
-                                   //     some values may be
-                                   //     converted to infinities
+int x = ...
+bool b1 = ( x + 3 < 5 )
+    // Illegal: any target type N to which int is implicitly
+    // convertible can be used as the target type of "+" and "<" so
+    // this is ambiguous.
+bool b2 = ( flt ( x ) + 3 < 5 )
+    // Legal: type of flt ( x ) can only be flt, so that is the type
+    // of "+" and therefore "<".  Note that flt forces implicit
+    // conversion of x from int to flt.
+bool b3 = ( x + 3 < int ( 5 ) )
+    // Legal: type of int ( 5 ) can only be int, so that is the type
+    // of "<" which becomes the target type of "+".  Note that int
+    // forces implicit conversion of const to int.
 \end{verbatim}\end{indpar}
 
-There are functions such as `{\tt round}' that will input a floating
-point value and output an integer, though they produce undefined
-values and error flags when the floating point number is too large.
+Integer arithmetic ignores overflows (as in C and C++); for example,
+if integer + produces a value too large for its
+target, the result is undefined and may or may not cause program
+termination.
+There are similar explicit conversion functions from a floating
+point type {\tt F} to any integer type {\tt I} with prototypes:
+\begin{center} \tt
+\begin{tabular}{l}
+function I r = floor ( F v ) \\
+function I r = ceiling ( F v ) \\
+function I r = truncate  ( F v ) \\
+function I r = round ( F v ) \\
+\end{tabular}
+\end{center}
+that take a floating point value and round it toward
+negative infinity ({\tt floor}),
+positive infinity ({\tt ceiling}),
+zero ({\tt truncate}),
+or nearest ({\tt round}).  If the value is too large to be stored
+in {\tt I}, the result is undefined and may or may not cause
+program termination.
 
 The {\tt ro} qualifier name can be used by itself as an explicit
 conversion function name to convert
