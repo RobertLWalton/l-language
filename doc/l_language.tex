@@ -728,6 +728,26 @@ Although function results cannot be implicitly converted, variables
 can be, and implicit conversion of {\tt co} or {\tt *READ-WRITE*} to
 {\tt ro} is defined for pointer-valued variables.
 
+In addition to using target types to select which overloaded
+function is being called, the types of implicitly convertible
+arguments, that is, variables and constants, can be used.
+Essentually function definitions that require fewer implicit
+conversions are preferred.  For example,
+
+\begin{indpar}\begin{verbatim}
+int x = ...
+bool b = ( x < 6 )
+    // There is a separate "<" operator for every numeric type,
+    // so x and 6 could both be converted to, say, flt.  But this
+    // is two implicit conversions, whereas using the "<" operator
+    // for int requires only one conversion, so this is used.
+bool b = ( x < 6.5 )
+    // Again int is chosen for "<", but this time 6.5 produces a
+    // compiler error when converted to an int.  Inconveribility
+    // of particular constant values is NOT considered in selecting
+    // among overloaded function definitions.
+\end{verbatim}\end{indpar}
+
 It is possible to define compile-time functions:
 
 \begin{indpar}\begin{verbatim}
@@ -763,7 +783,14 @@ const v = max ( x, w )    // T$r is const, all values are const.
 \end{verbatim}\end{indpar}
 
 A wildcard type of a result variable gets its value from the
-target type of a function call.  The exception
+target type of a function call.  A wildcard type of an argument
+can get its value from the argument type, but only if the
+later is a variable, or more generally, a reference expression
+(e.g., {\tt x[i]}).
+Typing is mostly done top-down using target types, but reference
+expressions get types bottom up from the variable explicitly named
+in the reference expression.
+
 is {\tt const}, which can be a wildcard type in a function
 definition if and only if all type wildcards in the function definition
 are assigned the value {\tt const} and doing so makes
@@ -820,12 +847,12 @@ using defined types:
 ap av flt64 @p = .....        // Illegal!
 
 struct my pointer
-    av flt64 @p
+    av flt64 @q
 
 . . . . . . . . . .
 
-ap my pointer @q = ...        // OK
-flt64 v = q.p[0]              // OK
+ap my pointer @p = ...        // OK
+flt64 v = p.q[0]              // OK
 \end{verbatim}\end{indpar}
 
 Any inline function can create new code that is inserted
@@ -854,7 +881,7 @@ which the parser renders as the {\tt const} map value:
     { "max", { { "my", "variable" }, { "1000" },
                ".initiator" => "(",
                ".separator" => ",",
-               ".terminator" =? ")" } } } }
+               ".terminator" => ")" } } } }
 \end{verbatim}\end{indpar}
 
 Code to be inserted can also be computed directly as a {\tt const} map
@@ -867,7 +894,7 @@ value without using `{\tt include}' statements.
 
 In this chapter we describe the syntax of L-Language programs
 and briefly indicate the associated semantics, which is
-described in detail in later sections.
+elaborated in later sections.
 
 \subsection{Lexemes}
 \label{LEXEMES}
@@ -1279,9 +1306,9 @@ which is equivalent to
 
 A {\em numeric-word}, {\em natural}, or {\em number} lexeme
 is a C/C++ constant, and 
-conversely a C/C++ constant representing a decimal number
-and not ending in a {\em decimal-point} or representing an
-IEEE floating point special value (e.g., {\tt NaN} or {\tt Inf})
+conversely a C/C++ decimal constant
+not ending in a {\em decimal-point}
+or a C/C++ special floating point value (e.g., {\tt +Inf})
 is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
 All these lexemes are given an IEEE double precision number value
 after the manner of C/C++, and then their lexical type is changed
@@ -4615,12 +4642,12 @@ The type of each {\em prototype-result-declaration} is then
 matched to the type of its matching {\em assignment-result}.
 
 Any wildcards\pagnote{WILD-CARD}
-in a prototype type are filled in from the information
-in the corresponding assignment result type.  If a wildcard gets more
+in a prototype result type are filled in from the information
+in the corresponding assignment target type.  If a wildcard gets more
 than one value from this process, the call-prototype match fails.
 
-Then if any prototype type is not identical to its corresponding
-assignment result type, the call-prototype match fails
+Then if any prototype result type is not identical to its corresponding
+assignment target type, the call-prototype match fails
 (i.e., there is \underline{no} implied conversion of function result
 types).
 
