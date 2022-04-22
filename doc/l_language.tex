@@ -1782,11 +1782,9 @@ and `operand' to mean {\em (P+1)-expression}:
 \ttkey{sum}
     & The expression operators must all be either \TT{+} or \TT{-}.
       The expression must consist of alternating operands
-      and operators and end with an operand (it may begin with
-      an operator).
+      and operators and begin and end with an operand.
       Each subsequence of the form `{\tt "-" operand}' is
-      replaced by `{\tt "+" \{ "-" operand \}}', and then
-      any {\tt "+"} at the beginning of the expression is deleted.
+      replaced by `{\tt "+" \{ "-" operand \}}'.
 \end{tabular}
 \end{center}
 
@@ -1797,8 +1795,8 @@ There are a few additional special syntactic rules:
 with non-line arithmetic operators
 (\TT{+}, \TT{-}, \TT{/}, \TT{*}, and \TT{**})
 outside parentheses in a subexpression.
-E.g., `{\tt x + (y * \textasciitilde z)}'
-is illegal but `{\tt x + (y * (\textasciitilde z))}' is legal.
+E.g., `{\tt x + (y * \textasciitilde{} z)}'
+is illegal but `{\tt x + (y * (\textasciitilde{} z))}' is legal.
 \end{enumerate}
 
 
@@ -1814,7 +1812,7 @@ but the following examples give an idea of some of this semantics:
        arithmetic operators (with a few exceptions)
        have operands that are of the same
        type as their result,
-       {\tt T} is also target type of {\tt x} and {\tt *}, and since it is
+       {\tt T} is also the target type of {\tt x} and {\tt *}, and since it is
        the target type of {\tt *} it will be the target type of {\tt y}
        and {\tt z}.  Implicit conversions of variables are allowed,
        so {\tt x}, {\tt y}, and {\tt z} will all be converted
