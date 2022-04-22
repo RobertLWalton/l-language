@@ -1575,11 +1575,23 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{else} & terminating & initial & terminating & \\
              & conditional & & conditional &
 \\\cline{1-4}
-\ttkey{:} operator & conditional & afix & (none) & \\
+\ttkey{:} & conditional & afix & (none) & \\
                    & completion & right & &
-\\\cline{1-1}\cline{3-3}
-\ttkey{:} indentation & & afix & & \\
-~~mark                & & postfix & &
+\\\cline{1-3}
+\key{subblock} & conditional & afix & & \\
+               & or declaration &      & & \\
+               & completion &      & &
+\\\cline{1-4}
+\ttkey{type} & declaration & prefix & declaration &
+\\\cline{1-1}
+\ttkey{pointer type} & & & &
+\\\cline{1-1}
+\ttkey{function} & & & &
+\\\cline{1-1}
+\ttkey{\begin{tabular}[t]{@{}l@{}}
+       out-of-line\\
+       ~~function
+       \end{tabular}} & & & &
 \\\hline
 \ttkey{=} & assignment & infix & binary & 1000
 \\\cline{1-2}
@@ -1714,12 +1726,18 @@ and `operand' to mean {\em (P+1)-expression}:
 \ttkey{conditional}
     & The expression must consist of the operator followed by an
       operand followed by either a \TT{:} operator and an
-      operand or by just a \TT{:} indented paragraph.
-\\[1ex]
+      operand or by just a subblock operator (\TT{:} indented paragraph,
+      which can be an operator).
+\\[0.5ex]
 \ttkey{\begin{tabular}[t]{@{}l@{}}terminating\\conditional\end{tabular}}
     & The expression must consist of the operator followed by
       either a \TT{:} operator and an
-      operand or by just a \TT{:} indented paragraph.
+      operand or by just a subblock operator.
+\\[0.5ex]
+\ttkey{declaration}
+    & The expression must consist of the declaring operator followed by
+      an operand that may contain {\tt =} and {\tt ,} followed sometimes
+      by a subblock operator.
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
