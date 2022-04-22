@@ -5864,11 +5864,14 @@ If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
 except {\tt !=} which returns {\tt TRUE}.
 \end{indpar}
 
-{\tt function const r1, const r2 = std \ttkey{floor} (const n1, const n2 )} \\
-{\tt function const r1, const r2 = std \ttkey{ceiling} (const n1, const n2 )} \\
-{\tt function const r1, const r2 = std \ttkey{truncate}
-			(const n1, const n2 )} \\
-{\tt function const r1, const r2 = std \ttkey{round} (const n1, const n2 )}
+{\tt function const r1, const r2 =
+    std \ttkey{floor} (const n1, const n2 =? 1 )} \\
+{\tt function const r1, const r2 =
+    std \ttkey{ceiling} (const n1, const n2 =? 1 )} \\
+{\tt function const r1, const r2 =
+    std \ttkey{truncate} (const n1, const n2 =? 1 )} \\
+{\tt function const r1, const r2 =
+    std \ttkey{round} (const n1, const n2 =? 1 )}
 \begin{indpar}
 These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
 result rounded to an integer and {\tt r2} as the remainder.
@@ -6553,39 +6556,43 @@ See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 
 \subsubsection{Numeric Explicit Conversions}
 
-Explicit conversion from values of number type {\tt N1} to values
-of number type {\tt N2} are defined by:
-\begin{indpar} \tt
-function N2 r = std N2 ( N1 v )
-\end{indpar}
-in the following cases:
-\begin{itemlist}[0.5in]
-\item[\tt flt\ldots{}~( N1 v )] ~\\
-    This is defined for all number
-    types {\tt N1}.  Values may be converted to {\tt +Inf} or {\tt -Inf}
-    and precision may be lost.
-\item[\tt int\ldots{}~( N1 v )] ~\\
-    This is defined only if an implicit
-    conversion for {\tt N1} to {\tt N2} is defined, or if {\tt N1} and
-{\tt N2} are identical.
-\item[\tt uns\ldots{}~( N1 v )] ~\\
-    This is defined only if an implicit
-    conversion for {\tt N1} to {\tt N2} is defined, or if {\tt N1} and
-{\tt N2} are identical.
-\item[\tt bool ( N1 v )] ~\\
-    This is defined only when {\tt N1} and {\tt N2} are identical.
-\end{itemlist}
+{\tt function I r = std \ttkey{floor} (F v1, F v2 =? 1.0 )} \\
+{\tt function I r = std \ttkey{ceiling} (F v1, F v2 =? 1.0 )} \\
+{\tt function I r = std \ttkey{truncate} (F v1, F v2 =? 1.0 )} \\
+{\tt function I r = std \ttkey{round} (F v1, F v2 =? 1.0 )}
+\begin{indpar}
+Where {\tt I} is any builtin integer type
+and {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 
-Unchecked explicit conversion from values of number type {\tt N1} to values
-of number type {\tt N2} are defined as follows:
-\begin{itemlist}[0.5in]
-\item[\tt function int\ldots{}~r = std *UNCHECKED* ( N1 v )]
-\item[\tt function uns\ldots{}~r = std *UNCHECKED* ( N1 v )] \vspace*{-0.1in}
-\item[\tt function bool r = std *UNCHECKED* ( N1 v )] \vspace*{-0.1in} ~\\
-These are defined only if an explicit conversion {\tt N2(v)}
-is not defined.  The value {\tt v} is truncated, which may lose high
-order bits and change the sign of the value.
-\end{itemlist}
+These divide {\tt v1} by {\tt v2} and return {\tt r} as the
+result rounded to an integer.
+Here {\tt floor} rounds toward negative infinity, {\tt ceiling}
+rounds towards positive infinity, {\tt truncate} rounds toward
+zero, and {\tt round} rounds to the nearest integer, or to the
+even integer if there are two nearest integers.
+
+The floating point flags set are those set by division (see above), plus the
+inexact flag may be set if the division quotient is not a integer.
+
+If the division quotient is outside the range storable in {\tt I},
+the result is undefined and may cause program termination.
+\end{indpar}
+
+{\tt function I1 r = std \ttkey{*UNCHECKED*} ( I2 v )}
+\begin{indpar}
+Where {\tt I1} and {\tt I2} are any builtin integer types
+such that one of the following is true:
+\begin{enumerate}
+\item {\tt I1} is shorter than {\tt I2}
+\item {\tt I1} and {\tt I2} are of equal length and one
+is {\tt int\ldots} while the other is {\tt uns\ldots}
+\item {\tt I2} is {\tt int\ldots} while {\tt I1} is {\tt uns\ldots}.
+\end{enumerate}
+
+These convert {\tt v} to a bit-string of unbounded length (e.g., by
+sign extension) and
+then truncate it to the length of {\tt I1}.
+\end{indpar}
 
 \subsection{Builtin Floating Point Operations}
 \label{BUILTIN-FLOATING-POINT-OPERATIONS}
@@ -6636,10 +6643,10 @@ going to the value whose least significant bit is zero.
 \end{itemlist}
 \end{indpar}
 
-{\tt function F r = std \ttkey{floor} (F v1, F v2 = 1.0 )} \\
-{\tt function F r = std \ttkey{ceiling} (F v1, F v2 = 1.0 )} \\
-{\tt function F r = std \ttkey{truncate} (F v1, F v2 = 1.0 )} \\
-{\tt function F r = std \ttkey{round} (F v1, F v2 = 1.0 )}
+{\tt function F r = std \ttkey{floor} (F v1, F v2 =? 1.0 )} \\
+{\tt function F r = std \ttkey{ceiling} (F v1, F v2 =? 1.0 )} \\
+{\tt function F r = std \ttkey{truncate} (F v1, F v2 =? 1.0 )} \\
+{\tt function F r = std \ttkey{round} (F v1, F v2 =? 1.0 )}
 \begin{indpar}
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 
