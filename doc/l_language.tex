@@ -2169,7 +2169,7 @@ It is a compile error to convert to an integer type that cannot
 hold the exact value of the number.
 Conversion to a run-time floating type is however
 never a compile error.  If necessary the converted value is
-{\tt +Inf} or {\tt -Inf}.
+{\tt +Inf} or {\tt -Inf} or loses precision.
 
 {\em Rational-constants} and {\em map-constants} are described in the
 following sections.
@@ -2181,7 +2181,7 @@ following sections.
 A \key{rational constant} is a rational number with unbounded
 numerators and denominators, where the
 denominator is at least 1 and the numerator and denominator
-have no common factors.  If the denominator is 1, the
+have no common factors (other than 1).  If the denominator is 1, the
 rational is called a \key{rational integer}.
 
 Rational constants are computed at compile-time by the operators:
@@ -2298,7 +2298,7 @@ hold the exact value of the rational constant.
 Conversion of a rational constant
 to a run-time floating type is however
 never a compile error.  If necessary the converted value is
-{\tt +Inf} or {\tt -Inf}.
+{\tt +Inf} or {\tt -Inf} or precision is lost.
 
 \subsubsubsection{Map Constants}
 \label{MAP-CONSTANTS}
