@@ -2378,8 +2378,8 @@ An \emkey{expression-constant}\label{EXPRESSION-CONSTANT}
 is shorthand for the {\em map-constant}
 produced when the {\em expression} is parsed: see \pagref{PARSER-OUTPUT}.
 Generally, parsing an expression groups expression elements into
-sublists and moves bracket and separator punctuation to dictionary entries.
-Some examples are:
+sublists and moves bracket and separator punctuation to annotations
+(dictionary entries).  Some examples are:
 \begin{center} \tt
 \begin{tabular}{l@{~~~}l}
 \rm The expression:	& \rm Is equivalent to:
@@ -2421,8 +2421,8 @@ with {\em expression-constants} are:
                         & ~~~~~~~~~~~~~~".terminator" => ")" \} \}
 \\[0.5ex]
 \{* X = ( Y + 1 ) *\}	& \{ \{ "X" \}, "=", \{ \{ "Y" \}, "+", \{ 1 \}, \\
-                        & ~~~~~~~~~~~~~~~~~~~~".initiator" => "(", \\
-                        & ~~~~~~~~~~~~~~~~~~~~".terminator" => ")" \} \}
+                        & ~~~~~~~~~~~~~~~~~~".initiator" => "(", \\
+                        & ~~~~~~~~~~~~~~~~~~".terminator" => ")" \} \}
 \end{tabular}
 \end{center}
 
@@ -2444,7 +2444,7 @@ A \emkey{reference-expression} names either a pointer to a location in memory
 or names the value of such a location.
 
 The most basic {\em reference-expression} is the name of a variable
-in the current function frame or current module memory.  Other
+in the current function frame or in a module memory.  Other
 reference expressions are made by appending vector indices or structure
 member names to more basic {\em reference-expressions}.  The syntax
 is:
@@ -2551,16 +2551,16 @@ to write that target.  An example of the latter is:
 \label{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE}
 
 \begin{indpar}\begin{verbatim}
-// In my vector X, a writable vector with flt64 elements is
-// located at X.offset from the address of X and allows index
-// range from 0 through X.length-1.
+// In my vector X, a vector with flt64 elements is located
+// at X.offset from the address of X and allows index range
+// from 0 through X.length-1.
 //
 type my vector:
     uns offset;
     uns length;
     . . . .
-function ap *READ_WRITE* flt64 @x = ( ap my vector @v ) [ uns index ]:
-    av *READ-WRITE* flt64 @p = *UNCHECKED*
+function ap Q$1 flt64 @x = ( ap Q$1 my vector @v ) [ int index ]:
+    av Q$1 flt64 @p = *UNCHECKED*
             ( @v, v.offset, 0, v.length )
         // The *UNCHECKED* function is a builtin function
         // that performs a variety of conversions which
