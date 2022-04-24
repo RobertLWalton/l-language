@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 23, 2022
+April 24, 2022
 
 \bigskip
  
@@ -2539,16 +2539,15 @@ X.W = "P"                // X and Y are both {"C", "D", "W" => "P"}.
                          // Now Z is {{"C", "D", "W" => "P"}, "M"},
 \end{verbatim}\end{indpar}
 
+Reference expressions differ from non-reference expressions in how
+their result types are computed.  Non-reference expressions use
+target types as their result types.  Reference expressions use the
+type of their first operand, which is a {\em variable} or a shorter
+{\em reference-expression}.
 
-Inline functions may be defined that syntactically and semantically mimic
-{\em reference-\EOL expres\-sions}, and calls to such functions
-can be used like {\em reference-expressions}.
-If the inline function returns a value, a call to the function
-can only be used to read a value from an apparent
-location.  However if the inline function returns a pointer at a target
-with writable qualifiers, a call to the function can be used
-to write that target.  An example of the latter is:
-\label{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE}
+A {\em reference-expression} may be a call to an inline
+\key{reference-function}: for details see Reference Functions\pagnote{REFERENCE-FUNCTIONS}.
+An example is:
 
 \begin{indpar}\begin{verbatim}
 // In my vector X, a vector with flt64 elements is located
@@ -2558,8 +2557,11 @@ to write that target.  An example of the latter is:
 type my vector:
     uns offset;
     uns length;
-    . . . .
-function ap Q$1 flt64 @x = ( ap Q$1 my vector @v ) [ int index ]:
+    align 64
+    *LABEL* first
+
+reference function ap Q$1 flt64 @x =
+        ( ap Q$1 my vector @v ) [ int index ]:
     av Q$1 flt64 @p = *UNCHECKED*
             ( @v, v.offset, 0, v.length )
         // The *UNCHECKED* function is a builtin function
@@ -2568,6 +2570,19 @@ function ap Q$1 flt64 @x = ( ap Q$1 my vector @v ) [ int index ]:
         // v.offset to its offset, and returns this ap as an
         // av with bounds 0 and v.length.
     @x = @p[index]
+
+type my data:
+    *INCLUDE* my vector
+    flt64[2]
+
+ap *READ-WRITE* my data @D =@ local:
+    D.offset = D.first / 8
+    D.length = 2
+
+D[0] = 5.5      // Computes and uses pointer @D[0]
+D[1] = -7.33    // Computes and uses pointer @D[1]
+flt64 x = D[0]  // Now x == 5.5
+flt64 y = D[1]  // Now y == -7.33
 \end{verbatim}\end{indpar}
 
 \subsubsection{Function Calls}
