@@ -4262,7 +4262,7 @@ The syntax of a function declaration is:
 \emkey{first-pattern-term} ::= {\em pattern-argument-list}\STAR{}~
 				{\em pattern-term}
 \\[0.5ex]
-\emkey{pattern-term}
+\emkey{pattern-term}\label{PATTERN-TERM}
     ::= {\em function-term-name}~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
 \emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
@@ -4284,7 +4284,7 @@ The syntax of a function declaration is:
     $|$ & \TT{[} {\em prototype-argument-declaration}~
 	     \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{} \TT{]} \\
     \end{tabular}
-\begin{itemize}
+\begin{itemize}\label{FUNCTION-DECLARATION-RULES}
 \item
 A {\em prototype-pattern} or {\em function-call}
 must have either a {\em function-term-name}
@@ -4794,7 +4794,58 @@ this prefix - there is \underline{no} target type.
 \\[0.5ex]
 \emkey{call-term-name} ::= see \pagref{CALL-TERM-NAME}
 \\[2.0ex]
-NOTE: {\em Unparenthesized-actual-arguments} are not allowed.
+NOTE: {\em Unparenthesized-actual-arguments} are \underline{not} allowed.
+\end{indpar}
+
+\begin{indpar}[0.1in]
+\emkey{reference-function-declaration}\label{REFEREMCE-FUNCTION-DECLARATION}
+	::= \\
+\hspace*{2em}
+    \begin{tabular}[t]{rl}
+        &  {\em reference-function-prototype} \TT{:} \\
+	& \TT{~~~~~}{\em statement}\PLUS{} \\
+    $|$ &  {\em reference-function-prototype}~ \TT{:}~ \ttkey{*DEFERRED*} \\
+    \end{tabular}
+\\[2ex]
+\emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} ::= \\
+\hspace*{0.25in}\ttkey{reference function}~
+    \begin{tabular}[t]{@{}l}
+        {\em result-variable-declaration}~ \TT{=} \\
+        {\em module-abbreviation}\QMARK{}~ {\em reference-prototype-pattern} \\
+    \end{tabular}
+\\[0.5ex]
+{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
+\\[0.5ex]
+{\em result-variable-declaration} ::= see \pagref{RESULT-VARIABLE-DECLARATION}
+\\[0.5ex]
+\emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN} \\
+\hspace*{2em}\begin{tabular}[t]{rl}
+    ::= & {\em reference-pattern-argument}~
+          {\em first-reference-pattern-term}~
+          {\em pattern-term}\STAR{} \\
+    $|$ & {\em reference-pattern-argument}~ {\em pattern-argument-list}\PLUS{}
+    \end{tabular}
+\\[0.5ex]
+\emkey{reference-pattern-argument} ::=
+    \TT{(} {\em result-variable-declaration}~ \TT{)}
+\\[0.5ex]
+\emkey{first-reference-pattern-term} ::= \\
+\hspace*{2em}{\em pattern-term} beginning with
+   a {\em function-term-name} that is a {\em member-name}
+\\[0.5ex]
+\emkey{pattern-term} ::= see \pagref{PATTERN-TERM}
+\\[0.5ex]
+\emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
+\\[0.5ex]
+\emkey{member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
+\emkey{pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
+\begin{itemize}
+\item
+The rules for a {\em function-declaration}
+(\pagref{FUNCTION-DECLARATION-RULES})
+apply where applicable to a {\em reference-function-declaration}
+\end{itemize}
 \end{indpar}
 
 \subsubsubsection{Out-of-Line Function Declarations}
