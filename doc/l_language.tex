@@ -4764,6 +4764,39 @@ the prefix of the {\em function-call}.  The type of
 the {\em function-call} is computed from the type of
 this prefix - there is \underline{no} target type.
 
+\begin{indpar}
+\emkey{reference-call}\label{REFERENCE-CALL} ::= \\
+\hspace*{1em}\begin{tabular}[t]{rl}
+        & {\em reference-expression}
+	  \begin{tabular}[t]{@{}l@{}}
+          {\em call-argument-list}\STAR{} \\
+          {\em member-call-term}
+          {\em non-member-call-term}\STAR{} \\
+	  \end{tabular} \\
+    $|$ & {\em reference-expression}
+          {\em call-argument-list}\PLUS{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{member-call-term}
+    ::= {\em member-name} {\em call-argument-list}\STAR{}
+\\[0.5ex]
+\emkey{non-member-call-term}
+    \begin{tabular}[t]{rl}
+    ::= & {\em non-member-call-term-name} {\em call-argument-list}\STAR{} \\
+    $|$ & \ttkey{no} {\em non-member-call-term-name} \\
+    $|$ & \ttkey{not} {\em non-member-call-term-name} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{non-member-call-term-name}
+    ::= {\em call-term-name} that is not a {\em member-name}
+\\[0.5ex]
+\emkey{call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
+\\[0.5ex]
+\emkey{call-term-name} ::= see \pagref{CALL-TERM-NAME}
+\\[2.0ex]
+NOTE: {\em Unparenthesized-actual-arguments} are not allowed.
+\end{indpar}
+
 \subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
 
