@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 24, 2022
+April 25, 2022
 
 \bigskip
  
@@ -2456,6 +2456,7 @@ is:
     $|$ & \TT{next}~ {\em variable-name} \\
     $|$ & {\em reference-expression} \TT{[} {\em index-list} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
+    $|$ & {\em reference-call} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{index-list} ::= {\em index} \{ \TT{,} {\em index} \}\STAR{}
@@ -2545,11 +2546,11 @@ target types as their result types.  Reference expressions use the
 type of their first operand, which is a {\em variable} or a shorter
 {\em reference-expression}.
 
-A {\em reference-expression} may be a call to an inline
-\key{reference-function}: for details see Reference Functions\pagnote{REFERENCE-FUNCTIONS}.
-An example is:
+A {\em reference-call} is a call to a reference function.
+For details see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS},
+but an example is:
 
-\begin{indpar}\begin{verbatim}
+\begin{indpar}\label{REFERENCE-FUNCTION-EXAMPLE}\begin{verbatim}
 // In my vector X, a vector with flt64 elements is located
 // at X.offset from the address of X and allows index range
 // from 0 through X.length-1.
@@ -2646,7 +2647,7 @@ An {\em unparenthesized-actual-argument}\label{UNPARENTHESIZED-ACTUAL-ARGUMENT}
 is an {\em actual-argument}
 {\tt X} that would normally be in parentheses as {\tt (X)} but the
 parentheses have been omitted.  Thus given the example function definition
-on page \pageref{REFERENCE-EXPRESSION-FUNCTION-EXAMPLE},
+on page \pageref{REFERENCE-FUNCTION-EXAMPLE},
 {\tt (v)[i]} may be written as {\tt v[i]}.  Only {\tt (~)}'s may be
 omitted, and then only if they surround exactly one {\em actual-argument}
 that is a {\em constant} or {\em variable-name}.
@@ -4750,6 +4751,18 @@ bool b2 = ( flt64 ( x ) == 5 )
     // The only flt64 function with *EXACT* argument
     // is the one with N = int32.
 \end{verbatim}\end{indpar}
+
+\subsubsubsection{Reference Function Declarations}
+\label{REFERENCE-FUNCTION-DECLARATIONS}
+
+A \key{reference function} is a function that can be
+called as part of evaluating a {\em reference-expression}.
+The prototype of the function begins with
+a parenthesized expression that is matched in
+any call to an actual {\em reference-expression} that is
+the prefix of the {\em function-call}.  The type of
+the {\em function-call} is computed from the type of
+this prefix - there is \underline{no} target type.
 
 \subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
