@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 25, 2022
+April 26, 2022
 
 \bigskip
  
@@ -4498,6 +4498,10 @@ Each {\em function-call} in a statement must be matched to a single
 {\em function-prototype}, else compilation of the statement fails
 with a compile error.
 
+This section applies to matching non-{\em reference-calls}.  The
+rules of this section are modified when matching {\em reference-calls}
+according to section \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}.
+
 Conceptually, a \key{matching map} is built for each subexpression
 of the statement that is not in a subblock within the statement
 (i.e., not within a substatement of the statement).
@@ -4547,7 +4551,8 @@ be zero, or more than one target type.
 In this context, \key{call-prototype matching} is done as follows:
 
 \begin{enumerate}
-\item If the call begins with a {\em module-abbreviation}
+\item\label{CALL-PROTOTYPE-MODULE-ABBREVIATION}
+If the call begins with a {\em module-abbreviation}
 and the {\em prototype-pattern}
 either does not begin with a {\em module-abbreviation},
 or begins with one that names a different module from that of the call,
@@ -4558,7 +4563,8 @@ with a {\em module-abbreviation} (identifying the same module), or
 if neither begins with a {\em module-abbreviation} (both are non-external),
 the match is marked as \key{module proficient}\label{MODULE-PROFICIENT}.
 
-\item The {\em function-term-names} in the prototype are matched to
+\item\label{CALL-PROTOTYPE-TERM-NAMES}
+The {\em function-term-names} in the prototype are matched to
 {\em call-term-names} in the call.  To match, the names must be identical,
 except that quotes in prototype
 {\em quoted-marks} and {\em quoted-separators} may be (but need not be)
@@ -4576,7 +4582,7 @@ If the first prototype name fails to match the first call name,
 the call-prototype match fails, but otherwise names may be matched
 in any order.
 
-\item
+\item\label{CALL-PROTOTYPE-CALL-TERMS}
 The {\em function-term-names} found in the call are used to determine
 the extent of {\em call-terms} in the call.  For starters, each
 {\em call-term} consists of its {\em call-term-name} and everything
@@ -4764,6 +4770,14 @@ the prefix of the {\em function-call}.  The type of
 the {\em function-call} is computed from the type of
 this prefix - there is \underline{no} target type.
 
+{\em Reference-calls} are similar to non-reference {\em function-calls},
+{\em reference-function-declarations} are similar to
+inline {\em function-declarations}, and reference call-prototype
+matching is similar to non-reference call-prototype matching,
+but there are important differences.
+
+The syntax of a {\em reference-call} is:
+
 \begin{indpar}
 \emkey{reference-call}\label{REFERENCE-CALL} ::= \\
 \hspace*{1em}\begin{tabular}[t]{rl}
@@ -4793,9 +4807,20 @@ this prefix - there is \underline{no} target type.
 \emkey{call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \\[0.5ex]
 \emkey{call-term-name} ::= see \pagref{CALL-TERM-NAME}
-\\[2.0ex]
-NOTE: {\em Unparenthesized-actual-arguments} are \underline{not} allowed.
+\begin{itemize}
+\item
+{\em Unparenthesized-actual-arguments} are \underline{not} allowed.
+\item
+The {\em reference-expression} is the first actual argument and is
+never parenthesized.  It always begins with a {\em variable-name} or
+with `{\tt next} {\em variable-name}'.
+\item
+The first {\em call-term-name}, if it exists, is a {\em member-name}.
+No other {\em call-term-name} is a {\em member-name}.
+\end{itemize}
 \end{indpar}
+
+The syntax of a {\em reference-function-declaration} is:
 
 \begin{indpar}[0.1in]
 \emkey{reference-function-declaration}\label{REFEREMCE-FUNCTION-DECLARATION}
@@ -4844,9 +4869,81 @@ NOTE: {\em Unparenthesized-actual-arguments} are \underline{not} allowed.
 \item
 The rules for a {\em function-declaration}
 (\pagref{FUNCTION-DECLARATION-RULES})
-apply where applicable to a {\em reference-function-declaration}
+apply where applicable to a {\em reference-function-declaration},
+with exceptions as indicated here.
+\item
+The first actual argument in a {\em reference-call} is a
+smaller {\em reference-expression} that has already been deliminated
+and which is surrounded in the {\em reference-call} by implied
+parentheses {\tt (~)}.
+\item
+There is exactly one {\em result-variable-declaration} and a result
+cannot have the form `{\tt next $v$}'.  There is no {\em input-list}
+form of {\em reference-function-declaration}.
+\item
+The {\em reference-pattern-argument} in the prototype cannot
+contain default or required values.
 \end{itemize}
 \end{indpar}
+
+\subsubsubsubsection{Reference Call-Prototype Matching}
+\label{REFERENCE-CALL-PROTOTYPE-MATCHING}
+
+Two major differences between {\em refer\-ence-call}-prototype
+matching and inline {\em function-call}-prototype matching are:
+\begin{itemize}
+\item
+The end of the {\em reference-call} may be before the end
+of its containing {\em reference-expres\-sion} and must be
+determined by special rules, while the
+end of a {\em function-call} is the end of its containing
+{\em expression}.
+\item
+There is no target type for a {\em reference-call}, and
+implicit conversion cannot be applied to its first argument
+{\em reference-expression}.
+\end{itemize}
+
+With this in mind, the steps of the inline call-prototype matching algorithm
+of section \itemref{INLINE-CALL-PROTOTYPE-MATCHING}
+are modified to make a reference call-prototype matchine algorithm
+as follows:
+\begin{indpar}[3em] % Allows item names to be longer.
+\begin{itemize}
+
+\item[Step \ref{CALL-PROTOTYPE-MODULE-ABBREVIATION}%
+           \pagnote{CALL-PROTOTYPE-MODULE-ABBREVIATION}]
+If a {\em reference-expression} begins with a {\em module-abbreviation},
+the {\em reference-expes\-sion} must contain exactly one {\em reference-call}
+which must be the entire {\em reference-expression}, and the
+{\em module-abbreviation} applies to that {\em reference-call}.
+
+\item[Step \ref{CALL-PROTOTYPE-TERM-NAMES}%
+           \pagnote{CALL-PROTOTYPE-TERM-NAMES}]
+If a second {\em member-name} is encountered during the left-to-right
+scan, it is assumed that the {\em reference-call} terminates before
+this second {\em member-name}, that that second {\em member-name}
+and everything following it are ignored.
+
+\item[Step \ref{CALL-PROTOTYPE-CALL-TERMS}%
+           \pagnote{CALL-PROTOTYPE-CALL-TERMS}]
+The end of the {\em reference-call} must be determined before
+the last {\em call-term} can be determined.  This is done
+by proceding left-to-right from the last {\em call-term-name}
+in the {\em reference-call} (before any re-ordering of {\em call-terms})
+to identify {\em call-argument-lists} that have bracket types,
+{\tt (~)} or {\tt [~]}, which match the bracket types of
+corresponding {\em pattern-argument-lists} in the matching
+{\em pattern-term}, ignoring what is between brackets in both the call
+and prototype.  The {\em reference-call} ends just before the first
+failed match, or when there are no more {\em call-argument-lists}.
+
+
+TBD
+
+\end{itemize}
+\end{indpar}
+
 
 \subsubsubsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
