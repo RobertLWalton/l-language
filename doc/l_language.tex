@@ -334,7 +334,7 @@ For example:
 
 \begin{indpar}\begin{verbatim}
 int X = 5
-ap *READ-WRITE* int @Y =@ local
+ap *READ-WRITE* int @Y   // `=@ local' is implied
 Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
@@ -343,7 +343,7 @@ ap ro int @Z = @Y        // Copies pointer value @Y.
                          // to ro is legal.
 \end{verbatim}\end{indpar}
 
-Here `{\tt =@ local}' allocates an {\tt int} to the current
+Here the implied `{\tt =@ local}' allocates an {\tt int} to the current
 function frame, zeros it, and returns an `{\tt ap *READ-WRITE* int}'
 pointer to its location.
 
@@ -437,7 +437,7 @@ my type X:
     X.des = 3
 uns op = X.op code      // Now op == 5
 int d = X.des           // Now d == 3
-ap *READ-WRITE* my type @Y =@ local
+ap *READ-WRITE* my type @Y    // `=@ local' is implied
 Y.op code = 129
 fp *READ-WRITE* int @C = @Y.constant
 ap *READ-WRITE* uns8 @OP = @Y.op code
@@ -2613,7 +2613,7 @@ type my data:
     *INCLUDE* my vector
     flt64[2]
 
-ap *READ-WRITE* my data @D =@ local:
+ap *READ-WRITE* my data @D:    // `=@ local' is implied
     D.offset = D.first / 8
     D.length = 2
 
@@ -3767,8 +3767,8 @@ type list element:
 
 // Make doubly linked circular list.
 //
-list element @Y =@ local = *DEFERRED*
-list element @X =@ local:
+list element @Y = *DEFERRED*    // `=@ local' is implied
+list element @X:                // `=@ local' is implied
     X.value = 1
     X.@after = @Y
 list element @Y:
@@ -3789,7 +3789,7 @@ An example is:
 
 \begin{indpar}\begin{verbatim}
 type my type : *DEFERRED*
-ap *READ-WRITE* my type @X =@ local
+ap *READ-WRITE* my type @X
                     // Legal, my type members need not be declared.
                     // The allocated my type value will be zeroed.
 ap ro @Y = @X       // Legal, only ap copied.
