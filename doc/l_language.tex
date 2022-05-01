@@ -270,6 +270,18 @@ or written without any other process trying to read or write part of the
 value at the same time.
 A {\tt *VOLATILE*} or {\tt *ATOMIC*} value cannot be {\tt co}.
 
+There are also three qualifiers that specify the lifetime of the target
+of a pointer: {\tt *LOCAL*}, {\tt *GLOBAL*}, and {\tt *HEAP*}.  The
+default is {\tt *LOCAL*} which means, roughly, that the pointer is valid until
+the code block in which the pointer was first calculated is no
+longer executing.  Typically pointer variables are default-{\tt *LOCAL*},
+as in the example.  The {\tt "Hello!"} constant in the example is
+a {\tt *GLOBAL*} pointer, meaning that the pointer is valid during the
+entire program execution, but such pointers are implicitly convertable
+to {\tt *LOCAL*} pointers, as in the example.  {\tt *HEAP*} pointers
+point at garbage collectable values and obey special rules that we
+shall not discuss here.
+
 Variables in function frames and module memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z}, and values
 that are constants.
@@ -2016,7 +2028,7 @@ L-Language uses several kinds of names:
 {\tt *ATOMIC*} locks memory when reading or writing \\
 {\tt *GLOBAL*} has global (forever) lifetime \\
 {\tt *LOCAL*} has lifetime that ends when current stack frame destroyed \\
-{\tt *HEAP*} has lifetime managed by garbage collector \\
+{\tt *HEAP*} has lifetime managed by garbage collector
 \end{indpar}
 \emkey{operator-word}
     \begin{tabular}[t]{rl}
