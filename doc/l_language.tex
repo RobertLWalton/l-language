@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 26, 2022
+May 1, 2022
 
 \bigskip
  
@@ -2002,12 +2002,21 @@ L-Language uses several kinds of names:
 \emkey{function-term-name} ::= {\em name}
     \label{FUNCTION-TERM-NAME}
 \\[1ex]
-\emkey{qualifier-name}\label{QUALIFIER-NAME} ::=
-    \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE} $|$
-    \ttakey{WRITE-ONLY} $|$ \ttakey{VOLATILE} $|$ \ttakey{ATOMIC}
+\emkey{qualifier-name}\label{QUALIFIER-NAME}
+    \begin{tabular}[t]{rl}
+    ::= & \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE}
+                     $|$ \ttakey{WRITE-ONLY} \\
+    $|$ & \ttakey{VOLATILE} $|$ \ttakey{ATOMIC} \\
+    $|$ & \ttakey{GLOBAL} $|$ \ttakey{LOCAL} $|$ \ttakey{HEAP} \\
+    \end{tabular}
 \begin{indpar}
 {\tt co} abbreviates `constant' meaning `never changes' \\
-{\tt ro} abbreviates `read-only' meaning `other code may change'
+{\tt ro} abbreviates `read-only' meaning `other code may change' \\
+{\tt *VOLATILE*} flushes software caches between statements \\
+{\tt *ATOMIC*} locks memory when reading or writing \\
+{\tt *GLOBAL*} has global (forever) lifetime \\
+{\tt *LOCAL*} has lifetime that ends when current stack frame destroyed \\
+{\tt *HEAP*} has lifetime managed by garbage collector \\
 \end{indpar}
 \emkey{operator-word}
     \begin{tabular}[t]{rl}
@@ -2024,13 +2033,29 @@ L-Language uses several kinds of names:
     \end{tabular}
 
 \emkey{wild-card}\label{WILD-CARD}
-    ::= {\em simple-name} beginning with \TT{T\$}, \TT{P\$}, or \TT{Q\$}
-\begin{indpar}
-Each {\tt T\$} name is assigned a {\em type-name} \\
-Each {\tt P\$} name is assigned a {\em pointer-type-name} \\
-Each {\tt Q\$} name is assigned a sequence of zero or more
-               {\em qualifier-names}
-\end{indpar}
+    ::= {\em simple-name} beginning with {\em wild-card-prefix}
+
+\emkey{wild-card-prefix}\label{WILD-CARD-PREFIX} :::= one of: \\
+\hspace*{0.2in}\begin{tabular}{rp{4in}}
+\ttkey{T\$} & name is assigned a {\em type-name} \\
+\ttkey{P\$} & name is assigned a {\em pointer-type-name} \\
+\ttkey{Q\ldots\$} & {\em qualifier-wild-card}; name is assigned a
+                    list of {\em qualifier-names} subject to
+		    {\em qualifier-wild-card-flags} `\ldots'\\
+\end{tabular}
+
+\emkey{qualifier-wild-card}\label{QUALIFIER-WILD-CARD} :::=
+    \TT{Q}~{\em qualifier-wild-card-flag}\STAR{}~ \TT{\$}
+
+\emkey{qualifier-wild-card-flag}\label{QUALIFIER-WILD-FLAG} :::= one of: \\
+\hspace*{0.2in}\begin{tabular}{rp{4in}}
+\ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
+\ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
+\ttkey{L} & requires \TT{*LOCAL*} \\
+\ttkey{G} & requires \TT{*GLOBAL*} \\
+\ttkey{H} & requires \TT{*HEAP*} \\
+\end{tabular}
+
 
 where the following rules should be followed, least there be
 various confusing syntax or semantic errors (some, but not all,
