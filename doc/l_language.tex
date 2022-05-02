@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 1, 2022
+May 2, 2022
 
 \bigskip
  
@@ -2477,17 +2477,19 @@ with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 \subsubsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
-A \emkey{reference-expression} names either a pointer to a location in memory
-or names the value of such a location.
+A \emkey{reference-expression} computes either a pointer to a location
+in memory, or the value of such a location, or stores a value in a location,
+or appears to do these things via calls to reference functions.
 
 The most basic {\em reference-expression} is the name of a variable
 in the current function frame or in a module memory.  Other
-reference expressions are made by appending vector indices or structure
-member names to more basic {\em reference-expressions}.  The syntax
+reference expressions are made by appending vector indices or
+{\em member-names} optionally followed by other arguments
+to more basic {\em reference-expressions}.  The syntax
 is:
 
 \begin{indpar}
-\emkey{reference-expression}
+\emkey{reference-expression}\label{REFERENCE-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
     $|$ & \TT{next}~ {\em variable-name} \\
@@ -2634,7 +2636,7 @@ The syntax of function calls is:
     ::= & {\em module-abbreviation}\QMARK{}
           {\em call-argument-list}\STAR{}
           {\em call-term}\PLUS{} \\
-    $|$ & {\em call-argument-list}
+    $|$ & {\em reference-expression}
           {\em call-argument-list}\PLUS{} \\
     \end{tabular}
 \\[0.5ex]
@@ -2652,19 +2654,17 @@ The syntax of function calls is:
     $|$ & \TT{[} {\em actual-argument}
           \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
     $|$ & \TT{()} $|$ \TT{[]} \\
-    $|$ & {\em unparenthesized-actual-argument} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{actual-argument} ::= {\em expression}
-\\[0.5ex]
-\emkey{unparenthesized-actual-argument} ::=
-    {\em constant} $|$ {\em variable-name}
 \\[0.5ex]
 \emkey{call-term-name}\label{CALL-TERM-NAME} ::=
     \begin{tabular}[t]{@{}l}
     {\em function-term-name} with quotes \underline{optionally} removed from \\
     {\em quoted-marks} and {\em quoted-separators}
     \end{tabular}
+\\[0.5ex]
+\emkey{reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
 \\[0.5ex]
 \emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
@@ -2673,21 +2673,10 @@ The syntax of function calls is:
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
-\\[2.0ex]
-NOTE: Two {\em unparenthesized-actual-arguments} cannot be consecutive.
 \end{indpar}
 
 Thus a {\em function-call} is a sequence of {\em function-term-names}
 and {\em call-argument-lists}.
-
-An {\em unparenthesized-actual-argument}\label{UNPARENTHESIZED-ACTUAL-ARGUMENT}
-is an {\em actual-argument}
-{\tt X} that would normally be in parentheses as {\tt (X)} but the
-parentheses have been omitted.  Thus given the example function definition
-on page \pageref{REFERENCE-FUNCTION-EXAMPLE},
-{\tt (v)[i]} may be written as {\tt v[i]}.  Only {\tt (~)}'s may be
-omitted, and then only if they surround exactly one {\em actual-argument}
-that is a {\em constant} or {\em variable-name}.
 
 {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
 equivalent to `{\tt x(FALSE)}'.
@@ -2701,11 +2690,7 @@ that quotes (\TT{"}) in a prototype {\em quoted-mark} or
 step in matching is to scan the {\em function-call} to identify the
 {\em call-term-names}.  There is no parser backing up after this is
 done: if the results of this initial scan do not lead to a satisfying
-match, the entire call-prototype match fails.  Therefore caution
-is necessary in omitting parentheses around
-{\em unparenthesized-actual-arguments} when these share lexemes with
-{\em function-term-names} in function prototypes that might be
-matched to the {\em function-call}.
+match, the entire call-prototype match fails.
 
 \subsubsection{Bracketed Expressions}
 \label{BRACKETED-EXPRESSIONS}
@@ -2990,7 +2975,7 @@ The {\em target-variable} is not itself allocated to memory,
 but instead references the value the {\em pointer-variable}
 points at.
 
-Note that a {\em result-variable-declaration} does not allow
+Note that a variable declaration does not allow
 qualifiers on anything but the target of a pointer.  The implicit
 qualifier of a declared variable is {\tt co} after the
 {\em assignment-statements} meaning that
@@ -3046,6 +3031,11 @@ where
 
 \item The number of {\em expressions} must equal the number
 of {\em assignment-results}.
+
+\item The {\em expression-list} must not consist of a single
+{\em expression} which is a {\em function-call} (else the
+{\em statement} is a {\em call-assignment-statement} as described in
+\itemref{CALL-ASSIGNMENT-STATEMENTS}).
 
 \end{itemize}
 \end{indpar}
@@ -5171,20 +5161,16 @@ The only operations defined on function type values are copying them and
 calling them.  A call to such a value has the form:
 \begin{indpar}
 \emkey{function-value-call}\label{FUNCTION-VALUE-CALL} ::=
-	\TT{(} {\em expression} \TT{)}
+	\TT{(} {\em reference-expression} \TT{)}
 	     {\em call-argument-list}\QMARK{} \\
 \\[0.5ex]
-{\em expression} ::= see \pagref{EXPRESSION}
+{\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
 \\[0.5ex]
 {\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \\[1ex]
 where
 \begin{itemize}
-\item The first {\em expression} evaluates to a function type value.
-\item The \TT{()} parentheses around the first {\em expression} may be
-omitted if the first {\em expression} is an
-{\em unparenthesized-actual-argument}:
-see \pagref{UNPARENTHESIZED-ACTUAL-ARGUMENT}.
+\item The initial {\em reference-expression} evaluates to a function type value.
 \end{itemize}
 \end{indpar}
 
