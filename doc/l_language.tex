@@ -2593,10 +2593,10 @@ but an example is:
 // from 0 through X.length-1.
 //
 type my vector:
-    uns offset;
-    uns length;
+    uns offset        // Offset of first element in bytes.
+    uns length        // Number of elements.
     align 64
-    *LABEL* first
+    *LABEL* first     // Offset of first element in bits.
 
 reference function ap Q$1 flt64 @x =
         ( ap Q$1 my vector @v ) [ int index ]:
@@ -2614,7 +2614,7 @@ type my data:
     flt64[2]
 
 ap *READ-WRITE* my data @D:    // `=@ local' is implied
-    D.offset = D.first / 8
+    D.offset = D.first / 8     // 8 converts bits to bytes.
     D.length = 2
 
 D[0] = 5.5      // Computes and uses pointer @D[0]
@@ -2725,7 +2725,7 @@ The syntax of a {\em bracketed-expression} is:
 {\em ma} ::= {\em module-abbreviation} ~~~ [see \pagref{MODULE-ABBREVIATION}]
 \end{indpar}
 
-Arithmetic subexpressions and function argument lists are bracketed
+Arithmetic subexpressions and some function argument lists are bracketed
 with \TT{()} brackets.  Reference expression index lists and some function
 argument lists are bracketed with \TT{[]} brackets.
 Expressions that compute map constants
@@ -2782,13 +2782,14 @@ The forms of an {\em assignment-statement} are:
     ::= & {\em expression-assignment-statement} \\
     $|$ & {\em call-assignment-statement} \\
     $|$ & {\em block-assignment-statement} \\
+    $|$ & {\em local-pointer-assignment-statement} \\
     $|$ & {\em deferred-assignment-statement} \\
     $|$ & {\em loop-assignment-statement} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{expression-assignment-statement} ::= \\
 \hspace*{0.5in} {\em assignment-result}
-                \{ \TT{,} {\em assignment-result} \}\QMARK{}
+                \{ \TT{,} {\em assignment-result} \}\STAR{}
 		\TT{=} {\em expression-list}
 \\[0.5ex]
 \emkey{expression-list} ::= see \pagref{EXPRESSION-LIST}
@@ -2797,7 +2798,7 @@ The forms of an {\em assignment-statement} are:
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em assignment-result}
-                \{ \TT{,} {\em assignment-result} \}\QMARK{}
+                \{ \TT{,} {\em assignment-result} \}\STAR{}
 		\TT{=} {\em function-call} \\
     $|$ & {\em function-call} \\
     \end{tabular}
@@ -2808,9 +2809,9 @@ The forms of an {\em assignment-statement} are:
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \\
-	& ~~~~~ \{ \TT{=}
-	           \ttkey{do} {\em block-label}\QMARK{} $|$ \TT{=} \}\QMARK{}
+                \{ \TT{,} {\em block-variable-declaration} \}\STAR{}
+		\TT{=} \\
+	& ~~~~~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
@@ -2819,17 +2820,26 @@ The forms of an {\em assignment-statement} are:
         & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
+\emkey{local-pointer-assignment-statement} ::= \\
+\hspace*{0.5in}
+    \begin{tabular}[t]{@{}rll}
+        & {\em local-pointer-variable-declaration} \\
+    $|$ & {\em local-pointer-variable-declaration} \TT{:} \\
+        & ~~~~~~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
+    \end{tabular}
+\\[0.5ex]
 \emkey{deferred-assignment-statement} ::= \\
 \hspace*{0.5in}
         {\em deferred-variable-declaration}
-	    \{ \TT{,} {\em deferred-variable-declaration} \}\QMARK{}
+	    \{ \TT{,} {\em deferred-variable-declaration} \}\STAR{}
 	    \TT{=} \ttkey{*DEFERRED*}
 \\[0.5ex]
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em next-variable-declaration}
-                \{ \TT{,} {\em next-variable-declaration} \}\QMARK{}
+                \{ \TT{,} {\em next-variable-declaration} \}\STAR{}
 		\TT{=} \\
 	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
@@ -2883,6 +2893,18 @@ The forms of an {\em assignment-statement} are:
 	      ~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
+\emkey{local-pointer-variable-declaration}%
+    \label{LOCAL-POINTER-VARIABLE-DECLARATION} ::= \\
+\hspace*{0.5in}\begin{tabular}{rl}
+	    & {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      {\em type-name} {\em pointer-variable} \\
+	$|$ & \TT{next} {\em pointer-variable}
+	\end{tabular} \\
+\hspace*{0.5in}where \begin{tabular}[t]{@{}l@{}}
+               the {\em pointer-variable} must have an explicit or implied  \\
+	       {\tt *LOCAL*} qualifier
+	       \end{tabular}
+\\[0.5ex]
 \emkey{deferred-variable-declaration}%
     \label{DEFERRED-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
@@ -2922,7 +2944,7 @@ to control the flow of execution within the more complex
     \end{tabular}
 \end{indpar}
 
-A {\em result-variable-declaration} allocates memory for its variable
+A {\em result-variable-declaration} allocates memory for its variables
 in the frame of the currently executing function.
 {\em Expression-assignment-statements} set the values of these variables
 to the values of the {\em expressions} in the {\em expression-list}.
@@ -2934,11 +2956,11 @@ allocates memory for its variable
 in the frame of the currently executing function and also initializes
 that memory according to the declaration syntax as follows:
 \begin{indpar}[0.05in]
-{\em result-variable-declaration}\,:~
+Non-{\tt next} variable declaration with no {\em allocation-call}\,:~
 The memory is zeroed. \\
-{\em next-variable-declaration} with no {\em allocation-call}\,:~
+{\tt Next} variable declaration with no {\em allocation-call}\,:~
 Previous value of the named variable. \\
-{\em block-variable-declaration} with {\em allocation-call}\,:~
+Variable declaration with {\em allocation-call}\,:~
 Value returned by the {\em allocation-call}.
 \end{indpar}
 
@@ -3009,7 +3031,7 @@ The syntax of an {\em expression-assign\-ment-statement} is:
 \begin{indpar}
 \emkey{expression-assignment-statement} ::= \\
 \hspace*{0.5in} {\em assignment-result}
-                \{ \TT{,} {\em assignment-result} \}\QMARK{}
+                \{ \TT{,} {\em assignment-result} \}\STAR{}
 		\TT{=} {\em expression-list}
 \\[0.5ex]
 \emkey{expression-list}\label{EXPRESSION-LIST} ::=
@@ -3111,9 +3133,9 @@ The syntax of {\em block-assignment-statements} is:
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\QMARK{} \\
-	& ~~~~~ \{ \TT{=}
-	           \ttkey{do} {\em block-label}\QMARK{} $|$ \TT{=} \}\QMARK{}
+                \{ \TT{,} {\em block-variable-declaration} \}\STAR{}
+		\TT{=} \\
+	& ~~~~~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
@@ -3238,6 +3260,32 @@ next x = do:
     next x = x + 1
 \end{verbatim}\end{indpar}
 
+\subsubsubsection{Local Pointer Assignment Statements}
+\label{LOCAL-POINTER-ASSIGNMENT-STATEMENTS}
+
+These are syntactic
+sugar abbreviations of {\em block-assignment-statements} as
+follows:
+
+\hspace*{0.5in}\begin{tabular}{@{}l@{~~~~}l}
+The statement: & {\em local-pointer-variable-declaration}
+\\[0.5ex]
+abbreviates:   & {\em local-pointer-variable-declaration} \TT{=@ local}
+\end{tabular}
+
+and
+
+\hspace*{0.5in}\begin{tabular}{@{}l@{~~~~}l}
+The statement: & {\em local-pointer-variable-declaration} \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-subblock}\STAR{} \\
+\\[0.5ex]
+abbreviates:   & {\em local-pointer-variable-declaration} \TT{=@ local}
+                 \TT{:} \\
+        & ~~~~~ {\em statement}\STAR{} \\
+        & ~~~~~ {\em exit-subblock}\STAR{} \\
+\end{tabular}
+
 \subsubsubsection{Deferred Assignment Statements}
 \label{DEFERRED-ASSIGNMENT-STATEMENTS}
 
@@ -3248,7 +3296,7 @@ The syntax of {\em defer\-red-assignment-state\-ments} is:
 \hspace*{0.3in}
     \begin{tabular}[t]{@{}l}
         {\em deferred-variable-declaration}
-                \{ \TT{,} {\em deferred-variable-declaration} \}\QMARK{}
+                \{ \TT{,} {\em deferred-variable-declaration} \}\STAR{}
 		     \TT{=} \ttkey{*DEFERRED*} \\
     \end{tabular}
 \\[0.5ex]
@@ -3303,7 +3351,7 @@ A {\em loop-assignment-statement} has the syntax:
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em next-variable-declaration}
-                \{ \TT{,} {\em next-variable-declaration} \}\QMARK{}
+                \{ \TT{,} {\em next-variable-declaration} \}\STAR{}
 		\TT{=} \\
 	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
@@ -3767,11 +3815,11 @@ type list element:
 
 // Make doubly linked circular list.
 //
-list element @Y = *DEFERRED*    // `=@ local' is implied
+list element @Y = *DEFERRED*
 list element @X:                // `=@ local' is implied
     X.value = 1
     X.@after = @Y
-list element @Y:
+list element @Y:                // `=@ local' is implied
     Y.value = 2
     Y.@after = @X
 //
