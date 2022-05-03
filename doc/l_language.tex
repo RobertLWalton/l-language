@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 2, 2022
+May 3, 2022
 
 \bigskip
  
@@ -2481,12 +2481,36 @@ A \emkey{reference-expression} computes either a pointer to a location
 in memory, or the value of such a location, or stores a value in a location,
 or appears to do these things via calls to reference functions.
 
-The most basic {\em reference-expression} is the name of a variable
-in the current function frame or in a module memory.  Other
-reference expressions are made by appending vector indices or
-{\em member-names} optionally followed by other arguments
-to more basic {\em reference-expressions}.  The syntax
-is:
+Syntactically a {\em reference-expression} begins with a {\em variable-name}
+and then adds suffixes that begin with either a \TT{[} bracket
+or a {\em member-name} (which begins with `\TT{.}': see \pagref{MEMBER-NAME}).
+A {\em reference-expression} that is not a {\em variable-name} by
+itself is called \key{compound} and consists of two parts:
+a prefix that is a smaller {\em reference-expression} and a suffix that
+begins with the \TT{[} or {\em member-name}.  The prefix is never
+parenthesized, so a {\em reference-expression} always begins with a
+{\em variable-name}.  The suffix may contain parenthesized argument
+lists.
+
+The type of a {\em reference-expression} is computed bottom up starting
+with the type of the prefix which has been previously computed bottom up.
+The type of a {\em variable-name} is specified by context.  The type
+of the prefix of a compound {\em reference-expression} is known by
+recursion.  This type, the syntax of the suffix, and the
+types of the any subexpressions that are arguments in the suffix
+determine the type of a compound {\em reference-expression}.
+
+This is different from the computation of the type of a general
+sub-{\em expression}, which proceeds top-down using a target type
+provided by the {\em statement} containing the sub-{\em expression}.
+Since the type of a {\em reference-expression} does not depend on
+its containing {\em statement}, implicit conversion of a
+{\em reference-expression} value to a {\em statement} provided
+target type is allowed, whereas implicit conversion
+of a sub-{\em expression} that is a {\em function-call}
+is \underline{not} allowed.
+
+The syntax of {\em reference-expressions} is:
 
 \begin{indpar}
 \emkey{reference-expression}\label{REFERENCE-EXPRESSION}
@@ -2578,12 +2602,6 @@ read-write ( X, "W" )
 X.W = "P"                // X and Y are both {"C", "D", "W" => "P"}.
                          // Now Z is {{"C", "D", "W" => "P"}, "M"},
 \end{verbatim}\end{indpar}
-
-Reference expressions differ from non-reference expressions in how
-their result types are computed.  Non-reference expressions use
-target types as their result types.  Reference expressions use the
-type of their first operand, which is a {\em variable} or a shorter
-{\em reference-expression}.
 
 A {\em reference-call} is a call to a reference function.
 For details see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS},
