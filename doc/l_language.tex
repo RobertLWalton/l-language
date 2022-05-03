@@ -2532,6 +2532,11 @@ The syntax of {\em reference-expressions} is:
 \emkey{member-name} ::= see \pagref{MEMBER-NAME}
 \end{indpar}
 
+A {\em reference-call} is a call to a reference function.
+For details see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
+The rest of this section applies to builtin {\em reference-expressions}
+that do \underline{not} include {\em reference-calls}.
+
 A {\em member-name} of the form `\TT{.}{\em data-label}\,'
 may be used to select a field or subfield\label{FIELD-SELECTION}
 of a user defined type\pagnote{TYPE-DECLARATIONS} value or
@@ -2601,46 +2606,6 @@ X.W = "P"                // Illegal, X.W is read-only.
 read-write ( X, "W" )
 X.W = "P"                // X and Y are both {"C", "D", "W" => "P"}.
                          // Now Z is {{"C", "D", "W" => "P"}, "M"},
-\end{verbatim}\end{indpar}
-
-A {\em reference-call} is a call to a reference function.
-For details see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS},
-but an example is:
-
-\begin{indpar}\label{REFERENCE-FUNCTION-EXAMPLE}\begin{verbatim}
-// In my vector X, a vector with flt64 elements is located
-// at X.offset from the address of X and allows index range
-// from 0 through X.length-1.
-//
-type my vector:
-    uns offset        // Offset of first element in bytes.
-    uns length        // Number of elements.
-    align 64
-    *LABEL* first     // Offset of first element in bits.
-
-reference function ap Q$1 flt64 @x =
-        ( ap Q$1 my vector @v ) [ int index ]:
-    av Q$1 flt64 @p = *UNCHECKED*
-            ( @v, v.offset, 0, v.length )
-        // The *UNCHECKED* function is a builtin function
-        // that performs a variety of conversions which
-        // violate type checking.  Here it takes @v, adds
-        // v.offset to its offset, and returns this ap as an
-        // av with bounds 0 and v.length.
-    @x = @p[index]
-
-type my data:
-    *INCLUDE* my vector
-    flt64[2]
-
-ap *READ-WRITE* my data @D:    // `=@ local' is implied
-    D.offset = D.first / 8     // 8 converts bits to bytes.
-    D.length = 2
-
-D[0] = 5.5      // Computes and uses pointer @D[0]
-D[1] = -7.33    // Computes and uses pointer @D[1]
-flt64 x = D[0]  // Now x == 5.5
-flt64 y = D[1]  // Now y == -7.33
 \end{verbatim}\end{indpar}
 
 \subsubsection{Function Calls}
@@ -5054,6 +5019,44 @@ that is the first argument are \underline{not} permitted.
 
 \end{itemize}
 \end{indpar}
+
+TBD
+
+\begin{indpar}\label{REFERENCE-FUNCTION-EXAMPLE}\begin{verbatim}
+// In my vector X, a vector with flt64 elements is located
+// at X.offset from the address of X and allows index range
+// from 0 through X.length-1.
+//
+type my vector:
+    uns offset        // Offset of first element in bytes.
+    uns length        // Number of elements.
+    align 64
+    *LABEL* first     // Offset of first element in bits.
+
+reference function ap Q$1 flt64 @x =
+        ( ap Q$1 my vector @v ) [ int index ]:
+    av Q$1 flt64 @p = *UNCHECKED*
+            ( @v, v.offset, 0, v.length )
+        // The *UNCHECKED* function is a builtin function
+        // that performs a variety of conversions which
+        // violate type checking.  Here it takes @v, adds
+        // v.offset to its offset, and returns this ap as an
+        // av with bounds 0 and v.length.
+    @x = @p[index]
+
+type my data:
+    *INCLUDE* my vector
+    flt64[2]
+
+ap *READ-WRITE* my data @D:    // `=@ local' is implied
+    D.offset = D.first / 8     // 8 converts bits to bytes.
+    D.length = 2
+
+D[0] = 5.5      // Computes and uses pointer @D[0]
+D[1] = -7.33    // Computes and uses pointer @D[1]
+flt64 x = D[0]  // Now x == 5.5
+flt64 y = D[1]  // Now y == -7.33
+\end{verbatim}\end{indpar}
 
 
 \subsubsubsection{Out-of-Line Function Declarations}
