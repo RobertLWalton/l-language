@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 3, 2022
+May 4, 2022
 
 \bigskip
  
@@ -4059,16 +4059,16 @@ For example, the following are builtin:
 \begin{indpar}\begin{verbatim}
 pointer type dp is data for dp
 pointer type ap is data for ap
-type data for dp:
+type std data for dp:
     int address
-type data for ap:
+type std data for ap:
     dp ro int @base
     int offset
 
-function dp Q$1 T$1 @r = *UNCHECKED* ( data for dp dap )
-function ap Q$1 T$1 @r = *UNCHECKED* ( data for ap dap )
-function data for dp r = pointer to data ( dp Q$1 T$1 @ptr )
-function data for ap r = pointer to data ( ap Q$1 T$1 @ptr )
+function dp Q$1 T$1 @r = std *UNCHECKED* ( std data for dp dap )
+function ap Q$1 T$1 @r = std *UNCHECKED* ( std data for ap dap )
+function std data for dp r = std pointer to data ( dp Q$1 T$1 @ptr )
+function std data for ap r = std pointer to data ( ap Q$1 T$1 @ptr )
     // These functions just copy the argument value to the
     // result value changing the type of the value.  Here
     // Q$1 is a wild-card that matches any list of qualifier-names,
@@ -4078,12 +4078,11 @@ function data for ap r = pointer to data ( ap Q$1 T$1 @ptr )
 // `ap ...', where the latter has the constant 0 for a base
 // and the dp value for its offset.
 // 
-function data for ap r = *POINTER* *IMPLICIT* *CONVERSION*
-        ( data for dp d ):
-    dp int @zero = constant int 0
-        // constant int 0 allocates an int equal to 0 to co memory
-    data for ap dap:
-        dap.@base  = @zero
+dp *GLOBAL* int std @zero    // value zero is initialized to 0	
+function std data for ap r = std *POINTER* *IMPLICIT* *CONVERSION*
+        ( std data for dp d ):
+    std data for ap dap:
+        dap.@base  = std @zero
         dap.offset = d.address
     r = dap
 
@@ -4091,9 +4090,9 @@ function data for ap r = *POINTER* *IMPLICIT* *CONVERSION*
 // `dp ...' where the latter is the sum of the base and offset
 // of the ap.
 //
-function data for dp r = *POINTER* *UNCHECKED* *CONVERSION*
-        ( data for ap d ):
-    data for dp ddp:
+function std data for dp r = std *POINTER* *UNCHECKED* *CONVERSION*
+        ( std data for ap d ):
+    std data for dp ddp:
         ddp.address = d.base + d.offset
     r = ddp
 
@@ -4102,9 +4101,9 @@ function data for dp r = *POINTER* *UNCHECKED* *CONVERSION*
 // member or element of a value.  The dp is the sum of the
 // base and offset of the ap.
 //
-function data for dp r = *POINTER* *ACCESS* *CONVERSION*
-        ( data for ap d ):
-    data for dp ddp:
+function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
+        ( std data for ap d ):
+    std data for dp ddp:
         ddp.address = d.base + d.offset
     r = ddp
 \end{verbatim}\end{indpar}
@@ -6109,6 +6108,11 @@ flt16		& \ABV & std flt16 \\
 flt32		& \ABV & std flt32 \\
 flt64		& \ABV & std flt64 \\
 \\[1ex]
+dp		& \ABV & std dp \\
+ap		& \ABV & std ap \\
+fp		& \ABV & std fp \\
+av		& \ABV & std av \\
+fv		& \ABV & std fv \\
 \end{tabular}
 \end{center}
 
