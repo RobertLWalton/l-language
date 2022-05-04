@@ -3995,7 +3995,8 @@ is defined.
 
 You can define such {\tt *IMPLICIT* *CONVERSION*} functions
 provided at least one of the two types {\tt T1} and {\tt T2}
-is user defined, and \underline{not} builtin.
+is user defined, and \underline{not} builtin, and both are
+non-pointer types.
 There are builtin {\tt *IMPLICIT* *CON\-VER\-SION*} functions in
 which both types are builtin: see \itemref{BUILTIN-IMPLICIT-CONVERSIONS}.
 
@@ -4009,7 +4010,8 @@ When defining an implicit conversion from type {\tt T1} to type
 by a value of type {\tt T2}.  This rule should be followed, but
 is not checked by the compiler.
 
-You can define an explicit conversion:
+For non-pointer types {\tt T1} and {\tt T2} you
+can define an explicit conversion:
 \begin{indpar} \tt
 function T2 r = T2 ( T1 v )
 \end{indpar}
