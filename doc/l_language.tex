@@ -875,7 +875,7 @@ example, if the inline function contains:
 \begin{indpar}\begin{verbatim}
 const T = `my number'     // == {"my", "number"}
 const V = `my variable'   // == {"my", "variable"}
-include (T, V):
+*INCLUDE* (T, V):
     T V = x + y
     T z = max ( V, 1000 )
 \end{verbatim}\end{indpar}
@@ -897,7 +897,7 @@ which the parser renders as the {\tt const} map value:
 \end{verbatim}\end{indpar}
 
 Code to be inserted can also be computed directly as a {\tt const} map
-value without using `{\tt include}' statements.
+value without using `{\tt *INCLUDE*}' statements.
 
 
 
@@ -2636,7 +2636,7 @@ The syntax of function calls is:
           \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
     $|$ & \TT{[} {\em actual-argument}
           \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
-    $|$ & \TT{()} $|$ \TT{[]} \\
+    $|$ & \TT{(~)} $|$ \TT{[~]} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{actual-argument} ::= {\em expression}
@@ -3018,7 +3018,8 @@ of {\em assignment-results}.
 \item The {\em expression-list} must not consist of a single
 {\em expression} which is a {\em function-call} (else the
 {\em statement} is a {\em call-assignment-statement} as described in
-\itemref{CALL-ASSIGNMENT-STATEMENTS}).
+\itemref{CALL-ASSIGNMENT-STATEMENTS}).  However the {\em expression-list}
+may consist of a single {\em reference-call}.
 
 \end{itemize}
 \end{indpar}
@@ -3042,7 +3043,8 @@ is a {\em function-call}, the type of the first result of the
 and the types of the prototype arguments become the target types
 of the {\em actual-argument} sub-expressions.
 
-If an {\em expression} is a variable or a {\em const-expression}
+If an {\em expression} is a {\em reference-expression}
+or a {\em const-expression}
 (which is replaced by a constant),
 it will be implicitly
 converted to its target type if possible.
@@ -3070,7 +3072,7 @@ The syntax of a {\em call-assignment-statement} is:
 \emkey{call-assignment-statement} \\
 \hspace*{0.5in} \begin{tabular}{rl}
                 ::= & {\em assignment-result}
-                      \{ \TT{,} {\em assignment-result} \}\PLUS{}
+                      \{ \TT{,} {\em assignment-result} \}\STAR{}
 		      \TT{=} {\em function-call} \\
 		$|$ & {\em function-call}
 		\end{tabular}
@@ -3080,11 +3082,12 @@ The syntax of a {\em call-assignment-statement} is:
 \emkey{function-call} ::= see \pagref{FUNCTION-CALL}
 \end{indpar}
 
-A {\em call-assignment-statement} follows the same general rules
-as {\em expression-assignment-state\-ments} except that the top
-level {\em function-call} on the right side has either 2 or more
-results or 0 results or an implied `\TT{next} $v$'.
-The types of the function prototype cannot
+A {\em call-assignment-statement} with {\em assignment-results}
+follows the same general rules
+as {\em expres\-sion-assignment-state\-ments} except that its right
+side is a single {\em function-call}.
+
+The types of the function prototype results \underline{cannot}
 be implicitly converted to the types of the {\em assignment-results}.
 
 \label{CALL-NEXT-PROMOTION}
@@ -3206,7 +3209,7 @@ does not contain the declaration.
 Note that declarations not in {\em exit-subblocks} have scope
 that includes the {\em exit-subblocks}, but declarations
 within an {\em exit-subblock} have scope that ends with the end of
-the subblock.  A function prototype is `used' if and only if it
+the {\em exit-subblock}.  A function prototype is `used' if and only if it
 matches a {\em function-call}.\footnote{Stack space for every
 stack variable that might be used by an out-of-line function is
 allocated when the out-of-line function is called.  Space allocated
@@ -3459,7 +3462,7 @@ or block of {\em statements} according to what a
     $|$ & \ttkey{else} \TT{:} {\em statement} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{bool-expression} ::= see \pagref{BOOL-EXPRESSION}
+{\em bool-expression} ::= see \pagref{BOOL-EXPRESSION}
 \\[1ex]
 where
 \begin{itemize}
@@ -3472,7 +3475,7 @@ An example is:
 \begin{indpar}\begin{verbatim}
 int x = 5
 int y = 6
-int z:
+int z =:
     int sum = x + y         // Sets sum = 11
     int product = x * y     // Sets product = 30
     if sum < product:
@@ -3535,7 +3538,7 @@ The syntax of a type declaration is:
     ::= &  {\em field-declaration} \\
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
-    $|$ &  \ttkey{include} {\em defined-type-name} \\
+    $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
     $|$ &  \ttkey{*ORIGIN*} {\em integer-const-expression} \\
@@ -3577,7 +3580,8 @@ The syntax of a type declaration is:
                        $|$ \ttkey{uns64} $|$ \ttkey{uns128} \\
     $|$ &  \ttkey{flt} $|$ \ttkey{flt16} $|$ \ttkey{flt32} $|$ \ttkey{flt64}
                          $|$ \ttkey{flt128} \\
-    \end{tabular}
+    \end{tabular} \\
+{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \\[2ex]
 \emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
 \emkey{pointer-label}\label{POINTER-LABEL} ::=
@@ -3649,7 +3653,7 @@ align/pack switch to `align'.
 
 A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
-Am \ttkey{*INCLUDE*} sub-declaration copies all the {\em type-subdeclarations}
+An \ttkey{*INCLUDE*} sub-declaration copies all the {\em type-subdeclarations}
 of the given defined type into the current sequence of
 {\em type-subdeclarations}.
 
@@ -3680,7 +3684,9 @@ the {\em type-name} is external.\pagnote{EXTERNAL-NAME}
 
 At the beginning of each expansion the align/pack switch is set to align
 but the offset value is undefined.  It must be set by an {\tt *ORIGIN*}
-statement before it is used.
+statement before it is used.\footnote{The offset cannot be set to the
+last offset of the definition being expanded because the order in which
+expansions are compiled is under-determined.}
 
 The final size and alignment of a defined type with an {\tt ***}
 or {\tt *EXTERNAL*}
@@ -3700,9 +3706,10 @@ deferred {\em type-declarations} of the same {\em type-name}, but for
 any two {\em type-declarations} with the same {\em type-name}
 one must be within the scope of the other.
 
-A {\em member-name} declared within a {\em type-declaration} may
+A {\em field-label} or {\em subfield-label}
+declared within a {\em type-declaration} may
 only be used within the scope\pagnote{SCOPE} of the {\em type-declaration}
-in which the {\em member-name} is declared.
+in which the {\em field-label} or {\em subfield-label} is declared.
 
 The {\em type-name} in a {\em type-declaration} is declared before
 the {\em type-declaration}'s sub-declarations are processed, so these
@@ -3710,15 +3717,17 @@ sub-declarations may use the {\em type-name} as a pointer target type.
 
 A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
 given {\em origin-label} and provides the {\em origin-label}
-for use by subsequent {\tt *ORIGIN*} sub-declarations.
+for use by subsequent {\tt *ORIGIN*} sub-declarations in the
+same {\em type-declaration} or its extensions.
+An {\em origin-label} may \underline{not} be re-defined within the same
+{\em type-declaration} or its extensions.
 
 An `\ttkey{*ORIGIN*} {\em origin-label}' sub-declaration
 changes the current offset to that
 of the given {\em origin-label}.
 The {\em origin-label} must be defined by a preceding
-{\tt *LABEL*} sub-declaration.
-An {\em origin-label} may not be re-defined within the same
-{\em type-declaration}.
+{\tt *LABEL*} sub-declaration in the
+same {\em type-declaration} or its extensions.
 
 An `\ttkey{*ORIGIN*} {\em integer-const-expression}' sub-declaration
 changes the current offset to an integer.  Offsets set this way
@@ -3729,6 +3738,8 @@ changes the current offset to the size of values of the type
 begin defined, as it is computed at the point where the {\tt *ORIGIN* *SIZE*}
 sub-declaration is encountered.  This is just the maximum of all
 current offset values computed by previous sub-declarations.
+Use of this sub-declaration can lead to serious difficulties in
+a situation that we will now describe.
 
 A {\em type-declaration} and its expansions form a tree-graph
 with the parent of an expansion X being the the {\em type-declaration}
@@ -3763,7 +3774,7 @@ An example is:
 \begin{indpar}\begin{verbatim}
 type my type:
     uns8    kind         // Object Kind
-    flt weight
+    flt     weight
 
 my type X:
     // Within this block X is *WRITE-ONLY*.
@@ -3786,7 +3797,7 @@ type list element:
     int value
     ap list element @after
 
-// Make doubly linked circular list.
+// Make circular list.
 //
 list element @Y = *DEFERRED*
 list element @X:                // `=@ local' is implied
@@ -3812,20 +3823,24 @@ An example is:
 type my type : *DEFERRED*
 ap *READ-WRITE* my type @X
                     // Legal, my type members need not be declared.
-                    // The allocated my type value will be zeroed.
-ap ro @Y = @X       // Legal, only ap copied.
+                    // Size and alignment of my type values is
+                    // computed at load time.  The allocated value
+                    // will be zeroed.
+ap ro my type @Y = @X  // Legal, only ap copied.
 my type Z = X       // Legal, Z is allocated as per `local'
                     // and the value at @X is copied to
                     // the location of Z.  However in this
                     // case the value is zero.
 
-type my type:
+type my type:       // Definition of my type that was *DEFERRED*.
     *LABEL* origin  // `origin' is set to offset 0
-    int I
+    int I           // Offset of I is 0.
     ***
-X.I = 55            // Legal, .I has been declared.
+X.I = 55            // Legal, .I has been declared.  X is
+                    // *READ-WRITE*.
 
 type my type:       // Expansion of my type
+    *ORIGIN* *SIZE*
     int J           // Now X.J == 0
     ***
 X.J = 66            // Legal, .J has been declared.
@@ -3835,9 +3850,8 @@ type my type:       // Expansion of my type
     int K1
     int K2
 
-// Now X.K1 == X.I == 55; X.K2 == X.J == 66,
-// but you must know how offsets are assigned to
-// believe this.
+// Now X.K1 == X.I == 55; X.K2 == X.J == 66; but you must know
+// how offsets are assigned to believe this.
 \end{verbatim}\end{indpar}
 
 \subsubsubsubsection{Type Subfields}
@@ -3866,10 +3880,10 @@ For example:
 
 \begin{indpar}\begin{verbatim}
 type my type:
-    uns8    kind         // Object Kind
+    uns8     kind        // Object Kind
     [0] bool animal      // True if Animal
     [1] bool vegetable   // True if Vegetable
-    flt weight
+    flt      weight
 
 my type X:
     // Within this block X is *WRITE-ONLY*.
@@ -3953,6 +3967,10 @@ and also a subfield with {\em subfield-label} {\tt L}, then
 If in addition the subfield has a {\em subfield-dimension},
 {\tt L[$i$][$j$]} references the subfield selected by {\tt [$j$]}
 in the field value {\tt F[$i$]}.
+
+In all cases `\TT{][}' may be replaced by `\TT{,~}' (the space
+after the comma is required), so that,
+for example, `{\tt [$i$][$j$]}' is equivalent to `{\tt [$i$, $j$]}'.
 
 \subsubsubsubsection{Type Conversions}
 \label{TYPE-CONVERSIONS}
@@ -5411,10 +5429,10 @@ of a {\tt const} variable:
 \emkey{include-statement}\label{INCLUDE-STATEMENT} ::= \\
 \hspace*{0.3in}
     \begin{tabular}[t]{l}
-    \TT{include} {\em include-variable}\QMARK{}
+    \TT{*INCLUDE*} {\em include-variable}\QMARK{}
     	{\em include-argument-list}\QMARK{} \TT{:} \\
     \TT{~~~~}{\em statement}\STAR{} \\
-    \TT{include}  {\em include-variable}\QMARK{}
+    \TT{*INCLUDE*}  {\em include-variable}\QMARK{}
     	{\em include-argument-list}\QMARK{} \TT{:}
 	{\em statement} \\
     \end{tabular}
