@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 4, 2022
+May 5, 2022
 
 \bigskip
  
@@ -4111,18 +4111,26 @@ function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
 A {\em pointer-type-declaration} `{\tt pointer type $P$ is $D$}'
 implicitly declares the functions:
 \begin{indpar} \tt
-function $P$ Q\$1 T\$1 r = *UNCHECKED* ( $D$ data ) \\
-function $D$ r = pointer to data ( $P$ Q\$1 T\$1 ptr )
+function $P$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $D$ data ) \\
+function $D$ r = {\em ma}\QMARK{} pointer to data ( $P$ Q\$1 T\$1 @ptr )
 \end{indpar}
+where {\em ma}\QMARK{} denotes the {\em module-abbreviation} of $P$,
+if any.
 These just copy values changing type.
 
 Reading and writing values using a pointer of type $P$
 can be accomplished by the functions:
 
-\begin{indpar} \tt
-function Q\$1 T\$1 r = *POINTER* *ACCESS* ( $P$ Q\$1 T\$1 p ) \\
-function *POINTER* *ACCESS* ( $P$ Q\$1 T\$1 p ) = Q\$1 T\$1 r
+\begin{indpar}[1ex] \tt
+reference function QR\$1 T\$1 r =
+    {\em ma}\QMARK{} *POINTER* *ACCESS* ( $P$ QR\$1 T\$1 @p ) \\
+reference function {\em ma}\QMARK{} *POINTER* *ACCESS* ( $P$ QW\$1 T\$1 @p ) =
+    QW\$1 T\$1 r
 \end{indpar}
+
+Note that these are reference functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}
+and not non-reference-functions\pagnote{INLINE-FUNCTION-DECLARATIONS}.
+If these functions do not exist, alternatives will be tried.
 
 These functions can be defined after $P$ is defined.
 They allow the pointer to be used to read a copy of the
@@ -4133,14 +4141,16 @@ members or elements of the value to be accessed
 These functions are implicitly called when the target
 of a pointer variable is read or written.  For example:
 \begin{indpar}\begin{verbatim}
-ap int @p = local:
-p = 5
-  // This translates to:
-  //   *POINTER* *ACCESS* ( p ) = 5
+ap int @p:
+    p = 5
+        // This translates to:
+        //   std *POINTER* *ACCESS* ( @p ) = 5
 int x = p
   // This translates to:
-  //   int x = *POINTER* *ACCESS* ( p )
+  //   int x = std *POINTER* *ACCESS* ( @p )
 \end{verbatim}\end{indpar}
+
+TBD
 
 An alternative strategy is to convert a pointer of type $P1$
 to a pointer of type $P2$ that allows members and elements
