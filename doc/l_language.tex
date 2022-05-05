@@ -4130,7 +4130,8 @@ reference function {\em ma}\QMARK{} *POINTER* *ACCESS* ( $P$ QW\$1 T\$1 @p ) =
 
 Note that these are reference functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}
 and not non-reference-functions\pagnote{INLINE-FUNCTION-DECLARATIONS}.
-If these functions do not exist, alternatives will be tried.
+A {\tt *POINTER* *ACCESS* *CONVERSION*} function, if it exists,
+overrides these functions: see below.
 
 These functions can be defined after $P$ is defined.
 They allow the pointer to be used to read a copy of the
@@ -4150,8 +4151,6 @@ int x = p
   //   int x = std *POINTER* *ACCESS* ( @p )
 \end{verbatim}\end{indpar}
 
-TBD
-
 An alternative strategy is to convert a pointer of type $P1$
 to a pointer of type $P2$ that allows members and elements
 to be accessed.  Suppose we are given:
@@ -4163,9 +4162,11 @@ pointer type $P2$ is $D2$
 Then we can define a function with the prototype:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 @r = \\
-\hspace*{1in}*POINTER* *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
+\hspace*{1in}{\em ma1}\QMARK{} *POINTER* *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
-which converts a pointer of type $P1$ to a pointer of type $P2$.
+which converts a pointer of type $P1$ to a pointer of type $P2$,
+where {\em ma1}\QMARK{} denotes the {\em module-abbreviation} of $P1$,
+if any.
 Only one such function can be defined for each pointer type $P1$.
 This conversion function
 is called if a value pointed at by a pointer of type $P1$ is to
