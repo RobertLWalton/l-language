@@ -1938,14 +1938,19 @@ variables and functions.  Names are building blocks of primaries.
 	   of the {\em word}] \\
         & [see text about splitting words with embedded `\TT{.}'s] \\
     $|$ & {\em natural-number} less than $10^9$ \\
-    $|$ & {\em quoted-mark} not containing `\TT{.}'s \\
+    $|$ & {\em quoted-mark} containing no `\TT{.}' that follows a character \\
+        & that is not the beginning \TT{"} or another `\TT{.}' \\
+        & [i.e., `\TT{.}'s can only be at the \underline{beginning}
+	   of the {\em mark}] \\
+        & [see text about splitting marks with embedded `\TT{.}'s] \\
     $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
     \end{tabular} \\
 \emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
 \emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"}
 \end{indpar}
 
-{\em Words} and {\em marks} containing embedded `\TT{.}'s are split into
+When used in {\em expressions},
+{\em words} and {\em marks} containing embedded `\TT{.}'s are split into
 parts which contain `\TT{.}'s only at their beginning.
 Thus
 \begin{center}
@@ -1955,14 +1960,15 @@ Thus
 \TT{.@.*}               & splits into & \TT{.@~~~.*} \\
 \end{tabular}
 \end{center}
-After splitting the parts are reclassified; e.g., when {\tt p.@} is split
-{\tt p} is a {\em word} but {\tt .@} is a {\em mark}.
+When used in {\em names}, {\em words} are split but {\em quoted-marks}
+are not.
 
-Note that {\tt .@} and {\tt .*} are not {\em name-items}, but
-{\tt ".@"} and {\tt ".*"} are {\em name-items}.  Function definitions
-must use {\em name-items}, but function calls can use the same
-lexemes with the {\tt "} quote marks removed.  Thus one can have
-a function named {\tt "+"} whose calls use {\tt +} without the quotes.
+A function may be defined with a {\em name} that is a {\em quoted-mark},
+such as {\tt "+"}.  It may then be called by an expression in which the
+quotes are omitted, such as {\tt x + y}.  Similarly a function may be
+defined with a function-term {\tt ".*"} and called by the expression
+{\tt p.*} which is split into {\tt p .*}.
+
 
 Name items beginning with more than one `\TT{.}' are reserved
 for use by systems and compilers (e.g., \TT{..size} in the example).
