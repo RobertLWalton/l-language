@@ -4001,9 +4001,12 @@ T2 v2 = *IMPLICIT* *CONVERSION* ( v1 )
 and this will successfully compile if and only if a function
 with prototype:
 \begin{indpar} \tt
-function T2 r = *IMPLICIT* *CONVERSION* ( T1 v )
+function T2 r = {\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( T1 v )
 \end{indpar}
-is defined.
+is defined, where {\em ma}, if present, refers to any module
+in which both $T1$ and $T2$ are defined.
+Note that when the compiler inserts a call to {\tt *IMPLICIT* *CONVERSION*},
+it does not use any {\em module-abbreviation} in the call.
 
 You can define such {\tt *IMPLICIT* *CONVERSION*} functions
 provided at least one of the two types {\tt T1} and {\tt T2}
@@ -4025,12 +4028,12 @@ is not checked by the compiler.
 For non-pointer types {\tt T1} and {\tt T2} you
 can define an explicit conversion:
 \begin{indpar} \tt
-function T2 r = T2 ( T1 v )
+function T2 r = {\em ma}\QMARK{} T2 ( T1 v )
 \end{indpar}
 If the result may not properly represent the value {\tt v}, you
 may wish to define instead an unchecked conversion:
 \begin{indpar} \tt
-function T2 r = *UNCHECKED* ( T1 v )
+function T2 r = {\em ma}\QMARK{} *UNCHECKED* ( T1 v )
 \end{indpar}
 The compiler will not allow you to define such functions if both
 {\tt T1} and {\tt T2} are builtin, but some such functions are
@@ -4134,15 +4137,16 @@ Reading and writing values using a pointer of type $P$
 can be accomplished by the functions:
 
 \begin{indpar}[1ex] \tt
-reference function QR\$1 T\$1 r =
-    {\em ma}\QMARK{} *POINTER* *ACCESS* ( $P$ QR\$1 T\$1 @p ) \\
-reference function {\em ma}\QMARK{} *POINTER* *ACCESS* ( $P$ QW\$1 T\$1 @p ) =
-    QW\$1 T\$1 r
+reference function T\$1 r =
+    {\em ma}\QMARK{} ( $P$ QR\$1 T\$1 @p ) \ttkey{.*} \\
+reference function {\em ma}\QMARK{} ( $P$ QW\$1 T\$1 @p ) \ttkey{.*} =
+    T\$1 r
 \end{indpar}
+where {\em ma}, if present here, refers to any module in which $P$ is defined.
 
-Note that these are reference functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}
-and not non-reference-functions\pagnote{INLINE-FUNCTION-DECLARATIONS}.
-A {\tt *POINTER* *ACCESS* *CONVERSION*} function, if it exists,
+Note that these are reference
+functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
+A {\tt .@} function, if it exists,
 overrides these functions: see below.
 
 These functions can be defined after $P$ is defined.
@@ -4157,11 +4161,16 @@ of a pointer variable is read or written.  For example:
 ap int @p:
     p = 5
         // This translates to:
-        //   std *POINTER* *ACCESS* ( @p ) = 5
+        //   @p.* = 5
 int x = p
   // This translates to:
-  //   int x = std *POINTER* *ACCESS* ( @p )
+  //   int x = @p.*
 \end{verbatim}\end{indpar}
+
+When {\tt .*} is used in this way, it is use without any
+{\em module-abbreviation}, so if there are conflicting
+definitions in different imported
+modules there will be a compile error.
 
 An alternative strategy is to convert a pointer of type $P1$
 to a pointer of type $P2$ that allows members and elements
@@ -4171,38 +4180,39 @@ pointer type $P1$ is $D1$ \\
 pointer type $P2$ is $D2$
 \end{indpar}
 
-Then we can define a function with the prototype:
+Then we can define a reference function with the prototype:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = \\
-\hspace*{1in}{\em ma1}\QMARK{} *POINTER* *ACCESS* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
+reference function $P2$ Q\$1 T\$1 @r =
+    {\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p ) \ttkey{.@}
 \end{indpar}
 which converts a pointer of type $P1$ to a pointer of type $P2$,
-where {\em ma1}\QMARK{} denotes the {\em module-abbreviation} of $P1$,
-if any.
-Only one such function can be defined for each pointer type $P1$.
-This conversion function
-is called if a value pointed at by a pointer of type $P1$ is to
-be accessed, in preference to calling the {\tt *POINTER* *ACCESS*}
-functions.  Then if $P2$ is {\tt dp}, {\tt ap}, {\tt fp}, {\tt av},
+where {\em ma}\QMARK{}, if present, refers to a module in which
+both $P1$ and $P2$ are defined.
+This conversion function is automatically called without any
+{\em module-abbreviation} if a value pointed at by a pointer of type $P1$ is to
+be accessed, in preference to calling the {\tt .*} functions above.
+Then if $P2$ is {\tt dp}, {\tt ap}, {\tt fp}, {\tt av},
 or {\tt fv}, the $P2$ pointer can be used to not only read or write
 the value, but to also read or write members or elements of the
-value.  Note, however, that only one {\tt *POINTER* *ACCESS* *CONVERSION*}
+value.  Note, however, that only one {\tt .@}
 function can be called per access: these functions do not
 automatically chain.
 
 Alternatively you can define a function with prototype
 \begin{indpar} \tt
-function $D2$ r = \ttkey{*POINTER* *ACCESS* *CONVERSION*} ( $D1$ data )
+function $D2$ r = {\em ma}\QMARK{} \ttkey{*POINTER* *ACCESS* *CONVERSION*} ( $D1$ data )
 \end{indpar}
-which implicitly defines the function:
+where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
+This implicitly defines the reference function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = \\
-\hspace*{1in}\ttkey{*POINTER* *ACCESS* *CONVERSION*}
-	( $P1$ Q\$1 T\$1 @p1 ): \\
+reference function $P2$ Q\$1 T\$1 @r = \\
+\hspace*{1in}{\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p1 ) .@: \\
 \hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 = *POINTER* *ACCESS* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
+where {\em ma} is the same module as that of the
+{\tt *POINTER* *ACCESS* *CONVERSION*} function, if any.
 
 If a pointer of type $P1$ is to be implicitly
 convertible to a pointer of type $P2$ when passing the
@@ -4211,16 +4221,18 @@ the above functions are not used.  Instead a function with
 the prototype:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 @r = \\
-\hspace*{1in}*POINTER* *IMPLICIT* *CONVERSION* ( $P1$ Q\$1 T\$1 @p )
+\hspace*{1in}{\em ma}\QMARK{} *POINTER* *IMPLICIT* *CONVERSION*
+                                  ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
-is called.  You can define this, or you can define
+is called (without any {\em module-abbreviation}).
+You can define this, or you can define
 \begin{indpar} \tt
-function $D2$ r = \ttkey{*POINTER* *IMPLICIT* *CONVERSION*} ( $D1$ data )
+function $D2$ r ={\em ma}\QMARK{}  \ttkey{*POINTER* *IMPLICIT* *CONVERSION*} ( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 @r = \\
-\hspace*{1in}\ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
+\hspace*{1in}{\em ma}\QMARK{} \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
 	( $P1$ Q\$1 T\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
 \hspace*{0.3in}$D2$ dd = *POINTER* *IMPLICIT* *CONVERSION* ( d1 ) \\
@@ -4228,17 +4240,17 @@ function $P2$ Q\$1 T\$1 @r = \\
 \end{indpar}
 
 You may want the conversion from $P1$ to $P2$ to
-be unchecked instead of implied.  This can be achieved by defining:
+be explicit an unchecked instead of implied.  This can be achieved by defining:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = *UNCHECKED* ( $P1$ Q\$1 T\$1 @p )
+function $P2$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
 Alternatively you can define a function with prototype
 \begin{indpar} \tt
-function $D2$ r = \ttkey{*POINTER* *UNCHECKED* *CONVERSION*} ( $D1$ data )
+function $D2$ r ={\em ma}\QMARK{}  \ttkey{*POINTER* *UNCHECKED* *CONVERSION*} ( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = \TT{*UNCHECKED*}
+function $P2$ Q\$1 T\$1 @r = {\em ma}\QMARK{} \TT{*UNCHECKED*}
 	( $P1$ Q\$1 T\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
 \hspace*{0.3in}$D2$ dd = *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
