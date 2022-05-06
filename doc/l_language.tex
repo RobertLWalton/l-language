@@ -53,8 +53,8 @@
 	      \setlength{\parsep}{1ex}%
 	      \setlength{\labelwidth}{0in}%
 	      \setlength{\baselineskip}{1.5ex}%
-	      \setlength{\leftmargin}{0.8in}%
-	      \setlength{\rightmargin}{0.8in}}%
+	      \setlength{\leftmargin}{0.4in}%
+	      \setlength{\rightmargin}{0.4in}}%
     \item\@starttoc{toc}%
     \end{list}}
 \renewcommand\listoftables{%
@@ -64,8 +64,8 @@
 	      \setlength{\parsep}{1ex}%
 	      \setlength{\labelwidth}{0in}%
 	      \setlength{\baselineskip}{1.5ex}%
-	      \setlength{\leftmargin}{1.0in}%
-	      \setlength{\rightmargin}{1.0in}%
+	      \setlength{\leftmargin}{0.4in}%
+	      \setlength{\rightmargin}{0.4in}%
 	      }%
     \item\@starttoc{lot}%
     \end{list}}
@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 5, 2022
+May 6, 2022
 
 \bigskip
  
@@ -1945,18 +1945,24 @@ variables and functions.  Names are building blocks of primaries.
 \emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"}
 \end{indpar}
 
-{\em Words} containing embedded `\TT{.}'s are split into
-{\em name-items} which contain `\TT{.}'s only at their beginning.
+{\em Words} and {\em marks} containing embedded `\TT{.}'s are split into
+parts which contain `\TT{.}'s only at their beginning.
 Thus
 \begin{center}
-\TT{bills.wife.1.weight..size}
+\begin{tabular}{lcl}
+\TT{bill.1.weight..size} & splits into & \TT{bill~~~.1~~~.weight~~~~..size} \\
+\TT{p.@.*}               & splits into & \TT{p~~~.@~~~.*} \\
+\TT{.@.*}               & splits into & \TT{.@~~~.*} \\
+\end{tabular}
 \end{center}
-is split into
-\begin{center}
-\TT{bills~~~.wife~~~.1~~~.weight~~~~..size}
-\end{center}
-However, `\TT{.1}' is not a legal {\em name-item} and so cannot
-be part of a legal {\em name}.
+After splitting the parts are reclassified; e.g., when {\tt p.@} is split
+{\tt p} is a {\em word} but {\tt .@} is a {\em mark}.
+
+Note that {\tt .@} and {\tt .*} are not {\em name-items}, but
+{\tt ".@"} and {\tt ".*"} are {\em name-items}.  Function definitions
+must use {\em name-items}, but function calls can use the same
+lexemes with the {\tt "} quote marks removed.  Thus one can have
+a function named {\tt "+"} whose calls use {\tt +} without the quotes.
 
 Name items beginning with more than one `\TT{.}' are reserved
 for use by systems and compilers (e.g., \TT{..size} in the example).
