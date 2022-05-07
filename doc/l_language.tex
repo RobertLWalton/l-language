@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 6, 2022
+May 7, 2022
 
 \bigskip
  
@@ -2386,7 +2386,7 @@ A map constant is computed by a {\em map-expression} whose syntax is:
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
     ::= {\em const-expression}
 \\[0.5ex]
-\emkey{const-expression}
+\emkey{const-expression}\label{CONST-EXPRESSION}
     ::= {\tt const} valued {\em expression} evaluatable at compile-time
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
@@ -4282,13 +4282,12 @@ type data for fd:
 
 pointer type fd is data for fd
 
-function ap Q$1 file @r = *POINTER* *ACCESS* *CONVERSION*
-        ( fd Q$1 file @p ):
+reference function ap Q$1 file @r = ( fd Q$1 file @p ) .@:
     data for fd d = pointer to data ( @p )
     ap file *READ_WRITE* @f = @files[d.index]
     @r = @f  // Implicitly converts *READ-WRITE* to Q$1
 
-function fd *READ-WRITE* @r = allocate fd:
+function fd *READ-WRITE* file @r = allocate fd:
     data for fd d:
         d.index = number of files
     @r = *UNCHECKED* ( d )
@@ -4361,9 +4360,11 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
-\emkey{required-value} ::= {\tt const} valued {\em expression}
+\emkey{required-value} ::= {\em const-expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
+\\[0.5ex]
+{\em const-expression} ::= see \pagref{CONST-EXPRESSION}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
     \begin{tabular}[t]{rl}
