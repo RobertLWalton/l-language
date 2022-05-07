@@ -2007,16 +2007,14 @@ L-Language uses several kinds of names:
 \\[1ex]
 \emkey{member-name}\label{MEMBER-NAME}
 	::= \begin{tabular}[t]{@{}l@{}}
-                        {\em name} beginning with a `\TT{.}', \\
-			but not containing a {\em quoted-mark} or
-			    {\em quoted-separator} \\
+                        {\em name} beginning with a {\em word} or
+			{\em quoted-mark} containing a `\TT{.}', \\
+			but not containing a {\em quoted-separator} \\
 			(note: all `\TT{.}'s in a {\em name} must be at
 			 the beginning of the {\em name})
 			\end{tabular} \\
-\emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::= \\
-\hspace*{2em}
-    {\em member-name} beginning with one or more `\TT{.}'s followed by
-    an `\TT{@}' \\
+\emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::=
+    {\em member-name} with `\TT{@}' following the initial `\TT{.}'s \\
 \emkey{target-member-name}\label{TARGET-MEMBER-NAME} ::=
     {\em member-name} that is \underline{not} a {\em pointer-member-name}
 \\[1ex]
@@ -2627,13 +2625,9 @@ The syntax of function calls is:
 
 \begin{indpar}
 \emkey{function-call}\label{FUNCTION-CALL}
-    \begin{tabular}[t]{rl}
-    ::= & {\em module-abbreviation}\QMARK{}
-          {\em call-argument-list}\STAR{}
-          {\em call-term}\PLUS{} \\
-    $|$ & {\em reference-expression}
-          {\em call-argument-list}\PLUS{} \\
-    \end{tabular}
+    ::= {\em module-abbreviation}\QMARK{}
+        {\em call-argument-list}\STAR{}
+        {\em call-term}\PLUS{}
 \\[0.5ex]
 \emkey{call-term}
     \begin{tabular}[t]{rl}
@@ -2659,13 +2653,7 @@ The syntax of function calls is:
     {\em quoted-marks} and {\em quoted-separators}
     \end{tabular}
 \\[0.5ex]
-\emkey{reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
-\\[0.5ex]
 \emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
-\\[0.5ex]
-\emkey{constant} ::= see \pagref{CONSTANTS}
-\\[0.5ex]
-\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
@@ -4367,13 +4355,7 @@ The syntax of a function declaration is:
 {\em const-expression} ::= see \pagref{CONST-EXPRESSION}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
-    \begin{tabular}[t]{rl}
-    ::= & {\em first-pattern-term}~ {\em pattern-term}\STAR{} \\
-    $|$ & {\em pattern-argument-list}~ {\em pattern-argument-list}\PLUS{}
-    \end{tabular}
-\\[0.5ex]
-\emkey{first-pattern-term} ::= {\em pattern-argument-list}\STAR{}~
-				{\em pattern-term}
+    ::= {\em pattern-argument-list}\STAR{}~ {\em pattern-term}\PLUS{}
 \\[0.5ex]
 \emkey{pattern-term}\label{PATTERN-TERM}
     ::= {\em function-term-name}~ {\em pattern-argument-list}\STAR{}
@@ -4399,13 +4381,12 @@ The syntax of a function declaration is:
     \end{tabular}
 \begin{itemize}\label{FUNCTION-DECLARATION-RULES}
 \item
-A {\em prototype-pattern} or {\em function-call}
-must have either a {\em function-term-name}
-or at least two {\em argu\-ment-lists}.
-\item
 A {\em prototype-pattern} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
 in the same {\em prototype-pattern}.
+\item
+The first {\em function-term-name} in a {\em prototype-pattern}
+must not be a {\em member-name}\pagnote{MEMBER-NAME}.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must not begin with a {\em module-abbreviation}.
@@ -4950,11 +4931,17 @@ The syntax of a {\em reference-function-declaration} is:
     $|$ &  {\em reference-function-prototype}~ \TT{:}~ \ttkey{*DEFERRED*} \\
     \end{tabular}
 \\[2ex]
-\emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} ::= \\
-\hspace*{0.25in}\ttkey{reference function}~
-    \begin{tabular}[t]{@{}l}
-        {\em result-variable-declaration}~ \TT{=} \\
-        {\em module-abbreviation}\QMARK{}~ {\em reference-prototype-pattern} \\
+\emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} \\
+\hspace*{0.25in}
+    \begin{tabular}[t]{rl}
+        ::= & \ttkey{reference function} \\
+	    & \TT{~~~~}{\em result-variable-declaration}~ \TT{=}~ \\
+            & \TT{~~~~~~~~}{\em module-abbreviation}\QMARK{}~
+	      {\em reference-prototype-pattern} \\
+        $|$ & \ttkey{reference function} \\
+            & \TT{~~~~}{\em module-abbreviation}\QMARK{}~
+	      {\em reference-prototype-pattern}~ \TT{=}~ \\
+	    & \TT{~~~~~~~~}{\em input-variable-list}
     \end{tabular}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
@@ -4990,14 +4977,16 @@ The rules for a {\em function-declaration}
 apply where applicable to a {\em reference-function-declaration},
 with exceptions as indicated here.
 \item
+The first {\em function-term-name} in a {\em reference-prototype-pattern}
+\underline{must be} a {\em member-name}\pagnote{MEMBER-NAME}.
+\item
 The first actual argument in a {\em reference-call} is a
 smaller {\em reference-expression} that has already been deliminated
-and which is surrounded in the {\em reference-call} by implied
-parentheses {\tt (~)}.
+and which is surrounded in the {\em reference-call} by
+parentheses {\tt (~)} that are \underline{implied} and \underline{not} explicit.
 \item
-There is exactly one {\em result-variable-declaration} and a result
-cannot have the form `{\tt next $v$}'.  There is no {\em input-list}
-form of {\em reference-function-declaration}.
+If there is a {\em result-variable-declaration}, there is exactly one,
+and a result cannot have the form `{\tt next $v$}'.
 \item
 The {\em reference-pattern-argument} in the prototype cannot
 contain default or required values.
