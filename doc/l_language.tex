@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 7, 2022
+May 8, 2022
 
 \bigskip
  
@@ -377,17 +377,17 @@ which is semantically equal to:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 4
-next sum, next i =:
+next sum, next i:
     next sum = sum + i
     next i = i + 1
-next sum, next i =:
+next sum, next i:
     next sum = sum + i
     next i = i + 1
-next sum, next i =:
+next sum, next i:
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
-The `{\tt next sum}' and `{\tt next i}' before the `{\tt =:}',
+The `{\tt next sum}' and `{\tt next i}' before the `{\tt :}',
 which are the output variables for the block of code containing
 the two `{\tt +}' statements,
 can also be implied as they appear as output variables
@@ -2750,7 +2750,6 @@ The forms of an {\em assignment-statement} are:
     ::= & {\em expression-assignment-statement} \\
     $|$ & {\em call-assignment-statement} \\
     $|$ & {\em block-assignment-statement} \\
-    $|$ & {\em local-pointer-assignment-statement} \\
     $|$ & {\em deferred-assignment-statement} \\
     $|$ & {\em loop-assignment-statement} \\
     \end{tabular}
@@ -2777,24 +2776,14 @@ The forms of an {\em assignment-statement} are:
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\STAR{}
-		\TT{=} \\
-	& ~~~~~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
+                \{ \TT{,} {\em block-variable-declaration} \}\STAR{} \\
+	& ~~~~~ \{ \TT{=} \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
     $|$ & \ttkey{do} {\em block-label}\QMARK{} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
         & ~~~~~ {\em exit-subblock}\STAR{} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{local-pointer-assignment-statement} ::= \\
-\hspace*{0.5in}
-    \begin{tabular}[t]{@{}rll}
-        & {\em local-pointer-variable-declaration} \\
-    $|$ & {\em local-pointer-variable-declaration} \TT{:} \\
-        & ~~~~~~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{deferred-assignment-statement} ::= \\
@@ -2861,18 +2850,6 @@ The forms of an {\em assignment-statement} are:
 	      ~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{local-pointer-variable-declaration}%
-    \label{LOCAL-POINTER-VARIABLE-DECLARATION} ::= \\
-\hspace*{0.5in}\begin{tabular}{rl}
-	    & {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      {\em type-name} {\em pointer-variable} \\
-	$|$ & \TT{next} {\em pointer-variable}
-	\end{tabular} \\
-\hspace*{0.5in}where \begin{tabular}[t]{@{}l@{}}
-               the {\em pointer-variable} must have an explicit or implied  \\
-	       {\tt *LOCAL*} qualifier
-	       \end{tabular}
-\\[0.5ex]
 \emkey{deferred-variable-declaration}%
     \label{DEFERRED-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
@@ -2895,6 +2872,18 @@ The forms of an {\em assignment-statement} are:
 \emkey{pointer-variable} ::= see \pagref{POINTER-VARIABLE}
 \\[0.5ex]
 \emkey{allocation-call} ::= {\em function-call}
+\\[2ex]
+where
+\begin{itemize}
+\item A line ending \TT{:} may be omitted if the
+{\em statement} subblock following is empty.
+\item The allocation subexpression `\TT{=@ local}' may be
+omitted for {\em pointer-variable} declarations whose
+targets have the \TT{*LOCAL*} qualifier provided the
+{\em allocator-call} has no arguments
+(e.g., `\TT{=@ local[\ldots]}' cannot be omitted).
+\end{itemize}
+
 \end{indpar}
 
 Associated with {\em block-assignment-statements} and
@@ -3109,9 +3098,8 @@ The syntax of {\em block-assignment-statements} is:
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\STAR{}
-		\TT{=} \\
-	& ~~~~~ \{ \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
+                \{ \TT{,} {\em block-variable-declaration} \}\STAR{} \\
+	& ~~~~~ \{ \TT{=} \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
@@ -3235,32 +3223,6 @@ int x = 5
 next x = do:
     next x = x + 1
 \end{verbatim}\end{indpar}
-
-\subsubsubsection{Local Pointer Assignment Statements}
-\label{LOCAL-POINTER-ASSIGNMENT-STATEMENTS}
-
-These are syntactic
-sugar abbreviations of {\em block-assignment-statements} as
-follows:
-
-\hspace*{0.5in}\begin{tabular}{@{}l@{~~~~}l}
-The statement: & {\em local-pointer-variable-declaration}
-\\[0.5ex]
-abbreviates:   & {\em local-pointer-variable-declaration} \TT{=@ local}
-\end{tabular}
-
-and
-
-\hspace*{0.5in}\begin{tabular}{@{}l@{~~~~}l}
-The statement: & {\em local-pointer-variable-declaration} \TT{:} \\
-        & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-subblock}\STAR{} \\
-\\[0.5ex]
-abbreviates:   & {\em local-pointer-variable-declaration} \TT{=@ local}
-                 \TT{:} \\
-        & ~~~~~ {\em statement}\STAR{} \\
-        & ~~~~~ {\em exit-subblock}\STAR{} \\
-\end{tabular}
 
 \subsubsubsection{Deferred Assignment Statements}
 \label{DEFERRED-ASSIGNMENT-STATEMENTS}
@@ -3475,7 +3437,7 @@ An example is:
 \begin{indpar}\begin{verbatim}
 int x = 5
 int y = 6
-int z =:
+int z:
     int sum = x + y         // Sets sum = 11
     int product = x * y     // Sets product = 30
     if sum < product:
