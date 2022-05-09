@@ -4626,8 +4626,11 @@ inputs just the {\em function-call} and its target type,
 without any argument subexpression details
 other than the matching maps of each of its arguments.
 For a function call
-that is the right side of a {\em call-assignment-statement} there may
-be zero, or more than one target type.
+that is the right side of the {\tt =}
+in a {\em call-assignment-statement} there may
+be zero, or more than one target type, but no matching map is
+required, as the target types are dictated by the
+{\em call-assignment-statement} left side.
 
 In this context, \key{call-prototype matching} is done as follows:
 
@@ -4656,7 +4659,8 @@ The match is made by scanning the call from left-to-right
 while identifying sequences of lexemes that match
 {\em function-term-names} in the prototype.  After identifying
 a name, the scan skips to just after the name.  If several
-names match at the same position, the longest is chosen.
+names match at the same position, the longest is chosen.  There is
+no backup; once a name match is made, it is never unmade.
 The scan may match a single prototype name to several points in the
 call, but if this happens, the call-prototype match fails.
 If the first prototype name fails to match the first call name,
@@ -4702,13 +4706,8 @@ a {\em call-term} consisting of just the {\em pattern-term}'s
 After this the {\em call-terms} are re-ordered so their order
 matches that of their associated {\em pattern-terms}.
 
-If in a left-to-right scan of a {\em call-term},
-a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
-is found, and instead a {\em constant} or {\em variable}
-is found, {\tt (~)} parentheses are placed around the
-{\em constant} or {\em variable}.  This cannot be
-done twice in succession.  Note that {\em constants} and
-{\em variables} cannot contain brackets.
+A {\em call-term} {\em argument-list} with implied parentheses
+is treated as if it had {\tt (~)} parentheses.
 
 If in a left-to-right scan of a {\em call-term},
 a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
@@ -4739,12 +4738,6 @@ in the call are matched to corresponding {\em prototype-argument-declarations}
 in the prototype according to the rules that follow.
 Failure of any of these matches causes
 the call-prototype match to fail.
-
-\item\label{CALL-PROTOTYPE-REQUIRED-VALUES}
-If a {\em prototype-argument-declaration} has a {\em required-value},
-its matching {\em actual-argument} must be {\tt const} valued with
-a value equal to the {\em required-value}, else the call-prototype
-match fails.  Note that the argument type need not itself be {\tt const}.
 
 \item\label{CALL-PROTOTYPE-RESULT-MATCHING}
 If the {\em function-call} is the right side (part after {\tt =})
@@ -4781,13 +4774,29 @@ an {\em actual-arguments} and processed left to right.
 
 If a {\em prototype-argument-declaration} $PAD$ is matched
 to an {\em actual-argument} $AA$ and $PAD$ has a wildcard,
-$AA$ must be reference expression, else the
-call-prototype match fails.  If $AA$ is a {\em reference-expression}, the
-wildcard is assigned from information in the {\em reference-expression}'s type.
+$AA$ must be {\em reference-expression}, else the
+call-prototype match fails.  The wildcard is assigned from
+information in the {\em reference-expression}'s type
+({\em reference-expression} types are computed bottom-up,
+ignoring the part of a {\em statement} containing the
+{\em reference-expression}:
+see \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}).
 
 If different values are assigned to the same wildcard by this
-process (by different declaration-argument matches),
+process (by different prototype-actual argument matches),
 the call-prototype match fails.
+
+\item\label{CALL-PROTOTYPE-REQUIRED-VALUES}
+If a {\em prototype-argument-declaration} has a {\em required-value},
+its matching {\em actual-argument} must be {\tt const} valued with
+a value equal to the {\em required-value}, after both are converted
+to the argument type specified by the {\em prototype-argument-declaration},
+else the call-prototype
+match fails.  Note that the argument type need not itself be {\tt const}.
+
+If the argument type is {\tt const} and the values being compared are
+maps, the maps must be identical (they are compares as pointers and
+not as lists of elements).
 
 \item\label{CALL-PROTOTYPE-ARGUMENT-TYPING}
 Matches between {\em prototype-argument-declaration} types
@@ -4799,7 +4808,7 @@ If any {\em prototype-argument-declaration} type is mapped to
 the call-prototype match fails.
 
 If any is mapped to {\tt *EXACT*}, the call-prototype map is
-marked as \key{conversion proficient}.  Not that only a single
+marked as \key{conversion proficient}.  Note that only a single
 argument needs to be {\tt *EXACT*} in order for the entire
 call-prototype match to be marked conversion proficient.
 
