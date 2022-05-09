@@ -4435,6 +4435,27 @@ int v = 5 @@ 6       // Legal
 int w = 5 "@@" 6     // Legal
 \end{verbatim}\end{indpar}
 
+However, quoting an operator will cause it to be not recognized as
+an operator.  For example:
+\\[0.5ex]
+\centerline{
+{\tt x + y * z}
+~~~parses as~~~
+{\tt \{ \{ "x" \}, "+", \{ \{ "y" \}, "*", \{ "z" \} \} \}} \\
+} \\
+whereas \\
+\centerline{
+{\tt x "+" y * z}
+~~~parses as~~~
+{\tt \{ \{ "x", "+", "y" \}, "*", \{ "z" \} \}}
+}
+In the latter, {\tt \{ "x", "+", "y" \}} cannot be recognized as
+a {\em function-call} because the arguments {\tt "x"} and {\tt "y"} are
+not bracketed (i.e., are not {\tt \{ "x" \}} and {\tt \{ "y" \}}),
+and will also not be recognized as a {\em reference-expression}
+(because {\tt "+"} is not a {\em member-name}) or
+{\em constant}.
+
 A {\em pattern-term} with the syntax:
 \begin{indpar}
 \emkey{boolean-pattern-term}\label{BOOLEAN-PATTERN-TERM} ::= \\
