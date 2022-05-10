@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 9, 2022
+May 10, 2022
 
 \bigskip
  
@@ -4815,12 +4815,17 @@ call-prototype match to be marked conversion proficient.
 \end{enumerate}
 
 If after applying these rules each match is assigned a rank
-equal to the number of required arguments the match has
-plus a very large number if the match is conversion proficient,
-plus an even larger number if the match is module proficient.
+equal to the sum of:
+\begin{itemize}
+\item the number of required arguments the prototype has
+\item the negative of the number of {\tt T\$\ldots} wildcards
+the prototype has
+\item a very large number if the match is conversion proficient
+\item an even larger number if the match is module proficient
+\end{itemize}
 Then if there is a single match with maximum rank, that match
 is accepted, and otherwise all matches fail and there is
-a compile error.
+a compile error.  Note that the rank can be negative.
 
 The following are examples using the builtin prototypes
 \begin{indpar}
@@ -4836,15 +4841,13 @@ flt64 r1 = x + 5
     // Target type flt64 selects N = flt64 for "+".
 bool b1 = ( x == 5 )
     // Target type bool and *EXACT* argument x select
-    // N = int32 for "==".  (There is also a const
-    // version or "==" which fails when it tries to
-    // implicitly convert const to int32.)
+    // N = int32 for "==".
 flt64 y = 5.5
 bool b2 = ( x == y )
     // Target type bool and *EXACT* argument y select
     // N = flt64 for "==";  N = int32 version of "=="
-    // fails when it tries to implicitly convert y to
-    // int32.
+    // fails because int32 r = *IMPLICIT* *CONVERSION* (y)
+    // *FAIL*s.
 bool b2 = ( flt64 ( x ) == 5 )
     // All flt64 functions have flt64 result type,
     // and as there is no implicit conversion of flt64
@@ -4858,18 +4861,31 @@ bool b2 = ( flt64 ( x ) == 5 )
 
 A \key{reference function} is a function that can be
 called as part of evaluating a {\em reference-expression}.
-The prototype of the function begins with
-a parenthesized expression that is matched in
-any call to an actual {\em reference-expression} that is
-the prefix of the {\em function-call}.  The type of
-the {\em function-call} is computed from the type of
+The part is a {\em reference-call} that is a prefix of
+the entire {\em reference-expression}.
+
+The prototype of a {\em reference-function} begins with
+a parenthesized single argument declaration that is matched
+to an \underline{un}parenthesized actual {\em reference-expression} that is
+a prefix of the {\em reference-call}.  The type of
+the {\em reference-call} is computed from the type of
 this prefix - there is \underline{no} target type.
 
-{\em Reference-calls} are similar to non-reference {\em function-calls},
+A {\em reference-expression} is built by extending its prefix
+{\em reference-expression} with either a {\tt [~]} bracketed
+{\em index} or a {\em member-name} optionally followed by other
+arguments and call terms.
+A {\em reference-expression} always begins with a {\em variable-name}
+or `{\tt next} {\em variable-name}' from which the entire
+{\em reference-expression} is built by extensions.  An extension
+may be a builtin operator, such as a vector element selector or
+field selector, or it may be a {\em reference-call}.
+
+{\em Reference-calls} are similar to (non-reference) {\em function-calls},
 {\em reference-function-declarations} are similar to
 inline {\em function-declarations}, and reference call-prototype
 matching is similar to non-reference call-prototype matching,
-but there are important differences.
+but there are significant differences.
 
 The syntax of a {\em reference-call} is:
 
@@ -4904,14 +4920,14 @@ The syntax of a {\em reference-call} is:
 \emkey{call-term-name} ::= see \pagref{CALL-TERM-NAME}
 \begin{itemize}
 \item
-{\em Unparenthesized-actual-arguments} are \underline{not} allowed.
-\item
 The {\em reference-expression} is the first actual argument and is
 never parenthesized.  It always begins with a {\em variable-name} or
 with `{\tt next} {\em variable-name}'.
 \item
 The first {\em call-term-name}, if it exists, is a {\em member-name}.
 No other {\em call-term-name} is a {\em member-name}.
+\item
+{\tt (~)} parenthesized argument lists may \underline{not} be omitted.
 \end{itemize}
 \end{indpar}
 
@@ -4975,6 +4991,8 @@ with exceptions as indicated here.
 \item
 The first {\em function-term-name} in a {\em reference-prototype-pattern}
 \underline{must be} a {\em member-name}\pagnote{MEMBER-NAME}.
+No other {\em function-term-name} in a {\em reference-prototype-pattern}
+may be a {\em member-name}.
 \item
 The first actual argument in a {\em reference-call} is a
 smaller {\em reference-expression} that has already been deliminated
@@ -4982,7 +5000,7 @@ and which is surrounded in the {\em reference-call} by
 parentheses {\tt (~)} that are \underline{implied} and \underline{not} explicit.
 \item
 If there is a {\em result-variable-declaration}, there is exactly one,
-and a result cannot have the form `{\tt next $v$}'.
+and it cannot have the form `{\tt next $v$}'.
 \item
 The {\em reference-pattern-argument} in the prototype cannot
 contain default or required values.
