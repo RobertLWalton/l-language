@@ -5043,25 +5043,17 @@ which must be the entire {\em reference-expression}, and the
            \pagnote{CALL-PROTOTYPE-TERM-NAMES}]
 If a second {\em member-name} is encountered during the left-to-right
 scan, it is assumed that the {\em reference-call} terminates before
-this second {\em member-name}, that that second {\em member-name}
+this second {\em member-name}, and that second {\em member-name}
 and everything following it are ignored.
 
 \item[Step \ref{CALL-PROTOTYPE-CALL-TERMS}%
            \pagnote{CALL-PROTOTYPE-CALL-TERMS}]
-The end of the {\em reference-call} must be determined before
-the last {\em call-term} can be determined.  This is done
-by proceding left-to-right from the last {\em call-term-name}
-in the {\em reference-call} (before any re-ordering of {\em call-terms})
-to identify {\em call-argument-lists} that have bracket types,
-{\tt (~)} or {\tt [~]}, which match the bracket types of
-corresponding {\em pattern-argument-lists} in the matching
-{\em pattern-term}, ignoring what is between brackets in both the call
-and prototype.  If a {\tt (~)} list is expected but something else is
-found, the {\tt (~)} list in the prototype is skipped without the match
-failing
-(an empty {\tt (~)} list will be inserted in the next step).
-The {\em reference-call} ends just before the first
-failed match.
+In a {\em reference-call}, the end of each call term is determined by
+by proceding left-to-right an matching the argument lists as to
+bracket type, {\tt (~)} or {\tt [~]}, until the prototype argument list
+is exhausted.  Lists with {\tt (~)} bracket type \underline{cannot}
+be omitted in a {\em reference-call}.  The end of the {\em reference-call}
+is then the end of the last {\em call-term} found.
 
 \item[Step \ref{CALL-PROTOTYPE-RESULT-MATCHING}%
            \pagnote{CALL-PROTOTYPE-RESULT-MATCHING}]
@@ -5073,7 +5065,7 @@ wildcards have been assigned by arguments.
            \pagnote{CALL-PROTOTYPE-ARGUMENT-TYPING}]
 
 Implicit conversions of the {\em reference-expression}
-that is the first argument are \underline{not} permitted.
+that is the first argument is \underline{not} permitted.
 
 \end{itemize}
 \end{indpar}
