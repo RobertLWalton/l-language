@@ -4795,7 +4795,7 @@ else the call-prototype
 match fails.  Note that the argument type need not itself be {\tt const}.
 
 If the argument type is {\tt const} and the values being compared are
-maps, the maps must be identical (they are compares as pointers and
+maps, the maps must be identical (they are compared as pointers and
 not as lists of elements).
 
 \item\label{CALL-PROTOTYPE-ARGUMENT-TYPING}
@@ -5049,11 +5049,18 @@ and everything following it are ignored.
 \item[Step \ref{CALL-PROTOTYPE-CALL-TERMS}%
            \pagnote{CALL-PROTOTYPE-CALL-TERMS}]
 In a {\em reference-call}, the end of each call term is determined by
-by proceding left-to-right an matching the argument lists as to
+by proceding left-to-right and matching the argument lists as to
 bracket type, {\tt (~)} or {\tt [~]}, until the prototype argument list
 is exhausted.  Lists with {\tt (~)} bracket type \underline{cannot}
 be omitted in a {\em reference-call}.  The end of the {\em reference-call}
 is then the end of the last {\em call-term} found.
+
+\item[Step \ref{CALL-PROTOTYPE-CALL-TERM-ADJUSTMENT}%
+           \pagnote{CALL-PROTOTYPE-CALL-TERM-ADJUSTMENT}]
+Lists with {\tt (~)} bracket type \underline{cannot}
+be omitted in a {\em reference-call}, so empty {\tt (~)} argument
+lists are never inserted in a {\em reference-call} during
+call-prototype matching.
 
 \item[Step \ref{CALL-PROTOTYPE-RESULT-MATCHING}%
            \pagnote{CALL-PROTOTYPE-RESULT-MATCHING}]
@@ -5064,7 +5071,7 @@ wildcards have been assigned by arguments.
 \item[Step \ref{CALL-PROTOTYPE-ARGUMENT-TYPING}%
            \pagnote{CALL-PROTOTYPE-ARGUMENT-TYPING}]
 
-Implicit conversions of the {\em reference-expression}
+Implicit conversion of the {\em reference-expression}
 that is the first argument is \underline{not} permitted.
 
 \end{itemize}
