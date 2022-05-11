@@ -162,7 +162,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 10, 2022
+May 11, 2022
 
 \bigskip
  
@@ -3066,19 +3066,25 @@ The syntax of a {\em call-assignment-statement} is:
 \hspace*{0.5in} \begin{tabular}{rl}
                 ::= & {\em assignment-result}
                       \{ \TT{,} {\em assignment-result} \}\STAR{}
-		      \TT{=} {\em function-call} \\
-		$|$ & {\em function-call}
+		      \TT{=} {\em assignment-call} \\
+		$|$ & {\em assignment-call}
 		\end{tabular}
+\\[0.5ex]
+\emkey{assignment-call} ::= {\em function-call} $|$
+                            {\em foreign-function-call}
 \\[0.5ex]
 \emkey{assignment-result} ::= see \pagref{ASSIGNMENT-RESULT}
 \\[0.5ex]
 \emkey{function-call} ::= see \pagref{FUNCTION-CALL}
+\\[0.5ex]
+\emkey{foreign-function-call} ::= see \pagref{FOREIGN-FUNCTION-CALL}
 \end{indpar}
 
 A {\em call-assignment-statement} with {\em assignment-results}
 follows the same general rules
 as {\em expres\-sion-assignment-state\-ments} except that its right
-side is a single {\em function-call}.
+side is a single {\em function-call} or the functionally similar
+{\em foreign-function-call}.
 
 The types of the function prototype results \underline{cannot}
 be implicitly converted to the types of the {\em assignment-results}.
@@ -5180,12 +5186,15 @@ and their companions.
 \end{itemize}
 \end{indpar}
 
+Out-of-line function calls must be the right sides (after the {\tt =})
+of {\em call-assignment-state\-ments},\pagnote{CALL-ASSIGNMENT-STATEMENTS}
+they cannot be subexpressions.
 A non-foreign out-of-line function can be called with a normal
-{\em function-call}.\pagnote{FUNCTION-CALL}  A foreign
-out-of-line function must be called with an:
+{\em function-call}\pagnote{FUNCTION-CALL}. A foreign
+out-of-line function must be called with a:
 \begin{indpar}
-\emkey{out-of-line-function-call}%
-	\label{OUT-OF-LINE-FUNCTION-CALL} ::= \\
+\emkey{foreign-function-call}%
+	\label{FOREIGN-FUNCTION-CALL} ::= \\
 \hspace*{0.25in}
 	\ttkey{call} {\em foreign-function-name}
 	     {\em call-argument-list}\QMARK{}
