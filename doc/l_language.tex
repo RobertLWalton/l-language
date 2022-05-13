@@ -4619,13 +4619,16 @@ $e$ whose type is not exactly the target-type, the compiler replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
 and attempts to find a function prototype for this revised expression.
 
-Otherwise if the subexpression matching map entry for the {\tt const} prototype
-is not {\tt *FAIL*} and the target type is not {\em const}, the
-the compiler attempts to fine an {\tt *IMPLICIT* *CONVER\-SION*} prototype
+Otherwise, if there is only one target type (i.e., the expression is not
+a {\em function-call} in a {\em call-assignment-statement} with more than
+one result), if the target type is not {\em const},
+and if the map entry for the {\tt const} target type in the subexpression
+matching map is not {\tt *FAIL*}, then the
+the compiler attempts to find an {\tt *IMPLICIT* *CONVER\-SION*} prototype
 with a result of the target-type and a single {\tt const} argument, and
 if found, replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
-using this {\tt *IMPLICIT* *CONVERSION*} function.
+using this {\tt *IMPLICIT* *CONVERSION*} prototype.
 
 The implications of the last paragraph are brought out by the following
 example:
@@ -4643,6 +4646,9 @@ matching; it is detected when the code produced by call-prototype
 matching: \\
 \centerline{\tt int y = *IMPLIED* *CONVERSION* ( 5.5 - 5.0 )}
 is compiled.
+
+The above gives a kind of preference to functions with {\tt const}
+result type over functions with run-time result types.
 
 The matching map for a particular subexpression in a statement does
 \underline{not} depend on the parts of the statement that contain
