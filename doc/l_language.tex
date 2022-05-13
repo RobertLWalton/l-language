@@ -5507,7 +5507,7 @@ However, any {\tt .separator} and the following must be included:
 
 The {\em include-statement} can be used to parse statements
 and append them to the end of the list which is the value of
-of a {\tt const} variable:
+a {\tt const} variable:
 
 \begin{indpar}
 \emkey{include-statement}\label{INCLUDE-STATEMENT} ::= \\
@@ -5528,8 +5528,7 @@ of a {\tt const} variable:
 	\TT{(} {\em include-argument}
 	\{ \TT{,} {\em include-argument} \}\STAR{} \TT{)}
 \\[0.5ex]
-\emkey{include-argument} ::= {\em word} beginning with a {\em letter} or
-	with `\TT{\#}' followed by a {\em letter}
+\emkey{include-argument} ::= {\em word} beginning with a capital {\em letter}
 
 \end{indpar}
 
@@ -5587,7 +5586,10 @@ The output produced by the parser when it parses code is as
 follows.  In the following \ttkey{*LOGICAL-LINE*} and
 \ttkey{*INDENTED-PARAGRAPH*} name special constants.
 
-Recall that the input is a sequence of logical lines.
+Recall that the input is a sequence of logical lines.  Also,
+{\em rational-constants}\pagnote{RATIONAL-CONSTANTS}
+are not produced by the parser: they are parsed as an operator
+name {\em word} followed by a {\em quoted-string}.
 
 For a logical line, the parser produces a list with the
 annotations: \\
@@ -5604,7 +5606,7 @@ which has the annotations: \\
 The list elements are logical lines.
 
 For an explicitly bracketed subexpression the parser produces a list which has
-the annotations:
+the annotations: \\
 \hspace*{0.5in}{\tt ".initiator" => "(", ".terminator" => ")"} \\
 or \\
 \hspace*{0.5in}{\tt ".initiator" => "[", ".terminator" => "]"} \\
@@ -5615,6 +5617,12 @@ For an implicitly bracketed subexpression the parser produces a list which has
 \underline{no} {\tt .initiator} and {\tt .terminator} annotations.
 The list elements are strings and numbers representing lexemes, and
 lists representing subexpressions.
+
+The parser collapses lists that have either no annotations or {\tt (~)}
+annotations.  For example, for {\tt ((\ldots))} the parser outputs
+only one list, the same as it outputs for {\tt (\ldots)}.  If a list
+with no annotations is collapsed with a list with {\tt (~)} annotations,
+the result has {\tt (~)} annotations.
 
 Operators that are separators, such as `\TT{,}', are not included as elements
 of a list, but become a \ttkey{.separator} annotation of the list.
@@ -5631,8 +5639,10 @@ per \pagref{UNNECESSARY-ANNOTATIONS}).
 This is done so that {\em include-variable} substitutions will splice
 into operands appropriately.\pagnote{INCLUDE-SPLICING}
 
-An example is:
+An example is given in Figure~\ref{PARSER-OUTPUT-EXAMPLE}%
+\pagnote{PARSER-OUTPUT-EXAMPLE}.
 
+\begin{boxedfigure}[!p]
 \begin{indpar}[1em]
 Parser Input:
 \begin{indpar}[1em]\begin{verbatim}
@@ -5641,6 +5651,8 @@ if X < Y:
     Y = Y + 5 * Z
     A 1, B = B, A 1
     const P = "HOHO"
+    const Q = 5 + P
+    const R = ( 5 + Q )
 \end{verbatim}\end{indpar}
 
 \medskip
@@ -5658,8 +5670,15 @@ Parser Output:
       "=",
       { { "B" }, { "A", 1 }, ".separator" => "," },
       ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>" },
-    { { "const", "P" }, "="
+    { { "const", "P" }, "=",
       { "HOHO", ".initiator" => "<Q>", ".terminator" => "<Q>" },
+      ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>" },
+    { { "const", "Q" }, "=",
+      { { 5 }, "+", { "P" } },
+      ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>" },
+    { { "const", "R" }, "="
+      { { 5 }, "+", { "Q" },
+        ".initiator" => "(", ".terminator" => ")" },
       ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>" },
     ".initiator" => ":", ".terminator" => *INDENTED-PARAGRAPH*
   },
@@ -5668,6 +5687,10 @@ Parser Output:
 
 \end{verbatim}\end{indpar}
 \end{indpar}
+
+\caption{Parser Output Example}
+\label{PARSER-OUTPUT-EXAMPLE}
+\end{boxedfigure}
 
 \subsection{Scope}
 \label{SCOPE}
