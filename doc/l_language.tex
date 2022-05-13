@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 11, 2022
+May 13, 2022
 
 \bigskip
  
@@ -4607,16 +4607,42 @@ a function prototype	& the subexpression is a function call that
 \\[1ex]
 *EXACT*			& the subexpression is a reference expression
 			  whose type is exactly the target-type
+\\[1ex]
+*CONST*			& the subexpression is a constant and the
+			  target-type is {\tt const}
 
 \end{tabular}
 \end{center}
 
-If the subexpression is a {\em reference-expression} or a
-{\em const-expression} $e$ whose type is not
-exactly the target-type, the compiler replaces $e$ by \\
+If the subexpression is a {\em reference-expression} $e$
+$e$ whose type is not exactly the target-type, the compiler replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
-and attempts to find a function prototype for this revised expression
-(after $e$ is replaced by its value if it is a {\em const-expression}).
+and attempts to find a function prototype for this revised expression.
+
+Otherwise if the subexpression matching map entry for the {\tt const} prototype
+is not {\tt *FAIL*} and the target type is not {\em const}, the
+the compiler attempts to fine an {\tt *IMPLICIT* *CONVER\-SION*} prototype
+with a result of the target-type and a single {\tt const} argument, and
+if found, replaces $e$ by \\
+\centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
+using this {\tt *IMPLICIT* *CONVERSION*} function.
+
+The implications of the last paragraph are brought out by the following
+example:
+\begin{indpar}\begin{verbatim}
+int x = 5.5 - 5.5     // Sets x = 0
+int y = 5.5 - 5.0     // Fails trying to set y = 0.5
+\end{verbatim}\end{indpar}
+The {\tt const} matching map entries for `{\tt 5.5 - 5.5}' and
+`{\tt 5.5 - 5.0}' are not {\tt *FAIL*}, so call-prototype matching
+selects {\tt const} `{\tt -}' operators and {\tt const} values are
+subtracted in the compiler to produce {\tt 0} or {\tt 0.5} before
+these values are converted to {\tt int}.  The error in converting
+{\tt 0.5} to {\tt int} is \underline{not} detected by call-prototype
+matching; it is detected when the code produced by call-prototype
+matching: \\
+\centerline{\tt int y = *IMPLIED* *CONVERSION* ( 5.5 - 5.0 )}
+is compiled.
 
 The matching map for a particular subexpression in a statement does
 \underline{not} depend on the parts of the statement that contain
