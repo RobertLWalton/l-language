@@ -5901,7 +5901,10 @@ other than `{\tt my\_own\_module}'.
 
 The \key{lifetime} of a value stored in memory is the time from
 when the memory is allocated to the value and the time the memory
-is deallocated.  There are three possible lifetimes for a value:
+is deallocated.  The compiler tracks lifetimes by assigning each
+value in memory a lifetime type and a separate lifetime depth.
+
+There are three possible \skey{lifetime type}s:
 \begin{center}
 \begin{tabular}{lp{4.0in}}
 \ttkey{*GLOBAL*}	& the lifetime starts when the program
@@ -5920,6 +5923,25 @@ is deallocated.  There are three possible lifetimes for a value:
 			  yet terminated
 \end{tabular}
 \end{center}
+
+The \key{lifetime depth} of a value is the same as the depth
+of the {\em statement} creating the value, except for arguments
+to functions.  A {\em statement} that is not inside any
+sub-block of another {\em statement} that is \underline{not} a declaration
+of a function is assigned depth 1.
+A {\em statement} that is inside a sub-block
+at the end of a {\em statement} of depth $N$ is given depth $N+1$.
+Inside a function, statements that are outside the function are given
+depth 0.
+
+Then the \skey{lifetime rule}s for storing pointers in values are:
+
+\begin{indpar}
+(L1) If a pointer to a value $v1$ of lifetime depth $d1$ is stored
+in a value $v2$ of
+lifetime depth $d2$, it is required that $0<d1\leq d2$ or that the
+lifetime type of $v1$ be {\tt *GLOBAL*}.
+\end{indpar}
 
 \subsection{Memory Management}
 \label{MEMORY-MANAGEMENT}
