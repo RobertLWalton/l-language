@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 13, 2022
+May 14, 2022
 
 \bigskip
  
@@ -5644,6 +5644,8 @@ An example is given in Figure~\ref{PARSER-OUTPUT-EXAMPLE}%
 
 \begin{boxedfigure}[!p]
 \begin{indpar}[1em]
+
+
 Parser Input:
 \begin{indpar}[1em]\begin{verbatim}
 if X < Y:
@@ -5718,7 +5720,8 @@ The scope of top-level {\em declarations} in a module file is extended
 to each body file of the module.
 
 Some {\em declarations} are \key{external}\label{EXTERNAL}.
-These must be top-level declarations in a module.
+These must be top-level declarations in a module (and \underline{not}
+in a body).
 The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
@@ -5733,13 +5736,16 @@ is external if the {variable-name} declared begins with a
 must be in the same module as the {\em result-variable-declaration}
 whose variable name it shares.
 
-A {\em type-declaration} or {\em pointer-type-declaration}
+A {\em type-declaration}, {\em pointer-type-declaration}, or
+{\em function-type-declaration}
 \label{EXTERNAL-TYPE-NAME}
-is external if the {type-name} or {\em pointer-type-name}
+is external if the {type-name}, {\em pointer-type-name},
+or {\em function-type-name}
 declared begins with a
-{\em module-abbreviation}.
+{\em module-abbrev\-i\-a\-tion}.
 
-A {\em inline-function-declaration} or {\em out-of-line-function-declaration}
+A {\em inline-function-declaration}, {\em reference-function-declaration},
+or {\em out-of-line-function-declar\-a\-tion}
 is external\label{EXTERNAL-FUNCTION}
 if the {\em prototype-pattern} in the {\em declaration}
 is immediately preceded by a {\em module-abbreviation}.
@@ -5755,19 +5761,21 @@ may have a companion
 anywhere within the scope of the original declaration.
 
 A deferred external {\em type-declaration} must have its
-companion in the same module as the deferred {\em type-declaration},
+companion in the same module as the deferred external {\em type-declaration},
 but that companion may have the {\tt ***} or {\tt *EXTERNAL*}
 sub-declaration that allows it to have expansions in the bodies of
 its module, and in the {\tt *EXTERNAL*} case, in other modules and
 bodies that import the module.
 
-{\tt *EXTERNAL*} {\em type-declarations} must have external {\em type-names}
+{\em type-declarations} that end with the {\tt *EXTERNAL*}
+sub-declaration must have external {\em type-names}
 (beginning with a {\em module-abbreviation}).
-Expansions of an {\tt *EXTERNAL*} {\em type-declaration} may appear
+Expansions of such a {\em type-declaration} may appear
 anywhere within scope of the initial non-expansion {\em type-declaration},
 but must have a {\em type-name} that references the same module
 as what they are expanding (they need not use the same
 {\em module-abbreviation} to do so).
+
 Sub-declarations of any {\em type-declaration} have the scope of
 {\em type-declaration} in which they appear, and if they appear in
 an expansion, their scope is that of the expansion and not
@@ -5775,8 +5783,8 @@ the {\em type-declaration} being expanded.
 
 A {\em module-abbreviation} that makes a {\em declaration} external
 must abbreviate the module in which the {\em declaration} occurs,
-with the exception of expansions of
-{\tt *EXTERNAL*} {\em type-declar\-ations}\pagnote{*EXTERNAL*}
+with the exception of expansions of {\em type-declar\-ations}
+that end with the {\tt *EXTERNAL*} sub-declaration\pagnote{*EXTERNAL*}
 and companions of deferred
 {\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
 
@@ -5788,6 +5796,14 @@ and the declaration with the smaller scope is said to
 `\key{hide}'\label{HIDE} the other declaration.
 Hiding of this kind is a compile error.
 
+If two {\em type-declarations} have overlapping scope, the one
+with the larger scope must end with {\tt ***} or {\tt *EXTERNAL*},
+in which case the {\em type-declaration} with the smaller scope
+is an expansion of the other.   If the declaration with larger
+scope does not end with {\tt ***} or {\tt *EXTERNAL*}, it is
+hidden by the declaration with smaller scope, and this too is
+a compile error.
+
 A {\em next-variable-declaration} is allowed
 within the scope of a previous {\em result-variable-de\-clar\-a\-tion}
 or {\em next-variable-declaration} of the same {\em variable-name}
@@ -5797,15 +5813,11 @@ the same syntax as a {\em reference-expression}, and its use
 as an implicitly {\tt *WRITE-ONLY*} {\em reference-expression}
 is allowed within smaller blocks.
 
-{\em Type-declarations} cannot hide each other; instead any second
-declaration must be an expansion of
-the first.\pagnote{TYPE-DECLARATION-APPEND}
-
 Prototypes \underline{cannot} hide each other.  If the
 current scope contains two declarations whose prototypes
 both match a call, the call is ambiguous and in error,
 even if the scope of one declaration is within
-a subblock of the scope of the other.
+the scope of the other.
 
 {\em Statement-labels}, that is {\em block-labels},
 {\em exit-labels}, and {\em loop-labels}, have as their scope
@@ -5823,6 +5835,15 @@ Also the context in which any {\em default-value} expression
 provided by a {\em function-declaration} is compiled\label{DEFAULT-CONTEXT}
 is the \underline{not} the current context but
 rather the context of that {\em function-declaration}.
+
+Similarly when a {\em reference-call} to a reference function is expanded,
+the context of the compilation is \underline{not} the current context but
+rather the context of the inline {\em reference-function-declaration}
+that provided the {\em statements} executed by the call.
+Also the context in which any {\em default-value} expression
+provided by a {\em reference-function-declaration}
+is compiled is the \underline{not} the current context but
+rather the context of that {\em reference-function-declaration}.
 
 Code produced by inclusions during {\em statement} compilation
 is compiled in the context immediately following
@@ -5874,6 +5895,11 @@ are equivalent if no {\em function-prototype}
 \end{center}
 is in scope, where $ma$ is a module abbreviation for a module
 other than `{\tt my\_own\_module}'.
+
+\subsection{Lifetimes}
+\label{LIFETIMES}
+
+TBD
 
 \subsection{Memory Management}
 \label{MEMORY-MANAGEMENT}
