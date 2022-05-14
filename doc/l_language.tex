@@ -4601,14 +4601,14 @@ a function prototype	& the subexpression is a function call that
 			  matches the function prototype and only
 			  that prototype
 \\[1ex]
-*FAIL*			& the subexpression is a function call that
+\ttkey{*FAIL*}		& the subexpression is a function call that
                           matches zero or more than one function
 			  prototypes
 \\[1ex]
-*EXACT*			& the subexpression is a reference expression
+\ttkey{*EXACT*}		& the subexpression is a reference expression
 			  whose type is exactly the target-type
 \\[1ex]
-*CONST*			& the subexpression is a constant and the
+\ttkey{*CONST*}		& the subexpression is a constant and the
 			  target-type is {\tt const}
 
 \end{tabular}
@@ -5899,7 +5899,27 @@ other than `{\tt my\_own\_module}'.
 \subsection{Lifetimes}
 \label{LIFETIMES}
 
-TBD
+The \key{lifetime} of a value stored in memory is the time from
+when the memory is allocated to the value and the time the memory
+is deallocated.  There are three possible lifetimes for a value:
+\begin{center}
+\begin{tabular}{lp{4.0in}}
+\ttkey{*GLOBAL*}	& the lifetime starts when the program
+                          starts and stops when the program terminates
+\\[1ex]
+\ttkey{*LOCAL*}		& the lifetime starts when a statement declaring
+                          the value executes and stops when the block
+			  containing the statement terminates
+\\[1ex]
+\ttkey{*HEAP*}		& the lifetime starts when the value is allocated
+                          to heap memory (i.e., garbage collectible
+			  memory), and stops when the value can no longer
+			  be referenced by following a chain of pointer values
+			  whose first value has {\tt *GLOBAL*} lifetime
+			  or has a {\tt *LOCAL*} lifetime that has not
+			  yet terminated
+\end{tabular}
+\end{center}
 
 \subsection{Memory Management}
 \label{MEMORY-MANAGEMENT}
