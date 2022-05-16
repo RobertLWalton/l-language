@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 15, 2022
+May 16, 2022
 
 \bigskip
  
@@ -3773,11 +3773,12 @@ type list element:
 
 // Make circular list.
 //
-list element @Y = *DEFERRED*
-list element @X:                // `=@ local' is implied
+list element @Y =@ local = *DEFERRED*
+     // `=@ local' NOT implied (could be deferred)
+list element @X:     // `=@ local' is implied
     X.value = 1
     X.@after = @Y
-list element @Y:                // `=@ local' is implied
+list element @Y:
     Y.value = 2
     Y.@after = @X
 //
@@ -5962,6 +5963,24 @@ Then the lifetime rules involving {\tt *LOCAL*} are:
 		  if $0<d1\leq d2$.
 \end{tabular}
 \end{indpar}
+
+This says that the value $v1$ pointed at must have a lifetime at least
+as long as the lifetime of the value $v2$ where the pointer to $v1$
+is stored.
+
+An example is:
+\begin{indpar}\begin{verbatim}
+type list element:
+    ap list element @after
+
+// Make circular list.  X and Y have depth 1.
+//
+list element @Y =@ local = *DEFERRED*
+list element @X:
+    X.@after = @Y
+list element @Y:
+    Y.@after = @X
+\end{verbatim}\end{indpar}
 
 \subsection{Memory Management}
 \label{MEMORY-MANAGEMENT}
