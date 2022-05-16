@@ -2076,12 +2076,12 @@ L-Language uses several kinds of names:
     \TT{Q}~{\em qualifier-wild-card-flag}\STAR{}~ \TT{\$}
 
 \emkey{qualifier-wild-card-flag}\label{QUALIFIER-WILD-FLAG} :::= one of: \\
-\hspace*{0.2in}\begin{tabular}{rp{4in}}
+\hspace*{0.2in}\begin{tabular}{rll}
 \ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
 \ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
-\ttkey{L} & requires \TT{*LOCAL*} \\
-\ttkey{G} & requires \TT{*GLOBAL*} \\
-\ttkey{H} & requires \TT{*HEAP*} \\
+\ttkey{L} & allows \TT{*LOCAL*}  & (see rule \ref{Q-FLAG-RULE} below )\\
+\ttkey{G} & allows \TT{*GLOBAL*} & (see rule \ref{Q-FLAG-RULE} below )\\
+\ttkey{H} & allows \TT{*HEAP*}   & (see rule \ref{Q-FLAG-RULE} below )\\
 \end{tabular}
 
 
@@ -2104,6 +2104,12 @@ or contain {\em function-keywords}.
 should not contain {\em qualifier-names}, with the
 exception that a {\em qualifier-name} by itself can be
 a {\em function-term}.
+\item\label{Q-FLAG-RULE}
+If any of {\tt L}, {\tt G}, or {\tt H} are
+used as a {\em qualifier-wild-card-flags}, those \underline{not} used
+indicate that their corresponding lifetime types are not allowed.
+If none of {\tt L}, {\tt G}, or {\tt H} are used,
+all lifetime types are allowed (as if {\tt LGH} has been used).
 \end{enumerate}
 \end{indpar}
 
@@ -3773,8 +3779,7 @@ type list element:
 
 // Make circular list.
 //
-list element @Y =@ local = *DEFERRED*
-     // `=@ local' NOT implied (could be deferred)
+list element @Y      // `=@ local = *DEFERRED*' is implied
 list element @X:     // `=@ local' is implied
     X.value = 1
     X.@after = @Y
@@ -5975,8 +5980,8 @@ type list element:
 
 // Make circular list.  X and Y have depth 1.
 //
-list element @Y =@ local = *DEFERRED*
-list element @X:
+list element @Y      // `=@ local = *DEFERRED*' is implied
+list element @X:     // `=@ local' is implied
     X.@after = @Y
 list element @Y:
     Y.@after = @X
