@@ -5965,7 +5965,7 @@ Then the lifetime rules involving {\tt *LOCAL*} are:
                   and lifetime depth $d1$
                   can be stored in a value $v2$ of lifetime type {\tt *LOCAL*}
 		  and lifetime depth $d2$
-		  if $0<d1\leq d2$.
+		  if $0\leq d1\leq d2$ and $0<d2$.
 \end{tabular}
 \end{indpar}
 
@@ -7089,7 +7089,37 @@ bool std false = 0
 
 See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 
+\subsubsection{Qualifier Implicit Conversions}
+\label{QUALIFIER-IMPLICIT-CONVERSIONS}
+
+Implicit conversions of qualifiers may occur whenever a pointer
+value is copied, unlike other implicit conversions.
+The following are qualifier conversions:
+\begin{indpar}
+\begin{enumerate}
+\item {\tt co} may be replaced by {\tt ro}
+\item {\tt *READ-WRITE*} may be replaced by {\tt ro}
+\item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
+\item {\tt *VOLATILE*} may added
+\item {\tt *ATOMIC*} may added
+\item {\tt *GLOBAL*} may be replaced by {\tt *LOCAL*} with depth {\tt 0}
+
+\item {\tt *HEAP*} may be replaced by {\tt *LOCAL*} with depth
+equal to that of the {\em statement} copying the pointer, provided:
+\begin{enumerate}
+\item the source of the copy is a {\em reference-expression} that
+is nothing but a {\em pointer-variable} (i.e., the source is a stack
+variable, which will itself be {\tt co} even if its target is not)
+\item the other qualifiers on the destination of the copy include
+{\tt co} or {\tt ro}
+\end{enumerate}
+
+\end{enumerate}
+\end{indpar}
+
+
 \subsubsection{Numeric Implicit Conversions}
+\label{NUMERIC-IMPLICIT-CONVERSIONS}
 
 Any value of number type {\tt N1} can be implicitly converted to a value
 of number type {\tt N2} if every value of type {\tt N1} can be
