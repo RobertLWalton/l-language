@@ -6313,8 +6313,10 @@ is evaluated and returned.
 
 \section{Builtin Abbreviations}
 
-{\em Module-abbreviations} are automatically attached to function
-calls, but not to data types.  In order to avoid having to
+{\em Module-abbreviations} are automatically deduced for function
+calls, but not for data types, pointer types, or variables used
+as global constants, such as \TT{true} or \TT{false}.
+In order to avoid having to
 input a {\em module-abbreviation} with every type name, 
 {\em abbreviation-statements} are used (\pagref{ABBREVIATION-STATEMENT}).
 The following are the builtin abbreviations:
@@ -6431,7 +6433,7 @@ a single argument is a string, it must have the format of
 a number or rational constant (rational operator followed
 by quoted string).
 If the argument is a map, it may have the format of
-a number or rational constant in {\tt `~'} quotes, e.g.:
+a number or rational constant in \TT{`~'} quotes, e.g.:
 \begin{indpar}\begin{verbatim}
 `5.5'         { "5.5" }
 `B# "1.1"'    { "B#", { "1.1",
@@ -6445,8 +6447,9 @@ the string it operates on, e.g. {\tt \{ "B\#", "1.1" \} }.
 
 A conversion
 error produces an {\tt UNDEF} result and an error message.
-Note that numbers can always be converted to rationals
-and vice versa (results may be {\tt +Inf} or {\tt -Inf}).
+Note that finite numbers can always be converted to rationals
+and vice versa (conversion to a number may produce {\tt +Inf} or {\tt -Inf},
+but these cannot be converted to rational).
 \end{indpar}
 
 {\tt function const r = std \ttkey{"+"} ( const n1 )} \\
@@ -6515,7 +6518,7 @@ If an argument is a number, return {\tt NaN}s if the divisor is
 zero, an argument is a {\tt NaN}, or both arguments are infinities, but
 do \underline{not} output a compiler error message.  If both
 arguments are rationals and the divisor is zero, return
-{\tt UNDEF}s and output a compiler error message.
+{\tt UNDEF} and output a compiler error message.
 \end{indpar}
 
 {\tt function const r = std} \ttkey{numerator} {\tt ( const r1 )} \\
@@ -6531,7 +6534,7 @@ Both numerator and denominator are integer {\tt rationals}.
 \begin{indpar}
 Return {\tt TRUE} if {\tt v1} is a NaN number ({\tt is nan}),
 is {\tt +Inf} or {\tt -Inf} ({\tt is infinite}), or
-is neither of these ({\tt is finite}), and {\tt FALSE}
+is a number that is neither of these ({\tt is finite}), and {\tt FALSE}
 otherwise.
 \end{indpar}
 
@@ -6554,12 +6557,12 @@ and string {\tt s2}.
 
 {\tt function const r = std} \ttkey{sprintf}
     {\tt ( \begin{tabular}[t]{@{}l}
-            const format, const a1, \\
+            const format, const a1 = "", \\
 	    const a2 = "", const a3 = "", \\
 	    const a4 = "", const a5 = "" )
 	    \end{tabular} }
 \begin{indpar}
-Returns the string make by calling the UNIX {\tt sprintf} function as per: \\
+Returns the string made by calling the UNIX {\tt sprintf} function as per: \\
 \hspace*{1in}{\tt sprintf ( format, a1, a2, a3, a4, a5 )} \\
 where {\tt format} is a string.  Not all of the data arguments
 {\tt a1}, {\tt a2}, {\tt a3}, {\tt a4}, and {\tt a5}
@@ -6735,7 +6738,8 @@ The {\em dictionary-labels} are strings.  The list may be empty.
 \end{indpar}
 
 
-{\tt function const r = std} {\tt ( const m ) [ const s ]}
+{\tt reference function const r = std} {\tt ( const m ) [ const s ]} \\
+{\tt reference function std} {\tt ( const m ) [ const s ] = const v}
 \begin{indpar}
 Here {\tt m} is map and {\tt m[s]} is used to reference a
 vector element or dictionary entry of {\tt m} as follows:
@@ -6755,9 +6759,12 @@ does not exist if {\tt \# m + s < 0}.
 \item If the value of {\tt s} is a string, the dictionary entry
 of {\tt m} with label {\tt s} is referenced.  If this is being read and
 it does not exist, {\tt NONE} is returned.  If it is being written and
-it does not exist, it is created and made read-write.
-Else if it exists and is read-write, its value is changed.
-Else if it exists and is read-only, a compile-time error results.
+it does not exist, and if the map is read-write,
+the entry is created and made read-write.
+Else if the entry exists and is read-write, and the map is read-write,
+the entry value is changed.
+Else if the entry exists and is read-only, or the map is read-only,
+a compile-time error results.
 \item Otherwise if {\tt s} is neither an integer or a string,
 a compile-error results.
 \end{enumerate}
@@ -6796,7 +6803,7 @@ to the map is copied and no new map is made.
 If {\tt i >= 0}, returns a new map consisting of just a vector of the
 elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.  
 If any of these elements do not exist, they are omitted (e.g.,
-if {\tt i >= \# m}, {\tt i + n <= 0}, or {\tt n <= 0},
+if {\tt i >= \# m} or {\tt i + n <= 0} or {\tt n <= 0}
 the empty map is returned).
 
 If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
@@ -6857,7 +6864,8 @@ Returns {\tt NONE} if {\tt m} is empty.
 {\tt function const r = std} \ttkey{pull} {\tt ( const m, const i )}
 \begin{indpar}
 Deletes the last {\tt i} vector elements of {\tt m} and returns a map
-containing them.  If there are fewer than {\tt i} vector elements
+containing them in the same order.
+If there are fewer than {\tt i} vector elements
 in {\tt m}, the returned vector will have only {\tt \# m} elements.
 \end{indpar}
 
@@ -7213,6 +7221,15 @@ in the following cases:
 See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 
 \subsubsection{Numeric Explicit Conversions}
+
+{\tt function F r = std F (N v)}
+\begin{indpar}
+Where {\tt F} is any builtin floating point type
+and {\tt N} is any builtin number type.
+
+Converts {\tt v} to the type {\tt F}.  The result may be
+{\tt +Inf} or {\tt -Inf}, or precision may be lost.
+\end{indpar}
 
 {\tt function I r = std \ttkey{floor} (F v1, F v2 =? 1.0 )} \\
 {\tt function I r = std \ttkey{ceiling} (F v1, F v2 =? 1.0 )} \\
