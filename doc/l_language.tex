@@ -6140,8 +6140,8 @@ written into scavenged bodies by non-GC execution.
 Whenever all objects in new space have been scavenged,
 the GC updates all pointers in the stack, and if this does \underline{not}
 move any bodies to new space, GC is done; otherwise
-GC resumes scavenging.  Heap pointers in the stack are
-may not be updated, and no special action is taken
+GC resumes scavenging.  Heap pointers in the stack need
+not be updated during non-GC execution, and no special action is taken
 when reading a heap pointer from a body.
 
 The advantage of write-oriented over read-oriented is
@@ -6176,10 +6176,10 @@ space is required.  Also deallocated bodies do not
 require the update operation to do extra work.
 
 The simplest marking GC uses stubs that begin with
-a body pointer followed by two list pointers,
+a body pointer followed by two list pointers (for doubly linked lists),
 a marked flag, and a scavenged flag (the flags can generally
-be put in the same words as the list pointers).  The stubs are
-put on two lists: an old space list and a new space
+be put in the same words as the list pointers).  There are two lists
+of stubs: an old space list and a new space
 list.  To move a stub from old space to new space,
 it is unlinked from the old space list and linked
 onto the end of the new space list, and its marked
@@ -6191,7 +6191,7 @@ Otherwise marking GC is just like copying GC.
 A variant has only one list pointer associated with
 the stub and there is just one stub list.  The
 marked and scavenged flags are used as before.
-At the end of GC goes through the list of all stubs
+At its end, GC goes through the list of all stubs
 and frees unmarked stubs along with their bodies.
 However, the list of stubs to be scavenged must
 be maintained separately, typically as a list of
@@ -6207,8 +6207,8 @@ a pointer P in a location.  The required steps are:
 \begin{center}
 \begin{tabular}{rl}
 (1) & save the location's previous value S \\
-(2) & add one to the reference count of the stub pointer at by P \\
-(3) & subtract one from the reference count of the stub pointer at by S; \\
+(2) & add one to the reference count of the stub pointed at by P \\
+(3) & subtract one from the reference count of the stub pointed at by S; \\
     & if that reference count is now zero, collect the stub and its body \\
 (4) & store P in the location
 \end{tabular}
@@ -6258,11 +6258,14 @@ See Assignment Statements\pagnote{ASSIGNMENT-STATEMENTS}.
 \item[infix \TT{\textasciicircum=}] \vspace*{-0.15in}
 \item[infix \TT{<{}<{}=}] \vspace*{-0.15in}
 \item[infix \TT{>{}>{}=}] \vspace*{-0.15in} ~\\
-The statement `{\tt x += y}' is syntactic sugar for `{\tt x = x + y}'.
+The statement `{\tt x += y}' is syntactic sugar for `{\tt next x = x + y}'
+if {\tt x} is a local {\tt co} variable, and for
+`{\tt x += y}' otherwise.
 
 Similarly for the other operators of the form `\TT{$B$=}'
 where $B$ is a binary operator,
-the statement `{\tt x $B$= y}' is syntactic sugar for `{\tt x = x $B$ y}'.
+the statement `{\tt x $B$= y}' is syntactic sugar for
+`{\tt next x = x $B$ y}' or `{\tt x = x $B$ y}'.
 
 \item[infix \TT{-{}-{}-{}>}] ~\\
 See Abbreviation Statements\pagnote{ABBREVIATION-STATEMENT}.
