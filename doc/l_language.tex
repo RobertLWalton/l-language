@@ -7448,7 +7448,8 @@ and {\tt U} is one of:
 	\tt uns  uns64  uns32 \\
 	\end{tabular}
 \\[1ex]
-The version without carries is the standard arithmetic multiply.
+The version without carries is the standard arithmetic multiply
+which truncates results that are outside the range of {\tt I}.
 
 The version with carries is integer multiply of N-bit unsigned
 integers to produce a 2N-bit product to which \underline{both}
@@ -7495,7 +7496,7 @@ Where {\tt I} is one of:
 	\tt uns  uns128 uns64  uns32  uns16 uns8 bool \\
 	\end{tabular}
 \\[1ex]
-Standard bitwise operators, not ({\tt \textasciitilde}),
+Standard bitwise operators, complement ({\tt \textasciitilde}),
 and ({\tt \&}), or ({\tt |}), and exclusive or ({\tt \textasciicircum}),
 on integers {\tt v1} and {\tt v2}
 that are treated as two's complement if signed.
