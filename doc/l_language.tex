@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 18, 2022
+May 19, 2022
 
 \bigskip
  
@@ -7236,7 +7236,7 @@ Converts {\tt v} to the type {\tt F}.  The result may be
 {\tt function I r = std \ttkey{truncate} (F v1, F v2 =? 1.0 )} \\
 {\tt function I r = std \ttkey{round} (F v1, F v2 =? 1.0 )}
 \begin{indpar}
-Where {\tt I} is any builtin integer type
+Where {\tt I} is any builtin \underline{signed} integer type
 and {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 
 These divide {\tt v1} by {\tt v2} and return {\tt r} as the
@@ -7247,10 +7247,10 @@ zero, and {\tt round} rounds to the nearest integer, or to the
 even integer if there are two nearest integers.
 
 The floating point flags set are those set by division (see above), plus the
-inexact flag may be set if the division quotient is not a integer.
-
-If the division quotient is outside the range storable in {\tt I},
-the result is undefined and may cause program termination.
+inexact flag may be set if the division quotient is not a integer, plus
+the invalid flag is set if the result is outside the range storable in
+{\tt I}.  In the last case, and the result is
+an indefinite integer.\pagnote{INDEFINITE-INTEGER}
 \end{indpar}
 
 {\tt function I1 r = std \ttkey{*UNCHECKED*} ( I2 v )}
@@ -7378,7 +7378,7 @@ and returns {\tt 0} otherwise.
 type~std~\ttkey{FP flags}: \\
 \begin{tabular}[t]{@{~~~~~}l}
 \tt uns flags \\
-\tt [\ldots] bool invalid \\
+\tt [\ldots] bool invalid operand(s) (for a given operation) \\
 \tt [\ldots] bool divide by zero \\
 \tt [\ldots] bool overflow \\
 \tt [\ldots] bool underflow \\
@@ -7532,6 +7532,19 @@ Where {\tt I} is one of:
 	\end{tabular}
 \\[1ex]
 Standard comparison operators on integers {\tt v1} and {\tt v2}.
+\end{indpar}
+
+{\tt function I r = std indefinite integer}%
+\label{INDEFINITE-INTEGER}
+\begin{indpar}
+Where {\tt I} is any \underline{signed} integer type.
+\\[1ex]
+This function returns the value that is returned when
+some operations, e.g. {\tt round},
+cannot return a correct integer value.%
+\footnote{See documentation of the intel IA-64 FIST instruction.}
+
+The value is typically $-2^{S-1}$ where $S$ is the size of {\tt I} in bits.
 \end{indpar}
 	
 
