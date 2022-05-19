@@ -4059,15 +4059,17 @@ function std data for ap r = std pointer to data ( ap Q$1 T$1 @ptr )
 
 // This function enables implicit conversion of `dp ...' to
 // `ap ...', where the latter has the constant 0 for a base
-// and the dp value for its offset.
+// and the dp value for its offset, provided the target is
+// *GLOBAL*.
 // 
-dp *GLOBAL* int std @zero    // value zero is initialized to 0	
-function std data for ap r = std *POINTER* *IMPLICIT* *CONVERSION*
-        ( std data for dp d ):
+dp *GLOBAL* int std @zero    // value zero is initialized to 0
+function std ap QG$1 t$1 @r = std *POINTER* *IMPLICIT* *CONVERSION*
+        ( std dp QG$1 T$1 @p ):
+    std data for dp d = std pointer to data ( dp QG$1 T$1 @p )
     std data for ap dap:
         dap.@base  = std @zero
         dap.offset = d.address
-    r = dap
+    @r = *UNCHECKED* ( dap )
 
 // This function enables *UNCHECKED* conversion of `ap ...' to
 // `dp ...' where the latter is the sum of the base and offset
@@ -4226,7 +4228,7 @@ function $P2$ Q\$1 T\$1 @r = {\em ma}\QMARK{} \TT{*UNCHECKED*}
 \end{indpar}
 
 The example at the beginning of this section contains
-all three kinds of {\tt *POINTER* \ldots{} *CONVERSION*} functions.
+examples of {\tt *POINTER* \ldots{}~*CON\-VER\-SION*} functions.
 
 In the above function prototypes you can use different wildcard names,
 e.g, {\tt T\$XXX} instead of {\tt T\$1}.  You can also
