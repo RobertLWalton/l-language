@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-May 19, 2022
+July 26, 2022
 
 \bigskip
  
@@ -222,7 +222,7 @@ The following is another example:
 av *READ-WRITE* uns8 @bp =@ local[81]
 av uns8 @cp = "Hello!"
 int i = 0
-while ( i < @cp.upper ):
+while i < @cp.upper:
     bp[i] = cp[i]
     next i = i + 1
 bp[cp.upper] = 0

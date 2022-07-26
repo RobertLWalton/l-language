@@ -2,7 +2,7 @@
 //
 // File:	l_language_snippet_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 12 18:53:34 EST 2020
+// Date:	Tue Jul 26 15:54:22 EDT 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -12,15 +12,15 @@
     trace [+ parser output]
     trace [+ subexpression lines]
     trace [+ subexpression elements]
-    trace [+ bracketed subexpressions]
-    trace [+ operator subexpressions]
+    // trace [+ bracketed subexpressions]
+    // trace [+ operator subexpressions]
 
 int X = Y - C#"0"
 
 av *READ-WRITE* uns8 @bp =@ local[81]
 av uns8 @cp = "Hello!"
 int i = 0
-while (i < @cp.upper):
+while i < @cp.upper:
     bp[i] = cp[i]
     next i = i + 1
 bp[cp.upper] = 0
