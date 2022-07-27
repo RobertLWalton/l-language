@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Nov 30 19:23:31 EST 2021
+// Date:	Wed Jul 27 15:10:31 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -19,11 +19,13 @@
 
 # include <l_language.h>
 # include <ll_parser_oper.h>
+# include <ll_parser_standard.h>
 # define LLANG l_language
 # define LLEX l_language::lexeme
 # define PAR ll::parser
 # define TAB ll::parser::table
 # define OP ll::parser::oper
+# define PARSTD ll::parser::standard
 
 
 // L-Language Parser
@@ -40,14 +42,26 @@ static void initialize ( void )
 }
 static min::initializer initializer ( ::initialize );
 
-void LLANG::init_parser ( PAR::parser parser )
+void LLANG::init_parser ( min::ref<PAR::parser> parser )
 {
+    PAR::init ( parser, 0 );
+    PARSTD::init_input ( parser );
+
     min::gen result =
         PAR::begin_block
 	    ( parser, LLEX::l_language,
 	      PAR::top_level_position );
 
     MIN_REQUIRE ( result == min::SUCCESS() );
+
+    PARSTD::define_standard
+        ( parser,
+	  PARSTD::CODE +
+	  PARSTD::TOP_LEVEL +
+	  PARSTD::CONCATENATOR +
+	  PARSTD::BRACKETS +
+	  PARSTD::INDENTATION_MARKS +
+	  PARSTD::ALL_OPERATORS );
 
     min::uns32 block_level =
         PAR::block_level ( parser );

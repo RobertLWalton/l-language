@@ -2,7 +2,7 @@
 //
 // File:	l_language.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Dec 19 06:28:20 EST 2020
+// Date:	Wed Jul 27 15:12:45 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,7 +22,7 @@ namespace l_language
 	    equal_at;
     }
     void init_parser
-        ( ll::parser::parser parser );
+        ( min::ref<ll::parser::parser> parser );
 }
 
 # endif // L_LANGUAGE_H
