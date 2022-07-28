@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-July 26, 2022
+July 28, 2022
 
 \bigskip
  
@@ -506,7 +506,7 @@ type my type:
 type your type:
     *INCLUDE* my type // Copy sub-declarations of my type
     *ORIGIN* *SIZE*   // *SIZE* is max origin seen so far.
-    dp uns8 name      // Direct pointer to name
+    av uns8 @name     // Aligned vector pointer to name
                       // character string
 
 . . . . . . . . . . . .
@@ -521,7 +521,7 @@ your type Y:
     Y.kind = BEER
     Y.weight = 0.45
     Y.volume = 48
-    Y.name = "John Doe's Lager"
+    Y.@name = "John Doe's Lager"
 \end{verbatim}\end{indpar}
 
 Here {\tt my type} and {\tt your type} are defined by
@@ -658,7 +658,7 @@ int z = 1e100               // illegal; int is target type of 1e100
                             // which is too large to fit
 flt r1 = x                  // implicit conversion is legal as x is a
                             // variable name and not a function call
-int r2 = 5 + max ( x, y )   // int is target type of 5, max, x, y
+int r2 = 5 + max ( x, y )   // int is target type of +, 5, max, x, y
 int r3 = max ( y, w )       // illegal; int is target type of w and
                             // flt cannot implicitly convert to int
 int r4 = max ( x, 123 )     // int is target type of max, x, 123
@@ -805,13 +805,6 @@ Typing is mostly done top-down using target types, but reference
 expressions get types bottom up from the variable explicitly named
 in the reference expression.
 
-is {\tt const}, which can be a wildcard type in a function
-definition if and only if all type wildcards in the function definition
-are assigned the value {\tt const} and doing so makes
-all types in the function definition be {\tt const}
-(except for types that are not used as types, but are used as
-{\tt const} values, as in `{\tt int..size}').
-
 Pointer types can be wildcards which must have names that are
 single words beginning with {\tt P\$}.  A list of qualifiers
 can also be a wild card named by a single word beginning with
@@ -832,8 +825,8 @@ from other pointer types, though this cannot be done for some pointer types
 
 L-Language does not necessarily make any use of registers, other
 than as temporaries during the execution of a single statement,
-and a pair of registers that hold the current function
-execution frame address and current module data address.
+and registers that hold the current function
+execution frame address, current module data address, and stack pointer.
 However, registers can be used to cache data that exists in
 RAM memory, or that should exist in RAM memory but does not
 due to optimization.  We call such registers
