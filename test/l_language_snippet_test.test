@@ -1,0 +1,40 @@
+*PARSER*:
+    trace [+ parser output]
+    trace [+ subexpression lines]
+    trace [+ subexpression elements]
+BRACKETED EXPRESSION:
+    {|int X|} = {|{|Y|} - {|C# "0"|}|}
+    line ##:
+int X = Y - C#"0"
+^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|av *READ-WRITE* uns8 @bp|} =@ {|local [81]|}
+    line ##:
+av *READ-WRITE* uns8 @bp =@ local[81]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|av uns8 @cp|} = {|"Hello!"|}
+    line ##:
+av uns8 @cp = "Hello!"
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|int i|} = {|0|}
+    line ##:
+int i = 0
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|while {|{|i|} < {|@cp.upper|}|}|}:
+        {|bp [i]|} = {|cp [i]|}
+        {|next i|} = {|{|i|} + {|1|}|}
+    lines ##-##:
+while i < @cp.upper:
+^^^^^^^^^^^^^^^^^^^^
+    bp[i] = cp[i]
+^^^^^^^^^^^^^^^^^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|bp [cp.upper]|} = {|0|}
+    line ##:
+bp[cp.upper] = 0
+^^^^^^^^^^^^^^^^

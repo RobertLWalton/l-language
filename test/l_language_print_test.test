@@ -1,0 +1,301 @@
+*PARSER*:
+    print selector ""
+        block l-language: code
+        block TOP LEVEL: atom
+        block TOP LEVEL: data
+        block TOP LEVEL: LINE LEVEL
+        block TOP LEVEL: TOP LEVEL
+    print pass
+        top
+        operator [code]
+    print top level
+        block l-language:  selectors [code]
+                           options [end at le indent,
+                                    enable indented paragraph]
+        block TOP LEVEL:  selectors []
+                          options [end at le indent,
+                                   end at line separator,
+                                   end at outer closing,
+                                   enable indented paragraph,
+                                   enable header]
+    print trace
+        [ + warnings, - parser input, - parser output,
+          + parser commands, - subexpression elements,
+          - subexpression details, - subexpression lines, - keys,
+          - bracketed subexpressions, - operator subexpressions ]
+    print ID
+        block l-language: ID character disabled
+        block TOP LEVEL: ID character disabled
+    print mapped lexeme ""
+        nothing found
+    print middle break
+        block l-language: "#" ... "#"
+        block TOP LEVEL: disabled
+    print quoted string concatenator
+        block l-language: "#"
+        block TOP LEVEL: disabled
+    print bracket ""
+        block TOP LEVEL: bracket "``" ... "''" [data]
+        block l-language: bracket [< "[" "<" >] ... [< ">" "]" >] [code]
+                          with parsing selectors [atom]
+                          with label reformatter
+        block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
+                         [data, atom]
+                         with parsing selectors [atom]
+                         with label reformatter
+        block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
+                         with multivalue reformatter ( "," )
+        block l-language: bracket "(" ... ")" [code]
+        block TOP LEVEL: bracket "(" ... ")" [data]
+        block l-language: bracket "[" ... "]" [code]
+        block TOP LEVEL: bracket "[" ... "]" [data]
+        block l-language: bracket "`" ... "'" [code]
+                          with parsing selectors [atom]
+        block TOP LEVEL: bracket "`" ... "'" [data]
+                         with parsing selectors [atom]
+        block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
+        block l-language: bracket [< "[" "$" >] ... [< "$" "]" >] [code]
+                          with parsing selectors [atom]
+                          with special reformatter
+        block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
+                         [data, atom]
+                         with parsing selectors [atom]
+                         with special reformatter
+    print indentation mark ""
+        block l-language: indentation mark ":" [code]
+        block TOP LEVEL: indentation mark [< "*PARSER*" "*TEST*" ":" >] ... ";"
+                         [TOP LEVEL]
+        block TOP LEVEL: indentation mark [< "*PARSER*" ":" >] ... ";"
+                         [TOP LEVEL]
+                         with parsing selectors [data]
+        block l-language: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                          with parsing selectors [code]
+                          with parsing options [end at le indent,
+                                                enable indented paragraph]
+        block TOP LEVEL: indentation mark [< "*TOP*" "*LEVEL*" >] []
+                         with parsing selectors []
+                         with parsing options [end at le indent,
+                                               end at line separator,
+                                               end at outer closing,
+                                               enable indented paragraph,
+                                               enable header]
+    print indentation offset
+        block l-language: 2
+        block TOP LEVEL: 2
+    print typed bracket ""
+        block l-language: typed bracket "{" ... "|" ... "|" ... "}"
+                          // "||" is also allowed.
+                          [code]
+                          with attribute selectors [data]
+                          with attributes ":" ... "=" ... ","
+                          with attribute negator "no"
+                          with attribute flags initiator "["
+                          with attribute multivalue initiator [< "{" "*" >]
+        block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
+                         // "||" is also allowed.
+                         [data]
+                         with attribute selectors [data]
+                         with attributes ":" ... "=" ... ","
+                         with attribute negator "no"
+                         with attribute flags initiator "["
+                         with attribute multivalue initiator [< "{" "*" >]
+                         with prefix selectors []
+    print bracket type ""
+        nothing found
+    print operator ""
+        block l-language: operator "&" [code]
+                          infix
+                          with precedence 13000
+                          with infix reformatter ( "&" )
+        block l-language: operator "*" [code]
+                          infix
+                          with precedence 13200
+                          with infix reformatter ( "*" )
+        block l-language: operator "+" [code]
+                          prefix
+                          with precedence 999999
+                          with unary reformatter
+        block l-language: operator "+" [code]
+                          infix
+                          with precedence 13000
+                          with infix reformatter ( "+", "-" )
+        block l-language: operator "," [code]
+                          nofix
+                          with precedence 2000
+                          with separator reformatter
+        block l-language: operator "-" [code]
+                          prefix
+                          with precedence 999999
+                          with unary reformatter
+        block l-language: operator "-" [code]
+                          infix
+                          with precedence 13000
+                          with infix reformatter ( "+", "-" )
+        block l-language: operator "/" [code]
+                          infix
+                          with precedence 13100
+                          with binary reformatter
+        block l-language: operator ":" [code]
+                          right afix line
+                          with precedence 0
+        block l-language: operator "<" [code]
+                          infix
+                          with precedence 12000
+                          with infix reformatter
+        block l-language: operator "=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator ">" [code]
+                          infix
+                          with precedence 12000
+                          with infix reformatter
+        block l-language: operator "!=" [code]
+                          infix
+                          with precedence 12000
+                          with infix reformatter
+        block l-language: operator "^" [code]
+                          infix
+                          with precedence 13000
+                          with infix reformatter ( "^" )
+        block l-language: operator "|" [code]
+                          infix
+                          with precedence 13000
+                          with infix reformatter ( "|" )
+        block l-language: operator "~" [code]
+                          prefix
+                          with precedence 999999
+                          with unary reformatter
+        block l-language: operator ">>=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator "do" [code]
+                          prefix line
+                          with precedence 3000
+                          with unary reformatter
+        block l-language: operator "NOT" [code]
+                          prefix
+                          with precedence 11200
+                          with unary reformatter
+        block l-language: operator [< "else" "if" >] [code]
+                          prefix line
+                          with precedence 0
+                          with control reformatter ( ":",
+                          [< "has" "condition" >] )
+        block l-language: operator "<<=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator "&=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator "while" [code]
+                          prefix line
+                          with precedence 3000
+                          with unary reformatter
+        block l-language: operator [< "BUT" "NOT" >] [code]
+                          infix
+                          with precedence 11000
+                          with binary reformatter
+        block l-language: operator "times" [code]
+                          nofix afix line
+                          with precedence 3000
+        block l-language: operator "if" [code]
+                          infix
+                          with precedence 10000
+                          with selector reformatter ( "if", "else" )
+        block l-language: operator "if" [code]
+                          prefix line
+                          with precedence 0
+                          with control reformatter ( ":",
+                          [< "has" "condition" >] )
+        block l-language: operator "until" [code]
+                          prefix line
+                          with precedence 3000
+                          with unary reformatter
+        block l-language: operator "else" [code]
+                          infix afix
+                          with precedence 10000
+        block l-language: operator "else" [code]
+                          initial line
+                          with precedence 0
+                          with control reformatter ( ":" )
+        block l-language: operator "**" [code]
+                          infix
+                          with precedence 13300
+                          with binary reformatter
+        block l-language: operator "*=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator "|=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator [< "at" "most" >] [code]
+                          prefix line
+                          with precedence 3000
+                          with iteration reformatter ( "times" )
+        block l-language: operator "+=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator "<<" [code]
+                          infix
+                          with precedence 13000
+                          with binary reformatter
+        block l-language: operator "<=" [code]
+                          infix
+                          with precedence 12000
+                          with infix reformatter
+        block l-language: operator "AND" [code]
+                          infix
+                          with precedence 11100
+                          with infix reformatter ( "AND" )
+        block l-language: operator "repeat" [code]
+                          prefix line
+                          with precedence 3000
+                          with iteration reformatter ( "times" )
+        block l-language: operator "==" [code]
+                          infix
+                          with precedence 12000
+                          with infix reformatter
+        block l-language: operator "=@" [code]
+                          infix
+                          with precedence 9010
+                          with binary reformatter
+        block l-language: operator "-=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator "^=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: operator ">=" [code]
+                          infix
+                          with precedence 12000
+                          with infix reformatter
+        block l-language: operator ">>" [code]
+                          infix
+                          with precedence 13000
+                          with binary reformatter
+        block l-language: operator "OR" [code]
+                          infix
+                          with precedence 11100
+                          with infix reformatter ( "OR" )
+        block l-language: operator "/=" [code]
+                          infix line
+                          with precedence 1000
+                          with binary reformatter
+        block l-language: bracket ":" [code]
+                          postfix line
+                          with precedence 1000
+        block l-language: bracket ":" [code]
+                          nofix afix line
+                          with precedence 1000
+        block l-language: bracket ":" [code]
+                          postfix afix line
+                          with precedence 0
