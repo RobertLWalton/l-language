@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Thu Jul 28 13:16:40 EDT 2022
+// Date:	Fri Jul 29 17:00:33 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -67,15 +67,19 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
 
     min::locatable_gen code_name
         ( min::new_str_gen ( "code" ) );
-    min::locatable_gen math_name
-        ( min::new_str_gen ( "math" ) );
 
     TAB::flags code =
         1ull << TAB::find_name
             ( parser->selector_name_table, code_name );
-    TAB::flags math =
-        1ull << TAB::find_name
-            ( parser->selector_name_table, math_name );
+
+    PAR::set_selectors
+        ( code +
+	  PAR::EIPARAGRAPH_OPT +
+	  PAR::EALEINDENT_OPT,
+	  parser );
+
+    PAR::set_line_separator
+        ( min::MISSING(), parser );
 
     min::uns32 block_level =
         PAR::block_level ( parser );
@@ -87,9 +91,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
         ( PARLEX::colon, min::MISSING(),
 	  code,
 	  block_level, PAR::top_level_position,
-	  TAB::new_flags ( PAR::DEFAULT_EA_OPT,
-	                     PAR::ALL_EA_OPT
-			   - PAR::DEFAULT_EA_OPT ),
+	  TAB::new_flags ( 0, 0, 0 ),
 	  min::MISSING(),
 	  PAR::MISSING_MASTER,
 	  PAR::MISSING_MASTER,
@@ -112,7 +114,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
     OP::push_oper
         ( LLEX::equal_at,
           min::MISSING(),
-          code + math,
+          code,
           block_level, PAR::top_level_position,
           OP::INFIX,
           9010,
