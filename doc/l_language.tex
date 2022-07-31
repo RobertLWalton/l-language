@@ -6922,6 +6922,8 @@ the current context.
 
 The compiler defined attributes of a type map are:
 
+{\tt \ttkey{.type} => "type"}
+
 \ttkey{.name}
 \begin{indpar}
 The name of the type as a name string.
@@ -6974,6 +6976,8 @@ compilation.
 Each field of a type has a {\tt const} map value called
 a \key{field map} which is in the {\tt .fields} dictionary of
 a type map.  The compiler defined attributes of a field map are:
+
+{\tt \ttkey{.type} => "field"}
 
 \ttkey{.name}
 \begin{indpar}
@@ -7036,6 +7040,8 @@ Each subfield of a field has a {\tt const} map value called
 a \key{subfield map} which is in the {\tt .subfields} dictionary of
 a field map.  The compiler defined attributes of a subfield map are:
 
+{\tt \ttkey{.type} => "subfield"}
+
 \ttkey{.name}
 \begin{indpar}
 The name of the subfield ({\em target-label})
@@ -7079,6 +7085,8 @@ the current context.
 \end{indpar}
 
 The compiler defined attributes of a pointer type map are:
+
+{\tt \ttkey{.type} => "pointer type"}
 
 \ttkey{.name}
 \begin{indpar}
