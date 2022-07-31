@@ -1334,14 +1334,17 @@ For example, this applies to {\tt 1e20} or {\tt 1.1}.
 
 In contrast, a {\em numeric}, like {\tt 02/28/2022},
 represents a character string and in this
-is like a {\em word}.
+is like a {\em word}.  The lexeme {\tt 2/3} is also a {\em numeric}
+and is \underline{not} used to represent a number; instead
+the lexeme pair {\tt D\# "2/3"} is used to represent a rational
+number constant (value of {\tt const} type).
 
 \subsection{Logical Lines, Blocks, and Statements}
 \label{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}
 
 Each non-blank physical line begins with an {\em indent} lexeme
 that is followed by a
-lexeme that is not an {\em indent}, {\em line-break}, or
+lexeme that cannot be an {\em indent}, {\em line-break}, or
 {\em end-of-file}.
 
 Lexemes are organized into \skey{logical line}s.  A logical line
