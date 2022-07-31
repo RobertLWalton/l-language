@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-July 28, 2022
+July 31, 2022
 
 \bigskip
  
@@ -5629,9 +5629,10 @@ Operators that are separators, such as `\TT{,}', are not included as elements
 of a list, but become a \ttkey{.separator} annotation of the list.
 
 Quoted strings become a list with the string as a single element
-and {\tt .initiator} and {\tt .terminator} annotations that are
-both {\tt "<Q>"} (recall that {\tt <Q>} in a quoted string represents
-the double quote {\tt "}).
+and a {\tt .type} annotation equal to {\tt "<Q>"}
+(recall that {\tt <Q>} in a quoted string represents the double quote {\tt "}).
+Thus the lexeme {\tt "Hello"} becomes: \\
+\centerline{\tt \{ "Hello", ".type" => "<Q>" \} }
 
 Operator operands become lists in parser output;
 for example, the statement `{\tt X = Y}' outputs
@@ -5673,8 +5674,7 @@ Parser Output:
       "=",
       { { "B" }, { "A", 1 }, ".separator" => "," },
       ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>" },
-    { { "const", "P" }, "=",
-      { "HOHO", ".initiator" => "<Q>", ".terminator" => "<Q>" },
+    { { "const", "P" }, "=", { "HOHO", ".type" => "<Q>" },
       ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>" },
     { { "const", "Q" }, "=",
       { { 5 }, "+", { "P" } },
@@ -6431,9 +6431,7 @@ If the argument is a map, it may have the format of
 a number or rational constant in \TT{`~'} quotes, e.g.:
 \begin{indpar}\begin{verbatim}
 `5.5'         { "5.5" }
-`B# "1.1"'    { "B#", { "1.1",
-                        ".initiator" => "<Q>",
-                        ".terminator" => "<Q>" } }
+`B# "1.1"'    { "B#", { "1.1", ".type" => "<Q>" } }
 \end{verbatim}\end{indpar}
 
 or it may be a list of two strings, the first element
@@ -6645,8 +6643,7 @@ operators are not specially recognized and are returned
 as strings.  Quoted strings inside {\tt s} are returned
 as vector elements that are maps of the form: \\
 \hspace*{0.2in}{ \tt \{~{\rm \em represented-string},
-	         ".initiator" => "<Q>",
-	         ".terminator" => "<Q>" \}}
+	         ".type" => "<Q>" \}}
 
 Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
