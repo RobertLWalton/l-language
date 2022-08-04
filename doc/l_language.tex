@@ -1491,8 +1491,9 @@ and primaries, such as variable names and function calls.
 
 Operators are characterized by fixity, precedence, and format.
 The L-Language operators are listed in
-Figures~\itemref{L-LANGUAGE-LINE-OPERATORS}
-and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS}.
+Figures~\itemref{L-LANGUAGE-LINE-OPERATORS},
+~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-1},
+and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-2}.
 
 
 Given this, expressions have the following syntax,
@@ -1568,7 +1569,8 @@ All of these but {\tt initial} and {\tt prefix} can be combined with {\tt afix}.
 \begin{boxedfigure}[!t]
 \begin{center}
 Line Level Operators \\
-Must Occur Outside Parentheses and Brackets
+Must Occur Outside Parentheses and Brackets \\
+At Top Level or Inside \{* \ldots{} *\}
 \\[1ex]
 \begin{tabular}{|l|l|l|l|r|}
 \hline
@@ -1577,10 +1579,6 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{if} & conditional & prefix & conditional & 0000
 \\\cline{1-1}
 \ttkey{else if} & & & &
-\\\cline{1-2}
-\ttkey{while} & loop & & &
-\\\cline{1-1}
-\ttkey{until} & & & &
 \\\cline{1-4}
 \ttkey{else} & terminating & initial & terminating & \\
              & conditional & & conditional &
@@ -1591,6 +1589,9 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \key{subblock} & conditional & afix & & \\
                & or declaration &      & & \\
                & completion &      & &
+\\\cline{2-4}
+	       & assignment & postfix & postfix & \\
+	       & or loop    &         &         &
 \\\cline{1-4}
 \ttkey{type} & declaration & prefix & declaration &
 \\\cline{1-1}
@@ -1602,10 +1603,15 @@ Operator & Meaning & Fixity & Format & Precedence \\
        out-of-line\\
        ~~function
        \end{tabular}} & & & &
+\\\cline{1-4}
+\ttkey{\ABV} & abbreviate & infix & binary &
 \\\hline
-\ttkey{=} & assignment & infix & binary & 1000
-\\\cline{1-2}
-\ttkey{+=} & increment & & &
+\ttkey{=} & assignment & left & assignment & 1000
+\\\cline{1-4}
+\key{subblock} & assignment & afix & (none) & \\
+               & modifier   &      &        &
+\\\cline{1-4}
+\ttkey{+=} & increment & infix & binary &
 \\\cline{1-2}
 \ttkey{-=} & decrement & & &
 \\\cline{1-2}
@@ -1622,8 +1628,6 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{<{}<=} & shift left & & &
 \\\cline{1-2}
 \ttkey{>{}>=} & shift right & & &
-\\\cline{1-2}
-\ttkey{\ABV} & abbreviate & & &
 \\\hline
 \end{tabular}
 \end{center}
@@ -1634,7 +1638,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 
 \begin{boxedfigure}[!t]
 \begin{center}
-Non-Line Level Operators \\
+Non-Line Level Operators: Part I \\
 May Occur Inside or Outside Parentheses and Brackets
 \\[1ex]
 \begin{tabular}{|l|l|l|l|r|}
@@ -1643,32 +1647,45 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \hline
 \ttkey{,} & separator & nofix & separator & 2000
 \\\hline
-\ttkey{if} & selector & infix & selector & 3000
+\ttkey{do} & iterator & prefix & unary & 3000
+\\\cline{1-1}
+\ttkey{while} &       &        &       &
+\\\cline{1-1}
+\ttkey{until} &       &        &       &
+\\\cline{1-1}\cline{4-4}
+\ttkey{repeat} &       &        & iteration       &
+\\\cline{1-1}
+\ttkey{at most} &       &        &       &
+\\\cline{1-4}
+\ttkey{atimes} & iterator & afix   & (none) & \\
+               & modifier &        &       &
+\\\hline
+\ttkey{if} & selector & infix & selector & 10000
 \\\cline{1-1}\cline{3-4}
 \ttkey{else} & & infix & (none) & \\
              & & afix & &
 \\\hline
-\ttkey{BUT NOT} & logical and not & infix & binary & 4000
+\ttkey{BUT NOT} & logical and not & infix & binary & 11000
 \\\hline
-\ttkey{AND} & logical and & infix & n-ary & 4100
+\ttkey{AND} & logical and & infix & n-ary & 11100
 \\\cline{1-2}
 \ttkey{OR}  & logical or  & & &
 \\\hline
-\ttkey{NOT}  & logical not & prefix & unary & 4200
+\ttkey{NOT}  & logical not & prefix & unary & 11200
 \\\hline
-\ttkey{==}  & equal & infix & (none) & 5000
+\ttkey{==}  & is equal & infix & (none) & 12000
 \\\cline{1-2}
-\ttkey{!=}  & not equal & & &
+\ttkey{!=}  & is not equal & & &
 \\\cline{1-2}
-\ttkey{<}  & less than & & &
+\ttkey{<}  & is less than & & &
 \\\cline{1-2}
-\ttkey{<=}  & less than or equal & & &
+\ttkey{<=}  & is less than or equal & & &
 \\\cline{1-2}
-\ttkey{>}  & greater than & & &
+\ttkey{>}  & is greater than & & &
 \\\cline{1-2}
-\ttkey{>=}  & greater than or equal & & &
+\ttkey{>=}  & is greater than or equal & & &
 \\\hline
-\ttkey{+}  & addition & infix & sum & 6000
+\ttkey{+}  & addition & infix & sum & 13000
 \\\cline{1-2}
 \ttkey{-}  & subtraction & & &
 \\\cline{1-2}\cline{4-4}
@@ -1678,16 +1695,33 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-2}
 \ttkey{\textasciicircum}  & bitwise xor & & &
 \\\hline
-\ttkey{/}  & division & infix & binary & 6100
+\ttkey{/}  & division & infix & binary & 13100
 \\\cline{1-2}\cline{4-5}
-\ttkey{*}  & multiplication & & n-ary & 6200
+\ttkey{*}  & multiplication & & n-ary & 13200
 \\\cline{1-2}\cline{4-5}
-\ttkey{**}  & exponentiation & & binary & 6300
-\\\hline
-\ttkey{<{}<}  & left shift & infix & binary & 6400
+\ttkey{**}  & exponentiation & & binary & 13300
+\\\cline{1-2}
+\ttkey{<{}<}  & left shift & & &
 \\\cline{1-2}
 \ttkey{>{}>}  & right shift & & &
 \\\hline
+
+\end{tabular}
+\end{center}
+
+\caption{L-Language Non-Line Operators}
+\label{L-LANGUAGE-NON-LINE-OPERATORS-1}
+\end{boxedfigure}
+
+\begin{boxedfigure}[!t]
+\begin{center}
+Non-Line Level Operators: Part II \\
+May Occur Inside or Outside Parentheses and Brackets
+\\[1ex]
+\begin{tabular}{|l|l|l|l|r|}
+\hline
+Operator & Meaning & Fixity & Format & Precedence \\
+\hline
 \ttkey{+}  & no-op & prefix & unary & H
 \\\cline{1-2}
 \ttkey{-}  & negation & & & 
@@ -1709,14 +1743,15 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \end{center}
 
 \caption{L-Language Non-Line Operators}
-\label{L-LANGUAGE-NON-LINE-OPERATORS}
+\label{L-LANGUAGE-NON-LINE-OPERATORS-2}
 \end{boxedfigure}
 
 \clearpage
 
 The operators in
-Figures~\itemref{L-LANGUAGE-LINE-OPERATORS}
-and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS}
+Figures~\itemref{L-LANGUAGE-LINE-OPERATORS},
+~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-1},
+and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-2}
 have precedences in
 the range {\em [L,H]}.
 Precedence {\em (H+1)} is reserved for the `error operator' which is a
