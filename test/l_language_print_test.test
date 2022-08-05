@@ -143,9 +143,9 @@
                           with precedence 12000
                           with infix reformatter
         block l-language: operator "=" [code]
-                          infix line
+                          left line
                           with precedence 1000
-                          with binary reformatter
+                          with assignment reformatter ( ":" )
         block l-language: operator ">" [code]
                           infix
                           with precedence 12000
@@ -244,7 +244,7 @@
                           with binary reformatter
         block l-language: operator "<<" [code]
                           infix
-                          with precedence 13000
+                          with precedence 13300
                           with binary reformatter
         block l-language: operator "<=" [code]
                           infix
@@ -280,7 +280,7 @@
                           with infix reformatter
         block l-language: operator ">>" [code]
                           infix
-                          with precedence 13000
+                          with precedence 13300
                           with binary reformatter
         block l-language: operator "OR" [code]
                           infix
@@ -291,11 +291,11 @@
                           with precedence 1000
                           with binary reformatter
         block l-language: bracket ":" [code]
-                          postfix line
-                          with precedence 1000
-        block l-language: bracket ":" [code]
                           nofix afix line
                           with precedence 1000
         block l-language: bracket ":" [code]
-                          postfix afix line
+                          nofix afix line
+                          with precedence 0
+        block l-language: bracket ":" [code]
+                          postfix line
                           with precedence 0
