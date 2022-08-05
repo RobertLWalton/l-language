@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  5 15:19:20 EDT 2022
+// Date:	Fri Aug  5 18:08:40 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -110,6 +110,21 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
 	  code,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags ( 0, 0, 0 ),
+	  min::NULL_STUB, min::MISSING(),
+	  bracketed_pass->bracket_table );
+
+    min::locatable_gen left_curly_star
+        ( min::new_lab_gen ( "{", "*" ) );
+    min::locatable_gen right_curly_star
+        ( min::new_lab_gen ( "*", "}" ) );
+
+    BRA::push_brackets
+        ( left_curly_star,
+	  right_curly_star,
+	  code,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags
+	      ( PAR::LINE_LEVEL_SELECTOR, 0, 0 ),
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
