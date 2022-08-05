@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Jul 29 17:00:33 EDT 2022
+// Date:	Fri Aug  5 15:19:20 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -62,7 +62,6 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
 	  PARSTD::CODE +
 	  PARSTD::TOP_LEVEL +
 	  PARSTD::CONCATENATOR +
-	  PARSTD::BRACKETS +
 	  PARSTD::ALL_OPERATORS );
 
     min::locatable_gen code_name
@@ -86,6 +85,33 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
 
     BRA::bracketed_pass bracketed_pass =
         (BRA::bracketed_pass) parser->pass_stack;
+
+    BRA::push_brackets
+        ( PARLEX::left_parenthesis,
+	  PARLEX::right_parenthesis,
+	  code,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  min::NULL_STUB, min::MISSING(),
+	  bracketed_pass->bracket_table );
+
+    BRA::push_brackets
+        ( PARLEX::left_square,
+	  PARLEX::right_square,
+	  code,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  min::NULL_STUB, min::MISSING(),
+	  bracketed_pass->bracket_table );
+
+    BRA::push_brackets
+        ( PARLEX::left_curly,
+	  PARLEX::right_curly,
+	  code,
+	  block_level, PAR::top_level_position,
+	  TAB::new_flags ( 0, 0, 0 ),
+	  min::NULL_STUB, min::MISSING(),
+	  bracketed_pass->bracket_table );
 
     BRA::push_indentation_mark
         ( PARLEX::colon, min::MISSING(),

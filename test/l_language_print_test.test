@@ -36,9 +36,6 @@
         block TOP LEVEL: disabled
     print bracket ""
         block TOP LEVEL: bracket "``" ... "''" [data]
-        block l-language: bracket [< "[" "<" >] ... [< ">" "]" >] [code]
-                          with parsing selectors [atom]
-                          with label reformatter
         block TOP LEVEL: bracket [< "[" "<" >] ... [< ">" "]" >]
                          [data, atom]
                          with parsing selectors [atom]
@@ -49,14 +46,10 @@
         block TOP LEVEL: bracket "(" ... ")" [data]
         block l-language: bracket "[" ... "]" [code]
         block TOP LEVEL: bracket "[" ... "]" [data]
-        block l-language: bracket "`" ... "'" [code]
-                          with parsing selectors [atom]
         block TOP LEVEL: bracket "`" ... "'" [data]
                          with parsing selectors [atom]
         block TOP LEVEL: bracket [< "{" "{" >] ... [< "}" "}" >] [data]
-        block l-language: bracket [< "[" "$" >] ... [< "$" "]" >] [code]
-                          with parsing selectors [atom]
-                          with special reformatter
+        block l-language: bracket "{" ... "}" [code]
         block TOP LEVEL: bracket [< "[" "$" >] ... [< "$" "]" >]
                          [data, atom]
                          with parsing selectors [atom]
@@ -83,14 +76,6 @@
         block l-language: 2
         block TOP LEVEL: 2
     print typed bracket ""
-        block l-language: typed bracket "{" ... "|" ... "|" ... "}"
-                          // "||" is also allowed.
-                          [code]
-                          with attribute selectors [data]
-                          with attributes ":" ... "=" ... ","
-                          with attribute negator "no"
-                          with attribute flags initiator "["
-                          with attribute multivalue initiator [< "{" "*" >]
         block TOP LEVEL: typed bracket "{" ... "|" ... "|" ... "}"
                          // "||" is also allowed.
                          [data]
