@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-July 31, 2022
+August 5, 2022
 
 \bigskip
  
@@ -1513,7 +1513,7 @@ have precedence equal to or greater than P:
 \\[0.5ex]
 \emkey{P-operator} ::= operator of precedence P
 \\[0.5ex]
-\emkey{(H+2)-expression} ::= {\em primary}
+\emkey{(H+1)-expression} ::= {\em primary}
 \\[0.5ex]
 \emkey{primary} ::= {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
 \\[0.5ex]
@@ -1521,7 +1521,7 @@ have precedence equal to or greater than P:
                             {\em bracketed-subexpression}
 \\[2.0ex]
 \hspace*{3em}\begin{tabular}{l}
-where P is any precedence in the range [L,H+1]
+where P is any precedence in the range [L,H]
 \end{tabular}
 \end{minipage}\end{indpar}
 
@@ -1722,7 +1722,7 @@ May Occur Inside or Outside Parentheses and Brackets
 \hline
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
-\ttkey{+}  & no-op & prefix & unary & H
+\ttkey{+}  & no-op & prefix & unary & H-1
 \\\cline{1-2}
 \ttkey{-}  & negation & & & 
 \\\cline{1-2}
