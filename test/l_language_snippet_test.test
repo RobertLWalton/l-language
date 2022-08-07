@@ -3,7 +3,7 @@
     trace [+ subexpression lines]
     trace [+ subexpression elements]
 BRACKETED EXPRESSION:
-    {|int X|} = {|{|Y|} - {|C# "0"|}|}
+    {|int X|} = {|{|Y|} - {|C# {|"0"|}|}|}
     line ##:
 int X = Y - C#"0"
 ^^^^^^^^^^^^^^^^^

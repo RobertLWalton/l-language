@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Aug  5 18:08:40 EDT 2022
+// Date:	Sun Aug  7 16:02:14 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -149,8 +149,19 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
     MIN_REQUIRE ( pass != min::NULL_STUB );
     OP::oper_pass oper_pass = (OP::oper_pass) pass;
 
+    min::locatable_gen unary
+        ( min::new_str_gen ( "unary" ) );
     min::locatable_gen binary
         ( min::new_str_gen ( "binary" ) );
+
+    PAR::reformatter unary_reformatter =
+          PAR::find_reformatter
+              ( unary,
+                OP::reformatter_stack );
+    PAR::reformatter binary_reformatter =
+          PAR::find_reformatter
+              ( binary,
+                OP::reformatter_stack );
 
     OP::push_oper
         ( LLEX::equal_at,
@@ -159,9 +170,57 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           block_level, PAR::top_level_position,
           OP::INFIX,
           9010,
-          PAR::find_reformatter
-              ( binary,
-                OP::reformatter_stack ),
+	  binary_reformatter,
+          min::MISSING(),
+          oper_pass->oper_table );
+
+    min::locatable_gen Dnumber
+        ( min::new_str_gen ( "D#" ) );
+    min::locatable_gen Bnumber
+        ( min::new_str_gen ( "B#" ) );
+    min::locatable_gen Xnumber
+        ( min::new_str_gen ( "X#" ) );
+    min::locatable_gen Cnumber
+        ( min::new_str_gen ( "C#" ) );
+
+    OP::push_oper
+        ( Dnumber,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          OP::prefix_precedence,
+          unary_reformatter,
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( Bnumber,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          OP::prefix_precedence,
+          unary_reformatter,
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( Xnumber,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          OP::prefix_precedence,
+          unary_reformatter,
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( Cnumber,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          OP::prefix_precedence,
+          unary_reformatter,
           min::MISSING(),
           oper_pass->oper_table );
 }
