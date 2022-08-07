@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 5, 2022
+August 7, 2022
 
 \bigskip
  
@@ -1781,11 +1781,32 @@ and `operand' to mean {\em (P+1)-expression}:
     & The expression must consist of the operator followed by
       either a \TT{:} operator and an
       operand or by just a subblock operator.
+\end{tabular}
 \\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{postfix}
+    & The expression must consist of an operand followed by the operator.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
 \ttkey{declaration}
     & The expression must consist of the declaring operator followed by
-      an operand that may contain {\tt =} and {\tt ,} followed sometimes
+      an operand (that may contain {\tt =} and {\tt ,}) followed sometimes
       by a subblock operator.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{binary}
+    & The expression must consist of an operand followed by
+      the operator followed by an operand.  There must be only one
+      operator in the expression.
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
+\ttkey{assignment}
+    & The expression must consist of an operand followed by
+      the operator followed by an operand or a subblock
+      operator.
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
@@ -1794,13 +1815,6 @@ and `operand' to mean {\em (P+1)-expression}:
       The expression must consist of alternating operands
       and operators and begin and end with an operand.
       The two possible operators alternate, with \TT{if} first.
-\end{tabular}
-\\[0.5ex]
-\begin{tabular}{p{1in}p{5.0in}}
-\ttkey{binary}
-    & The expression must consist of an operand followed by
-      the operator followed by an operand.  There must be only one
-      operator in the expression.
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
@@ -1831,8 +1845,6 @@ and `operand' to mean {\em (P+1)-expression}:
     & The expression operators must all be either \TT{+} or \TT{-}.
       The expression must consist of alternating operands
       and operators and begin and end with an operand.
-      Each subsequence of the form `{\tt "-" operand}' is
-      replaced by `{\tt "+" \{ "-" operand \}}'.
 \end{tabular}
 \end{center}
 
