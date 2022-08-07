@@ -38,3 +38,33 @@ BRACKETED EXPRESSION:
     line ##:
 bp[cp.upper] = 0
 ^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|int X|} = {|5|}
+    line ##:
+int X = 5
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    ap *READ-WRITE* int @Y
+    line ##:
+ap *READ-WRITE* int @Y    // `=@ local' is implied
+^^^^^^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|Y|} = {|{|X|} + {|2|}|}
+    line ##:
+Y = X + 2                 // Now Y == 7
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|Y|} = {|{|Y|} - {|4|}|}
+    line ##:
+Y = Y - 4                 // Now Y == 3
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|X|} = {|{|X|} + {|1|}|}
+    line ##:
+X = X + 1                 // Illegal!  X is co
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|ap ro int @Z|} = {|@Y|}
+    line ##:
+ap ro int @Z = @Y         // Copies pointer value @Y.
+^^^^^^^^^^^^^^^^^

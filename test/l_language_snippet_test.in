@@ -2,7 +2,7 @@
 //
 // File:	l_language_snippet_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Jul 26 15:54:22 EDT 2022
+// Date:	Sun Aug  7 12:19:24 EDT 2022
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -24,3 +24,12 @@ while i < @cp.upper:
     bp[i] = cp[i]
     next i = i + 1
 bp[cp.upper] = 0
+
+int X = 5
+ap *READ-WRITE* int @Y    // `=@ local' is implied
+Y = X + 2                 // Now Y == 7
+Y = Y - 4                 // Now Y == 3
+X = X + 1                 // Illegal!  X is co
+ap ro int @Z = @Y         // Copies pointer value @Y.
+                          // Variable conversion from *READ-WRITE*
+                          // to ro is legal.
