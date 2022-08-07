@@ -68,3 +68,23 @@ BRACKETED EXPRESSION:
     line ##:
 ap ro int @Z = @Y         // Copies pointer value @Y.
 ^^^^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|int X|} = {|5|}
+    line ##:
+int X = 5
+^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|int Y|} = {|{|X|} + {|2|}|}
+    line ##:
+int Y = X + 2             // Now Y == 7; Y is co
+^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|next Y|} = {|{|Y|} - {|4|}|}
+    line ##:
+next Y = Y - 4            // Now Y == 3; Y is co
+^^^^^^^^^^^^^^
+BRACKETED EXPRESSION:
+    {|Y|} = {|{|Y|} + {|1|}|}
+    line ##:
+Y = Y + 1                 // Illegal!  Y is co
+^^^^^^^^^
