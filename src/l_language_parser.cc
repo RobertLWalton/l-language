@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  7 16:02:14 EDT 2022
+// Date:	Mon Aug  8 02:44:32 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -36,12 +36,39 @@
 
 min::locatable_gen LLEX::l_language;
 min::locatable_gen LLEX::equal_at;
+min::locatable_gen LLEX::curly_star;
+min::locatable_gen LLEX::star_curly;
+min::locatable_gen LLEX::Dnumber;
+min::locatable_gen LLEX::Bnumber;
+min::locatable_gen LLEX::Xnumber;
+min::locatable_gen LLEX::Cnumber;
+min::locatable_gen LLEX::type;
+min::locatable_gen LLEX::pointer_type;
+min::locatable_gen LLEX::function;
+min::locatable_gen LLEX::out_of_line_function;
+min::locatable_gen LLEX::long_arrow;
 
 static void initialize ( void )
 {
     LLEX::l_language =
         min::new_str_gen ( "l-language" );
     LLEX::equal_at = min::new_str_gen ( "=@" );
+    LLEX::curly_star =
+        min::new_lab_gen ( "{", "*" );
+    LLEX::star_curly =
+        min::new_lab_gen ( "*", "}" );
+    LLEX::Dnumber = min::new_str_gen ( "D#" );
+    LLEX::Bnumber = min::new_str_gen ( "B#" );
+    LLEX::Xnumber = min::new_str_gen ( "X#" );
+    LLEX::Cnumber = min::new_str_gen ( "C#" );
+    LLEX::type = min::new_str_gen ( "type" );
+    LLEX::pointer_type =
+        min::new_lab_gen ( "pointer", "type" );
+    LLEX::function = min::new_str_gen ( "function" );
+    LLEX::out_of_line_function =
+        min::new_lab_gen ( "out-of-line", "function" );
+    LLEX::long_arrow = min::new_str_gen ( "--->" );
+
 }
 static min::initializer initializer ( ::initialize );
 
@@ -113,14 +140,9 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
 	  min::NULL_STUB, min::MISSING(),
 	  bracketed_pass->bracket_table );
 
-    min::locatable_gen left_curly_star
-        ( min::new_lab_gen ( "{", "*" ) );
-    min::locatable_gen right_curly_star
-        ( min::new_lab_gen ( "*", "}" ) );
-
     BRA::push_brackets
-        ( left_curly_star,
-	  right_curly_star,
+        ( LLEX::curly_star,
+	  LLEX::star_curly,
 	  code,
 	  block_level, PAR::top_level_position,
 	  TAB::new_flags
@@ -174,17 +196,8 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           oper_pass->oper_table );
 
-    min::locatable_gen Dnumber
-        ( min::new_str_gen ( "D#" ) );
-    min::locatable_gen Bnumber
-        ( min::new_str_gen ( "B#" ) );
-    min::locatable_gen Xnumber
-        ( min::new_str_gen ( "X#" ) );
-    min::locatable_gen Cnumber
-        ( min::new_str_gen ( "C#" ) );
-
     OP::push_oper
-        ( Dnumber,
+        ( LLEX::Dnumber,
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
@@ -194,7 +207,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           oper_pass->oper_table );
     OP::push_oper
-        ( Bnumber,
+        ( LLEX::Bnumber,
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
@@ -204,7 +217,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           oper_pass->oper_table );
     OP::push_oper
-        ( Xnumber,
+        ( LLEX::Xnumber,
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
@@ -214,13 +227,63 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           oper_pass->oper_table );
     OP::push_oper
-        ( Cnumber,
+        ( LLEX::Cnumber,
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
           OP::PREFIX,
           OP::prefix_precedence,
           unary_reformatter,
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( LLEX::type,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          0000,
+          min::NULL_STUB,	// TBD
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( LLEX::pointer_type,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          0000,
+          min::NULL_STUB,	// TBD
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( LLEX::function,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          0000,
+          min::NULL_STUB,	// TBD
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( LLEX::out_of_line_function,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          0000,
+          min::NULL_STUB,	// TBD
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( LLEX::long_arrow,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::INFIX,
+          0000,
+          binary_reformatter,
           min::MISSING(),
           oper_pass->oper_table );
 }

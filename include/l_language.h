@@ -2,7 +2,7 @@
 //
 // File:	l_language.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 27 15:12:45 EDT 2022
+// Date:	Mon Aug  8 02:40:20 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -18,8 +18,19 @@ namespace l_language
     namespace lexeme
     {
 	extern min::locatable_gen
-	    l_language,
-	    equal_at;
+	    l_language,		// l-language
+	    equal_at,		// =@
+	    curly_star,		// {*
+	    star_curly,		// *}
+	    Dnumber,		// D#
+	    Bnumber,		// B#
+	    Xnumber,		// X#
+	    Cnumber,		// C#
+	    type,		// type
+	    pointer_type,	// pointer type
+	    function,		// function
+	    out_of_line_function, // out-of-line function
+	    long_arrow; 	// --->
     }
     void init_parser
         ( min::ref<ll::parser::parser> parser );

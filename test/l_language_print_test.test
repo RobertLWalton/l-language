@@ -41,6 +41,7 @@
                          with parsing selectors [atom]
                          with label reformatter
         block l-language: bracket [< "{" "*" >] ... [< "*" "}" >] [code]
+                          with parsing selectors [+ LINE LEVEL]
         block TOP LEVEL: bracket [< "{" "*" >] ... [< "*" "}" >] [data]
                          with multivalue reformatter ( "," )
         block l-language: bracket "(" ... ")" [code]
@@ -89,6 +90,9 @@
     print bracket type ""
         nothing found
     print operator ""
+        block l-language: operator [< "out-of-line" "function" >] [code]
+                          prefix
+                          with precedence 0
         block l-language: operator "&" [code]
                           infix
                           with precedence 13000
@@ -144,6 +148,10 @@
                           infix
                           with precedence 13000
                           with infix reformatter ( "^" )
+        block l-language: operator "B#" [code]
+                          prefix
+                          with precedence 999999
+                          with unary reformatter
         block l-language: operator "|" [code]
                           infix
                           with precedence 13000
@@ -152,10 +160,21 @@
                           prefix
                           with precedence 999999
                           with unary reformatter
+        block l-language: operator "C#" [code]
+                          prefix
+                          with precedence 999999
+                          with unary reformatter
         block l-language: operator ">>=" [code]
                           infix line
                           with precedence 1000
                           with binary reformatter
+        block l-language: operator "D#" [code]
+                          prefix
+                          with precedence 999999
+                          with unary reformatter
+        block l-language: operator [< "pointer" "type" >] [code]
+                          prefix
+                          with precedence 0
         block l-language: operator "do" [code]
                           prefix line
                           with precedence 3000
@@ -177,6 +196,10 @@
                           infix line
                           with precedence 1000
                           with binary reformatter
+        block l-language: operator "X#" [code]
+                          prefix
+                          with precedence 999999
+                          with unary reformatter
         block l-language: operator "while" [code]
                           prefix line
                           with precedence 3000
@@ -208,9 +231,16 @@
                           initial line
                           with precedence 0
                           with control reformatter ( ":" )
+        block l-language: operator "type" [code]
+                          prefix
+                          with precedence 0
         block l-language: operator "**" [code]
                           infix
                           with precedence 13300
+                          with binary reformatter
+        block l-language: operator "--->" [code]
+                          infix
+                          with precedence 0
                           with binary reformatter
         block l-language: operator "*=" [code]
                           infix line
@@ -268,6 +298,9 @@
                           infix
                           with precedence 13300
                           with binary reformatter
+        block l-language: operator "function" [code]
+                          prefix
+                          with precedence 0
         block l-language: operator "OR" [code]
                           infix
                           with precedence 11100
