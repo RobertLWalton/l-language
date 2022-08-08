@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 7, 2022
+August 8, 2022
 
 \bigskip
  
@@ -1611,9 +1611,6 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\hline
 \ttkey{=} & assignment & left & assignment & 1000
 \\\cline{1-4}
-\key{subblock} & assignment & afix & (none) & \\
-               & modifier   &      &        &
-\\\cline{1-4}
 \ttkey{+=} & increment & infix & binary &
 \\\cline{1-2}
 \ttkey{-=} & decrement & & &
@@ -1805,8 +1802,7 @@ and `operand' to mean {\em (P+1)-expression}:
 \begin{tabular}{p{1in}p{5.0in}}
 \ttkey{assignment}
     & The expression must consist of an operand followed by
-      the operator followed by an operand or a subblock
-      operator.
+      the operator followed by an \underline{optional} operand.
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
