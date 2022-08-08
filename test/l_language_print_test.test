@@ -280,7 +280,7 @@
                           with infix reformatter
         block l-language: operator "=@" [code]
                           infix
-                          with precedence 9010
+                          with precedence 1000
                           with binary reformatter
         block l-language: operator "-=" [code]
                           infix line
