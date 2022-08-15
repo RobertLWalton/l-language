@@ -2089,8 +2089,8 @@ L-Language uses several kinds of names:
 {\tt *VOLATILE*} flushes software caches between statements \\
 {\tt *ATOMIC*} locks memory when reading or writing \\
 {\tt *GLOBAL*} has global (forever) lifetime \\
-{\tt *LOCAL*} has lifetime that ends when current stack frame destroyed \\
-{\tt *HEAP*} has lifetime managed by garbage collector
+{\tt *LOCAL*} has lifetime that ends when current stack frame is destroyed \\
+{\tt *HEAP*} has lifetime managed by a garbage collector
 \end{indpar}
 \emkey{operator-word}
     \begin{tabular}[t]{rl}
@@ -2144,7 +2144,9 @@ A {\em pointer-type-name} should not begin with a {\em type-name}.
 should not begin with a {\em module-abbre\-viation}
 or contain {\em function-keywords}.
 \item
-{\em Names} not used as operators should not contain {\em operator-words}.
+{\em Names} not used as operators should not begin with initial {\em operators},
+should not end with final {\em operators}, and should not contain
+{\em operators} that are neither initial nor final.
 \item
 {\em Names} that are not {\em qualifier-names}
 should not contain {\em qualifier-names}, with the
@@ -2163,10 +2165,12 @@ For example,
 the name resolver treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
-\{\MA {\em pointer-type-name}\}\QMARK{}~
-{\em qualifier-name}\STAR{}~
+\begin{tabular}{l}
+\{ {\em qualifier-name}\STAR{}~\MA {\em pointer-type-name}\}\QMARK{} \\
+\hspace*{0.5in}{\em qualifier-name}\STAR{}~
 \MA {\em type-name}~
 \MA {\em variable-name}
+\end{tabular}
 \end{center}
 where \MA denotes an optional {\em module-abbreviation},
 and while scanning this sequence from left to right,
@@ -4154,8 +4158,8 @@ can be accomplished by the functions:
 
 \begin{indpar}[1ex] \tt
 reference function T\$1 r =
-    {\em ma}\QMARK{} ( $P$ QR\$1 T\$1 @p ) \ttkey{.*} \\
-reference function {\em ma}\QMARK{} ( $P$ QW\$1 T\$1 @p ) \ttkey{.*} =
+    {\em ma}\QMARK{} ( $P$ QR\$1 T\$1 @p ) \ttkey{".*"} \\
+reference function {\em ma}\QMARK{} ( $P$ QW\$1 T\$1 @p ) \ttkey{".*"} =
     T\$1 r
 \end{indpar}
 where {\em ma}, if present here, refers to any module in which $P$ is defined.
