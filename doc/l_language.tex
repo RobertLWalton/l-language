@@ -2561,8 +2561,9 @@ itself is called \key{compound} and consists of two parts:
 a prefix that is a smaller {\em reference-expression} and a suffix that
 begins with the \TT{[} or {\em member-name}.  The prefix is never
 parenthesized, so a {\em reference-expression} always begins with a
-{\em variable-name}.  The suffix may contain parenthesized argument
-lists.
+{\em variable-name}, and \underline{never} with a parenthesized argument list.
+The rest of the {\em reference-expression}
+may contain parenthesized argument lists.
 
 The type of a {\em reference-expression} is computed bottom up starting
 with the type of the prefix which has been previously computed bottom up.
