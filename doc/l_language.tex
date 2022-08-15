@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 8, 2022
+August 15, 2022
 
 \bigskip
  
@@ -1880,12 +1880,12 @@ but the following examples give an idea of some of this semantics:
 \hspace*{-0.2in}{\tt T v \TT{=} x \TT{if} y \TT{else} z} \\
       If {\tt y} is not a {\tt const}, it is evaluated with
       target type {\tt bool}.  If that value
-      is {\tt TRUE}, {\tt x} is evaluated and returned; otherwise
+      is {\tt true}, {\tt x} is evaluated and returned; otherwise
       {\tt z} is evaluated and returned.  Both {\tt x} and {\tt z},
       have target type {\tt T}.
 
       However if {\tt y} is a {\tt const} value, the right-side of
-      the statement is replaced by {\tt x} or {\tt y}, whichever
+      the statement is replaced by {\tt x} or {\tt z}, whichever
       is discarded is also not compiled, and if it would be in error
       were it compiled, the error is not detected (unless it is a parsing
       error).
@@ -1899,7 +1899,7 @@ but the following examples give an idea of some of this semantics:
 
       The {\tt const} values {\tt TRUE}
       and {\tt FALSE} are implicitly convertible to run-time {\tt bool}
-      {\tt 1} and {\tt 0}, respectively.
+      {\tt true} ({\tt 1}) and {\tt false} ({\tt 0}), respectively.
  
 \hspace*{-0.2in}{\tt x \TT{<} y \TT{<} z} \\
       This is logically equivalent to `{\tt x < y} AND {\tt y < z}', except that
@@ -1910,14 +1910,15 @@ but the following examples give an idea of some of this semantics:
       `{\tt FALSE}'.
 
       If a single comparison evaluates to {\tt TRUE} at compile-time,
-      it is removed from the expression.
+      that comparison is removed from the {\tt AND}-containing version
+      of the expression.
 
       If run-time evaluation is necessary,
       some operands need to be evaluated
       at run-time, and a target type {\tt T} needs to be found for
       these operands.
-      This target type {\tt T} must work as the target type of all
-      run-time operands.  If several target types {\tt T} work and
+      A single target type {\tt T} must work as the target type of all
+      the run-time operands.  If several target types {\tt T} work and
       one is the type of a reference expression operand, that is used.
       Otherwise if several work, it is a compile error.
 
