@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 15, 2022
+August 17, 2022
 
 \bigskip
  
@@ -2603,12 +2603,14 @@ The syntax of {\em reference-expressions} is:
 \emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
 \emkey{member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
+\emkey{reference-call} ::= see \pagref{REFERENCE-CALL}
 \end{indpar}
 
 A {\em reference-call} is a call to a reference function.
 For details see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
 The rest of this section applies to builtin {\em reference-expressions}
-that do \underline{not} include {\em reference-calls}.
+that are \underline{not} {\em reference-calls}.
 
 A {\em member-name} of the form `\TT{.}{\em data-label}\,'
 may be used to select a field or subfield\label{FIELD-SELECTION}
@@ -2690,14 +2692,27 @@ The syntax of function calls is:
 \emkey{function-call}\label{FUNCTION-CALL}
     ::= {\em module-abbreviation}\QMARK{}
         {\em call-argument-list}\STAR{}
-        {\em call-term}\PLUS{}
+        {\em non-member-call-term}\PLUS{}
 \\[0.5ex]
-\emkey{call-term}
+\emkey{non-member-call-term}
     \begin{tabular}[t]{rl}
-    ::= & {\em call-term-name} {\em call-argument-list}\STAR{} \\
-    $|$ & \ttkey{no} {\em call-term-name} \\
-    $|$ & \ttkey{not} {\em call-term-name} \\
+    ::= & {\em non-member-call-term-name} {\em call-argument-list}\STAR{} \\
+    $|$ & \ttkey{no} {\em non-member-call-term-name} \\
+    $|$ & \ttkey{not} {\em non-member-call-term-name} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{non-member-call-term-name}
+    ::= {\em call-term-name} that is not a {\em member-name}
+\\[0.5ex]
+\emkey{member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
+\emkey{call-term-name}\label{CALL-TERM-NAME} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em function-term-name} with quotes \underline{optionally} removed from \\
+    {\em quoted-marks} and {\em quoted-separators}
+    \end{tabular}
+\\[0.5ex]
+\emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
 \emkey{call-argument-list}\label{CALL-ARGUMENT-LIST}
     \begin{tabular}[t]{rl}
@@ -2710,19 +2725,13 @@ The syntax of function calls is:
 \\[0.5ex]
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
-\emkey{call-term-name}\label{CALL-TERM-NAME} ::=
-    \begin{tabular}[t]{@{}l}
-    {\em function-term-name} with quotes \underline{optionally} removed from \\
-    {\em quoted-marks} and {\em quoted-separators}
-    \end{tabular}
-\\[0.5ex]
-\emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
-\\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 Thus a {\em function-call} is a sequence of {\em function-term-names}
-and {\em call-argument-lists}.
+and {\em call-argument-lists}.  {\em Function-term-names} that are
+also {\em member-names} are \underline{not} allowed in {\em function-calls},
+but are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
 
 {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
 equivalent to `{\tt x(FALSE)}'.
