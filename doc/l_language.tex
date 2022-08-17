@@ -3012,7 +3012,7 @@ of the {\em block-assignment-statement}, and
 subject to the {\em pointer-variable} {\em qualifiers} after
 the {\em block-assignment-statement}.
 
-If a {\em result-variable-declaration} declares a {\em pointer-variable},
+If a {\em declaration} declares a {\em pointer-variable},
 an associated {\em target-variable} is implicitly declared at the same time
 whose name is the {\em pointer-name} with the initial `{\tt @}' removed.
 The {\em target-variable} is not itself allocated to memory,
@@ -3029,7 +3029,7 @@ The qualifiers of a {\em target-variable} associated with a
 its associated pointer.
 
 A {\em next-variable-declaration} for a {\em variable} {\tt v}
-must occur in the scope of either a {\em result-variable-declaration}
+must occur in the scope of either a non-{\em next-variable-declaration}
 for {\tt v} or another {\em next-variable-declaration} for {\tt v}.
 Furthermore, {\tt v} cannot be a {\em target-variable} associated
 with a {\em pointer-variable}.
