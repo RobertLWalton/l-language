@@ -3624,8 +3624,8 @@ The syntax of a type declaration is:
 \hspace*{0.5in}
     {\em subfield-declaration}\PLUS{}
 \\[2ex]
-\emkey{field-type-name} ::= \TT{std}\QMARK{} {\em number-type-name}
-                        $|$ {\em defined-type-name} \\
+\emkey{field-type-name} ::= {\em type-name} that is not {\tt const} \\
+{\em type-name} ::= see \pagref{TYPE-NAME} \\
 \emkey{number-type-name}
     \begin{tabular}[t]{@{}rl}
     ::= &  \ttkey{int} $|$ \ttkey{int8} $|$ \ttkey{int16} $|$ \ttkey{int32}
