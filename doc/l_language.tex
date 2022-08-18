@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 17, 2022
+August 18, 2022
 
 \bigskip
  
@@ -2849,7 +2849,7 @@ The forms of an {\em assignment-statement} are:
     \begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
                 \{ \TT{,} {\em block-variable-declaration} \}\STAR{} \\
-	& ~~~~~ \{ \TT{=} \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
+	& ~~~~~ \{ \TT{=} \{ \ttkey{do} {\em block-label} \}\QMARK{} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
@@ -3177,7 +3177,7 @@ The syntax of {\em block-assignment-statements} is:
     \begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
                 \{ \TT{,} {\em block-variable-declaration} \}\STAR{} \\
-	& ~~~~~ \{ \TT{=} \ttkey{do} {\em block-label}\QMARK{} \}\QMARK{}
+	& ~~~~~ \{ \TT{=} \{ \ttkey{do} {\em block-label} \}\QMARK{} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
         & ~~~~~~~~~~ {\em exit-subblock}\STAR{} \\
@@ -3298,7 +3298,7 @@ do:
 is equivalent to:
 \begin{indpar}\begin{verbatim}
 int x = 5
-next x = do:
+next x =:
     next x = x + 1
 \end{verbatim}\end{indpar}
 
@@ -3369,19 +3369,22 @@ A {\em loop-assignment-statement} has the syntax:
         & {\em next-variable-declaration}
                 \{ \TT{,} {\em next-variable-declaration} \}\STAR{}
 		\TT{=} \\
-	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
+	& ~~~~~~~~~~~~~~~ {\em iteration-control-list} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
         & ~~~~~ {\em exit-subblock}\STAR{} \\
-    $|$ & {\em iteration-control} \TT{:} \\
+    $|$ & {\em iteration-control-list} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
         & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
+\emkey{iteration-control-list} ::=
+    {\em iteration-control} \{ \TT{,} {\em iteration-control} \}\STAR{}
+\\[0.5ex]
 \emkey{iteration-control}\label{ITERATION-CONTROL}
     \begin{tabular}[t]{rl}
-     ::= & {\em loop-label}\QMARK{} \ttkey{loop}
-	   \{ \{ \ttkey{at most} \}\QMARK{}
-	   {\em int-expression} \ttkey{times} \}\QMARK{} \\
+     ::= & \ttkey{loop} {\em loop-label}\QMARK{} \\
+     $|$ & \ttkey{exactly} {\em int-expression} \ttkey{times} \\
+     $|$ & \ttkey{at most} {\em int-expression} \ttkey{times} \\
      $|$ & \ttkey{while} {\em bool-expression} \\
      $|$ & \ttkey{until} {\em bool-expression} \\
      \end{tabular}
@@ -3410,11 +3413,11 @@ A {\em loop-assignment-statement} has the syntax:
 
 A {\em loop-assignment-statement} is the semantic equivalent of
 a sequence of zero or more copies of the statement with
-its {\em iteration-control} replaced by `{\tt do}', making these copies into
+its {\em iteration-controls} deleted, making these copies into
 {\em block-assignment-statements}.  Each copy is called an
 \key{iteration} of the {\em loop-assignment-statement}.
 The number of iterations is
-determined at run-time according by the {\em iteration-control}
+determined at run-time by the {\em iteration-controls}
 and {\em loop-control-statements}.
 
 A simple example is:
@@ -3429,13 +3432,13 @@ which is semantically equivalent to:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1
-next sum, next i = do:
+next sum, next i =:
     next sum = sum + i
     next i = i + 1
-next sum, next i = do:
+next sum, next i =:
     next sum = sum + i
     next i = i + 1
-next sum, next i = do:
+next sum, next i =:
     next sum = sum + i
     next i = i + 1
 // Now sum == 6 and i == 4
@@ -3446,6 +3449,17 @@ last 4 iterations of the {\em loop-assignment-statement}
 are discarded, which would not be the case if the compiler
 actually inserted iterations in the source code. 
 This only affects debugging.
+
+The {\em iteration-controls} are independent of each other:
+{\tt loop x} just provides a {\em loop-label},
+{\tt exactly x times} and {\tt at most x times} both terminate
+the loop after {\tt x} iterations (both do the same thing),
+{\tt while x} terminates
+the loop if {\tt x} is {\tt false} at the start of an iteration,
+and {\tt until x} terminates
+the loop if {\tt x} is {\tt true} at the start of an iteration.
+There can be at most one {\tt loop x}, but there can be multiple
+variants of the other {\em iteration-controls}.
 
 The {\em break-statement} exits the current iteration of the
 {\em loop-assignment-statement} and prevents further iterations.
