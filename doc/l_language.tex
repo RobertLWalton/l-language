@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 19, 2022
+August 20, 2022
 
 \bigskip
  
@@ -3592,14 +3592,14 @@ The syntax of a type declaration is:
     ::= &  {\em field-declaration} \\
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
-    $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
-    $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
-    $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
-    $|$ &  \ttkey{*ORIGIN*} {\em integer-const-expression} \\
-    $|$ &  \ttkey{*ORIGIN*} \ttkey{*SIZE*} \\
-    $|$ &  \ttkey{*AREA*} {\em area-label} \\
     $|$ &  \ttkey{***} \\
     $|$ &  \ttkey{*EXTERNAL*} \\
+    $|$ &  \ttkey{*AREA*} {\em area-label} \\
+    $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
+    $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
+    $|$ &  \ttkey{*OFFSET*} {\em integer-const-expression} \\
+    $|$ &  \ttkey{*OFFSET*} \ttkey{*SIZE*} \\
+    $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     \end{tabular}
 \\[2ex]
 \emkey{field-declaration}
@@ -3644,9 +3644,9 @@ The syntax of a type declaration is:
     an `\TT{@}' \\
 \emkey{target-label}\label{TARGET-LABEL} ::=
     {\em field-label} that is \underline{not} a {\em pointer-label} \\
-\emkey{origin-label}\label{ORIGIN-LABEL} ::=
-    {\em basic-name} not beginning with \TT{@} \\
 \emkey{area-label}\label{AREA-LABEL} ::=
+    {\em basic-name} not beginning with \TT{@} \\
+\emkey{origin-label}\label{ORIGIN-LABEL} ::=
     {\em basic-name} not beginning with \TT{@} \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL} \\
 \emkey{basic-name} ::=  see \pagref{BASIC-NAME}
@@ -3697,7 +3697,8 @@ of the next {\em field-declaration} field encountered
 relative to the beginning of the current area.
 At the beginning of each {\em type-declaration}
 the align/pack switch is set to align.  If the {\em type-declaration}
-is \underline{not} an expansion, the current area is set to `{\tt main}'
+is \underline{not} an expansion (see below),
+the current area is set to `{\tt main}'
 and the offset is set to zero.  If the {\em type-declaration}
 is an expansion, the current area and offset are undefined, and must be
 set by an {\tt *ORIGIN*} statement (see below)
@@ -3727,11 +3728,8 @@ An `\ttkey{*AREA*} $L$' sub-declaration creates a new area and sets
 the current area to the new area and the current origin to zero.
 Each area has \underline{only one} {\tt *AREA*} sub-declaration,
 and {\em area-labels} are only used in diagnostic messages.  Nevertheless,
-the {\em area-labels} of different areas must be distinct.
-
-An \ttkey{*INCLUDE*} sub-declaration copies all the {\em type-subdeclarations}
-of the given defined type into the current sequence of
-{\em type-subdeclarations}.
+the {\em area-labels} of the different areas of a defined type
+must be distinct.
 
 If the last sub-declaration of a {\em type-declaration}
 is either {\tt ***}\label{***} or {\tt *EXTERNAL*}\label{*EXTERNAL*}
@@ -3767,16 +3765,29 @@ in different bodies, and the order in which the expansions are compiled
 is undetermined, so the `last area and offset' of {\em type-declaration}
 is undefined at the beginning of each of its expansions.
 
-A {\em type-declaration} and its expansions form a tree-graph
-with the \key{parent} of an expansion X being the the {\em type-declaration}
-or expansion with smallest scope containing X.
-This tree-graph is called an \key{expansion tree}.
+The {\em type-declarations} of a defined type form a tree-graph
+with the \key{parent} of an expansion being the {\em type-declaration}
+with smallest scope containing X.
+This tree-graph is called the \key{expansion tree} of the defined type.
 
-If a defined type has an expansion that does \underline{not}
-end in {\tt ***} or {\tt *EXTERNAL*}, that expansion must \underline{always}
-be the last
-expansion of the {\em type-declaration} compiled, so that in this case
-the expansion tree of the defined type is required to be linear.
+A defined type is said to be \key{expandable} at a particular point
+in the code if the {\em type-declaration} for the defined type with
+smallest scope containing the code point is expandable.  Otherwise
+the defined type is said to be non-expandable at the code point.
+
+If a defined type is non-expandable at some code point (equivalently,
+if the defined type has a non-expandable {\em type-declaration}),
+the expansion tree of the defined type must be linear.  This error
+may not be detected until load time.
+
+An defined type cannot be used as a field type if the defined type is
+expandable at the point where it is used as the field type.
+
+An defined type cannot be used as the type of a variable allocated
+to the function frame if the defined type is
+expandable at the point where it is used as the variable type.
+However, it can be use as the target type of a pointer allocated with
+the `{\tt local}' allocator.
 
 The final size and alignment of a defined type will not be known
 until load time if the defined type has expansions.
@@ -3821,13 +3832,13 @@ The {\em origin-label} must be defined by a preceding
 {\tt *LABEL*} sub-declaration in the
 same {\em type-declaration} or its extensions.
 
-An `\ttkey{*ORIGIN*} {\em integer-const-expression}' sub-declaration
+An `\ttkey{*OFFSET*} {\em integer-const-expression}' sub-declaration
 changes the current offset to an integer.  Offsets set this way
 may be negative.
 
-An `\ttkey{*ORIGIN*} \ttkey{*SIZE*}' sub-declaration
+An `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 changes the current offset to the size of the current area,
-as it is computed at the point where the {\tt *ORIGIN* *SIZE*}
+as it is computed at the point where the {\tt *OFFSET* *SIZE*}
 sub-declaration is encountered.  This is just the maximum of all
 current offset values computed by previous sub-declarations for
 the current area.
@@ -3852,6 +3863,10 @@ modules and bodies,\pagnote{MODULE-AND-BODY-DECLARATIONS}
 the order in which these {\em type-declarations} are processed
 may not be completely determined, but it is guarenteed that
 an expansion will not be compiled until after its parent is compiled.
+
+An \ttkey{*INCLUDE*} sub-declaration copies all the {\em type-subdeclarations}
+of the given defined type into the current sequence of
+{\em type-subdeclarations}.
 
 \subsubsubsubsection{Type Fields}
 
