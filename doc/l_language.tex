@@ -3747,32 +3747,39 @@ may be negative.  Offsets are in bits.
 \subsubsubsubsection{Defined Type Expansions }
 \label{DEFINED-TYPE-EXPANSIONS}
 
-A defined type can have several {\em type-declara\-tions}.
-All but one of these {\em type-declarations} must be within
-the scope of another one of these,
-and the set of all {\em type-declarations} of a defined type
-forms a tree-graph in which each {\em type-declaration} X is
+A defined type can have just one or several {\em type-declara\-tions}.
+The set of all its {\em type-declarations} is called the
+\key{expansion tree} of the defined type.
+
+Set of fields, subfields, and labels of the defined type is
+the union of those defined by any {\em type-declaration} in the defined
+type's expansion tree.
+
+All but one of the {\em type-declarations} in an expansion tree must be within
+the scope\pagnote{SCOPE} of another {\em type-declaration}
+in the expansion tree, and
+the expansion tree is a tree-graph in which each {\em type-declaration} X is
 the root of a subtree containing all {\em type-declarations} Y
-that are within the scope\pagnote{SCOPE} of X
+that are within the scope of X
 (or equivalently, that have a scope
 that is a subset of the scope of X).  Thus the \key{parent} of
-a non-root Y is the {\em type-declaration} X in the tree-graph of
-smallest scope containing Y.
+a non-root Y is the {\em type-declaration} X in the expansion tree
+with the smallest scope that contains Y.
 
-The tree-graph of a defined type is called its \key{expansion tree}.
-Non-root {\em type-declarations} in the tree are called
+Non-root {\em type-declarations} in the expansion tree are called
 {\em expansions}, and the root {\em type-declaration} is called just
 the \key{root}.
 
 In an expansion tree, all {\em type-declarations} but at most one must end with
-the {\tt ***}\label{***} sub-declaration, or all but at most one
+the {\tt ***}\label{***} sub-declaration, or alternatively all but at most one
 must end with the {\tt *EXTERNAL*}\label{*EXTERNAL*} sub-declaration.
 If {\tt ***} is used, and the root is in a
 module\pagnote{MODULE-AND-BODY-DECLARATIONS},
 all members of the expansion tree must be in
 the module or one of its bodies, even if the defined type's name is
 external.  If {\tt *EXTERNAL*} is used, the defined type's name must
-be external and the expansion tree members can appear anywhere within
+be external (so the root must be in a module)
+and the expansion tree members can appear anywhere within
 the scope of the root of the tree.
 
 {\em Type-declarations} that end with {\tt ***} or {\tt *EXTERNAL*}
@@ -3780,71 +3787,63 @@ are called \key{expandable},
 so at most one {\em type-declaration} in an expansion tree can be
 non-expandable.  Furthermore, if the tree has a non-expandable
 {\em type-declaration}, the tree must be linear (it cannot have
-any branching).  Violation of this rule is detected at load time.
+any branching).  Violation of this rule may not be detected until load time.
 
+A defined type must be inside the scope of the root of its expansion
+tree to be visible, and hence usable.
 If a defined type has a non-expandable {\em type-declaration},
 the defined type is said to be \key{non-expandable} within the
 scope of that non-expandable {\em type-declaration}, and expandable
 outside that scope.
+
+The final size and alignment of an expandable defined type
+is not known until load time.
+Allocators use the size and alignment to allocate memory for a value of
+the type and then zero that memory.  Thus the `{\tt local}' allocator 
+can allocate a datum of an expandable defined type and return a pointer
+to the datum.
+
 A defined type \underline{must be non-expandable} if its name is used as
 a {\em type-name} in a variable declaration, or as a {\em field-type-name}
 in a {\em type-subdeclaration}, or as a {\em defined-type-name} in an
 {\tt *INCLUDE*} {\em type-subdeclaration}.  However an expandable defined type
-can be used as the target of a pointer type.
-
-TBD
+can be used as the target of a pointer type used as a variable type or
+field type.
 
 A {\em field-label} or {\em subfield-label}
 declared within a {\em type-declaration} may
-only be used within the scope\pagnote{SCOPE} of the {\em type-declaration}
-in which the {\em field-label} or {\em subfield-label} is declared.
+only be used within the scope of the {\em type-declaration}
+in which the {\em field-label} or {\em subfield-label} is declared,
+and may \underline{not} be re-declared within this scope.
 
+Similarly an {\em origin-label} may only be used only within its
+defining {\em type-declaration} X and within other {\em tpe-declarations}
+in the same expansion tree that are within the scope of X, and
+may \underline{not} be re-declarated in the places it can be used.
 
-At the beginning of each expansion the align/pack switch is set to align
-but the offset value is undefined.  It must be set by an {\tt *ORIGIN*}
-statement before it is used.\footnote{The offset cannot be set to the
-last offset of the definition being expanded because the order in which
-expansions are compiled is under-determined.}
+At the beginning of each {\em type-declaration} the align/pack switch
+is set to align, the offset is set to zero if the {\em type-declaration}
+is the root of its expansion tree, and the offset is undefined and
+must be set by an {\tt *ORIGIN*} statement before it is used if
+the {\em type-declaration} is a non-root.
 
-The final size and alignment of a defined type with an {\tt ***}
-or {\tt *EXTERNAL*}
-sub-declara\-tion may not be known until load time.  When these are not known,
-values of the type cannot be allocated to the stack, but
-they can be allocated using allocator functions which are passed
-the load-time values.
-Allocators use the size and alignment to allocate memory for a value of
-the type and then zero that memory.
+{\tt *LABEL*} and {\tt *ORIGIN*} sub-declarations are typically used
+to overlay sections of a defined type's value, and create what in other
+languages are union types.  Care must be taken in using union values
+as both type-violations and unexpected field allocations can result.
 
 An `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 changes the current offset to the size of values of the type
 begin defined, as it is computed at the point where the {\tt *OFFSET* *SIZE*}
 sub-declaration is encountered.  This is just the maximum of all
-current offset values computed by previous sub-declarations.
-Use of this sub-declaration can lead to serious difficulties in
-a situation that we will now describe.
+current offset values previously computed in the current {\em type-declaration}
+and its ancestors in the expansion tree.
+The `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
+is only allowed in linear expansion trees.  Violation of this
+rule may not be detected until load time.
 
-A {\em type-declaration} and its expansions form a tree-graph
-with the parent of an expansion X being the the {\em type-declaration}
-or expansion with smallest scope containing X.
-
-Consider the case where X is a {\em type-declaration} with expansions
-Xa and Xb both beginning with {\tt *OFFSET* *SIZE*}.  If Xb is not
-within the scope of Xa and vice-versa, then they will both begin
-with an offset that is the size computed by just X, that is, the maximum
-offset computed while compiling X.  In this case the fields of Xa will
-overlap the fields of Xb.  However if
-Xb is within the scope of Xa, it will begin with an offset that
-is the size of X extended by Xa, the maximum offset computed while
-compiling Xa.  In this case the fields of Xa and Xb will not overlap.
-
-Care must be exercised when using {\tt *LABEL*} and {\tt *ORIGIN*},
-as both type-violations and unexpected field allocations can result.
-Note that if there are multiple {\em type-declarations}
-with the same {\em type-name} in different
-modules and bodies,\pagnote{MODULE-AND-BODY-DECLARATIONS}
-the order in which these {\em type-declarations} are processed
-may not be completely determined, but it is guarenteed that
-an expansion will not be compiled until after its parent is compiled.
+The `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration may be used
+in a linear expansion tree to incrementally add fields to a defined type.
 
 \subsubsubsubsection{Type Fields}
 
