@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 21, 2022
+August 22, 2022
 
 \bigskip
  
@@ -3718,8 +3718,8 @@ the root of a subtree containing all {\em type-declarations} Y
 that are within the scope\pagnote{SCOPE} of X
 (or equivalently, that have a scope
 that is a subset of the scope of X).  Thus the \key{parent} of
-a non-root Y is the {\em type-declaration} X of
-smallest scope whose scope contains Y.
+a non-root Y is the {\em type-declaration} X in the tree-graph of
+smallest scope containing Y.
 
 The tree-graph of a defined type is called its \key{expansion tree}.
 Non-root {\em type-declarations} in the tree are called
@@ -3729,30 +3729,32 @@ the \key{root}.
 In an expansion tree, all {\em type-declarations} but at most one must end with
 the {\tt ***}\label{***} sub-declaration, or all but at most one
 must end with the {\tt *EXTERNAL*}\label{*EXTERNAL*} sub-declaration.
-{\em Type-declarations} that so end are called \key{expandable},
+If {\tt ***} is used, and the root is in a
+module\pagnote{MODULE-AND-BODY-DECLARATIONS},
+all members of the expansion tree must be in
+the module or one of its bodies, even if the defined type's name is
+external.  If {\tt *EXTERNAL*} is used, the defined type's name must
+be external and the expansion tree members can appear anywhere within
+the scope of the root of the tree.
+
+{\em Type-declarations} that end with {\tt ***} or {\tt *EXTERNAL*}
+are called \key{expandable},
 so at most one {\em type-declaration} in an expansion tree can be
 non-expandable.  Furthermore, if the tree has a non-expandable
 {\em type-declaration}, the tree must be linear (it cannot have
-any branching).
+any branching).  Violation of this rule is detected at load time.
 
 If a defined type has a non-expandable {\em type-declaration},
 the defined type is said to be \key{non-expandable} within the
-scope of that non-expandable {\em type-declaration}.
+scope of that non-expandable {\em type-declaration}, and expandable
+outside that scope.
 A defined type \underline{must be non-expandable} if its name is used as
 a {\em type-name} in a variable declaration, or as a {\em field-type-name}
-in a {\em type-declaration}.
+in a {\em type-declaration}.  However an expandable defined type
+can be used as the target of a pointer type.
 
 TBD
 
-For a {\em type-declaration} with an \ttkey{***} sub-declaration,
-its expansions must be in the same module\pagnote{MODULE-AND-BODY-DECLARATIONS}
-as the {\em type-declaration}, or in one of that module's bodies.
-For a {\em type-declaration} with an \ttkey{*EXTERNAL*} sub-declaration
-there is no such restriction, and the expansion may be in
-in any module or body that imports the {\em type-declaration}'s
-module.  However a {\em type-declaration} that is {\tt *EXTERNAL*}
-must have a {\em type-name} beginning with a {\em module-abbreviation}, so
-the {\em type-name} is external.\pagnote{EXTERNAL-NAME}
 
 At the beginning of each expansion the align/pack switch is set to align
 but the offset value is undefined.  It must be set by an {\tt *ORIGIN*}
@@ -3801,13 +3803,13 @@ The {\em origin-label} must be defined by a preceding
 {\tt *LABEL*} sub-declaration in the
 same {\em type-declaration} or its extensions.
 
-An `\ttkey{*ORIGIN*} {\em integer-const-expression}' sub-declaration
+An `\ttkey{*OFFSET*} {\em integer-const-expression}' sub-declaration
 changes the current offset to an integer.  Offsets set this way
 may be negative.
 
-An `\ttkey{*ORIGIN*} \ttkey{*SIZE*}' sub-declaration
+An `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 changes the current offset to the size of values of the type
-begin defined, as it is computed at the point where the {\tt *ORIGIN* *SIZE*}
+begin defined, as it is computed at the point where the {\tt *OFFSET* *SIZE*}
 sub-declaration is encountered.  This is just the maximum of all
 current offset values computed by previous sub-declarations.
 Use of this sub-declaration can lead to serious difficulties in
@@ -3818,7 +3820,7 @@ with the parent of an expansion X being the the {\em type-declaration}
 or expansion with smallest scope containing X.
 
 Consider the case where X is a {\em type-declaration} with expansions
-Xa and Xb both beginning with {\tt *ORIGIN* *SIZE*}.  If Xb is not
+Xa and Xb both beginning with {\tt *OFFSET* *SIZE*}.  If Xb is not
 within the scope of Xa and vice-versa, then they will both begin
 with an offset that is the size computed by just X, that is, the maximum
 offset computed while compiling X.  In this case the fields of Xa will
