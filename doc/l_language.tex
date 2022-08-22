@@ -3592,13 +3592,13 @@ The syntax of a type declaration is:
     ::= &  {\em field-declaration} \\
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
-    $|$ &  \ttkey{***} \\
-    $|$ &  \ttkey{*EXTERNAL*} \\
+    $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
     $|$ &  \ttkey{*OFFSET*} {\em integer-const-expression} \\
+    $|$ &  \ttkey{***} \\
+    $|$ &  \ttkey{*EXTERNAL*} \\
     $|$ &  \ttkey{*OFFSET*} \ttkey{*SIZE*} \\
-    $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     \end{tabular}
 \\[2ex]
 \emkey{field-declaration}
@@ -3687,7 +3687,8 @@ offset-in-bits integer.  These determine the offset in bits
 of the next {\em field-declaration} field encountered
 relative to the beginning of each datum of the new data
 type being declared.  There may be several {\em type-declarations}
-for the same defined type (see below), and at the beginning
+for the same defined type (see \itemref{DEFINED-TYPE-EXPANSIONS}),
+and at the beginning
 of the first the align/pack switch is set to align and the offset
 is set to zero.
 
@@ -3709,7 +3710,46 @@ align/pack switch to `align'.
 
 A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
-A defined type can have several {\em type-declarations}.
+An \ttkey{*INCLUDE*} sub-declaration copies all the {\em type-subdeclarations}
+of the given defined type into the current sequence of
+{\em type-subdeclarations}.
+
+A \ttkey{*DEFERRED*} {\em type-declaration} declares a {\em type-name}
+without declaring the definition of the named type.
+Such a {\em type-declaration} is typically used allow the {\em type-name}
+to be used as the target type of a pointer.
+For any non-deferred {\em type-declaration} there may be one or more
+deferred {\em type-declarations} of the same {\em type-name}, but for
+any two {\em type-declarations} with the same {\em type-name}
+one must be within the scope of the other.
+
+The {\em type-name} in a {\em type-declaration} is declared before
+the {\em type-declaration}'s sub-declarations are processed, so these
+sub-declarations may use the {\em type-name} as a pointer target type.
+
+A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
+given {\em origin-label} and provides the {\em origin-label}
+for use by subsequent {\tt *ORIGIN*} sub-declarations in the
+same {\em type-declaration} (or its expansions:
+see \itemref{DEFINED-TYPE-EXPANSIONS}).
+An {\em origin-label} may \underline{not} be re-defined within the same
+{\em type-declaration} or its expansions.
+
+An `\ttkey{*ORIGIN*} {\em origin-label}' sub-declaration
+changes the current offset to that
+of the given {\em origin-label}.
+The {\em origin-label} must be defined by a preceding
+{\tt *LABEL*} sub-declaration in the
+same {\em type-declaration} or its expansions.
+
+An `\ttkey{*OFFSET*} {\em integer-const-expression}' sub-declaration
+changes the current offset to an integer.  Offsets set this way
+may be negative.  Offsets are in bits.
+
+\subsubsubsubsection{Defined Type Expansions }
+\label{DEFINED-TYPE-EXPANSIONS}
+
+A defined type can have several {\em type-declara\-tions}.
 All but one of these {\em type-declarations} must be within
 the scope of another one of these,
 and the set of all {\em type-declarations} of a defined type
@@ -3750,10 +3790,16 @@ scope of that non-expandable {\em type-declaration}, and expandable
 outside that scope.
 A defined type \underline{must be non-expandable} if its name is used as
 a {\em type-name} in a variable declaration, or as a {\em field-type-name}
-in a {\em type-declaration}.  However an expandable defined type
+in a {\em type-subdeclaration}, or as a {\em defined-type-name} in an
+{\tt *INCLUDE*} {\em type-subdeclaration}.  However an expandable defined type
 can be used as the target of a pointer type.
 
 TBD
+
+A {\em field-label} or {\em subfield-label}
+declared within a {\em type-declaration} may
+only be used within the scope\pagnote{SCOPE} of the {\em type-declaration}
+in which the {\em field-label} or {\em subfield-label} is declared.
 
 
 At the beginning of each expansion the align/pack switch is set to align
@@ -3770,42 +3816,6 @@ they can be allocated using allocator functions which are passed
 the load-time values.
 Allocators use the size and alignment to allocate memory for a value of
 the type and then zero that memory.
-
-A \ttkey{*DEFERRED*} {\em type-declaration} declares a {\em type-name}
-without declaring the definition of the named type.
-Such a {\em type-declaration} is typically used allow the {\em type-name}
-to be used as the target type of a pointer.
-For any non-deferred {\em type-declaration} there may be one or more
-deferred {\em type-declarations} of the same {\em type-name}, but for
-any two {\em type-declarations} with the same {\em type-name}
-one must be within the scope of the other.
-
-A {\em field-label} or {\em subfield-label}
-declared within a {\em type-declaration} may
-only be used within the scope\pagnote{SCOPE} of the {\em type-declaration}
-in which the {\em field-label} or {\em subfield-label} is declared.
-
-The {\em type-name} in a {\em type-declaration} is declared before
-the {\em type-declaration}'s sub-declarations are processed, so these
-sub-declarations may use the {\em type-name} as a pointer target type.
-
-A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
-given {\em origin-label} and provides the {\em origin-label}
-for use by subsequent {\tt *ORIGIN*} sub-declarations in the
-same {\em type-declaration} or its extensions.
-An {\em origin-label} may \underline{not} be re-defined within the same
-{\em type-declaration} or its extensions.
-
-An `\ttkey{*ORIGIN*} {\em origin-label}' sub-declaration
-changes the current offset to that
-of the given {\em origin-label}.
-The {\em origin-label} must be defined by a preceding
-{\tt *LABEL*} sub-declaration in the
-same {\em type-declaration} or its extensions.
-
-An `\ttkey{*OFFSET*} {\em integer-const-expression}' sub-declaration
-changes the current offset to an integer.  Offsets set this way
-may be negative.
 
 An `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 changes the current offset to the size of values of the type
@@ -3837,10 +3847,6 @@ modules and bodies,\pagnote{MODULE-AND-BODY-DECLARATIONS}
 the order in which these {\em type-declarations} are processed
 may not be completely determined, but it is guarenteed that
 an expansion will not be compiled until after its parent is compiled.
-
-An \ttkey{*INCLUDE*} sub-declaration copies all the {\em type-subdeclarations}
-of the given defined type into the current sequence of
-{\em type-subdeclarations}.
 
 \subsubsubsubsection{Type Fields}
 
