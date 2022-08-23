@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  8 13:55:36 EDT 2022
+// Date:	Tue Aug 23 14:43:45 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -191,7 +191,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           code,
           block_level, PAR::top_level_position,
           OP::INFIX,
-          1000,
+          1100,
 	  binary_reformatter,
           min::MISSING(),
           oper_pass->oper_table );

@@ -1611,10 +1611,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\hline
 \ttkey{=} & assignment & left & assignment & 1000
 \\\cline{1-4}
-\ttkey{=@} & pointer & infix & binary & \\
-           & assignment & & &
-\\\cline{1-2}
-\ttkey{+=} & increment & & &
+\ttkey{+=} & increment & infix & binary &
 \\\cline{1-2}
 \ttkey{-=} & decrement & & &
 \\\cline{1-2}
@@ -1631,6 +1628,9 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \ttkey{<{}<=} & shift left & & &
 \\\cline{1-2}
 \ttkey{>{}>=} & shift right & & &
+\\\hline
+\ttkey{=@} & pointer & infix & binary & 1100 \\
+           & assignment & & &
 \\\hline
 \end{tabular}
 \end{center}
@@ -3913,16 +3913,16 @@ An example is:
 
 \begin{indpar}\begin{verbatim}
 type my type : *DEFERRED*
-ap *READ-WRITE* my type @X
+ap *READ-WRITE* my type @X    // `=@ local = *DEFERRED*' is implied
                     // Legal, my type members need not be declared.
                     // Size and alignment of my type values is
                     // computed at load time.  The allocated value
                     // will be zeroed.
 ap ro my type @Y = @X  // Legal, only ap copied.
-my type Z = X       // Legal, Z is allocated as per `local'
-                    // and the value at @X is copied to
-                    // the location of Z.  However in this
-                    // case the value is zero.
+my type @Z:         // Legal, `=@ local' is implied
+    Z = X           // Legal, the value at @X is copied to
+                    // the value at @Z.  However in this
+                    // case the value is completely zero.
 
 type my type:       // Definition of my type that was *DEFERRED*.
     *LABEL* origin  // `origin' is set to offset 0
@@ -3990,13 +3990,13 @@ flt weight = X.weight
 
 \subsubsubsubsection{Type Dimensions}
 
-If a {\em field-declaration} with {\em field-label}\, {\tt L} contains 
+If a {\em field-declaration} with {\em field-label}\, {\tt F} contains 
 a single {\em field-dimension} {\tt [$n$]} then $n$ fields are
 allocated to ascending offsets, using zero padding
 if necessary to align all $n$ fields.  The labels of these
-fields are {\tt L[$i$]} for $0\le i<n$.  If there is a subfield
+fields are {\tt F[$i$]} for $0\le i<n$.  If there is a subfield
 labeled {\tt S} of the field, {\tt S[$i$]} refers to the
-subfield in {\tt L[$i$]}.  For example:
+subfield in {\tt F[$i$]}.  For example:
 
 \begin{indpar}\begin{verbatim}
 type character attributes:
@@ -4015,12 +4015,12 @@ bool A is graphic = X.is graphic [C#"A"]
 In a {\em field-declaration}
 \underline{two} {\em field-dimensions} {\tt [$n1$][$n2$]} is
 treated as syntactic sugar for {\tt [$n1$*$n2$]} with
-{\tt L[$i1$][$i2$]} being syntactic sugar for
-{\tt L[$i1$*$n2$+$i2$]}.  Similarly
+{\tt F[$i1$][$i2$]} being syntactic sugar for
+{\tt F[$i1$*$n2$+$i2$]}.  Similarly
 {\tt [$n1$][$n2$][$n3$]} is
 syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
-{\tt L[$i1$][$i2$][$i3$]} being syntactic sugar for
-{\tt L[$i1$*$n2$*$n3$*+$i2$*$n2$+$i3$]}.  And so forth for any
+{\tt F[$i1$][$i2$][$i3$]} being syntactic sugar for
+{\tt F[$i1$*$n2$*$n3$*+$i2$*$n2$+$i3$]}.  And so forth for any
 number of {\em field-dimensions}.
 
 If a {\em subfield-declaration} with {\em subfield-label}\, {\tt S} contains 
@@ -4044,20 +4044,21 @@ hex digits X:
 // Now X == X#"76543210"
 \end{verbatim}\end{indpar}
 
-A {\em subfield-declaration} with more than one {\em subfield-dimension} is
+A {\em subfield-declaration} with {\em subfield-label} S
+and more than one {\em subfield-dimension} is
 treated in the same manner as a {\em field-declaration} with
 more than one {\em field-dimension}.  For example,
 {\tt [$n1$][$n2$][$n3$]} is
 syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
-{\tt L[$i1$][$i2$][$i3$]} being syntactic sugar for
-{\tt L[$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$]}.
+{\tt S[$i1$][$i2$][$i3$]} being syntactic sugar for
+{\tt S[$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$]}.
 
 If a {\em field-declaration} with {\em field-label} {\tt F}
 has a {\em field-dimension}
-and also a subfield with {\em subfield-label} {\tt L}, then
-{\tt L[$i$]} references the subfield in the field value {\tt F[$i$]}.
+and also a subfield with {\em subfield-label} {\tt S}, then
+{\tt S[$i$]} references the subfield in the field value {\tt F[$i$]}.
 If in addition the subfield has a {\em subfield-dimension},
-{\tt L[$i$][$j$]} references the subfield selected by {\tt [$j$]}
+{\tt S[$i$][$j$]} references the subfield selected by {\tt [$j$]}
 in the field value {\tt F[$i$]}.
 
 In all cases `\TT{][}' may be replaced by `\TT{,~}' (the space
