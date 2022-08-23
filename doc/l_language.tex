@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 22, 2022
+August 23, 2022
 
 \bigskip
  
@@ -3685,7 +3685,7 @@ The {\em type-subdeclarations} are processed in order.  At the
 beginning of each, there is a align/pack switch value and an
 offset-in-bits integer.  These determine the offset in bits
 of the next {\em field-declaration} field encountered
-relative to the beginning of each datum of the new data
+relative to the beginning of each datum of the defined
 type being declared.  There may be several {\em type-declarations}
 for the same defined type (see \itemref{DEFINED-TYPE-EXPANSIONS}),
 and at the beginning
@@ -3723,7 +3723,7 @@ For any non-deferred {\em type-declaration} there may be one or more
 deferred {\em type-declarations} of the same {\em defined-type-name}.
 For any two {\em type-declarations} with the same {\em defined-type-name},
 one must be within the scope of the other, whether or not they are
-deferred..
+deferred.
 
 The {\em defined-type-name} in a {\em type-declaration} is declared before
 the {\em type-declaration}'s sub-declarations are processed, so these
@@ -3751,9 +3751,13 @@ A defined type can have just one or several {\em type-declara\-tions}.
 The set of all its {\em type-declarations} is called the
 \key{expansion tree} of the defined type.
 
-Set of fields, subfields, and labels of the defined type is
+The set of fields and subfields of the
+defined type is
 the union of those defined by any {\em type-declaration} in the defined
-type's expansion tree.
+type's expansion tree.  However these may not have unique names, as long
+as each name is unique in the scope of the {\em type-declaration}
+that defines the name (because two {\em type-declarations} in the expansion
+tree can have disjoint scopes).
 
 All but one of the {\em type-declarations} in an expansion tree must be within
 the scope\pagnote{SCOPE} of another {\em type-declaration}
@@ -3772,7 +3776,7 @@ the \key{root}.
 
 In an expansion tree, all {\em type-declarations} but at most one must end with
 the {\tt ***}\label{***} sub-declaration, or alternatively all but at most one
-must end with the {\tt *EXTERNAL*}\label{*EXTERNAL*} sub-declaration.
+must end with the {\tt *EXTERNAL*}\label{*EXTERNAL*} sub-declara\-tion.
 If {\tt ***} is used, and the root is in a
 module\pagnote{MODULE-AND-BODY-DECLARATIONS},
 all members of the expansion tree must be in
@@ -3798,7 +3802,8 @@ outside that scope.
 
 The final size and alignment of an expandable defined type
 is not known until load time.
-Allocators use the size and alignment to allocate memory for a value of
+Allocators use the load time
+size and alignment to allocate memory for a value of
 the type and then zero that memory.  Thus the `{\tt local}' allocator 
 can allocate a datum of an expandable defined type and return a pointer
 to the datum.
@@ -3821,11 +3826,17 @@ defining {\em type-declaration} X and within other {\em tpe-declarations}
 in the same expansion tree that are within the scope of X, and
 may \underline{not} be re-declarated in the places it can be used.
 
+Because it is possible for different {\em type-declarations} in
+an expansion tree to have disjoint scopes, a given label may refer
+to different things in these disjoint scopes: e.g., it might be a
+{\em field-label} in one scope and an {\em origin-label} in the
+other, or it might name completely different fields in the two scopes.
+
 At the beginning of each {\em type-declaration} the align/pack switch
 is set to align, the offset is set to zero if the {\em type-declaration}
 is the root of its expansion tree, and the offset is undefined and
-must be set by an {\tt *ORIGIN*} statement before it is used if
-the {\em type-declaration} is a non-root.
+must be set by an {\tt *ORIGIN*} or {\tt *OFFSET*} statement before
+it is used if the {\em type-declaration} is a non-root.
 
 {\tt *LABEL*} and {\tt *ORIGIN*} sub-declarations are typically used
 to overlay sections of a defined type's value, and create what in other
@@ -3836,7 +3847,7 @@ An `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 changes the current offset to the size of values of the type
 begin defined, as it is computed at the point where the {\tt *OFFSET* *SIZE*}
 sub-declaration is encountered.  This is just the maximum of all
-current offset values previously computed in the current {\em type-declaration}
+offset values previously computed in the current {\em type-declaration}
 and its ancestors in the expansion tree.
 The `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 is only allowed in linear expansion trees.  Violation of this
