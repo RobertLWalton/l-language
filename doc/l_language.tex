@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 24, 2022
+August 25, 2022
 
 \bigskip
  
@@ -4319,15 +4319,23 @@ where {\em ma} is the same module as that of the
 If a pointer of type $P1$ is to be implicitly
 convertible to a pointer of type $P2$ when passing the
 pointer to a function or storing the pointer in memory,
-the above functions are not used.  Instead a function with
-the prototype:
+the above functions are not used.  Instead the compiler
+tries to find a function in the current context
+with the prototype
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 @r = \\
 \hspace*{1in}{\em ma}\QMARK{} *POINTER* *IMPLICIT* *CONVERSION*
                                   ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
-is called (without any {\em module-abbreviation}).
-You can define this, or you can define
+and if the compiler finds such a function,
+the compiler calls {\tt *POINTER* *IMPLICIT* *CON\-VER\-SION*}
+to perform the conversion.
+This call will select the function whose prototype was found,
+but may select other functions if there is ambiguity.
+If there is such ambiguity, the compilation will fail
+and the implicit conversion will be unsuccessful.
+
+You can define a function with the above prototype, or you can define
 \begin{indpar} \tt
 function $D2$ r ={\em ma}\QMARK{}  \ttkey{*POINTER* *IMPLICIT* *CONVERSION*} ( $D1$ data )
 \end{indpar}
@@ -4342,7 +4350,7 @@ function $P2$ Q\$1 T\$1 @r = \\
 \end{indpar}
 
 You may want the conversion from $P1$ to $P2$ to
-be explicit an unchecked instead of implied.  This can be achieved by defining:
+be explicit and unchecked instead of implied.  This can be achieved by defining:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $P1$ Q\$1 T\$1 @p )
 \end{indpar}
