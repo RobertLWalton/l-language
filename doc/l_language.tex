@@ -4074,31 +4074,22 @@ T1 v1 = ...
 T2 v2 = v1
 \end{verbatim}\end{indpar}
 where {\tt T1} and {\tt T2} are different non-pointer types,
-the compiler tries to find a function in the current context
-with the prototype
-\begin{indpar} \tt
-function T2 r = {\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( T1 v )
-\end{indpar}
-and if the compiler finds such a function,
-the compiler changes the code to:
+the compiler just rewrites the code to:
 \begin{indpar}\begin{verbatim}
 T1 v1 = ...
 T2 v2 = *IMPLICIT* *CONVERSION* ( v1 )
 \end{verbatim}\end{indpar}
-This code will select the function whose prototype was found,
-but may select other functions if there is ambiguity.
-If there is such ambiguity, the compilation will fail
-and the implicit conversion will be unsuccessful.
-
-Note that the requirement that the prototype exist in order
-to make the code change prevents implicit conversions from
-being cascaded.  That is, if there is implicit conversion
-from type {\tt T1} to type {\tt T2}, and implicit conversion
-from type {\tt T2} to type {\tt T3}, then implicit conversion
-from type {\tt T1} all the way to type {\tt T3} is \underline{not}
-implicitly defined.  It may be defined only by
-explicitly declaring an {\tt *IMPLICIT* *CONVERSION*} function
-with argument of type {\tt T1} and result of type {\tt T3}.
+and compiles the rewritten code.  If you define a function
+with the prototype
+\begin{indpar} \tt
+function T2 r = {\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( T1 v )
+\end{indpar}
+the compiler will used this function.  Otherwise the compiler
+will try to chain implicit conversions together to get to a
+successful compile.  Of course such chaining will only work
+if there is at least one {\em *IMPLICIT* *CONVERSION*} function with
+target type {\tt T2}.  If there is more than one such function,
+and none have argument type {\tt T1}, ambiguity may lead to a compile error.
 
 You can define {\tt *IMPLICIT* *CONVERSION*} functions
 provided at least one of the two types {\tt T1} and {\tt T2}
@@ -4316,28 +4307,35 @@ reference function $P2$ Q\$1 T\$1 @r = \\
 where {\em ma} is the same module as that of the
 {\tt *POINTER* *ACCESS* *CONVERSION*} function, if any.
 
-If a pointer of type $P1$ is to be implicitly
-convertible to a pointer of type $P2$ when passing the
-pointer to a function or storing the pointer in memory,
-the above functions are not used.  Instead the compiler
-tries to find a function in the current context
+When the compiler is confronted with code such as:
+\begin{indpar}\begin{verbatim}
+P1 ... @p1 = ...
+P2 ... @p2 = @p1
+\end{verbatim}\end{indpar}
+where {\tt P1} and {\tt P2} are different pointer types,
+the compiler just rewrites the code to:
+\begin{indpar}\begin{verbatim}
+P1 ... @p1 = ...
+P2 ... @p2 = *POINTER* *IMPLICIT* *CONVERSION* ( @p1 )
+\end{verbatim}\end{indpar}
+and compiles the rewritten code.  If you define a function
 with the prototype
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = \\
+function P2 Q\$1 T\$1 @r = \\
 \hspace*{1in}{\em ma}\QMARK{} *POINTER* *IMPLICIT* *CONVERSION*
-                                  ( $P1$ Q\$1 T\$1 @p )
+                                  ( P1 Q\$1 T\$1 @p )
 \end{indpar}
-and if the compiler finds such a function,
-the compiler calls {\tt *POINTER* *IMPLICIT* *CON\-VER\-SION*}
-to perform the conversion.
-This call will select the function whose prototype was found,
-but may select other functions if there is ambiguity.
-If there is such ambiguity, the compilation will fail
-and the implicit conversion will be unsuccessful.
+the compiler will used this function.  Otherwise the compiler
+will try to chain pointer implicit conversions together to get to a
+successful compile.  Of course such chaining will only work
+if there is at least one {\em *POINTER* *IMPLICIT* *CONVERSION*} function with
+target type {\tt P2 ...}.  If there is more than one such function,
+and none have argument type {\tt P1 ...}, ambiguity may lead to a compile error.
 
 You can define a function with the above prototype, or you can define
 \begin{indpar} \tt
-function $D2$ r ={\em ma}\QMARK{}  \ttkey{*POINTER* *IMPLICIT* *CONVERSION*} ( $D1$ data )
+function $D2$ r ={\em ma}\QMARK{}  \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
+			( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
