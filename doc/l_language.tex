@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 25, 2022
+August 26, 2022
 
 \bigskip
  
@@ -4478,7 +4478,10 @@ The syntax of a function declaration is:
     ::= {\em pattern-argument-list}\STAR{}~ {\em pattern-term}\PLUS{}
 \\[0.5ex]
 \emkey{pattern-term}\label{PATTERN-TERM}
-    ::= {\em function-term-name}~ {\em pattern-argument-list}\STAR{}
+    ::= {\em non-member-function-term-name}~ {\em pattern-argument-list}\STAR{}
+\\[0.5ex]
+\emkey{non-member-function-term-name} ::= \\
+\hspace*{0.5in}{\em function-term-name} that is not a {\em member-name}
 \\[0.5ex]
 \emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
@@ -4505,8 +4508,10 @@ A {\em prototype-pattern} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
 in the same {\em prototype-pattern}.
 \item
-The first {\em function-term-name} in a {\em prototype-pattern}
-must not be a {\em member-name}\pagnote{MEMBER-NAME}.
+{\em Function-term-names} in a {\em prototype-pattern}
+may not be {\em member-names}\pagnote{MEMBER-NAME}
+(compare with {\em reference-function-declaration}%
+\pagnote{REFERENCE-FUNCTION-DECLARATION}).
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must not begin with a {\em module-abbreviation}.
@@ -4607,7 +4612,8 @@ In the latter, {\tt \{ "x", "+", "y" \}} cannot be recognized as
 a {\em function-call} because the arguments {\tt "x"} and {\tt "y"} are
 not bracketed (i.e., are not {\tt \{ "x" \}} and {\tt \{ "y" \}}),
 and will also not be recognized as a {\em reference-expression}
-(because {\tt "+"} is not a {\em member-name}) or
+(because {\tt "+"} cannot be in a {\em variable-name} or
+begin a {\em member-name}) or
 {\em constant}.
 
 A {\em pattern-term} with the syntax:
@@ -4754,13 +4760,14 @@ a function prototype	& the subexpression is a function call that
 \ttkey{*EXACT*}		& the subexpression is a reference expression
 			  whose type is exactly the target-type
 \\[1ex]
-\ttkey{*CONST*}		& the subexpression is a constant and the
-			  target-type is {\tt const}
+\ttkey{*CONST*}		& the subexpression is a
+                          {\em const-expression}\pagnote{CONST-EXPRESSION}
+                          and the target-type is {\tt const}
 
 \end{tabular}
 \end{center}
 
-If the subexpression is a {\em reference-expression} $e$
+If the subexpression is a {\em reference-expression}
 $e$ whose type is not exactly the target-type, the compiler replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
 and attempts to find a function prototype for this revised expression.
@@ -5122,7 +5129,7 @@ No other {\em call-term-name} is a {\em member-name}.
 The syntax of a {\em reference-function-declaration} is:
 
 \begin{indpar}[0.1in]
-\emkey{reference-function-declaration}\label{REFEREMCE-FUNCTION-DECLARATION}
+\emkey{reference-function-declaration}\label{REFERENCE-FUNCTION-DECLARATION}
 	::= \\
 \hspace*{2em}
     \begin{tabular}[t]{rl}
