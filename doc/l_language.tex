@@ -4749,7 +4749,8 @@ of the statement that is not in a subblock within the statement
 This maps target-types to one of:
 \begin{center}
 \begin{tabular}{lp{4.0in}}
-a function prototype	& the subexpression is a function call that
+a function prototype	& the subexpression is a non-{\em const-expression}
+                          that is a function call that
 			  matches the function prototype and only
 			  that prototype
 \\[1ex]
@@ -4757,33 +4758,29 @@ a function prototype	& the subexpression is a function call that
                           matches zero or more than one function
 			  prototypes
 \\[1ex]
-\ttkey{*EXACT*}		& the subexpression is a reference expression
-			  whose type is exactly the target-type
-\\[1ex]
-\ttkey{*CONST*}		& the subexpression is a
-                          {\em const-expression}\pagnote{CONST-EXPRESSION}
-                          and the target-type is {\tt const}
+\ttkey{*EXACT*}		& the subexpression is a reference expression or
+			  {\em const-expression}
+			  whose type is exactly the target-type or
 
 \end{tabular}
 \end{center}
 
 If the subexpression is a {\em reference-expression}
-$e$ whose type is not exactly the target-type, the compiler replaces $e$ by \\
+$e$ whose type is not exactly the target-type,
+and if the target-type and the type of $e$ are both non-pointer, non-{\tt const}
+types, the compiler replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
 and attempts to find a function prototype for this revised expression.
+If instead the target-type and the type of $e$ are both pointer types,
+the compiler replaces $e$ by \\[0.5ex]
+\centerline{\tt *POINTER* *IMPLICIT* *CONVERSION* ( $e$ )}
 
-Otherwise, if there is only one target type (i.e., the expression is not
-a {\em function-call} in a {\em call-assignment-statement} with more than
-one result), if the target type is not {\em const},
-and if the map entry for the {\tt const} target type in the subexpression
-matching map is not {\tt *FAIL*}, then the
-the compiler attempts to find an {\tt *IMPLICIT* *CONVER\-SION*} prototype
-with a result of the target-type and a single {\tt const} argument, and
-if found, replaces $e$ by \\
-\centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
-using this {\tt *IMPLICIT* *CONVERSION*} prototype.
+If $e$ is a {\em const-expression} and the target-type
+is not {\tt const},
+the compiler replaces $e$ by \\[0.5ex]
+\centerline{\tt *CONST* *IMPLICIT* *CONVERSION* ( $e$ )}
 
-The implications of the last paragraph are brought out by the following
+The implications of this last are brought out by the following
 example:
 \begin{indpar}\begin{verbatim}
 int x = 5.5 - 5.5     // Sets x = 0
@@ -4797,11 +4794,8 @@ these values are converted to {\tt int}.  The error in converting
 {\tt 0.5} to {\tt int} is \underline{not} detected by call-prototype
 matching; it is detected when the code produced by call-prototype
 matching: \\
-\centerline{\tt int y = *IMPLIED* *CONVERSION* ( 5.5 - 5.0 )}
+\centerline{\tt int y = *CONST* *IMPLIED* *CONVERSION* ( 5.5 - 5.0 )}
 is compiled.
-
-The above gives a kind of preference to functions with {\tt const}
-result type over functions with run-time result types.
 
 The matching map for a particular subexpression in a statement does
 \underline{not} depend on the parts of the statement that contain
