@@ -2558,17 +2558,19 @@ A \emkey{reference-expression} computes either a pointer to a location
 in memory, or the value of such a location, or stores a value in a location,
 or appears to do these things via calls to reference functions.
 
-Syntactically a {\em reference-expression} begins with a {\em variable-name}
+Syntactically a typical {\em reference-expression}
+begins with a {\em variable-name}
 and then adds suffixes that begin with either a \TT{[} bracket
 or a {\em member-name} (which begins with `\TT{.}': see \pagref{MEMBER-NAME}).
 A {\em reference-expression} that is not a {\em variable-name} by
-itself is called \key{compound} and consists of two parts:
+itself (or by itself inside parentheses)
+is called \key{compound} and consists of two parts:
 a prefix that is a smaller {\em reference-expression} and a suffix that
-begins with the \TT{[} or {\em member-name}.  The prefix is never
-parenthesized, so a {\em reference-expression} always begins with a
-{\em variable-name}, and \underline{never} with a parenthesized argument list.
-The rest of the {\em reference-expression}
-may contain parenthesized argument lists.
+begins with the \TT{[} or {\em member-name}.  The prefix is may be
+parenthesized, so a {\em reference-expression} always begins zero or more
+left parentheses followed by a {\em variable-name}.
+The suffix begins with a `\TT{[}' or a {\em member-name},
+and may contain parenthesized argument lists.
 
 The type of a {\em reference-expression} is computed bottom up starting
 with the type of the prefix which has been previously computed bottom up.
@@ -2598,6 +2600,7 @@ The syntax of {\em reference-expressions} is:
     $|$ & {\em reference-expression} \TT{[} {\em index-list} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     $|$ & {\em reference-call} \\
+    $|$ & \TT{(} {\em reference-expression} \TT{)} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{index-list} ::= {\em index} \{ \TT{,} {\em index} \}\STAR{}
