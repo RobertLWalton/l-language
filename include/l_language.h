@@ -2,7 +2,7 @@
 //
 // File:	l_language.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Mon Aug  8 02:40:20 EDT 2022
+// Date:	Sat Aug 27 14:16:38 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -29,6 +29,7 @@ namespace l_language
 	    type,		// type
 	    pointer_type,	// pointer type
 	    function,		// function
+	    reference_function, // reference function
 	    out_of_line_function, // out-of-line function
 	    long_arrow; 	// --->
     }

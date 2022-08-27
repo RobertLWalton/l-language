@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Tue Aug 23 14:43:45 EDT 2022
+// Date:	Sat Aug 27 14:16:57 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -45,6 +45,7 @@ min::locatable_gen LLEX::Cnumber;
 min::locatable_gen LLEX::type;
 min::locatable_gen LLEX::pointer_type;
 min::locatable_gen LLEX::function;
+min::locatable_gen LLEX::reference_function;
 min::locatable_gen LLEX::out_of_line_function;
 min::locatable_gen LLEX::long_arrow;
 
@@ -65,6 +66,8 @@ static void initialize ( void )
     LLEX::pointer_type =
         min::new_lab_gen ( "pointer", "type" );
     LLEX::function = min::new_str_gen ( "function" );
+    LLEX::reference_function =
+        min::new_lab_gen ( "reference", "function" );
     LLEX::out_of_line_function =
         min::new_lab_gen ( "out-of-line", "function" );
     LLEX::long_arrow = min::new_str_gen ( "--->" );
@@ -258,6 +261,16 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           oper_pass->oper_table );
     OP::push_oper
         ( LLEX::function,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          0000,
+          min::NULL_STUB,	// TBD
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( LLEX::reference_function,
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
