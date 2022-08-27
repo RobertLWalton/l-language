@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 26, 2022
+August 27, 2022
 
 \bigskip
  
@@ -4073,7 +4073,7 @@ When the compiler is confronted with code such as:
 T1 v1 = ...
 T2 v2 = v1
 \end{verbatim}\end{indpar}
-where {\tt T1} and {\tt T2} are different non-pointer types,
+where {\tt T1} and {\tt T2} are different types,
 the compiler just rewrites the code to:
 \begin{indpar}\begin{verbatim}
 T1 v1 = ...
@@ -4087,14 +4087,13 @@ function T2 r = {\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( T1 v )
 the compiler will used this function.  Otherwise the compiler
 will try to chain implicit conversions together to get to a
 successful compile.  Of course such chaining will only work
-if there is at least one {\em *IMPLICIT* *CONVERSION*} function with
+if there is at least one {\tt *IMPLICIT* *CONVERSION*} function with
 target type {\tt T2}.  If there is more than one such function,
 and none have argument type {\tt T1}, ambiguity may lead to a compile error.
 
 You can define {\tt *IMPLICIT* *CONVERSION*} functions
 provided at least one of the two types {\tt T1} and {\tt T2}
-is user defined, and \underline{not} builtin, and both are
-non-pointer types.
+is user defined, and \underline{not} builtin, and {\tt T2} is not {\tt const}.
 There are builtin {\tt *IMPLICIT* *CON\-VER\-SION*} functions in
 which both types are builtin: see \itemref{BUILTIN-IMPLICIT-CONVERSIONS}.
 
@@ -4108,8 +4107,8 @@ When defining an implicit conversion from type {\tt T1} to type
 by a value of type {\tt T2}.  This rule should be followed, but
 is not checked by the compiler.
 
-For non-pointer types {\tt T1} and {\tt T2} you
-can define an explicit conversion:
+For types {\tt T1} and {\tt T2} you
+can also define an explicit conversion:
 \begin{indpar} \tt
 function T2 r = {\em ma}\QMARK{} T2 ( T1 v )
 \end{indpar}
@@ -4119,11 +4118,15 @@ may wish to define instead an unchecked conversion:
 function T2 r = {\em ma}\QMARK{} *UNCHECKED* ( T1 v )
 \end{indpar}
 The compiler will not allow you to define such functions if both
-{\tt T1} and {\tt T2} are builtin, but some such functions are
+{\tt T1} and {\tt T2} are builtin or if {\tt T2} is {\tt const},
+but some such functions are
 builtin: see \itemref{BUILTIN-EXPLICIT-CONVERSIONS}.
 
-
-
+The types {\tt T1} and {\tt T2} may also be pointer types:
+see \pagref{POINTER-IMPLICIT-CONVERSION}.  Or one may be a pointer-type
+and one a non-pointer type.  However, {\tt T2} cannot
+be {\tt const}, and you cannot define your own {\tt *IMPLICIT* *CONVERSION*}
+function is both types are builtin.
 
 
 \subsubsubsection{Pointer Type Declarations}
@@ -4178,7 +4181,7 @@ function std data for ap r = std pointer to data ( ap Q$1 T$1 @ptr )
 // *GLOBAL*.
 // 
 dp *GLOBAL* int std @zero    // value zero is initialized to 0
-function std ap QG$1 t$1 @r = std *POINTER* *IMPLICIT* *CONVERSION*
+function std ap QG$1 t$1 @r = std *IMPLICIT* *CONVERSION*
         ( std dp QG$1 T$1 @p ):
     std data for dp d = std pointer to data ( dp QG$1 T$1 @p )
     std data for ap dap:
@@ -4307,7 +4310,8 @@ reference function $P2$ Q\$1 T\$1 @r = \\
 where {\em ma} is the same module as that of the
 {\tt *POINTER* *ACCESS* *CONVERSION*} function, if any.
 
-When the compiler is confronted with code such as:
+When the compiler is confronted with code such as:%
+\label{POINTER-IMPLICIT-CONVERSION}
 \begin{indpar}\begin{verbatim}
 P1 ... @p1 = ...
 P2 ... @p2 = @p1
@@ -4316,19 +4320,19 @@ where {\tt P1} and {\tt P2} are different pointer types,
 the compiler just rewrites the code to:
 \begin{indpar}\begin{verbatim}
 P1 ... @p1 = ...
-P2 ... @p2 = *POINTER* *IMPLICIT* *CONVERSION* ( @p1 )
+P2 ... @p2 = *IMPLICIT* *CONVERSION* ( @p1 )
 \end{verbatim}\end{indpar}
 and compiles the rewritten code.  If you define a function
 with the prototype
 \begin{indpar} \tt
 function P2 Q\$1 T\$1 @r = \\
-\hspace*{1in}{\em ma}\QMARK{} *POINTER* *IMPLICIT* *CONVERSION*
+\hspace*{1in}{\em ma}\QMARK{} *IMPLICIT* *CONVERSION*
                                   ( P1 Q\$1 T\$1 @p )
 \end{indpar}
 the compiler will used this function.  Otherwise the compiler
 will try to chain pointer implicit conversions together to get to a
 successful compile.  Of course such chaining will only work
-if there is at least one {\em *POINTER* *IMPLICIT* *CONVERSION*} function with
+if there is at least one {\tt *IMPLICIT* *CONVERSION*} function with
 target type {\tt P2 ...}.  If there is more than one such function,
 and none have argument type {\tt P1 ...}, ambiguity may lead to a compile error.
 
@@ -4340,7 +4344,7 @@ function $D2$ r ={\em ma}\QMARK{}  \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
 which implicitly defines the function:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 @r = \\
-\hspace*{1in}{\em ma}\QMARK{} \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
+\hspace*{1in}{\em ma}\QMARK{} \ttkey{*IMPLICIT* *CONVERSION*}
 	( $P1$ Q\$1 T\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
 \hspace*{0.3in}$D2$ dd = *POINTER* *IMPLICIT* *CONVERSION* ( d1 ) \\
@@ -4764,20 +4768,11 @@ a function prototype	& the subexpression is a function call that
 \end{tabular}
 \end{center}
 
-If the subexpression is a {\em reference-expression}
+If the subexpression is a {\em reference-expression} or {\em const-expression}
 $e$ whose type is not exactly the target-type,
-and if the target-type and the type of $e$ are both non-pointer, non-{\tt const}
-types, the compiler replaces $e$ by \\
+the compiler replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
 and attempts to find a function prototype for this revised expression.
-If instead the target-type and the type of $e$ are both pointer types,
-the compiler replaces $e$ by \\[0.5ex]
-\centerline{\tt *POINTER* *IMPLICIT* *CONVERSION* ( $e$ )}
-
-If $e$ is a {\em const-expression} and the target-type
-is not {\tt const},
-the compiler replaces $e$ by \\[0.5ex]
-\centerline{\tt *CONST* *IMPLICIT* *CONVERSION* ( $e$ )}
 
 The implications of this last are brought out by the following
 example:
@@ -4793,7 +4788,7 @@ these values are converted to {\tt int}.  The error in converting
 {\tt 0.5} to {\tt int} is \underline{not} detected by call-prototype
 matching; it is detected when the code produced by call-prototype
 matching: \\
-\centerline{\tt int y = *CONST* *IMPLIED* *CONVERSION* ( 5.5 - 5.0 )}
+\centerline{\tt int y = *IMPLICIT* *CONVERSION* ( 5.5 - 5.0 )}
 is compiled.
 
 The matching map for a particular subexpression in a statement does
