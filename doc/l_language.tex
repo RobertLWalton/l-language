@@ -631,7 +631,7 @@ the constant value can be stored exactly in a variable
 of the run-time type or the run-time type is floating point
 (in which case there may be loss of precision or conversion to
 an infinity).
-Any numerically typed variable may be implicitly converted
+Any number type variable may be implicitly converted
 at run-time to a type that will hold all the possible values of
 the variable, or to any floating point type
 (in which case the run-time conversion result
@@ -751,7 +751,7 @@ conversions are preferred.  For example,
 \begin{indpar}\begin{verbatim}
 int x = ...
 bool b = ( x < 6 )
-    // There is a separate "<" operator for every numeric type,
+    // There is a separate "<" operator for every number type,
     // so x and 6 could both be converted to, say, flt.  But this
     // is two implicit conversions, whereas using the "<" operator
     // for int requires only one conversion, so this is used.
@@ -2273,7 +2273,7 @@ or {\em numeric-word} lexeme converted to an IEEE 64-bit floating
 point number.
 
 A number constant may be converted to a run-time
-numeric type such as {\tt int32} or {\tt flt64}.
+number type such as {\tt int32} or {\tt flt64}.
 It is a compile error to convert to an integer type that cannot
 hold the exact value of the number.
 Conversion to a run-time floating type is however
@@ -2400,7 +2400,7 @@ hexadecimal constants without \TT{/} the denominator is a power of \TT{16}.
 The value of a character constant is the integral UNICODE code point of the
 {\em character-representative}.
 
-A rational constant may be converted to a run-time numeric
+A rational constant may be converted to a run-time number
 type such as {\tt int32} or {\tt flt64}.
 It is a compile error to convert to an integer type that cannot
 hold the exact value of the rational constant.
@@ -3948,7 +3948,7 @@ type my type:       // Expansion of my type
 
 \subsubsubsubsection{Type Subfields}
 
-Subfields are parts of the previously declared numeric field.
+Subfields are parts of the previously declared number type field.
 The bits occupied
 by a subfield are given by its {\em bit-range}, where bits are numbered
 0, 1, \ldots{} from the low order end of numbers.
@@ -5016,8 +5016,7 @@ The following are examples using the builtin prototypes
 {\tt function bool r = std (N v1) "==" ( N v2 )} \\
 {\tt function flt64 r = std flt64 (N v1)}
 \end{indpar}
-which exist for every builtin numeric type {\tt N} except
-{\tt bool}.
+which exist for every builtin number type {\tt N}.
 \begin{indpar}[1em]\begin{verbatim}
 int32 x = ...
 flt64 r1 = x + 5
