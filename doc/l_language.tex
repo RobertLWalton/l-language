@@ -2559,25 +2559,33 @@ in memory, or the value of such a location, or stores a value in a location,
 or appears to do these things via calls to reference functions.
 
 Syntactically a typical {\em reference-expression}
-begins with a {\em variable-name}
+begins with a {\em variable-name} or `\TT{next} {\em variable-name}'
 and then adds suffixes that begin with either a \TT{[} bracket
 or a {\em member-name} (which begins with `\TT{.}': see \pagref{MEMBER-NAME}).
-A {\em reference-expression} that is not a {\em variable-name} by
-itself (or by itself inside parentheses)
-is called \key{compound} and consists of two parts:
-a prefix that is a smaller {\em reference-expression} and a suffix that
-begins with the \TT{[} or {\em member-name}.  The prefix is may be
-parenthesized, so a {\em reference-expression} always begins zero or more
-left parentheses followed by a {\em variable-name}.
-The suffix begins with a `\TT{[}' or a {\em member-name},
-and may contain parenthesized argument lists.
+A {\em reference-expression} that is a {\em variable-name}
+or `\TT{next} {\em variable-name}'
+by itself or inside parentheses is called \key{simple}.
+More complex {\em reference-expressions}
+are called \key{compound} and consists of two parts:
+a \key{base} that is a smaller {\em reference-expression},
+and an \key{offset} that follows the base with
+a \TT{[} or {\em member-name}.  The base may be parenthesized, and if it
+is, the offset may have a {\em module-abbreviation} preceeding the base,
+but the rest of the offset follows the base.
+
+So a {\em reference-expression} begins with a {\em variable-name} or
+`\TT{next} {\em variable-name}' that may
+be preceded only by left parentheses and {\em module-abbreviations}.
+The {\em variable-name} or `\TT{next} {\em variable-name}'
+is called the \key{root} of the {\em reference-expression}.
 
 The type of a {\em reference-expression} is computed bottom up starting
-with the type of the prefix which has been previously computed bottom up.
-The type of a {\em variable-name} is specified by context.  The type
-of the prefix of a compound {\em reference-expression} is known by
-recursion.  This type, the syntax of the suffix, and the
-types of the any subexpressions that are arguments in the suffix
+with the type of the base which has been previously computed bottom up.
+The type of the {\em variable-name} in the root is specified by context.
+The type
+of the base of a compound {\em reference-expression} is known by
+recursion.  This type, the syntax of the offset, and the
+types of the any subexpressions that are arguments in the offset
 determine the type of a compound {\em reference-expression}.
 
 This is different from the computation of the type of a general
@@ -2645,18 +2653,18 @@ Within an {\em index-list} the comma (\TT{,}) is treated
 as equivalent to \TT{][}, so, for example, {\tt [x,y]}
 is equivalent to {\tt [x][y]}.
 
-If the {\em variable-name} at the beginning of a {\em reference-expression}
+If the {\em variable-name} in the root of a {\em reference-expression}
 is a {\em pointer-variable}, the reference expression computes a pointer.
 E.g., `{\tt @V[5]}' computes a pointer to the 5+1'st element of the
 vector pointed at by {\tt @V}.
 
-If the {\em variable-name} at the beginning of a {\em reference-expression}
+If the {\em variable-name} in the root of a {\em reference-expression}
 is a {\em target-variable} with an associated {\em pointer-variable},
 the reference expression refers to the value pointed by the pointer
 that would be computed if the {\em target-variable} was replaced by
 its associated {\em pointer-variable}.
 
-If the {\em variable-name} at the beginning of a {\em reference-expression}
+If the {\em variable-name} in the root of a {\em reference-expression}
 is a {\em target-variable} (i.e., does not begin with `\TT{@}')
 \underline{without}
 an associated {\em pointer-variable},
@@ -5051,22 +5059,24 @@ bool b2 = ( flt64 ( x ) == 5 )
 \subsubsubsection{Reference Function Declarations}
 \label{REFERENCE-FUNCTION-DECLARATIONS}
 
+TBD
+
 A \key{reference function} is a function that can be
 called as part of evaluating a {\em reference-expression}.
-The part is a {\em reference-call} that is a prefix of
+The part is a {\em reference-call} that is a base of
 the entire {\em reference-expression}.
 
 The prototype of a {\em reference-function} begins with
 a parenthesized single argument declaration that is matched
-to an \underline{un}parenthesized actual {\em reference-expression} that is
-a prefix of the {\em reference-call}.  The type of
+to the base of the {\em reference-call}.  The type of
 the {\em reference-call} is computed from the type of
-this prefix - there is \underline{no} target type.
+this base - there is \underline{no} target type.
 
-A {\em reference-expression} is built by extending its prefix
+A {\em reference-expression} is built by extending its base
 {\em reference-expression} with either a {\tt [~]} bracketed
 {\em index} or a {\em member-name} optionally followed by other
-arguments and call terms.
+arguments and call terms.  The base may be parenthesized, and
+if it is, may be preceded by a {\em module-abbreviation}.
 A {\em reference-expression} always begins with a {\em variable-name}
 or `{\tt next} {\em variable-name}' from which the entire
 {\em reference-expression} is built by extensions.  An extension
