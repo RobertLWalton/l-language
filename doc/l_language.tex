@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 27, 2022
+August 28, 2022
 
 \bigskip
  
@@ -2078,7 +2078,7 @@ L-Language uses several kinds of names:
 \emkey{data-label}\label{DATA-LABEL} ::=
     {\em basic-name} $|$ {\em member-name}
 \\[1ex]
-\emkey{function-term-name} ::= {\em name}
+\emkey{function-term-name} ::= {\em name} not containing a `\TT{.}'
     \label{FUNCTION-TERM-NAME}
 \\[1ex]
 \emkey{qualifier-name}\label{QUALIFIER-NAME}
@@ -2705,22 +2705,18 @@ X.W = "P"                // X and Y are both {"C", "D", "W" => "P"}.
 The syntax of function calls is:
 
 \begin{indpar}
-\emkey{function-call}\label{FUNCTION-CALL}
-    ::= {\em module-abbreviation}\QMARK{}
-        {\em call-argument-list}\STAR{}
-        {\em non-member-call-term}\PLUS{}
+\emkey{function-call}\label{FUNCTION-CALL} ::= \\
+\hspace*{0.5in}
+        {\em module-abbreviation}\QMARK{}
+        {\em parenthesized-call-argument-list}\STAR{}
+        {\em call-term}\PLUS{}
 \\[0.5ex]
-\emkey{non-member-call-term}
+\emkey{call-term}\label{CALL-TERM}
     \begin{tabular}[t]{rl}
-    ::= & {\em non-member-call-term-name} {\em call-argument-list}\STAR{} \\
-    $|$ & \ttkey{no} {\em non-member-call-term-name} \\
-    $|$ & \ttkey{not} {\em non-member-call-term-name} \\
+    ::= & {\em call-term-name} {\em call-argument-list}\STAR{} \\
+    $|$ & \ttkey{no} {\em call-term-name} \\
+    $|$ & \ttkey{not} {\em call-term-name} \\
     \end{tabular}
-\\[0.5ex]
-\emkey{non-member-call-term-name}
-    ::= {\em call-term-name} that is not a {\em member-name}
-\\[0.5ex]
-\emkey{member-name} ::= see \pagref{MEMBER-NAME}
 \\[0.5ex]
 \emkey{call-term-name}\label{CALL-TERM-NAME} ::=
     \begin{tabular}[t]{@{}l}
@@ -2739,15 +2735,23 @@ The syntax of function calls is:
     $|$ & \TT{(~)} $|$ \TT{[~]} \\
     \end{tabular}
 \\[0.5ex]
+\emkey{parenthesized-call-argument-list} ::= \\
+\hspace*{0.5in}
+    {\em call-argument-list} with parentheses \TT{(~)}
+    (and \underline{not} square brackets \TT{[~]})
+\\[0.5ex]
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
 \end{indpar}
 
 Thus a {\em function-call} is a sequence of {\em function-term-names}
-and {\em call-argument-lists}.  {\em Function-term-names} that are
-also {\em member-names} are \underline{not} allowed in {\em function-calls},
-but are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
+and {\em call-argument-lists}.  Note that {\em Function-term-names} cannot
+contain `\TT{.}'s and therefore cannot be {\em member-names},
+which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
+Also \TT{[~]} bracketed {\em call-argument-lists} cannot be placed
+before a {\em call-term-name}, a syntactic distinction to their
+use in {\em reference-calls}.
 
 {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
 equivalent to `{\tt x(FALSE)}'.
@@ -4497,13 +4501,11 @@ The syntax of a function declaration is:
 {\em const-expression} ::= see \pagref{CONST-EXPRESSION}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
-    ::= {\em pattern-argument-list}\STAR{}~ {\em pattern-term}\PLUS{}
+    ::= {\em parenthesized-pattern-argument-list}\STAR{}~
+        {\em pattern-term}\PLUS{}
 \\[0.5ex]
 \emkey{pattern-term}\label{PATTERN-TERM}
-    ::= {\em non-member-function-term-name}~ {\em pattern-argument-list}\STAR{}
-\\[0.5ex]
-\emkey{non-member-function-term-name} ::= \\
-\hspace*{0.5in}{\em function-term-name} that is not a {\em member-name}
+    ::= {\em function-term-name}~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
 \emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
@@ -4524,14 +4526,24 @@ The syntax of a function declaration is:
     $|$ & \TT{[} {\em prototype-argument-declaration}~
 	     \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{} \TT{]} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{parenthesized-pattern-argument-list} ::= \\
+\hspace*{0.5in}
+    {\em pattern-argument-list} with parentheses \TT{(~)}
+    (and \underline{not} square brackets \TT{[~]})
 \begin{itemize}\label{FUNCTION-DECLARATION-RULES}
 \item
 A {\em prototype-pattern} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
 in the same {\em prototype-pattern}.
 \item
-{\em Function-term-names} in a {\em prototype-pattern}
+{\em Function-term-names} (in a {\em prototype-pattern})
 may not be {\em member-names}\pagnote{MEMBER-NAME}
+(compare with {\em reference-function-declaration}%
+\pagnote{REFERENCE-FUNCTION-DECLARATION}).
+\item
+{\em Pattern-argument-lists} appearing before the first
+{\em function-term-name} may not use square \TT{[~]} brackets
 (compare with {\em reference-function-declaration}%
 \pagnote{REFERENCE-FUNCTION-DECLARATION}).
 \item
@@ -5059,29 +5071,24 @@ bool b2 = ( flt64 ( x ) == 5 )
 \subsubsubsection{Reference Function Declarations}
 \label{REFERENCE-FUNCTION-DECLARATIONS}
 
-TBD
-
 A \key{reference function} is a function that can be
 called as part of evaluating a {\em reference-expression}.
-The part is a {\em reference-call} that is a base of
-the entire {\em reference-expression}.
+The part is a {\em reference-call} that is either the entire
+{\em reference-expression} or is a base for the rest of
+the {\em reference-expression}.
 
 The prototype of a {\em reference-function} begins with
+an optional {\em module-abbreviation} followed by
 a parenthesized single argument declaration that is matched
 to the base of the {\em reference-call}.  The type of
 the {\em reference-call} is computed from the type of
 this base - there is \underline{no} target type.
 
-A {\em reference-expression} is built by extending its base
-{\em reference-expression} with either a {\tt [~]} bracketed
-{\em index} or a {\em member-name} optionally followed by other
+A {\em reference-call} is built by extending its base
+with either a {\tt [~]} bracketed {\em index}
+or a {\em member-name} optionally followed by other
 arguments and call terms.  The base may be parenthesized, and
 if it is, may be preceded by a {\em module-abbreviation}.
-A {\em reference-expression} always begins with a {\em variable-name}
-or `{\tt next} {\em variable-name}' from which the entire
-{\em reference-expression} is built by extensions.  An extension
-may be a builtin operator, such as a vector element selector or
-field selector, or it may be a {\em reference-call}.
 
 {\em Reference-calls} are similar to (non-reference) {\em function-calls},
 {\em reference-function-declarations} are similar to
@@ -5094,42 +5101,34 @@ The syntax of a {\em reference-call} is:
 \begin{indpar}
 \emkey{reference-call}\label{REFERENCE-CALL} ::= \\
 \hspace*{1em}\begin{tabular}[t]{rl}
-        & {\em reference-expression}
+        & {\em ma}\QMARK{} {\em reference-expression}
 	  \begin{tabular}[t]{@{}l@{}}
+ 	  {\em member-name} \\
           {\em call-argument-list}\STAR{} \\
-          {\em member-call-term}
-          {\em non-member-call-term}\STAR{} \\
+          {\em call-term}\STAR{} \\
 	  \end{tabular} \\
-    $|$ & {\em reference-expression}
-          {\em call-argument-list}\PLUS{} \\
+        & {\em ma}\QMARK{} {\em reference-expression}
+	  \begin{tabular}[t]{@{}l@{}}
+	  {\em square-bracketed-call-argument-list} \\
+          {\em call-argument-list}\STAR{} \\
+          {\em call-term}\STAR{} \\
+	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{member-call-term}
-    ::= {\em member-name} {\em call-argument-list}\STAR{}
+{\em call-term} ::= see \pagref{CALL-TERM}
 \\[0.5ex]
-\emkey{non-member-call-term}
-    \begin{tabular}[t]{rl}
-    ::= & {\em non-member-call-term-name} {\em call-argument-list}\STAR{} \\
-    $|$ & \ttkey{no} {\em non-member-call-term-name} \\
-    $|$ & \ttkey{not} {\em non-member-call-term-name} \\
-    \end{tabular}
+{\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \\[0.5ex]
-\emkey{non-member-call-term-name}
-    ::= {\em call-term-name} that is not a {\em member-name}
+\emkey{square-bracketed-call-argument-list} ::=
+    {\em call-argument-list} with \TT{[~]} brackets
 \\[0.5ex]
-\emkey{call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
-\\[0.5ex]
-\emkey{call-term-name} ::= see \pagref{CALL-TERM-NAME}
+{\em ma} ::= {\em module-abbreviation} ~~~~~ [see \pagref{MODULE-ABBREVIATION}]
 \begin{itemize}
 \item
-The {\em reference-expression} is the first actual argument and is
-never parenthesized.  It always begins with a {\em variable-name} or
-with `{\tt next} {\em variable-name}'.
-\item
-The first {\em call-term-name}, if it exists, is a {\em member-name}.
-No other {\em call-term-name} is a {\em member-name}.
-\item
-{\tt (~)} parenthesized argument lists may \underline{not} be omitted.
+If the {\em reference-call} begins with a {\em module-abbreviation} ({\em ma}),
+the {\em reference-expres\-sion} must be parenthesized.  Otherwise
+the {\em module-abbreviation} will be parsed as part of the
+{\em reference-expression}.
 \end{itemize}
 \end{indpar}
 
@@ -5165,17 +5164,20 @@ The syntax of a {\em reference-function-declaration} is:
 \emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN} \\
 \hspace*{2em}\begin{tabular}[t]{rl}
     ::= & {\em reference-pattern-argument}~
-          {\em first-reference-pattern-term}~
+          \begin{tabular}[t]{l}
+          {\em member-name}~ {\em pattern-argument-list}\STAR{} \\
           {\em pattern-term}\STAR{} \\
-    $|$ & {\em reference-pattern-argument}~ {\em pattern-argument-list}\PLUS{}
+	  \end{tabular} \\
+    $|$ & {\em reference-pattern-argument}~
+          \begin{tabular}[t]{l}
+          {\em square-bracketed-pattern-argument-list}~ \\
+          {\em pattern-argument-list}\STAR{} \\
+          {\em pattern-term}\STAR{} \\
+	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{reference-pattern-argument} ::=
     \TT{(} {\em result-variable-declaration}~ \TT{)}
-\\[0.5ex]
-\emkey{first-reference-pattern-term} ::= \\
-\hspace*{2em}{\em pattern-term} beginning with
-   a {\em function-term-name} that is a {\em member-name}
 \\[0.5ex]
 \emkey{pattern-term} ::= see \pagref{PATTERN-TERM}
 \\[0.5ex]
@@ -5184,6 +5186,11 @@ The syntax of a {\em reference-function-declaration} is:
 \emkey{member-name} ::= see \pagref{MEMBER-NAME}
 \\[0.5ex]
 \emkey{pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
+\\[0.5ex]
+\emkey{square-bracketed-pattern-argument-list} ::= \\
+\hspace*{0.5in}
+    {\em pattern-argument-list} with square brackets \TT{[~]}
+    (and \underline{not} parentheses \TT{(~)})
 \begin{itemize}
 \item
 The rules for a {\em function-declaration}
@@ -5191,15 +5198,15 @@ The rules for a {\em function-declaration}
 apply where applicable to a {\em reference-function-declaration},
 with exceptions as indicated here.
 \item
-The first {\em function-term-name} in a {\em reference-prototype-pattern}
-\underline{must be} a {\em member-name}\pagnote{MEMBER-NAME}.
-No other {\em function-term-name} in a {\em reference-prototype-pattern}
-may be a {\em member-name}.
+The {\em reference-pattern-argument} must be
+followed by
+a {\em member-name}\pagnote{MEMBER-NAME} or square-bracketed
+{\em pattern-argument-list}.
 \item
 The first actual argument in a {\em reference-call} is a
 smaller {\em reference-expression} that has already been deliminated
 and which is surrounded in the {\em reference-call} by
-parentheses {\tt (~)} that are \underline{implied} and \underline{not} explicit.
+parentheses {\tt (~)} that may be \underline{implied} and not explicit.
 \item
 If there is a {\em result-variable-declaration}, there is exactly one,
 and it cannot have the form `{\tt next $v$}'.
