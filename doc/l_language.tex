@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 28, 2022
+August 29, 2022
 
 \bigskip
  
@@ -5165,7 +5165,8 @@ The syntax of a {\em reference-function-declaration} is:
 \hspace*{2em}\begin{tabular}[t]{rl}
     ::= & {\em reference-pattern-argument}~
           \begin{tabular}[t]{l}
-          {\em member-name}~ {\em pattern-argument-list}\STAR{} \\
+          {\em member-name}~ \TT{()}\QMARK{}~
+	                     {\em pattern-argument-list}\STAR{} \\
           {\em pattern-term}\STAR{} \\
 	  \end{tabular} \\
     $|$ & {\em reference-pattern-argument}~
@@ -5206,13 +5207,18 @@ a {\em member-name}\pagnote{MEMBER-NAME} or square-bracketed
 The first actual argument in a {\em reference-call} is a
 smaller {\em reference-expression} that has already been deliminated
 and which is surrounded in the {\em reference-call} by
-parentheses {\tt (~)} that may be \underline{implied} and not explicit.
+parentheses {\tt (~)} that may be \underline{implied} and not explicit,
+unless the {\em reference-call} starts with a {\em module-abbreviation}.
 \item
 If there is a {\em result-variable-declaration}, there is exactly one,
 and it cannot have the form `{\tt next $v$}'.
 \item
 The {\em reference-pattern-argument} in the prototype cannot
 contain default or required values.
+\item
+A {\em member-name} cannot be followed immediately by a {\em pattern-term};
+in this case, a \TT{()} must be placed immediately after the {\em member-name}.
+This is the \underline{only} situation in which \TT{()} should be used.
 \end{itemize}
 \end{indpar}
 
