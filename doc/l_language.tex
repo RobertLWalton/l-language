@@ -5268,18 +5268,18 @@ as follows:
            \pagnote{CALL-PROTOTYPE-MODULE-ABBREVIATION}]
 If a {\em reference-expression} begins with a {\em module-abbreviation},
 the {\em module-abbrevi\-ation} must immediately precede a
-parenthesized {\em reference-expes\-sion}.
+\underline{parenthesized} {\em reference-expes\-sion}.
 
 \item[Step \ref{CALL-PROTOTYPE-TERM-NAMES}%
            \pagnote{CALL-PROTOTYPE-TERM-NAMES}]
 The end of the {\em reference-call} is determined before proceeding
 with this step.
-
+\\[1ex]
 If the base {\em reference-expression} in the call is followed by
 a {\em member-name}, then the {\em reference-call} is terminated
 just before the next {\em member-name} or next `\TT{[}' bracket
 or at the end of the containing {\em expression}.
-
+\\[1ex]
 If the base {\em reference-expression} in the call is followed by
 {\em square-bracketed-call-argument-lists}, the {\em reference-call}
 is extended to include exactly as many such lists as there are
@@ -5288,14 +5288,9 @@ is extended to include exactly as many such lists as there are
 {\em reference-call} is terminated
 just before the next {\em member-name} or next `\TT{[}' bracket
 or at the end of the containing {\em expression}.
-
-
-\item[Step \ref{CALL-PROTOTYPE-CALL-TERM-ADJUSTMENT}%
-           \pagnote{CALL-PROTOTYPE-CALL-TERM-ADJUSTMENT}]
-Lists with {\tt (~)} bracket type \underline{cannot}
-be omitted in a {\em reference-call}, so empty {\tt (~)} argument
-lists are never inserted in a {\em reference-call} during
-call-prototype matching.
+If there are fewer {\em square-bracketed-call-argument-lists}
+than {\em square-bracketed-pattern-argument-lists},
+the entire call-prototype match fails.
 
 \item[Step \ref{CALL-PROTOTYPE-RESULT-MATCHING}%
            \pagnote{CALL-PROTOTYPE-RESULT-MATCHING}]
