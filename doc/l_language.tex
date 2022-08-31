@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 29, 2022
+August 31, 2022
 
 \bigskip
  
@@ -5104,20 +5104,25 @@ The syntax of a {\em reference-call} is:
         & {\em ma}\QMARK{} {\em reference-expression}
 	  \begin{tabular}[t]{@{}l@{}}
  	  {\em member-name} \\
-          {\em call-argument-list}\STAR{} \\
-          {\em call-term}\STAR{} \\
+          {\em parenthesized-call-argument-list}\STAR{} \\
+          {\em parenthesized-call-term}\STAR{} \\
 	  \end{tabular} \\
         & {\em ma}\QMARK{} {\em reference-expression}
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\em square-bracketed-call-argument-list} \\
-          {\em call-argument-list}\STAR{} \\
-          {\em call-term}\STAR{} \\
+	  {\em square-bracketed-call-argument-list}\PLUS{} \\
+          {\em parenthesized-call-term}\STAR{} \\
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
 {\em call-term} ::= see \pagref{CALL-TERM}
 \\[0.5ex]
+\emkey{parenthesized-call-term} ::=
+    {\em call-term} with\underline{out} \TT{[~]} brackets
+\\[0.5ex]
 {\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
+\\[0.5ex]
+\emkey{parenthesized-call-argument-list} ::=
+    {\em call-argument-list} with \TT{(~)} parentheses
 \\[0.5ex]
 \emkey{square-bracketed-call-argument-list} ::=
     {\em call-argument-list} with \TT{[~]} brackets
@@ -5129,6 +5134,9 @@ If the {\em reference-call} begins with a {\em module-abbreviation} ({\em ma}),
 the {\em reference-expres\-sion} must be parenthesized.  Otherwise
 the {\em module-abbreviation} will be parsed as part of the
 {\em reference-expression}.
+\item
+{\em Call-argument-lists} with square brackets are restricted to
+appearing just after the {\em reference-expression}.
 \end{itemize}
 \end{indpar}
 
@@ -5165,28 +5173,34 @@ The syntax of a {\em reference-function-declaration} is:
 \hspace*{2em}\begin{tabular}[t]{rl}
     ::= & {\em reference-pattern-argument}~
           \begin{tabular}[t]{l}
-          {\em member-name}~ \TT{()}\QMARK{}~
-	                     {\em pattern-argument-list}\STAR{} \\
-          {\em pattern-term}\STAR{} \\
+          {\em member-name}~ \TT{()}\QMARK{}~ \\
+	  {\em parenthesized-pattern-argument-list}\STAR{} \\
+          {\em parenthesized-pattern-term}\STAR{} \\
 	  \end{tabular} \\
     $|$ & {\em reference-pattern-argument}~
           \begin{tabular}[t]{l}
-          {\em square-bracketed-pattern-argument-list}~ \\
-          {\em pattern-argument-list}\STAR{} \\
-          {\em pattern-term}\STAR{} \\
+          {\em square-bracketed-pattern-argument-list}\PLUS{} \\
+          {\em parenthesized-pattern-term}\STAR{} \\
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{reference-pattern-argument} ::=
     \TT{(} {\em result-variable-declaration}~ \TT{)}
 \\[0.5ex]
-\emkey{pattern-term} ::= see \pagref{PATTERN-TERM}
+{\em pattern-term} ::= see \pagref{PATTERN-TERM}
 \\[0.5ex]
-\emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
+\emkey{parenthesized-pattern-term} ::=
+    {\em pattern-term} with\underline{out} \TT{[~]} brackets
 \\[0.5ex]
-\emkey{member-name} ::= see \pagref{MEMBER-NAME}
+{\em function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
-\emkey{pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
+{\em member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
+{\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
+\\[0.5ex]
+\emkey{parenthesized-pattern-argument-list} ::= \\
+\hspace*{0.5in}
+    {\em pattern-argument-list} with \TT{(~)} parentheses
 \\[0.5ex]
 \emkey{square-bracketed-pattern-argument-list} ::= \\
 \hspace*{0.5in}
@@ -5202,7 +5216,7 @@ with exceptions as indicated here.
 The {\em reference-pattern-argument} must be
 followed by
 a {\em member-name}\pagnote{MEMBER-NAME} or square-bracketed
-{\em pattern-argument-list}.
+{\em pattern-argument-lists}.
 \item
 The first actual argument in a {\em reference-call} is a
 smaller {\em reference-expression} that has already been deliminated
@@ -5219,6 +5233,9 @@ contain default or required values.
 A {\em member-name} cannot be followed immediately by a {\em pattern-term};
 in this case, a \TT{()} must be placed immediately after the {\em member-name}.
 This is the \underline{only} situation in which \TT{()} should be used.
+\item
+{\em Pattern-argument-lists} with square brackets are restricted to
+appearing just after the {\em reference-expression}.
 \end{itemize}
 \end{indpar}
 
@@ -5250,25 +5267,28 @@ as follows:
 \item[Step \ref{CALL-PROTOTYPE-MODULE-ABBREVIATION}%
            \pagnote{CALL-PROTOTYPE-MODULE-ABBREVIATION}]
 If a {\em reference-expression} begins with a {\em module-abbreviation},
-the {\em reference-expes\-sion} must contain exactly one {\em reference-call}
-which must be the entire {\em reference-expression}, and the
-{\em module-abbreviation} applies to that {\em reference-call}.
+the {\em module-abbrevi\-ation} must immediately precede a
+parenthesized {\em reference-expes\-sion}.
 
 \item[Step \ref{CALL-PROTOTYPE-TERM-NAMES}%
            \pagnote{CALL-PROTOTYPE-TERM-NAMES}]
-If a second {\em member-name} is encountered during the left-to-right
-scan, it is assumed that the {\em reference-call} terminates before
-this second {\em member-name}, and that second {\em member-name}
-and everything following it are ignored.
+The end of the {\em reference-call} is determined before proceeding
+with this step.
 
-\item[Step \ref{CALL-PROTOTYPE-CALL-TERMS}%
-           \pagnote{CALL-PROTOTYPE-CALL-TERMS}]
-In a {\em reference-call}, the end of each call term is determined by
-by proceding left-to-right and matching the argument lists as to
-bracket type, {\tt (~)} or {\tt [~]}, until the prototype argument list
-is exhausted.  Lists with {\tt (~)} bracket type \underline{cannot}
-be omitted in a {\em reference-call}.  The end of the {\em reference-call}
-is then the end of the last {\em call-term} found.
+If the base {\em reference-expression} in the call is followed by
+a {\em member-name}, then the {\em reference-call} is terminated
+just before the next {\em member-name} or next `\TT{[}' bracket
+or at the end of the containing {\em expression}.
+
+If the base {\em reference-expression} in the call is followed by
+{\em square-bracketed-call-argument-lists}, the {\em reference-call}
+is extended to include exactly as many such lists as there are
+{\em square-bracketed-pattern-argument-lists} in the
+{\em reference-prototype-pattern}.  After this the
+{\em reference-call} is terminated
+just before the next {\em member-name} or next `\TT{[}' bracket
+or at the end of the containing {\em expression}.
+
 
 \item[Step \ref{CALL-PROTOTYPE-CALL-TERM-ADJUSTMENT}%
            \pagnote{CALL-PROTOTYPE-CALL-TERM-ADJUSTMENT}]
