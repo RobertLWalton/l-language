@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-August 31, 2022
+September 1, 2022
 
 \bigskip
  
@@ -5507,9 +5507,10 @@ made by taking the {\em function-type-prototype} specified by the
 {\em function-type-name} and replacing the {\tt ()}
 {\em out-of-line-function-name} by the {\em function-constant-name}
 while adding `{\tt out-of-line}' to its beginning.  In addition
-the {\em function-constant-name} is declared as a run-time constant whose
+the {\em function-constant-name} is declared as a run-time {\tt co}
+variable whose
 value has the type named by the {\em function-type-name}.
-Internally this constant is a run-time pointer to the out-of-line function.
+Internally, this value is a run-time pointer to the out-of-line function.
 
 
 
@@ -5825,10 +5826,7 @@ Thus the lexeme {\tt "Hello"} becomes: \\
 
 Operator operands become lists in parser output;
 for example, the statement `{\tt X = Y}' outputs
-`{\tt \{ \{ "X" \}, "=", \{ "Y" \} \}}' (with some unnecessary annotations as
-per \pagref{UNNECESSARY-ANNOTATIONS}).
-This is done so that {\em include-variable} substitutions will splice
-into operands appropriately.\pagnote{INCLUDE-SPLICING}
+`{\tt \{ \{ "X" \}, "=", \{ "Y" \} \}}'.
 
 An example is given in Figure~\ref{PARSER-OUTPUT-EXAMPLE}%
 \pagnote{PARSER-OUTPUT-EXAMPLE}.
