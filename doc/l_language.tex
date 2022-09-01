@@ -5914,7 +5914,9 @@ The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
 
-A {\em result-variable-declaration}
+A {\em result-variable-declaration},
+{\em block-variable-declaration},
+or {\em deferred-variable-declaration},
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.
 
@@ -5955,13 +5957,13 @@ sub-declaration that allows it to have expansions in the bodies of
 its module, and in the {\tt *EXTERNAL*} case, in other modules and
 bodies that import the module.
 
-{\em type-declarations} that end with the {\tt *EXTERNAL*}
+{\em Type-declarations} that end with the {\tt *EXTERNAL*}
 sub-declaration must have external {\em type-names}
 (beginning with a {\em module-abbreviation}).
 Expansions of such a {\em type-declaration} may appear
 anywhere within scope of the initial non-expansion {\em type-declaration},
 but must have a {\em type-name} that references the same module
-as what they are expanding (they need not use the same
+as the {\em type-declaration} they are expanding (they need not use the same
 {\em module-abbreviation} to do so).
 
 Sub-declarations of any {\em type-declaration} have the scope of
@@ -5977,29 +5979,37 @@ and companions of deferred
 {\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
 
 If two different {\em result-variable-declarations},
-{\em pointer-type-declarations}, or {\em function-type-de\-clar\-a\-tions}
+{\em block-variable-declarations},
+{\em deferred-variable-de\-clar\-ations},
+{\em next-variable-declarations},
+{\em function-constant-de\-clar\-ations},
+{\em pointer-type-de\-clar\-a\-tions}, or {\em function-type-de\-clar\-a\-tions}
 of the same {\em name} have overlapping
 scope, one of these scopes must include the other,
 and the declaration with the smaller scope is said to 
 `\key{hide}'\label{HIDE} the other declaration.
-Hiding of this kind is a compile error.
+Hiding of this kind is a compile error (note this does
+not apply o {\em type-declarations}).
 
 If two {\em type-declarations} have overlapping scope, the one
 with the larger scope must end with {\tt ***} or {\tt *EXTERNAL*},
 in which case the {\em type-declaration} with the smaller scope
 is an expansion of the other.   If the declaration with larger
 scope does not end with {\tt ***} or {\tt *EXTERNAL*}, it is
-hidden by the declaration with smaller scope, and this too is
+hidden by the declaration with smaller scope, and this is
 a compile error.
 
 A {\em next-variable-declaration} is allowed
-within the scope of a previous {\em result-variable-de\-clar\-a\-tion}
+within the scope of a previous {\em result-variable-de\-clar\-a\-tion},
+{\em block-variable-declaration},
 or {\em next-variable-declaration} of the same {\em variable-name}
 if it is not within a smaller block than the previous declaration.
 Note that a {\em next-variable-declaration} has
 the same syntax as a {\em reference-expression}, and its use
 as an implicitly {\tt *WRITE-ONLY*} {\em reference-expression}
-is allowed within smaller blocks.
+is allowed within a subblock of the {\em block-assignment-statement}
+or {\em loop-assignment-statement} that assigns a value to the
+declared {\tt next} variable.
 
 Prototypes \underline{cannot} hide each other.  If the
 current scope contains two declarations whose prototypes
