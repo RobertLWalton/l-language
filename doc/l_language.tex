@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 1, 2022
+September 2, 2022
 
 \bigskip
  
@@ -6097,10 +6097,10 @@ other than `{\tt my\_own\_module}'.
 \subsection{Lifetimes}
 \label{LIFETIMES}
 
-The \key{lifetime} of a value stored in memory is the time from
-when the memory is allocated to the value and the time the memory
-is deallocated.  The compiler tracks lifetimes by assigning each
-value in memory a lifetime type and in some cases a separate lifetime depth.
+The \key{lifetime} of a piece of memory is the time interval from
+the time that the memory is allocated to the time that
+the memory is deallocated.  The compiler tracks lifetimes by assigning each
+pointer target a lifetime type and in some cases a separate lifetime depth.
 
 There are three possible \skey{lifetime type}s:
 \begin{indpar}[0.2in]
@@ -6108,15 +6108,16 @@ There are three possible \skey{lifetime type}s:
 \ttkey{*GLOBAL*}	& the lifetime starts when the program
                           starts and stops when the program terminates
 \\[1ex]
-\ttkey{*LOCAL*}		& the lifetime starts when a statement declaring
-                          the value executes and stops when the block
+\ttkey{*LOCAL*}		& the lifetime starts when the statement allocating
+                          the memory executes and stops when the block
 			  containing the statement terminates
 \\[1ex]
-\ttkey{*HEAP*}		& the lifetime starts when the value is allocated
-                          to heap memory (i.e., garbage collectible
-			  memory), and stops when the value can no longer
+\ttkey{*HEAP*}		& the lifetime starts when the memory is allocated
+                          to the heap (i.e., garbage collectible
+			  memory), and stops when the memory can no longer
 			  be referenced by following a chain of pointer values
-			  whose first value has {\tt *GLOBAL*} lifetime
+			  that are stored in memory that
+			  has {\tt *GLOBAL*} lifetime
 			  or has a {\tt *LOCAL*} lifetime that has not
 			  yet terminated
 \end{tabular}
@@ -6139,16 +6140,31 @@ require reference to the lifetime depth of values.
 
 The \key{lifetime depth} of a value is the same as the depth
 of the {\em statement} creating the value, except for arguments
-to functions.  A {\em statement} that is not inside any other statement
-(i.e., is not in a sub-block) is assigned depth 1.
-A {\em statement} that is in the sub-block at the end of a function
-declaration is assigned depth 1.
-A {\em statement} that is inside a sub-block
-at the end of a {\em statement} of depth $N$ is given depth $N+1$.
+to \underline{out-of-line} functions.  The rules for assigning
+depth to {\em statements} are as follows:
+\begin{indpar}[0.2in]
+\begin{tabular}{lp{5.0in}}
+\key{(D1)}	& A {\em statement} that is not inside any other statement
+                  (i.e., is not in a sub-block) is assigned depth 1.
+\\[1ex]
+\key{(D2)}	& A {\em statement} that is inside a sub-block at the end
+                  of a {\em statement} of depth $N$ is given depth $N+1$.
+\\[1ex]
+\key{(D3)}	& An \underline{inline} {\em function-call} is treated
+                  as creating a sub-block of the {\em statement}
+		  containing the {\em function-call}.
+\\[1ex]
+\key{(D4)}	& {\em Statement} in the sub-block at the end of an
+                  \underline{out-of-line} function declaration (and not
+		  in any sub-block of that sub-block) are
+		  assigned depth 1.
+\\[1ex]
+\key{(D5)}	& Arguments of an \underline{out-of-line} function
+		  are given depth 0 within the sub-block of the
+		  {\em function-declaration}.
+\end{tabular}
+\end{indpar}
 
-However, inside a function,
-{\em statements} that are outside the function are given
-depth 0, even if the function is inline.
 
 Then the lifetime rules involving {\tt *LOCAL*} are:
 \begin{indpar}[0.2in]
@@ -6164,7 +6180,7 @@ Then the lifetime rules involving {\tt *LOCAL*} are:
 This says that the value $v1$ pointed at must have a lifetime at least
 as long as the lifetime of the value $v2$ where the pointer to $v1$
 is stored, and also that {\tt *LOCAL*} pointers cannot be stored in
-values $v2$ pointed at by function arguments.
+values $v2$ pointed at by \underline{out-of-line} function arguments.
 
 There are also two rules for implicitly converting lifetime types:
 \begin{indpar}[0.2in]
