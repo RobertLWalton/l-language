@@ -6152,7 +6152,9 @@ depth to {\em statements} are as follows:
 \\[1ex]
 \key{(D3)}	& An \underline{inline} {\em function-call} is treated
                   as creating a sub-block of the {\em statement}
-		  containing the {\em function-call}.
+		  containing the {\em function-call}.  Argument memory
+		  levels are those of associated actual argument
+		  memory levels.
 \\[1ex]
 \key{(D4)}	& {\em Statement} in the sub-block at the end of an
                   \underline{out-of-line} function declaration (and not
@@ -6208,13 +6210,31 @@ An example is:
 type list element:
     ap list element @after
 
-// Make circular list.  X and Y have depth 1.
+// Circular list:
 //
+ap *READ-WRITE* @last      // `=@ local = *DEFERRED*' is implied
+    // First element is pointed at by last.@after
+    // This variable has depth 1
+
+// Add to circular list:
+//
+function add ( ap *READ-WRITE* @element ):
+    // element depth is taken from actual argument
+    if @last is null:
+        element.@after = @element
+    else:
+        element.@after = last.@after
+        last.@after = @element
+    @last = @element
+
+// Put two elements in list.
+//
+list element @X      // `=@ local = *DEFERRED*' is implied
+                     // X memory is depth 1
 list element @Y      // `=@ local = *DEFERRED*' is implied
-list element @X:     // `=@ local' is implied
-    X.@after = @Y
-list element @Y:
-    Y.@after = @X
+                     // Y memory is depth 1
+add ( @X )           // X is first element
+add ( @Y )           // Y is second element
 \end{verbatim}\end{indpar}
 
 \subsection{Memory Management}
