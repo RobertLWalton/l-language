@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 2, 2022
+September 3, 2022
 
 \bigskip
  
@@ -6132,40 +6132,84 @@ In general a pointer cannot be stored in a value unless one of the
 \\[1ex]
 \key{(L2)}	& A pointer to a target with {\tt *HEAP*} lifetime type
                   (i.e., pointer target qualifier) can be stored in any value.
+\\[1ex]
+\key{(L2)}	& The {\tt *GLOBAL*} lifetime type
+                  (i.e., pointer target qualifier) can be
+		  implicitly converted to the {\tt *HEAP*} lifetime type.
+\\[1ex]
+		& Note: This requires the garbage collector to be able
+		  to identify {\tt *GLOBAL*} pointers and treat them
+		  differently.
 \end{tabular}
 \end{indpar}
 
 The rules involving the {\tt *LOCAL*} lifetime type are more involved and
 require reference to the lifetime depth of values.
 
-The \key{lifetime depth} of a value is the same as the depth
-of the {\em statement} creating the value, except for arguments
-to \underline{out-of-line} functions.  The rules for assigning
-depth to {\em statements} are as follows:
+\key{Lifetime depth} is assigned to a pointer stored in a {\tt co}
+variable created by a
+{\em result-variable-de\-clar\-a\-tion},
+{\em block-variable-declaration},
+or {\em next-variable-declaration} of an {\em assignment-state\-ment},
+or a {\tt co} argument created by a {\em prototype-argument-declaration}
+of a {\em function-call} or {\em reference-call}.
+Lifetime depth for some variables is the same as the \key{statement depth}
+of the {\em statement} creating the variable.
+
+In this section `variable' means a variable as specified in the last
+paragraph and `argument' means an argument as specified in the last
+paragraph.
+
+The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
-\key{(D1)}	& A {\em statement} that is not inside any other statement
+\key{(S1)}	& A {\em statement} that is not inside any other statement
                   (i.e., is not in a sub-block) is assigned depth 1.
 \\[1ex]
-\key{(D2)}	& A {\em statement} that is inside a sub-block at the end
+\key{(S2)}	& A {\em statement} that is inside a sub-block at the end
                   of a {\em statement} of depth $N$ is given depth $N+1$.
 \\[1ex]
-\key{(D3)}	& An \underline{inline} {\em function-call} is treated
+\key{(S3)}	& An \underline{inline} {\em function-call} is treated
                   as creating a sub-block of the {\em statement}
-		  containing the {\em function-call}.  Argument memory
-		  levels are those of associated actual argument
-		  memory levels.
+		  containing the {\em function-call}.
 \\[1ex]
-\key{(D4)}	& {\em Statement} in the sub-block at the end of an
+\key{(S4)}	& {\em Statement} in the sub-block at the end of an
                   \underline{out-of-line} function declaration (and not
 		  in any sub-block of that sub-block) are
 		  assigned depth 1.
-\\[1ex]
-\key{(D5)}	& Arguments of an \underline{out-of-line} function
-		  are given depth 0 within the sub-block of the
-		  {\em function-declaration}.
 \end{tabular}
 \end{indpar}
+
+The rules for assigning depth to variables are:
+\begin{indpar}[0.2in]
+\begin{tabular}{lp{5.0in}}
+\key{(V1)}	& A pointer variable set by the `{\tt local}' allocator
+                  must have the {\tt *LOCAL*} lifetime and is given
+		  the depth of the statement that sets the variable.
+\\[1ex]
+\key{(V2)}	& A pointer variable with {\tt *LOCAL*} lifetime may be
+                  set from the value of a pointer variable X
+		  with {\tt *LOCAL*} lifetime and will be given
+		  the depth of X.
+\\[1ex]
+\key{(V3)}	& A pointer variable with {\tt *GLOBAL*} or {\tt *HEAP*}
+                  lifetime is given depth 0.
+\\[1ex]
+\key{(V4)}	& A pointer variable with {\tt *LOCAL*} lifetime may be
+                  set to a pointer with {\tt *GLOBAL*} lifetime and will be
+		  given depth 0.
+\\[1ex]
+\key{(V5)}	& A pointer variable with {\tt *LOCAL*} lifetime may be
+                  set from the value of a pointer variable
+		  with {\tt *HEAP*} lifetime and will be given depth 0.
+\\[1ex]
+		& Note: the pointer variable with {\tt *HEAP*} lifetime
+		  will exist as long as the pointer variable with
+		  {\tt *LOCAL*} lifetime exists.
+\end{tabular}
+\end{indpar}
+
+TBD
 
 
 Then the lifetime rules involving {\tt *LOCAL*} are:
