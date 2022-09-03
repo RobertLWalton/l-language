@@ -6133,18 +6133,27 @@ In general a pointer cannot be stored in a value unless one of the
 \key{(L2)}	& A pointer to a target with {\tt *HEAP*} lifetime type
                   (i.e., pointer target qualifier) can be stored in any value.
 \\[1ex]
-\key{(L2)}	& The {\tt *GLOBAL*} lifetime type
+\key{(L3)}	& The {\tt *GLOBAL*} lifetime type
                   (i.e., pointer target qualifier) can be
 		  implicitly converted to the {\tt *HEAP*} lifetime type.
 \\[1ex]
 		& Note: This requires the garbage collector to be able
 		  to identify {\tt *GLOBAL*} pointers and treat them
 		  differently.
+\\[1ex]
+\key{(L4)}	& A pointer to a target with {\tt *LOCAL*} lifetime type
+                  can\underline{not} be stored in a value pointed at by
+		  a pointer with either {\tt *GLOBAL*} or {\tt *HEAP}
+		  lifetime type.
 \end{tabular}
 \end{indpar}
 
-The rules involving the {\tt *LOCAL*} lifetime type are more involved and
+The rules on when a pointer to a target with {\tt *LOCAL*}
+lifetime type can be stored in a pointer target of {\tt *LOCAL*} lifetime type
+are more complicated, and
 require reference to the lifetime depth of values.
+
+TBD
 
 \key{Lifetime depth} is assigned to a pointer stored in a {\tt co}
 variable created by a
@@ -6153,12 +6162,13 @@ variable created by a
 or {\em next-variable-declaration} of an {\em assignment-state\-ment},
 or a {\tt co} argument created by a {\em prototype-argument-declaration}
 of a {\em function-call} or {\em reference-call}.
-Lifetime depth for some variables is the same as the \key{statement depth}
-of the {\em statement} creating the variable.
 
 In this section `variable' means a variable as specified in the last
 paragraph and `argument' means an argument as specified in the last
 paragraph.
+
+Lifetime depth for some variables is the same as the \key{statement depth}
+of the {\em statement} creating the variable.
 
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
@@ -6208,8 +6218,6 @@ The rules for assigning depth to variables are:
 		  {\tt *LOCAL*} lifetime exists.
 \end{tabular}
 \end{indpar}
-
-TBD
 
 
 Then the lifetime rules involving {\tt *LOCAL*} are:
