@@ -6195,17 +6195,51 @@ The rules for assigning depth to {\em statements} are as follows:
                   (i.e., is not in a sub-block) is assigned depth 1.
 \\[1ex]
 \key{(S2)}	& A {\em statement} that is inside a sub-block at the end
-                  of a {\em statement} of depth $N$, and is not also
-		  inside a sub-block of that sub-block, is given depth $N+1$.
+                  of a {\em statement} of depth $D$, and is not also
+		  inside a sub-block of that sub-block, is given depth $D+1$.
 \\[1ex]
 \key{(S3)}	& An \underline{inline} {\em function-call} is treated
                   as creating a sub-block immediately inside
 		  the {\em statement} containing the {\em function-call}.
 \\[1ex]
-\key{(S4)}	& A {\em statement} in the sub-block at the end of an
-                  \underline{out-of-line} function declaration, and also not
-		  in any sub-block of that sub-block, is
-		  assigned depth 1.
+		& Thus if an inline function is called from a {\em statement}
+		  of depth $D$, the {\em statements} in the sub-block $S$ at the
+		  end of the inline function declaration that are not inside
+		  a sub-block of $S$ will have depth $D+1$.
+\\[1ex]
+\key{(S4)}	& A {\em statement} in the sub-block $S$ at the end of an
+                  \underline{out-of-line} function declaration that itself
+		  is a {\em statement} of depth $D$, and also not
+		  in any sub-block of $S$, is assigned depth $D+1$.
+\end{tabular}
+\end{indpar}
+
+The rules for assigning depth to arguments and results of \underline{inline}
+{\em function-calls} and \\
+{\em reference-calls} are:
+\begin{indpar}[0.2in]
+\begin{tabular}{lp{5.0in}}
+\key{(I1)}	& An argument within an inline {\em function-prototype}
+                  invoked by a
+                  {\em function-call} is assigned
+                  the same depth as the corresponding actual call argument.
+\\[1ex]
+\key{(I2)}	& Results of a inline {\em function-prototype} invoked by a
+                  {\em function-call} are assigned
+                  the same depth as the {\em statement} containing the call.
+\\[1ex]
+\key{(I3)}	& An argument within a {\em reference-function-prototype}
+                  invoked by a
+                  {\em re\-ference-call} is assigned
+                  the same depth as the corresponding actual call argument.
+\\[1ex]
+\key{(I4)}	& The result of a {\em reference-function-prototype}
+		  invoked by a
+                  {\em reference-call} is assigned
+		  the same depth as the {\em reference-expression}
+		  that is the actual argument in the call
+		  corresponding to the
+		  {\em reference-pattern-argument} in the prototype.
 \end{tabular}
 \end{indpar}
 
