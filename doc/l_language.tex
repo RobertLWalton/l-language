@@ -6170,8 +6170,6 @@ The rule is:
 \end{tabular}
 \end{indpar}
 
-TBD
-
 \key{Lifetime depth} is assigned to a pointer stored in a {\tt co}
 variable created by a
 {\em result-variable-de\-clar\-a\-tion},
@@ -6184,8 +6182,9 @@ In this section `variable' means a variable as specified in the last
 paragraph and `argument' means an argument as specified in the last
 paragraph.
 
-Lifetime depth for some variables is the same as the \key{statement depth}
-of the {\em statement} creating the variable.
+Lifetime depth of a variable is the same as the \key{statement depth}
+of the {\em statement} creating the variable (i.e., the {\em statement}
+that declares the variable).
 
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
@@ -6194,18 +6193,21 @@ The rules for assigning depth to {\em statements} are as follows:
                   (i.e., is not in a sub-block) is assigned depth 1.
 \\[1ex]
 \key{(S2)}	& A {\em statement} that is inside a sub-block at the end
-                  of a {\em statement} of depth $N$ is given depth $N+1$.
+                  of a {\em statement} of depth $N$, and is not also
+		  inside a sub-block of that sub-block, is given depth $N+1$.
 \\[1ex]
 \key{(S3)}	& An \underline{inline} {\em function-call} is treated
-                  as creating a sub-block of the {\em statement}
-		  containing the {\em function-call}.
+                  as creating a sub-block immediately inside
+		  the {\em statement} containing the {\em function-call}.
 \\[1ex]
-\key{(S4)}	& {\em Statement} in the sub-block at the end of an
-                  \underline{out-of-line} function declaration (and not
-		  in any sub-block of that sub-block) are
+\key{(S4)}	& A {\em statement} in the sub-block at the end of an
+                  \underline{out-of-line} function declaration, and also not
+		  in any sub-block of that sub-block, is
 		  assigned depth 1.
 \end{tabular}
 \end{indpar}
+
+TBD
 
 The rules for assigning depth to variables are:
 \begin{indpar}[0.2in]
