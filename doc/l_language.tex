@@ -6164,9 +6164,11 @@ The rule is:
 		& Here $v2$ can be either the target of a pointer of
                   of lifetime type {\tt *LOCAL*} and lifetime depth $d2$,
 		  or it can be a variable allocated by a
-		  {\em block-variable-declaration} and being written
+		  {\em block-variable-declaration}
+		  or {\em next-variable-declaration} and being written
 		  written inside the subblock of the associated
-		  {\em block-assignment-statement}.
+		  {\em block-assignment-statement} or
+		  {\em loop-assignment-statement}.
 \end{tabular}
 \end{indpar}
 
@@ -6183,8 +6185,8 @@ paragraph and `argument' means an argument as specified in the last
 paragraph.
 
 Lifetime depth of a variable is the same as the \key{statement depth}
-of the {\em statement} creating the variable (i.e., the {\em statement}
-that declares the variable).
+of the {\em assignment-statement} creating the variable
+(i.e., the {\em statement} that declares the variable).
 
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
