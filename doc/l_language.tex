@@ -6219,27 +6219,45 @@ The rules for assigning depth to arguments and results of \underline{inline}
 {\em reference-calls} are:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
-\key{(I1)}	& An argument within an inline {\em function-prototype}
+\key{(I1)}	& An argument of {\tt *LOCAL*} pointer type
+                  within an inline {\em function-prototype}
                   invoked by a
                   {\em function-call} is assigned
                   the same depth as the corresponding actual call argument.
 \\[1ex]
-\key{(I2)}	& Results of a inline {\em function-prototype} invoked by a
+\key{(I2)}	& Results of {\tt *LOCAL*} pointer type
+                  of a inline {\em function-prototype} invoked by a
                   {\em function-call} are assigned
-                  the same depth as the {\em statement} containing the call.
+                  the same depth as the {\em statement} containing the
+		  {\em function-call}.
 \\[1ex]
-\key{(I3)}	& An argument within a {\em reference-function-prototype}
+\key{(I3)}	& An argument of {\tt *LOCAL} pointer type
+                  within a {\em reference-function-prototype}
                   invoked by a
                   {\em re\-ference-call} is assigned
                   the same depth as the corresponding actual call argument.
 \\[1ex]
-\key{(I4)}	& The result of a {\em reference-function-prototype}
+\key{(I4)}	& A result of {\tt *LOCAL*} pointer type
+                  of a {\em reference-function-prototype}
 		  invoked by a
                   {\em reference-call} is assigned
 		  the same depth as the {\em reference-expression}
 		  that is the actual argument in the call
 		  corresponding to the
 		  {\em reference-pattern-argument} in the prototype.
+\end{tabular}
+\end{indpar}
+
+(I4) is generalized to include {\em reference-expressions} that
+are builtin.
+
+\begin{indpar}[0.2in]
+\begin{tabular}{lp{5.0in}}
+\key{(I5)}	& A result of {\tt *LOCAL*} pointer type
+                  of a {\em reference-expression} $E$ that is
+		  \underline{not} a {\em reference-call} is assigned
+		  the same depth as the {\em reference-expression}
+		  that is the base of $E$.
 \end{tabular}
 \end{indpar}
 
