@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 5, 2022
+September 6, 2022
 
 \bigskip
  
@@ -6097,80 +6097,103 @@ other than `{\tt my\_own\_module}'.
 \subsection{Lifetimes}
 \label{LIFETIMES}
 
-The \key{lifetime} of a piece of memory is the time interval from
-the time that the memory is allocated to the time that
-the memory is deallocated.  The compiler tracks lifetimes by assigning each
-pointer target a lifetime type and in some cases a separate lifetime depth.
+The \key{lifetime} of a variable, i.e., a piece of memory,
+is the time interval from the time that the variable
+is allocated to the time that
+the variable is deallocated.  The compiler tracks lifetimes by assigning each
+variable a lifetime type and in some cases a separate lifetime depth.
 
-There are three possible \skey{lifetime type}s:
+The possible \skey{variable}s are:
 \begin{indpar}[0.2in]
-\begin{tabular}{lp{5.0in}}
-\ttkey{*GLOBAL*}	& the lifetime starts when the program
-                          starts and stops when the program terminates
+\begin{tabular}{lp{4.0in}}
+\key{assignment variable} &
+	The value stored in a {\tt co} variable created by a
+	{\em result-variable-de\-clar\-a\-tion},
+	{\em block-variable-declaration},
+	or {\em next-variable-declaration}
+	of an {\em assignment-state\-ment}.
 \\[1ex]
-\ttkey{*LOCAL*}		& the lifetime starts when the statement allocating
-                          the memory executes and stops when the block
-			  containing the statement terminates
+\key{argument variable} &
+	The value stored in a {\tt co} variable created by an
+	{\em prototype-argument-declaration} in a {\em function-prototype}
+	when the function is called.
 \\[1ex]
-\ttkey{*HEAP*}		& the lifetime starts when the memory is allocated
-                          to the heap (i.e., garbage collectible
-			  memory), and stops when the memory can no longer
-			  be referenced by following a chain of pointer values
-			  that are stored in memory that
-			  has {\tt *GLOBAL*} lifetime
-			  or has a {\tt *LOCAL*} lifetime that has not
-			  yet terminated
+\key{result variable} &
+	The value stored in variable created by an
+	{\em prototype-result-declaration} in a {\em function-prototype}
+	when the function is called.
+\\[1ex]
+\key{target variable} &
+	A value that is part of the target of a pointer
+	(e.g., a field, element of a field, etc.).
 \end{tabular}
 \end{indpar}
 
-In general a pointer cannot be stored in a value unless one of the
+There are three possible variable \skey{lifetime type}s:
+\begin{indpar}[0.2in]
+\begin{tabular}{lp{5.0in}}
+\ttkey{*GLOBAL*}	& The lifetime starts when the program
+                          starts and stops when the program terminates.
+\\[1ex]
+\ttkey{*LOCAL*}		& The lifetime starts when the statement allocating
+                          the variable executes and stops when the block
+			  containing the statement terminates.
+\\[1ex]
+\ttkey{*HEAP*}		& The lifetime starts when the variable is allocated
+                          to the heap (i.e., garbage collectible
+			  memory), and stops when the variable can no longer
+			  be referenced by following a chain of pointer values
+			  that are stored in variables that
+			  have {\tt *GLOBAL*} lifetime
+			  or have a {\tt *LOCAL*} lifetime that has not
+			  yet terminated.
+\end{tabular}
+\end{indpar}
+
+Lifetime types qualify pointer target types.  A pointer whose target
+has a particular lifetime type is said to have that lifetime type:
+thus we have {\tt *GLOBAL*} pointers, {\tt *LOCAL*} pointers, etc.
+In general a pointer cannot be stored in a variable unless one of the
 \skey{lifetime rule}s of this section permits it.  The first rules are:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
-\key{(L1)}	& A pointer to a target with {\tt *GLOBAL*} lifetime type
-                  (i.e., pointer target qualifier) can be stored in any value.
+\key{(L1)}	& A {\tt *GLOBAL*} pointer can be stored in any variable.
 \\[1ex]
-\key{(L2)}	& A pointer to a target with {\tt *HEAP*} lifetime type
-                  (i.e., pointer target qualifier) can be stored in any value.
+\key{(L2)}	& A {\tt *HEAP*} pointer can be stored in any variable.
 \\[1ex]
-\key{(L3)}	& The {\tt *GLOBAL*} lifetime type
-                  (i.e., pointer target qualifier) can be
+\key{(L3)}	& The {\tt *GLOBAL*} lifetime type can be
 		  implicitly converted to the {\tt *HEAP*} lifetime type.
 \\[1ex]
 		& Note: This requires the garbage collector to be able
 		  to identify {\tt *GLOBAL*} pointers and treat them
 		  differently.
 \\[1ex]
-\key{(L4)}	& A pointer to a target with {\tt *LOCAL*} lifetime type
-                  can\underline{not} be stored in a value pointed at by
-		  a pointer with either {\tt *GLOBAL*} or {\tt *HEAP}
-		  lifetime type.
+\key{(L4)}	& A {\tt *LOCAL*} pointer
+                  can\underline{not} be stored in
+		  {\tt *GLOBAL*} or {\tt *HEAP} variable.
 \end{tabular}
+\\[1ex]
+Note that for (L1) and (L2) the variable in which the pointer is stored
+must have the same pointer type as the pointer value being stored.
+There rules do not permit type conversion.
 \end{indpar}
 
-The rule on when a pointer to a target with {\tt *LOCAL*}
-lifetime type can be stored in a pointer target of {\tt *LOCAL*} lifetime type
+The rule on when a {\tt *LOCAL*}
+can be stored a {\tt *LOCAL*} variable
 references to the lifetime depth of values, which is defined below.
 The rule is:
 
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
-\key{(L5)}	& A pointer to a value $v1$ of lifetime type {\tt *LOCAL*}
-                  and lifetime depth $d1$
-                  can be stored in a value $v2$ of lifetime type {\tt *LOCAL*}
-		  and lifetime depth $d2$
+\key{(L5)}	& A {\tt *LOCAL*} pointer of
+                  lifetime depth $d1$
+                  can be stored in
+		  a {\tt *LOCAL*} variable of lifetime depth $d2$
 		  if $0\leq d1\leq d2$ and $0<d2$.
-\\[1ex]
-		& Here $v2$ can be either the target of a pointer of
-                  of lifetime type {\tt *LOCAL*} and lifetime depth $d2$,
-		  or it can be a variable allocated by a
-		  {\em block-variable-declaration}
-		  or {\em next-variable-declaration} and being written
-		  written inside the subblock of the associated
-		  {\em block-assignment-statement} or
-		  {\em loop-assignment-statement}.
 \end{tabular}
 \end{indpar}
+
+TBD
 
 \key{Lifetime depth} is assigned to a pointer stored in a {\tt co}
 variable created by a
