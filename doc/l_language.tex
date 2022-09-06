@@ -6151,10 +6151,15 @@ There are three possible variable \skey{lifetime type}s:
 \end{indpar}
 
 Lifetime types qualify pointer target types.  A pointer whose target
-has a particular lifetime type is said to have that lifetime type:
+has a particular lifetime is said to have that lifetime:
 thus we have {\tt *GLOBAL*} pointers, {\tt *LOCAL*} pointers, etc.
 In general a pointer cannot be stored in a variable unless one of the
-\skey{lifetime rule}s of this section permits it.  The first rules are:
+\skey{lifetime rule}s of this section permits it.
+
+The goal of these rules is to keep a pointer with a given lifetime
+from being stored in a variable with a longer lifetime.
+
+The first rules are:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
 \key{(L1)}	& A {\tt *GLOBAL*} pointer can be stored in any variable.
@@ -6175,7 +6180,7 @@ In general a pointer cannot be stored in a variable unless one of the
 \\[1ex]
 Note that for (L1) and (L2) the variable in which the pointer is stored
 must have the same pointer type as the pointer value being stored.
-There rules do not permit type conversion.
+These rules do not permit type conversion.
 \end{indpar}
 
 The rule on when a {\tt *LOCAL*}
