@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 6, 2022
+September 7, 2022
 
 \bigskip
  
@@ -6215,8 +6215,6 @@ ap *GLOBAL* list element @Y:
 \end{verbatim}\end{indpar}
 
 
-TBD
-
 The rule on when a {\tt *LOCAL*}
 can be stored a {\tt *LOCAL*} variable
 references to the lifetime depth of values, which is defined below.
@@ -6231,6 +6229,42 @@ The rule is:
 		  if $0\leq d1\leq d2$ and $0<d2$.
 \end{tabular}
 \end{indpar}
+
+An example is:
+\begin{indpar}\begin{verbatim}
+type list element:
+    ap list element @after
+
+// In the following, `=@ local' is implied because the pointers
+// default to *LOCAL*.  Also, non-extermal assignment-variables
+// of top level statements have depth 1.
+
+// Circular list:
+//
+ap *READ-WRITE* @last = null  // `=@ local' is implied
+    // First element is pointed at by last.@after
+
+// Put two elements in list.
+//
+ap list element @X  // `=@ local = *DEFERRED*' is implied
+ap list element @Y  // `=@ local = *DEFERRED*' is implied
+
+// Now @last, @X, @Y all have depth 1
+
+ap list element @X:
+    // Put X on empty list
+    X.@after = @X
+    @last = @X
+    // List now consists of (X)
+ap list element @Y:
+    // Add Y to end of list
+    Y.@after = last.@after 
+    last.@after = @Y
+    @last = @Y
+    // List now consists of (X, Y)
+\end{verbatim}\end{indpar}
+
+TBD
 
 \key{Lifetime depth} is assigned to a pointer stored in a {\tt co}
 variable created by a
