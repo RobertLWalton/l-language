@@ -6338,8 +6338,6 @@ Given this, the rules for assigning depth to variables are:
 \end{tabular}
 \end{indpar}
 
-TBD
-
 Lastly, the following rules allow {\tt *GLOBAL*} and {\tt *HEAP}
 pointers to be converted to {\tt *LOCAL*} pointers:
 \begin{indpar}[0.2in]
@@ -6350,13 +6348,20 @@ pointers to be converted to {\tt *LOCAL*} pointers:
 \key{(C2)}	& A {\tt *HEAP*} pointer can be implicitly
                   converted to a {\tt *LOCAL*} pointer of depth 0
 		  provided the {\tt *HEAP*} pointer is stored in
-		  a variable.
+		  an assignment variable or argument variable.
 \\[1ex]
-		& Note: the pointer variable with {\tt *HEAP*} lifetime
-		  will exist as long as the variable (which is {\tt co})
-		  exists.
+		& Note 1: the variable in which the {\tt *HEAP*} pointer
+		  is stored is {\tt co} and will exist as long as
+		  the {\tt *LOCAL*} pointer exists.
+\\[1ex]
+		& Note 2: because of this conversion, both {\tt *HEAP*}
+		  and {\tt *LOCAL*} pointers in the stack will have
+		  to be updated by garbage collection: see
+		  \itemref{COPYING-GARBAGE-COLLECTION}.
 \end{tabular}
 \end{indpar}
+
+TBD
 
 
 See \itemref{QUALIFIER-IMPLICIT-CONVERSIONS} for more details.
@@ -6464,6 +6469,7 @@ The three kinds of GC are discussed in detail in the following sub-sections.
 
 
 \subsubsection{Copying Garbage Collection}
+\label{COPYING-GARBAGE-COLLECTION}
 
 In copying garbage collection the stub of a datum is its
 first word when the datum is allocated.  At this time the
@@ -6487,7 +6493,7 @@ to point at new space stubs, and then discard old space
 completely.
 
 GC performs a basic operation on heap pointers which
-we will call pointer-update.  In this a heap pointer is
+we will call \key{pointer-update}.  In this a heap pointer is
 checked to see if it points at new space, and if not,
 is replaced by a pointer that points at new space.
 If the heap pointer points at a body pointer in old space
