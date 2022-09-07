@@ -6264,33 +6264,19 @@ ap list element @Y:
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
-TBD
-
-\key{Lifetime depth} is assigned to a pointer stored in a {\tt co}
-variable created by a
-{\em result-variable-de\-clar\-a\-tion},
-{\em block-variable-declaration},
-or {\em next-variable-declaration} of an {\em assignment-state\-ment},
-or a {\tt co} argument created by a {\em prototype-argument-declaration}
-of a {\em function-call} or {\em reference-call}.
-
-In this section `variable' means a variable as specified in the last
-paragraph and `argument' means an argument as specified in the last
-paragraph.
-
-Lifetime depth of a variable is the same as the \key{statement depth}
-of the {\em assignment-statement} creating the variable
-(i.e., the {\em statement} that declares the variable).
-
+The \key{lifetime depth} 
+of an assignment variable is determined mostly by the \key{statement depth}
+of the {\em assignment-statement} creating the variable.
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
 \key{(S1)}	& A {\em statement} that is not inside any other statement
-                  (i.e., is not in a sub-block) is assigned depth 1.
+                  (i.e., is not in a sub-block; i.e., is top-level)
+		  is assigned depth 1.
 \\[1ex]
 \key{(S2)}	& A {\em statement} that is inside a sub-block at the end
                   of a {\em statement} of depth $D$, and is not also
-		  inside a sub-block of that sub-block, is given depth $D+1$.
+		  inside a sub-block of that sub-block, is assigned depth $D+1$.
 \\[1ex]
 \key{(S3)}	& An \underline{inline} {\em function-call} is treated
                   as creating a sub-block immediately inside
@@ -6308,68 +6294,51 @@ The rules for assigning depth to {\em statements} are as follows:
 \end{tabular}
 \end{indpar}
 
-The rules for assigning depth to arguments and results of \underline{inline}
-{\em function-calls} and \\
-{\em reference-calls} are:
+Given this, the rules for assigning depth to variables are:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
-\key{(I1)}	& An argument of {\tt *LOCAL*} pointer type
-                  within an inline {\em function-prototype}
-                  invoked by a
-                  {\em function-call} is assigned
-                  the same depth as the corresponding actual call argument.
+\key{(V1)}	& \underline{Non-external} assignment variables are
+		  assigned the depth of the {\em statement} which
+		  creates them.
 \\[1ex]
-\key{(I2)}	& Results of {\tt *LOCAL*} pointer type
-                  of a inline {\em function-prototype} invoked by a
-                  {\em function-call} are assigned
-                  the same depth as the {\em statement} containing the
-		  {\em function-call}.
+\key{(V2)}	& External assignment variables are assigned depth 0,
+		  and therefore cannot store {\tt *LOCAL*} pointers.
 \\[1ex]
-\key{(I3)}	& An argument of {\tt *LOCAL} pointer type
-                  within a {\em reference-function-prototype}
-                  invoked by a
-                  {\em re\-ference-call} is assigned
-                  the same depth as the corresponding actual call argument.
+\key{(V3)}	& Argument variables in an \underline{inline}
+		  {\em function-prototype}
+                  or a {\em reference-function-prototype} are assigned
+		  the same depth as the corresponding actual call argument
+		  in the {\em statement} that called the prototype.
 \\[1ex]
-\key{(I4)}	& A result of {\tt *LOCAL*} pointer type
-                  of a {\em reference-function-prototype}
-		  invoked by a
-                  {\em reference-call} is assigned
-		  the same depth as the base {\em reference-expression}
-		  that is the actual argument in the call
-		  corresponding to the
-		  {\em reference-pattern-argument} in the prototype.
+\key{(V4)}	& Result variables in an \underline{inline}
+		  {\em function-prototype}
+		  are assigned the same depth as the {\em statement}
+		  that called the prototype.
+\\[1ex]
+\key{(V5)}	& Result variables in a {\em reference-function-prototype}
+		  are assigned the same depth as
+		  {\em reference-pattern-argument}
+		  (i.e., as the actual base {\em reference-expression}
+		  in the {\em reference-call}).
+\\[1ex]
+		& In addition, a {\em reference-expressions}
+		  that is not a {\em reference-call} (i.e., that is builtin)
+		  is treated for the purposes of assigning depth to
+		  its result as if it were a {\em reference-call};
+		  i.e., its result is given the same depth as
+		  its base {\em reference-expression} variable
+		  or result.
+\\[1ex]
+\key{(V6)}	& Argument variables in an \underline{out-of-line}
+		  {\em function-prototype} are assigned depth 0.
+\\[1ex]
+\key{(V7)}	& Result variables in an \underline{out-of-line}
+		  {\em function-prototype} are assigned depth 0,
+		  and therefore cannot store {\tt *LOCAL*} pointers.
 \end{tabular}
 \end{indpar}
 
-(I4) is generalized to include {\em reference-expressions} that
-are builtin.
-
-\begin{indpar}[0.2in]
-\begin{tabular}{lp{5.0in}}
-\key{(I5)}	& A result of {\tt *LOCAL*} pointer type
-                  of a {\em reference-expression} $E$ that is
-		  \underline{not} a {\em reference-call} is assigned
-		  the same depth as the {\em reference-expression}
-		  that is the base of $E$.
-\end{tabular}
-\end{indpar}
-
-The rules for assigning depth to arguments and results of
-\underline{out-of-line} {\em function-calls} are:
-\begin{indpar}[0.2in]
-\begin{tabular}{lp{5.0in}}
-\key{(O1)}	& An argument of {\tt *LOCAL*} pointer type
-                  within an out-of-line {\em function-prototype}
-                  invoked by a
-                  {\em function-call} is assigned depth 0.
-                  the same depth as the corresponding actual call argument.
-\\[1ex]
-\key{(O2)}	& An out-of-line {\em function-prototype}
-		  can\underline{not} have
-		  a result of {\tt *LOCAL*} pointer type.
-\end{tabular}
-\end{indpar}
+TBD
 
 Lastly, the following rules allow {\tt *GLOBAL*} and {\tt *HEAP}
 pointers to be converted to {\tt *LOCAL*} pointers:
