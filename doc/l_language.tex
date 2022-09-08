@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 7, 2022
+September 8, 2022
 
 \bigskip
  
@@ -6193,8 +6193,10 @@ type list element:
 
 // Circular list:
 //
-ap *GLOBAL* *READ-WRITE* @last = null  // `=@ global' is implied
-    // First element is pointed at by last.@after
+ap *GLOBAL* *READ-WRITE* list element @last:  // `=@ global' is implied
+    last@after = null
+    // Last element is pointed at by last.@after
+    // First element is pointed at by last.after.@after
 
 // Put two elements in list.
 //
@@ -6204,13 +6206,13 @@ ap *GLOBAL* list element @Y  // `=@ global = *DEFERRED*' is implied
 ap *GLOBAL* list element @X:
     // Put X on empty list
     X.@after = @X
-    @last = @X
+    last.@after = @X
     // List now consists of (X)
 ap *GLOBAL* list element @Y:
     // Add Y to end of list
-    Y.@after = last.@after 
+    Y.@after = last.after.@after 
+    last.after.@after = @Y
     last.@after = @Y
-    @last = @Y
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
@@ -6236,13 +6238,15 @@ type list element:
     ap list element @after
 
 // In the following, `=@ local' is implied because the pointers
-// default to *LOCAL*.  Also, non-extermal assignment-variables
+// default to *LOCAL*.  Also, non-external assignment-variables
 // of top level statements have depth 1.
 
 // Circular list:
 //
-ap *READ-WRITE* @last = null  // `=@ local' is implied
-    // First element is pointed at by last.@after
+ap *READ-WRITE* list element @last:  // `=@ local' is implied
+    last.@after = null
+    // Last element is pointed at by last.@after
+    // First element is pointed at by last.after.@after
 
 // Put two elements in list.
 //
@@ -6254,13 +6258,13 @@ ap list element @Y  // `=@ local = *DEFERRED*' is implied
 ap list element @X:
     // Put X on empty list
     X.@after = @X
-    @last = @X
+    last.@after = @X
     // List now consists of (X)
 ap list element @Y:
     // Add Y to end of list
-    Y.@after = last.@after 
+    Y.@after = last.after.@after 
+    last.after.@after = @Y
     last.@after = @Y
-    @last = @Y
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
@@ -6338,6 +6342,40 @@ Given this, the rules for assigning depth to variables are:
 \end{tabular}
 \end{indpar}
 
+An example is:
+\begin{indpar}\begin{verbatim}
+type list element:
+    ap list element @after
+
+// Circular list:
+//
+ap *READ-WRITE* list element @last:      // `=@ local' is implied
+    last.@after = null
+    // Last element is pointed at by last.@after
+    // First element is pointed at by last.after.@after
+    // The variable `last' has depth 1
+
+// Add element to end of circular list:
+//
+function add ( ap *READ-WRITE* @element ):
+    // element depth is taken from actual argument
+    if last.@after == null:
+        element.@after = @element
+    else:
+        element.@after = last.after.@after
+        last.after.@after = @element
+    last.@after = @element
+
+// Put two elements in list.
+//
+ap *READ-WRITE* list element @X          // `=@ local' is implied
+                                         // X memory is depth 1
+ap *READ-WRITE* list element @Y          // `=@ local' is implied
+                                         // Y memory is depth 1
+add ( @X )           // X is first element
+add ( @Y )           // Y is second element
+\end{verbatim}\end{indpar}
+
 Lastly, the following rules allow {\tt *GLOBAL*} and {\tt *HEAP}
 pointers to be converted to {\tt *LOCAL*} pointers:
 \begin{indpar}[0.2in]
@@ -6365,38 +6403,6 @@ TBD
 
 
 See \itemref{QUALIFIER-IMPLICIT-CONVERSIONS} for more details.
-
-An example is:
-\begin{indpar}\begin{verbatim}
-type list element:
-    ap list element @after
-
-// Circular list:
-//
-ap *READ-WRITE* @last      // `=@ local = *DEFERRED*' is implied
-    // First element is pointed at by last.@after
-    // This variable has depth 1
-
-// Add to circular list:
-//
-function add ( ap *READ-WRITE* @element ):
-    // element depth is taken from actual argument
-    if @last is null:
-        element.@after = @element
-    else:
-        element.@after = last.@after
-        last.@after = @element
-    @last = @element
-
-// Put two elements in list.
-//
-list element @X      // `=@ local = *DEFERRED*' is implied
-                     // X memory is depth 1
-list element @Y      // `=@ local = *DEFERRED*' is implied
-                     // Y memory is depth 1
-add ( @X )           // X is first element
-add ( @Y )           // Y is second element
-\end{verbatim}\end{indpar}
 
 \subsection{Memory Management}
 \label{MEMORY-MANAGEMENT}
