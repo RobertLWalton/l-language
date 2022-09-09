@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 27 14:16:57 EDT 2022
+// Date:	Fri Sep  9 04:24:36 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -48,6 +48,8 @@ min::locatable_gen LLEX::function;
 min::locatable_gen LLEX::reference_function;
 min::locatable_gen LLEX::out_of_line_function;
 min::locatable_gen LLEX::long_arrow;
+min::locatable_gen LLEX::is_type;
+min::locatable_gen LLEX::is_function;
 
 static void initialize ( void )
 {
@@ -71,6 +73,9 @@ static void initialize ( void )
     LLEX::out_of_line_function =
         min::new_lab_gen ( "out-of-line", "function" );
     LLEX::long_arrow = min::new_str_gen ( "--->" );
+    LLEX::is_type = min::new_lab_gen ( "is", "type" );
+    LLEX::is_function =
+        min::new_lab_gen ( "is", "function" );
 
 }
 static min::initializer initializer ( ::initialize );
@@ -244,7 +249,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
-          OP::PREFIX,
+          OP::PREFIX + OP::LINE,
           0000,
           min::NULL_STUB,	// TBD
           min::MISSING(),
@@ -254,7 +259,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
-          OP::PREFIX,
+          OP::PREFIX + OP::LINE,
           0000,
           min::NULL_STUB,	// TBD
           min::MISSING(),
@@ -264,7 +269,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
-          OP::PREFIX,
+          OP::PREFIX + OP::LINE,
           0000,
           min::NULL_STUB,	// TBD
           min::MISSING(),
@@ -274,7 +279,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
-          OP::PREFIX,
+          OP::PREFIX + OP::LINE,
           0000,
           min::NULL_STUB,	// TBD
           min::MISSING(),
@@ -284,7 +289,7 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
-          OP::PREFIX,
+          OP::PREFIX + OP::LINE,
           0000,
           min::NULL_STUB,	// TBD
           min::MISSING(),
@@ -294,9 +299,29 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           code,
           block_level, PAR::top_level_position,
-          OP::INFIX,
+          OP::INFIX + OP::LINE,
           0000,
           binary_reformatter,
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( LLEX::is_type,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::INFIX + OP::AFIX + OP::LINE,
+          0000,
+          min::NULL_STUB,
+          min::MISSING(),
+          oper_pass->oper_table );
+    OP::push_oper
+        ( LLEX::is_function,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::INFIX + OP::AFIX + OP::LINE,
+          0000,
+          min::NULL_STUB,
           min::MISSING(),
           oper_pass->oper_table );
 }

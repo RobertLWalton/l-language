@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 8, 2022
+September 9, 2022
 
 \bigskip
  
@@ -1569,7 +1569,7 @@ All of these but {\tt initial} and {\tt prefix} can be combined with {\tt afix}.
 
 \newpage
 
-\begin{boxedfigure}[!t]
+\begin{boxedfigure}[!p]
 \begin{center}
 Line Level Operators \\
 Must Occur Outside Parentheses and Brackets \\
@@ -1611,6 +1611,10 @@ Operator & Meaning & Fixity & Format & Precedence \\
        out-of-line\\
        ~~function
        \end{tabular}} & & & &
+\\\cline{1-1}\cline{3-4}
+\ttkey{is type} & & afix & (none) &
+\\\cline{1-1}
+\ttkey{is function} & & infix & &
 \\\cline{1-4}
 \ttkey{\ABV} & abbreviate & infix & binary &
 \\\hline
@@ -1644,7 +1648,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \label{L-LANGUAGE-LINE-OPERATORS}
 \end{boxedfigure}
 
-\begin{boxedfigure}[!t]
+\begin{boxedfigure}[!p]
 \begin{center}
 Non-Line Level Operators: Part I \\
 May Occur Inside or Outside Parentheses and Brackets
@@ -1721,6 +1725,8 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \label{L-LANGUAGE-NON-LINE-OPERATORS-1}
 \end{boxedfigure}
 
+\clearpage
+
 \begin{boxedfigure}[!t]
 \begin{center}
 Non-Line Level Operators: Part II \\
@@ -1753,8 +1759,6 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \caption{L-Language Non-Line Operators}
 \label{L-LANGUAGE-NON-LINE-OPERATORS-2}
 \end{boxedfigure}
-
-\clearpage
 
 The operators in
 Figures~\itemref{L-LANGUAGE-LINE-OPERATORS},
@@ -4161,7 +4165,7 @@ specified by a pointer type declaration.  The syntax is:
 \begin{indpar}
 \emkey{pointer-type-declaration}\label{POINTER-TYPE-DECLARATION} ::= \\
 \hspace*{0.5in}\ttkey{pointer type} {\em defined-pointer-type-name}
-	       \TT{is} {\em type-name}
+	       \TT{is type} {\em type-name}
 \\[0.5ex]
 \emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \\[0.5ex]
@@ -4180,8 +4184,8 @@ are generally user defined types.
 For example, the following are builtin:
 
 \begin{indpar}\begin{verbatim}
-pointer type dp is std data for dp
-pointer type ap is std data for ap
+pointer type dp is type std data for dp
+pointer type ap is type std data for ap
 type std data for dp:
     int address
 type std data for ap:
@@ -4233,7 +4237,7 @@ function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
     r = ddp
 \end{verbatim}\end{indpar}
 
-A {\em pointer-type-declaration} `{\tt pointer type $P$ is $D$}'
+A {\em pointer-type-declaration} `{\tt pointer type $P$ is type $D$}'
 implicitly declares the functions:
 \begin{indpar} \tt
 function $P$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $D$ data ) \\
@@ -4286,8 +4290,8 @@ An alternative strategy is to convert a pointer of type $P1$
 to a pointer of type $P2$ that allows members and elements
 to be accessed.  Suppose we are given:
 \begin{indpar} \tt
-pointer type $P1$ is $D1$ \\
-pointer type $P2$ is $D2$
+pointer type $P1$ is type $D1$ \\
+pointer type $P2$ is type $D2$
 \end{indpar}
 
 Then we can define a reference function with the prototype:
@@ -4414,7 +4418,7 @@ ap *READ-WRITE* int @number of files =@ global
 type data for fd:
     int index
 
-pointer type fd is data for fd
+pointer type fd is type data for fd
 
 reference function ap Q$1 file @r = ( fd Q$1 file @p ) .@:
     data for fd d = pointer to data ( @p )
@@ -7942,6 +7946,19 @@ cannot return a correct integer value.%
 \footnote{See documentation of the intel IA-64 FIST instruction.}
 
 The value is typically $-2^{S-1}$ where $S$ is the size of {\tt I} in bits.
+\end{indpar}
+
+\subsection{Builtin Pointer Operations}
+\label{BUILTIN-POINTER-OPERATIONS}
+
+{\tt function P\$1 Q\$1 T\$1 r = std null}%
+\label{NULL}
+\begin{indpar}
+This function returns zero converted to the pointer type.
+\\[1ex]
+Accessing the target of a null pointer usually produces
+a segmentation fault, as the virtual page with address zero
+is usually undefined.
 \end{indpar}
 	
 

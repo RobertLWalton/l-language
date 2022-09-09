@@ -2,7 +2,7 @@
 //
 // File:	l_language.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sat Aug 27 14:16:38 EDT 2022
+// Date:	Fri Sep  9 04:24:17 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -31,7 +31,9 @@ namespace l_language
 	    function,		// function
 	    reference_function, // reference function
 	    out_of_line_function, // out-of-line function
-	    long_arrow; 	// --->
+	    long_arrow, 	// --->
+	    is_type, 		// is type
+	    is_function; 	// it function
     }
     void init_parser
         ( min::ref<ll::parser::parser> parser );

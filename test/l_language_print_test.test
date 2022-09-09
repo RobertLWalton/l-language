@@ -91,7 +91,7 @@
         nothing found
     print operator ""
         block l-language: operator [< "out-of-line" "function" >] [code]
-                          prefix
+                          prefix line
                           with precedence 0
         block l-language: operator "&" [code]
                           infix
@@ -173,7 +173,7 @@
                           with precedence 999999
                           with unary reformatter
         block l-language: operator [< "pointer" "type" >] [code]
-                          prefix
+                          prefix line
                           with precedence 0
         block l-language: operator "do" [code]
                           prefix line
@@ -189,7 +189,7 @@
                           with control reformatter ( ":",
                           [< "has" "condition" >] )
         block l-language: operator [< "reference" "function" >] [code]
-                          prefix
+                          prefix line
                           with precedence 0
         block l-language: operator "<<=" [code]
                           infix line
@@ -235,20 +235,23 @@
                           with precedence 0
                           with control reformatter ( ":" )
         block l-language: operator "type" [code]
-                          prefix
+                          prefix line
                           with precedence 0
         block l-language: operator "**" [code]
                           infix
                           with precedence 13300
                           with binary reformatter
         block l-language: operator "--->" [code]
-                          infix
+                          infix line
                           with precedence 0
                           with binary reformatter
         block l-language: operator "*=" [code]
                           infix line
                           with precedence 1000
                           with binary reformatter
+        block l-language: operator [< "is" "type" >] [code]
+                          infix afix line
+                          with precedence 0
         block l-language: operator "|=" [code]
                           infix line
                           with precedence 1000
@@ -302,7 +305,7 @@
                           with precedence 13300
                           with binary reformatter
         block l-language: operator "function" [code]
-                          prefix
+                          prefix line
                           with precedence 0
         block l-language: operator "OR" [code]
                           infix
@@ -312,6 +315,9 @@
                           infix line
                           with precedence 1000
                           with binary reformatter
+        block l-language: operator [< "is" "function" >] [code]
+                          infix afix line
+                          with precedence 0
         block l-language: bracket ":" [code]
                           nofix afix line
                           with precedence 0
