@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 9, 2022
+September 10, 2022
 
 \bigskip
  
@@ -2997,17 +2997,23 @@ to control the flow of execution within the more complex
     \end{tabular}
 \end{indpar}
 
-A {\em result-variable-declaration} allocates memory for its variables
-in the frame of the currently executing function.
-{\em Expression-assignment-statements} set the values of these variables
+A {\em \ldots-variable-declaration}\label{VARIABLE-ALLOCATION}
+allocates memory for its variables
+in the frame of the currently executing out-of-line function.
+The sizes of these variables must be known at compile time.
+For sizes not known at compile time, a pointer to the variable
+can be allocated and the `\ttkey{local}' function called to set the pointer.
+The `{\tt local}' function allocates memory to the stack after the
+currently executing out-of-line function's frame.
+
+{\em Expression-assignment-statements} set the values of their variables
 to the values of the {\em expressions} in the {\em expression-list}.
-{\em Call-assignment-statements} set the values of these variables
+{\em Call-assignment-statements} set the values of their variables
 to the values returned by the {\em function-call}.
 
 A {\em block-variable-declaration}
-allocates memory for its variable
-in the frame of the currently executing function and also initializes
-that memory according to the declaration syntax as follows:
+initializes its variables
+according to the declaration syntax as follows:
 \begin{indpar}[0.05in]
 Non-{\tt next} variable declaration with no {\em allocation-call}\,:~
 The memory is zeroed. \\
@@ -3076,6 +3082,28 @@ the {\em block-variable-declaration} list
 of a {\em block-assignment-statement} (see \pagref{BLOCK-NEXT-PROMOTION}),
 or the {\em next-variable-declaration} list of a
 {\em loop-assignment-statement} (see \pagref{LOOP-NEXT-PROMOTION}).
+
+A {\em deferred-variable-declaration} behaves like a
+{\em block-variable-declaration} with an empty block, but in addition
+allows the variable to be redeclared in a subsequent
+`companion' {\em block-variable-delcaration} which does not
+reallocate the variable.
+
+For loops\label{LOOP-ALLOCATION},
+4 copies of the variables allocated by an iteration
+are allocated to the out-of-line function frame when the function is called,
+and the loop cycles among these copies.
+A call to `{\tt local}' inside a loop sets a pointer
+allocated to one of these 4 copies.  If such a pointer is already
+allocated by a previous loop iteration, its memory is reused, or
+doubled in size and reallocated.  This means that the total memory allocated
+to a pointer inside a loop copy by `{\tt local}' will never be more than
+4 times the size of the maximum memory needed for any single loop
+iteration.  As there can be 4 copies of the iteration variables,
+a call to `{\tt local}' inside a loop
+may allocate to the stack at most 4x4 = 16 times as much
+memory as any single iteration call to `{\tt local}'.
+
 
 \subsubsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
@@ -6409,16 +6437,10 @@ See \itemref{QUALIFIER-IMPLICIT-CONVERSIONS} for more details.
 \label{MEMORY-MANAGEMENT}
 
 Space for variables allocated by {\em variable-declarations}
-is reserved in the stack frame of an out-of-line function when the
-function is entered.  At this
-time space is reserved for each of 4 or more iterations of
-each loop, and the loop cycles between these iteration spaces.
-Aside from loops reusing iteration space, there is no
-freeing of stack frame variables until the out-of-line function
-terminates.  This aids debugging and simplifies compiling.
-
-Other data is allocated to the heap, including data allocated
-by the {\tt local} function.
+is allocated to the currently executing out-of-line function
+frame or to the stack after this frame: see
+\pagref{VARIABLE-ALLOCATION} and \pagref{LOOP-ALLOCATION}
+for details.
 
 Pointers to the heap (\skey{heap pointer}s) normally use the stub-body concept:
 the heap pointer points not at the body of a heap datum, but instead at a
@@ -6478,8 +6500,8 @@ The three kinds of GC are discussed in detail in the following sub-sections.
 \subsubsection{Copying Garbage Collection}
 \label{COPYING-GARBAGE-COLLECTION}
 
-In copying garbage collection the stub of a datum is its
-first word when the datum is allocated.  At this time the
+In copying garbage collection the stub of a datum is the datum's
+first word.  When the datum is first allocated, this
 stub points at itself.  Then during GC the body will be
 copied and for a time have two stubs, the stub in the old
 body that was the source of the copy, and the stub of the
@@ -6490,7 +6512,7 @@ except for its stub.
 
 GC works in cycles.  At the start of each cycle, all heap
 data are in a contiguous virtual memory space called the
-old space.  A new large continuous virtual memory space
+old space.  A new large contiguous virtual memory space
 is allocated called the new space.  The boundary address
 between these can be use to tell if a body is in old space
 or new space: just compare the body pointer with the boundary
@@ -6510,7 +6532,7 @@ a pointer to the body in new space.  If the heap pointer
 points at a body pointer in old space that points at new space, the
 heap pointer is simply replaced by that body pointer.
 
-When new body is created, it is allocated to new space.
+When a new body is created, it is allocated to new space.
 Places for new or copied bodies in new space are
 allocated at the `end' of new space.
 
