@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 10, 2022
+September 13, 2022
 
 \bigskip
  
@@ -2676,6 +2676,47 @@ the reference expression refers to the variable itself,
 to a field or dictionary entry of the variable's value,
 or to a vector or list element of the variable's value.
 
+When a {\em reference-expression} consists of a base that designates
+a \key{container} followed by a {\em member-name} that designates a field
+or subfield of this container, both the container and the field or
+subfield have qualifiers.
+If the container is in a function frame its sole qualifier is {\tt co}.
+Otherwise the container is the target of a pointer, and its qualifiers
+are the target qualifiers of the pointer type.  A field's qualifiers
+are those its {\em field-declaration}\pagnote{FIELD-DECLARATION}.
+A subfield's qualifiers are those of its containing field.
+
+The qualifiers of a pointer computed by the reference expression,
+or of the target value referenced by the reference expression,
+are computed from the container and field qualifiers as per the
+following:
+
+\begin{center}
+Reference Expression Result \\
+Pointer or Target Value Qualifiers \\
+Given Container and Field Qualifiers
+\\[1ex]
+\begin{tabular}{|l|c|c|c|c|c|}
+\multicolumn{1}{l}{Container}	& \multicolumn{5}{c}{Field Qualifier}
+\\\cline{2-6}
+\multicolumn{1}{l|}{Qualifier}
+	& (none) & \tt co & \tt ro & \tt *READ-WRITE* & \tt *WRITE-ONLY*
+\\\hline
+\tt co & \tt co & \tt co & \tt co & \tt co & (illegal)
+\\\hline
+\tt ro & \tt ro & \tt co & \tt ro & \tt ro & (illegal)
+\\\hline
+\tt *READ-WRITE* & \tt *READ-WRITE* & \tt co & \tt ro & \tt *READ-WRITE*
+						      & \tt *WRITE-ONLY*
+\\\hline
+\tt *WRITE-ONLY* & \tt *WRITE-ONLY* & (illegal) & (illegal) & \tt *WRITE-ONLY*
+						      & \tt *WRITE-ONLY*
+\\\hline
+(init) & (init) & (init) & (init) & (init) & (init)
+\\\hline
+\end{tabular}
+\end{center}
+
 Map constants are represented internally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
 i.e., pointing at, a map, then {\tt Y = X} copies the pointer
@@ -3655,7 +3696,7 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{*OFFSET*} \ttkey{*SIZE*} \\
     \end{tabular}
 \\[2ex]
-\emkey{field-declaration}
+\emkey{field-declaration}\label{FIELD-DECLARATION}
     \begin{tabular}[t]{@{}rl}
     ::= &  {\em field-without-subfields-declaration} \\
     $|$ &  {\em field-with-subfields-declaration} \\
