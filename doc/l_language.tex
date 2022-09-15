@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 13, 2022
+September 15, 2022
 
 \bigskip
  
@@ -2689,7 +2689,7 @@ A subfield's qualifiers are those of its containing field.
 The qualifiers of a pointer computed by the reference expression,
 or of the target value referenced by the reference expression,
 are computed from the container and field qualifiers as per the
-following:
+following tables:
 
 \begin{center}
 Reference Expression Result \\
@@ -2697,7 +2697,8 @@ Pointer or Target Value Qualifiers \\
 Given Container and Field Qualifiers
 \\[1ex]
 \begin{tabular}{|l|c|c|c|c|c|}
-\multicolumn{1}{l}{Container}	& \multicolumn{5}{c}{Field Qualifier}
+\multicolumn{1}{l}{Container}	\\
+\multicolumn{1}{l}{Access}	& \multicolumn{5}{c}{Field Access Qualifier}
 \\\cline{2-6}
 \multicolumn{1}{l|}{Qualifier}
 	& (none) & \tt co & \tt ro & \tt *READ-WRITE* & \tt *WRITE-ONLY*
@@ -2715,6 +2716,22 @@ Given Container and Field Qualifiers
 (init) & (init) & (init) & (init) & (init) & (init)
 \\\hline
 \end{tabular}
+\begin{minipage}{6.0in}
+\raggedright
+\begin{itemize}
+\item Here `{\tt (init)}' is a pseudo-qualifier used for containiners
+that are being initialized.  It has the same effect as {\tt *WRITE-ONLY*}
+except that it forces fields/subfields of the container to be `{\tt (init)}'
+even if they are {\tt co} or {\tt ro}.
+\item The {\em reference-expression} result is {\tt *VOLATILE*} if either
+the container or field/subfield is.
+\item The {\em reference-expression} result is {\tt *ATOMIC*} if either
+the container or field/subfield is.
+\item The {\em reference-expression} has the same lifetime qualifier
+({\tt *GLOBAL*}, {\tt *HEAP*}, or {\tt *LOCAL*} )
+and depth as the container.
+\end{itemize}
+\end{minipage}
 \end{center}
 
 Map constants are represented internally by pointers to where
