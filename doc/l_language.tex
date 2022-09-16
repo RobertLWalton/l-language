@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 15, 2022
+September 16, 2022
 
 \bigskip
  
@@ -434,7 +434,7 @@ type my type:
 
 my type X:
     X.op code = 5       // This is an initialization block
-    X.src1 = 2          // for X in which X is *WRITE-ONLY*.
+    X.src1 = 2          // for X in which X is write-only.
     X.src2 = 3
     X.des = 3
 uns op = X.op code      // Now op == 5
@@ -2689,11 +2689,11 @@ A subfield's qualifiers are those of its containing field.
 The qualifiers of a pointer computed by the reference expression,
 or of the target value referenced by the reference expression,
 are computed from the container and field qualifiers as per the
-following tables:
+following:
 
 \begin{center}
 Reference Expression Result \\
-Pointer or Target Value Qualifiers \\
+Pointer Target or Value Qualifiers \\
 Given Container and Field Qualifiers
 \\[1ex]
 \begin{tabular}{|l|c|c|c|c|c|}
@@ -2713,15 +2713,16 @@ Given Container and Field Qualifiers
 \tt *WRITE-ONLY* & \tt *WRITE-ONLY* & (illegal) & (illegal) & \tt *WRITE-ONLY*
 						      & \tt *WRITE-ONLY*
 \\\hline
-(init) & (init) & (init) & (init) & (init) & (init)
+\tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT*
 \\\hline
 \end{tabular}
 \begin{minipage}{6.0in}
 \raggedright
 \begin{itemize}
-\item Here `{\tt (init)}' is a pseudo-qualifier used for containiners
+\item Here\label{INIT-FORCING}
+{\tt *INIT*} is a pseudo-qualifier used for containiners
 that are being initialized.  It has the same effect as {\tt *WRITE-ONLY*}
-except that it forces fields/subfields of the container to be `{\tt (init)}'
+except that it forces fields/subfields of the container to be {\tt *INIT*}
 even if they are {\tt co} or {\tt ro}.
 \item The {\em reference-expression} result is {\tt *VOLATILE*} if either
 the container or field/subfield is.
@@ -2729,7 +2730,7 @@ the container or field/subfield is.
 the container or field/subfield is.
 \item The {\em reference-expression} has the same lifetime qualifier
 ({\tt *GLOBAL*}, {\tt *HEAP*}, or {\tt *LOCAL*} )
-and depth as the container.
+and lifetime depth as the container.
 \end{itemize}
 \end{minipage}
 \end{center}
@@ -3080,14 +3081,17 @@ Previous value of the named variable. \\
 Variable declaration with {\em allocation-call}\,:~
 Value returned by the {\em allocation-call}.
 \end{indpar}
+Zeroed numbers are zero, while zeroed pointers typically
+cause segmentation faults when de-referenced.
 
 The variables declared by {\em block-variable-declarations}
 \underline{without} {\em allocation-calls}
-are {\tt *WRITE-\EOL ONLY*} in {\em statements}
+are given the qualifier {\tt *INIT*} in {\em statements}
 of the {\em block-assignment-statement} and {\tt co} after the
 {\em block-assignment-statement}.
-Zeroed numbers are zero, while zeroed pointers typically
-cause segmentation faults when de-referenced.
+The {\tt *INIT*} qualifer is equivalent to {\tt *WRITE-ONLY*}
+except that it forces fields and elements of the value to also
+be {\tt *INIT*}\pagnote{INIT-FORCING}.
 
 The {\em pointer-variables} declared by {\em block-variable-declarations}
 \underline{with} {\em allocation-calls}
@@ -3095,7 +3099,7 @@ are initialized by the {\em allocation-call}
 (see \pagref{ALLOCATION-CALL}) and are thereafter
 {\tt co}, but the memory
 pointed at is zeroed initially, 
-{\tt *WRITE-\EOL ONLY*} in {\em statements}
+{\tt *INIT*} in {\em statements}
 of the {\em block-assignment-statement}, and 
 subject to the {\em pointer-variable} {\em qualifiers} after
 the {\em block-assignment-statement}.
@@ -3320,10 +3324,11 @@ for the variables declared by the {\em block-variable-declarations}.
 Then any {\em statements} and
 {\em exit-subblocks} are executed.  During this execution
 block variables \underline{not} set by an {\em allocation-call}
-are {\tt *WRITE-\EOL ONLY*}, and after this execution, these variables become
+are {\tt *INIT*}\pagnote{INIT-FORCING},
+and after this execution, these variables become
 {\tt co}.  During this execution pointer variables set by
 an {\em allocation-call} are {\tt co}, but their target type is changed
-to {\tt *WRITE-\EOL ONLY*}, and after execution the target type
+to {\tt *INIT*}, and after execution the target type
 qualifiers become whatever the pointer variable declarations specify.
 
 When a declaration has an {\em allocation-call}\label{ALLOCATION-CALL},
@@ -3461,10 +3466,11 @@ will cause a memory fault if accessed.
 
 The variables declared in a {\em deferred-assignment-statement} are treated as
 normal {\em block-vari\-able-declaration} variables inside their companions.
-In particular the {\tt ro} variables are {\tt *WRITE-\EOL ONLY*}
-inside their companions, and the {\tt co} pointer variables set by
+In particular, inside their companions
+the {\tt ro} variables are {\tt *INIT*}\pagnote{INIT-FORCING},
+and the {\tt co} pointer variables set by
 an {\em allocation-call} in their {\em deferred-assignment-statement}
-have their target type changed to {\tt *WRITE-ONLY*}
+have their target type changed to {\tt *INIT*}
 inside their companions.
 
 \subsubsubsection{Loop Assignment Statements}
@@ -3981,7 +3987,7 @@ type my type:
     flt     weight
 
 my type X:
-    // Within this block X is *WRITE-ONLY*.
+    // Within this block X is write-only.
     X.kind = HIPPOPOTAMUS
     X.weight = 152.34
 uns8 kind = X.kind
@@ -4090,7 +4096,7 @@ type my type:
     flt      weight
 
 my type X:
-    // Within this block X is *WRITE-ONLY*.
+    // Within this block X is write-only.
     X.kind = HIPPOPOTAMUS
         // Also sets animal and vegetable bits.
     X.weight = 152.34
@@ -6096,8 +6102,8 @@ or {\em next-variable-declaration} of the same {\em variable-name}
 if it is not within a smaller block than the previous declaration.
 Note that a {\em next-variable-declaration} has
 the same syntax as a {\em reference-expression}, and its use
-as an implicitly {\tt *WRITE-ONLY*} {\em reference-expression}
-is allowed within a subblock of the {\em block-assignment-statement}
+as an implicitly {\tt *INIT*}\pagnote{INIT-FORCING} {\em reference-expression}
+is allowed within a subblock of the {\em block-assignment-state\-ment}
 or {\em loop-assignment-statement} that assigns a value to the
 declared {\tt next} variable.
 
