@@ -2689,7 +2689,7 @@ A subfield's qualifiers are those of its containing field.
 The qualifiers of a pointer computed by the reference expression,
 or of the target value referenced by the reference expression,
 are computed from the container and field qualifiers as per the
-following:
+following:\label{QUALIFIER-COMPUTATION}
 
 \begin{center}
 Reference Expression Result \\
@@ -5334,6 +5334,13 @@ This is the \underline{only} situation in which \TT{()} should be used.
 appearing just after the {\em reference-expression}.
 \end{itemize}
 \end{indpar}
+
+When a {\em reference-call} computes a pointer, the pointer target
+qualifiers are computed in the same manner as for builtin
+{\em reference-expressions} (see \pagref{QUALIFIER-COMPUTATION})
+using the base {\em reference-expression} qualifiers as the
+container qualifiers and the protype {\em result-variable-declaration}
+qualifiers are field qualifiers.
 
 \subsubsubsubsection{Reference Call-Prototype Matching}
 \label{REFERENCE-CALL-PROTOTYPE-MATCHING}
