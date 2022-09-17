@@ -6928,6 +6928,9 @@ and will return any numeric results as {\tt numbers}.
 \item
 {\tt Number} values too positive or negative to store
 are converted to {\tt +Inf} or {\tt -Inf}.
+{\tt Number} values too small to store
+are converted to {\tt +0} or {\tt -0}, preserving the
+sign of the value.
 \end{enumerate}
 
 \subsection{Compile Time General Functions}
@@ -6951,7 +6954,8 @@ Returns the type of {\tt v1} as one of the strings: \\
 
 \subsection{Compile Time Numeric Functions}
 
-If one argument is a number and the others are rational,
+Unless specified otherwise,
+if one argument is a number and the others are rational,
 the rational arguments are converted to numbers before
 the function executes.
 
@@ -6975,9 +6979,9 @@ the string it operates on, e.g. {\tt \{ "B\#", "1.1" \} }.
 
 A conversion
 error produces an {\tt UNDEF} result and an error message.
-Note that finite numbers can always be converted to rationals
-and vice versa (conversion to a number may produce {\tt +Inf} or {\tt -Inf},
-but these cannot be converted to rational).
+Note that finite numbers can always be converted to rationals,
+and rationals can always be converted to numbers, though these
+may be {\tt +Inf} or {\tt -Inf}.
 \end{indpar}
 
 {\tt function const r = std \ttkey{"+"} ( const n1 )} \\
@@ -6987,13 +6991,13 @@ but these cannot be converted to rational).
 {\tt function const r = std (const n1) \ttkey{"*"} ( const n2 )} \\
 {\tt function const r = std (const n1) \ttkey{"/"} ( const n2 )}
 \begin{indpar}
-Standard arithmetic operators on numbers {\tt n1} and {\tt n2},
+Standard arithmetic operators on numbers or rationals {\tt n1} and {\tt n2},
 done using IEEE number or rational arithmetic.
-Dividing by {\tt 0},
+For numbers, dividing by {\tt 0},
 adding {\tt +Inf} to {\tt -Inf}, a {\tt NaN} argument, etc.~return
-{\tt NaN} and \underline{no} compiler error message for number
-arguments.  Dividing by {\tt 0} returns {\tt UNDEF} and outputs a
-compiler error message if all arguments are rational.
+{\tt NaN} and \underline{no} compiler error message.
+For rationals, dividing by {\tt 0} returns {\tt UNDEF} and outputs a
+compiler error message.
 \end{indpar}
 
 {\tt function const r = std (const i1) \ttkey{"\&"} ( const i2 )} \\
@@ -7027,13 +7031,13 @@ except {\tt !=} which returns {\tt TRUE}.
 \end{indpar}
 
 {\tt function const r1, const r2 =
-    std \ttkey{floor} (const n1, const n2 =? 1 )} \\
+    std \ttkey{floor} (const n1, const n2 =?~1 )} \\
 {\tt function const r1, const r2 =
-    std \ttkey{ceiling} (const n1, const n2 =? 1 )} \\
+    std \ttkey{ceiling} (const n1, const n2 =?~1 )} \\
 {\tt function const r1, const r2 =
-    std \ttkey{truncate} (const n1, const n2 =? 1 )} \\
+    std \ttkey{truncate} (const n1, const n2 =?~1 )} \\
 {\tt function const r1, const r2 =
-    std \ttkey{round} (const n1, const n2 =? 1 )}
+    std \ttkey{round} (const n1, const n2 =?~1 )}
 \begin{indpar}
 These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
 result rounded to an integer and {\tt r2} as the remainder.
@@ -7764,10 +7768,10 @@ Converts {\tt v} to the type {\tt F}.  The result may be
 {\tt +Inf} or {\tt -Inf}, or precision may be lost.
 \end{indpar}
 
-{\tt function I r = std \ttkey{floor} (F v1, F v2 =? 1.0 )} \\
-{\tt function I r = std \ttkey{ceiling} (F v1, F v2 =? 1.0 )} \\
-{\tt function I r = std \ttkey{truncate} (F v1, F v2 =? 1.0 )} \\
-{\tt function I r = std \ttkey{round} (F v1, F v2 =? 1.0 )}
+{\tt function I r = std \ttkey{floor} (F v1, F v2 =?~1.0 )} \\
+{\tt function I r = std \ttkey{ceiling} (F v1, F v2 =?~1.0 )} \\
+{\tt function I r = std \ttkey{truncate} (F v1, F v2 =?~1.0 )} \\
+{\tt function I r = std \ttkey{round} (F v1, F v2 =?~1.0 )}
 \begin{indpar}
 Where {\tt I} is any builtin \underline{signed} integer type
 and {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
@@ -7851,10 +7855,10 @@ going to the value whose least significant bit is zero.
 \end{itemlist}
 \end{indpar}
 
-{\tt function F r = std \ttkey{floor} (F v1, F v2 =? 1.0 )} \\
-{\tt function F r = std \ttkey{ceiling} (F v1, F v2 =? 1.0 )} \\
-{\tt function F r = std \ttkey{truncate} (F v1, F v2 =? 1.0 )} \\
-{\tt function F r = std \ttkey{round} (F v1, F v2 =? 1.0 )}
+{\tt function F r = std \ttkey{floor} (F v1, F v2 =?~1.0 )} \\
+{\tt function F r = std \ttkey{ceiling} (F v1, F v2 =?~1.0 )} \\
+{\tt function F r = std \ttkey{truncate} (F v1, F v2 =?~1.0 )} \\
+{\tt function F r = std \ttkey{round} (F v1, F v2 =?~1.0 )}
 \begin{indpar}
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 
