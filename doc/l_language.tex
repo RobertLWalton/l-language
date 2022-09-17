@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 16, 2022
+September 17, 2022
 
 \bigskip
  
@@ -2211,6 +2211,7 @@ which must be one of the following kinds:
 \begin{center} \em
 pointer-type-name \\
 type-name \\
+qualifier-name \\
 pointer-variable \\
 target-variable \\
 statement-label \\
@@ -2222,6 +2223,9 @@ The {\em abbreviating-name} will be of the same kind as the
 kind.  For example, if the {\em abbreviated-name}
 is a {\em target-name}, the {\em abbreviating-name} cannot begin with
 `\TT{@}'.
+
+Note that {\em function-term-names} used in {\em function-calls}
+cannot be abbreviated.
 
 
 \subsubsection{Constants}
@@ -2806,6 +2810,9 @@ The syntax of function calls is:
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
 \emkey{expression} ::= see \pagref{EXPRESSION}
+\begin{itemize}
+\item {\em Call-term-names} cannot be abbreviated.
+\end{itemize}
 \end{indpar}
 
 Thus a {\em function-call} is a sequence of {\em function-term-names}
@@ -5245,6 +5252,9 @@ the {\em module-abbreviation} will be parsed as part of the
 \item
 {\em Call-argument-lists} with square brackets are restricted to
 appearing just after the {\em reference-expression}.
+\item
+The {\em member-name} in a {\em reference-call}
+may \underline{not} be abbreviated.
 \end{itemize}
 \end{indpar}
 
@@ -6746,9 +6756,12 @@ However the following operators do \underline{not} map onto functions:
 \item[initial \TT{else}] \vspace*{-0.15in} ~\\
 See Conditional Statements\pagnote{CONDITIONAL-STATEMENTS}.
 
-\item[prefix \TT{while}]
+\item[prefix \TT{loop}]
+\item[prefix \TT{exactly} \ldots{}~\TT{times}] \vspace*{-0.15in}
+\item[prefix \TT{at atmost} \ldots{}~\TT{times}] \vspace*{-0.15in}
+\item[prefix \TT{while}] \vspace*{-0.15in}
 \item[prefix \TT{until}] \vspace*{-0.15in} ~\\
-See Loop Assignment Statement\pagnote{LOOP-ASSIGNMENT-STATEMENTS}.
+See {\em iteration-control}\pagnote{ITERATION-CONTROL}.
 
 \item[infix \TT{=}] ~\\
 See Assignment Statements\pagnote{ASSIGNMENT-STATEMENTS}.
@@ -6764,7 +6777,7 @@ See Assignment Statements\pagnote{ASSIGNMENT-STATEMENTS}.
 \item[infix \TT{>{}>{}=}] \vspace*{-0.15in} ~\\
 The statement `{\tt x += y}' is syntactic sugar for `{\tt next x = x + y}'
 if {\tt x} is a local {\tt co} variable, and for
-`{\tt x += y}' otherwise.
+`{\tt x = x + y}' otherwise.
 
 Similarly for the other operators of the form `\TT{$B$=}'
 where $B$ is a binary operator,
@@ -6790,28 +6803,34 @@ type $T$ which has the syntax:
 \emkey{if-expression} ::=
     {\em T-expression}~ \ttkey{if}~ {\em bool-expression}
 \\[0.5ex]
-{\em bool-expression} ::= {\em expression} with target type {\tt bool}
+{\em bool-expression} ::=
+    \begin{tabular}[t]{@{}l@{}}
+    {\em expression} with target type {\tt bool}
+	if $T$ is \underline{not} {\tt const} \\
+    and otherwise target type {\tt const}
+    \end{tabular}
 \\[0.5ex]
 {\em T-expression} ::= {\em expression} with target type $T$
 \end{indpar}
 The {\em bool-expressions} are evaluated left to right until one
-evaluates to {\tt true}.  Then the corresponding {\em $T$-expression}
+evaluates to {\tt true} or {\tt TRUE}.
+Then the corresponding {\em $T$-expression}
 (the one in the same {\em if-expression} as the {\em bool-expression})
 is evaluated and returned.  If all {\em bool-expressions} evaluate to
-{\tt false}, the {\em $T$-expression} after the last {\tt else}
+{\tt false} or {\tt FALSE}, the {\em $T$-expression} after the last {\tt else}
 is evaluated and returned.
 
 \item[infix \TT{BUT NOT}] ~\\
 `{\tt x BUT NOT y}' is syntactic sugar for `{\tt x AND ( NOT ( y ) )}'.
 
 \item[infix \TT{AND}] ~\\
-`{\tt x AND y}' is syntactic sugar for `{\tt y if x else false}'.
+`{\tt x AND y}' is syntactic sugar for `{\tt y if x else FALSE}'.
 
 \item[infix \TT{OR}] ~\\
-`{\tt x OR y}' is syntactic sugar for `{\tt true if x else y}'.
+`{\tt x OR y}' is syntactic sugar for `{\tt TRUE if x else y}'.
 
 \item[infix \TT{NOT}] ~\\
-`{\tt NOT x}' is syntactic sugar for `{\tt false if x else true}'.
+`{\tt NOT x}' is syntactic sugar for `{\tt FALSE if x else TRUE}'.
 
 \end{itemlist}
 
@@ -6848,6 +6867,13 @@ uns128		& \ABV & std uns128
 bool		& \ABV & std bool \\
 true		& \ABV & std true \\
 false		& \ABV & std false
+\\[1ex]
+TRUE		& \ABV & std TRUE \\
+FALSE		& \ABV & std FALSE \\
+NONE		& \ABV & std NONE \\
+UNDEF		& \ABV & std UNDEF \\
+*LOGICAL-LINE*		& \ABV & std *LOGICAL-LINE* \\
+*INDENTED-PARAGRAPH*	& \ABV & std *INDENTED-PARAGRAPH* \\
 \\[1ex]
 flt		& \ABV & std flt \\
 fltd		& \ABV & std fltd \\
