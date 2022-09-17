@@ -7199,6 +7199,13 @@ Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
+{\tt function const r = std} \ttkey{unparse brackets} ( const v  )
+\begin{indpar}
+Inverse of {\tt parse brackets}.  Return a string $S$ such
+that {\tt `$S$'} equals {\tt v}.  Note that numbers may be very
+slightly changed due to rounding.
+\end{indpar}
+
 {\tt function const r = std} \ttkey{parse} ( const s  )
 \begin{indpar}
 Equivalent to {\tt \{* {\rm \em value of} s *\}}.
@@ -7207,6 +7214,13 @@ See {\em expression-constants}: \pagref{EXPRESSION-CONSTANT}.
 Specifically, parse the string {\tt s} and return a map.
 Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
+\end{indpar}
+
+{\tt function const r = std} \ttkey{unparse} ( const v  )
+\begin{indpar}
+Inverse of {\tt parse}.  Return a string $S$ such
+that {\tt \{* $S$ *\}} equals {\tt v}.  Note that numbers may be very
+slightly changed due to rounding.
 \end{indpar}
 
 \subsection{Compile Time Map Functions}
@@ -7269,23 +7283,24 @@ The {\em dictionary-labels} are strings.  The list may be empty.
 \end{indpar}
 
 
-{\tt reference function const r = std} {\tt ( const m ) [ const s ]} \\
-{\tt reference function std} {\tt ( const m ) [ const s ] = const v}
+{\tt reference function const r = std} {\tt ( const m ) [ const s =?~NONE ]} \\
+{\tt reference function std} {\tt ( const m ) [ const s =?~NONE ] = const v}
 \begin{indpar}
 Here {\tt m} is map and {\tt m[s]} is used to reference a
 vector element or dictionary entry of {\tt m} as follows:
 \begin{enumerate}
-\item If the value of {\tt s} is a non-negative integer,
+\item If the value of {\tt s} is a non-negative integer number
+(and \underline{not} a rational),
 the {\tt s}+1'st element
 of the vector of {\tt m} is referenced.  If this is being read and
-it does not exist, {\tt NONE} is returned and there is no compile-time
+it does not exist, {\tt NONE} is returned and there is no compile
 error.
 If the element is being written but does not exist, or the map
-is read-only, a compile-time error results; otherwise the element
+is read-only, a compile error results; otherwise the element
 value is changed.
 \item If the value of {\tt s} is a negative integer,
 {\tt s} is replaced by {\tt \# m + s}, and things
-are as in the last paragraph (note {\tt \# m + s < \# m}.  The element
+are as in the last paragraph (note {\tt \# m + s < \# m}).  The element
 does not exist if {\tt \# m + s < 0}.
 \item If the value of {\tt s} is a string, the dictionary entry
 of {\tt m} with label {\tt s} is referenced.  If this is being read and
@@ -7295,7 +7310,12 @@ the entry is created and made read-write.
 Else if the entry exists and is read-write, and the map is read-write,
 the entry value is changed.
 Else if the entry exists and is read-only, or the map is read-only,
-a compile-time error results.
+a compile error results.
+\item If the value of {\tt s} is {\tt NONE}, reading pops the vector
+of {\tt m} and returns the value popped (i.e., as in `{\tt v = m[]}'),
+or just returns {\tt NONE} if the vector is empty,
+and writing pushes the value written to the end of the vector of {\tt m}
+(i.e., as in `{\tt m[] = v}').
 \item Otherwise if {\tt s} is neither an integer or a string,
 a compile-error results.
 \end{enumerate}
@@ -7349,6 +7369,7 @@ If {\tt i >= 0}, edits {\tt m} by replacing the vector element sequence
 {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]} by the
 vector elements of {\tt v}.  Dictionary elements of {\tt v} are ignored;
 dictionary elements of {\tt m} are unchanged.
+If {\tt n <= 0}, the elements of {\tt v} are inserted after {\tt m[i]}. 
 If {\tt i >= \# m} the elements of {\tt v} are pushed to the end of {\tt m},
 else if {\tt i + n > \# m}, {\tt n} is decreased until {\tt i + n == \# m}.
 The edited map {\tt m} is returned.
@@ -7386,13 +7407,13 @@ Appends the vector elements of the map {\tt m2} to the vector of {\tt m1}
 and returns {\tt m1}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{pull} {\tt ( const m )}
+{\tt function const r = std} \ttkey{pop} {\tt ( const m )}
 \begin{indpar}
 Deletes the last vector element of {\tt m} and returns it.
 Returns {\tt NONE} if {\tt m} is empty.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{pull} {\tt ( const m, const i )}
+{\tt function const r = std} \ttkey{pop} {\tt ( const m, const i )}
 \begin{indpar}
 Deletes the last {\tt i} vector elements of {\tt m} and returns a map
 containing them in the same order.
