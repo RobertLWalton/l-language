@@ -2,7 +2,7 @@
 //
 // File:	l_language_parser.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  9 04:24:36 EDT 2022
+// Date:	Sat Sep 17 12:10:26 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -38,6 +38,7 @@ min::locatable_gen LLEX::l_language;
 min::locatable_gen LLEX::equal_at;
 min::locatable_gen LLEX::curly_star;
 min::locatable_gen LLEX::star_curly;
+min::locatable_gen LLEX::number;
 min::locatable_gen LLEX::Dnumber;
 min::locatable_gen LLEX::Bnumber;
 min::locatable_gen LLEX::Xnumber;
@@ -60,6 +61,7 @@ static void initialize ( void )
         min::new_lab_gen ( "{", "*" );
     LLEX::star_curly =
         min::new_lab_gen ( "*", "}" );
+    LLEX::number = min::new_str_gen ( "#" );
     LLEX::Dnumber = min::new_str_gen ( "D#" );
     LLEX::Bnumber = min::new_str_gen ( "B#" );
     LLEX::Xnumber = min::new_str_gen ( "X#" );
@@ -204,6 +206,16 @@ void LLANG::init_parser ( min::ref<PAR::parser> parser )
           min::MISSING(),
           oper_pass->oper_table );
 
+    OP::push_oper
+        ( LLEX::number,
+          min::MISSING(),
+          code,
+          block_level, PAR::top_level_position,
+          OP::PREFIX,
+          OP::prefix_precedence,
+          unary_reformatter,
+          min::MISSING(),
+          oper_pass->oper_table );
     OP::push_oper
         ( LLEX::Dnumber,
           min::MISSING(),

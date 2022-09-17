@@ -2,7 +2,7 @@
 //
 // File:	l_language.h
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Fri Sep  9 04:24:17 EDT 2022
+// Date:	Sat Sep 17 12:10:59 EDT 2022
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -22,6 +22,7 @@ namespace l_language
 	    equal_at,		// =@
 	    curly_star,		// {*
 	    star_curly,		// *}
+	    number,		// #
 	    Dnumber,		// D#
 	    Bnumber,		// B#
 	    Xnumber,		// X#

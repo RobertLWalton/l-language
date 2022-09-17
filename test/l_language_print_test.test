@@ -93,6 +93,10 @@
         block l-language: operator [< "out-of-line" "function" >] [code]
                           prefix line
                           with precedence 0
+        block l-language: operator "#" [code]
+                          prefix
+                          with precedence 999999
+                          with unary reformatter
         block l-language: operator "&" [code]
                           infix
                           with precedence 13000
