@@ -4584,6 +4584,8 @@ The syntax of a function declaration is:
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{bool} {\em variable-name}
           \TT{??} {\em default-value} \\
+    $|$ & \TT{macro} {\em variable-name}
+          \TT{=?} {\em default-value} \\
     $|$ & {\em result-variable-declaration}
           \TT{==} {\em required-value} \\
     \end{tabular}
@@ -4777,6 +4779,15 @@ F ( 5 )            // Equivalent to F ( 5 ) OPTION ( TRUE )
 F ( 5 ) OPTION     // Equivalent to F ( 5 ) OPTION ( TRUE )
 F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( FALSE )
 \end{verbatim}\end{indpar}
+
+A {\em prototype-argument-declaration} with the syntax:
+\begin{indpar}
+\emkey{prototype-argument-declaration}\label{MACRO-ARGUMENT-DECLARATION} ::= \\
+\hspace*{1in} \TT{macro} {\em variable-name} \TT{=?} {\em default-value}
+\end{indpar}
+causes the argument value in a call to be the \underline{parse}
+of the actual argument, which is a {\tt const} value.  If the
+{\em default-value} is used, its parse becomes the argument value.
 
 If a {\em required-value} is given in a prototype, the call must
 have an equal {\tt const} valued actual argument value
@@ -5110,7 +5121,8 @@ not as lists of elements).
 \item\label{CALL-PROTOTYPE-ARGUMENT-TYPING}
 Matches between {\em prototype-argument-declaration} types
 and acceptable {\em actual-argu\-ments} subexpression target types
-are then checked.
+are then checked, except for {\tt macro} arguments (that require
+no run-time typing).
 
 If any {\em prototype-argument-declaration} type is mapped to
 {\tt *FAIL*} by the corresponding {\em actual-argument} matching map,
@@ -5324,7 +5336,7 @@ If there is a {\em result-variable-declaration}, there is exactly one,
 and it cannot have the form `{\tt next $v$}'.
 \item
 The {\em reference-pattern-argument} in the prototype cannot
-contain default or required values.
+contain default or required values or be a {\tt macro} argument.
 \item
 A {\em member-name} cannot be followed immediately by a {\em pattern-term};
 in this case, a \TT{()} must be placed immediately after the {\em member-name}.
@@ -5499,6 +5511,8 @@ The rules for inline {\em function-declarations} on
 \pagref{FUNCTION-DECLARATION} must be followed where applicable.
 \item
 `{\tt ??}' {\tt bool} defaults are not allowed.
+\item
+{\tt macro} arguments are not allowed.
 \item
 Wild-cards are not allowed.
 \item Functions with {\em foreign-function-names} are called \key{foreign}.
