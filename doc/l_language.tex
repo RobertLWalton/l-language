@@ -7199,11 +7199,12 @@ Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{unparse brackets} ( const v  )
+{\tt function const r = std} \ttkey{unparse brackets}
+	( const v, const f =? "\%0.16g"  )
 \begin{indpar}
 Inverse of {\tt parse brackets}.  Return a string $S$ such
-that {\tt `$S$'} equals {\tt v}.  Note that numbers may be very
-slightly changed due to rounding.
+that {\tt ` "$S$" '} equals {\tt v} with numeric rounding differences.
+Numbers are printed in $S$ using {\tt f} as a printf format.
 \end{indpar}
 
 {\tt function const r = std} \ttkey{parse} ( const s  )
@@ -7216,11 +7217,12 @@ Syntax errors produce compiler error messages and are
 otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{unparse} ( const v  )
+{\tt function const r = std} \ttkey{unparse}
+	( const v, const f =? "\%0.16g"  )
 \begin{indpar}
 Inverse of {\tt parse}.  Return a string $S$ such
-that {\tt \{* $S$ *\}} equals {\tt v}.  Note that numbers may be very
-slightly changed due to rounding.
+that {\tt \{* "$S$" *\}} equals {\tt v} with numeric rounding differences.
+Numbers are printed in $S$ using {\tt f} as a printf format.
 \end{indpar}
 
 \subsection{Compile Time Map Functions}
