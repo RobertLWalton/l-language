@@ -7655,7 +7655,8 @@ Type map for the data type of the pointer type.
 
 \subsection{Compile-Time Machine Parameters}
 
-{\tt const atomc types = \{ "int", "uns", \ldots{} \}}
+{\tt const atomc types = \{ "int", "uns", \ldots{} \}}%
+\label{ATOMIC-TYPES}
 \begin{indpar}
 These are the types for which atomic operations\pagnote{ATOMIC-OPERATIONS}
 are defined.
@@ -8131,19 +8132,49 @@ using the same RAM memory.
 
 When a process executes a program, the process may move
 memory reads and writes around so they are no longer
-done at the time they would be done were the program
+done when they would be done were the program
 statements executed in strict sequential order.  The
 execution does this if the effect of the program is not
 changed, under the assumption that the program is the
 only user of the RAM memory.  But if there are multiple CPUs,
-or a multi-tasking system, this assumption is not correct.
+or a multi-tasking system asynchronously switching one CPU
+between processes, this assumption is not correct.
+
+There is also the possibility that if a memory location is
+being read by CPU 1 and at the same time written by CPU 2,
+what CPU 1 reads will consist partly of the location value
+before CPU 2's write and partly of the location value after
+CPU 2's write.
+
+An operation is \key{atomic} if:
+\begin{indpar}
+\begin{enumerate}
+\item
+All read and or write operations and all atomic operations
+for the current process that would be
+before (or after) this atomic operation in strict sequential program execution
+are before (or after) this atomic operation
+in actual optimized program execution.
+\item
+This atomic operation cannot be interrupted by a read or write executed by a
+different CPU or process of part of the memory being read or written
+by this atomic operation.
+\end{enumerate}
+\end{indpar}
+
+Atomic operations can only be performed on locations of \key{atomic type}.
+Atomic types are listed in the {\tt com atomic types}\pagnote{ATOMIC-TYPES}
+compile-time variable.
+The word-length integer types, {\tt int} and {\tt uns}, are
+always atomic types.
 
 {\tt function A r = std atomic read ( ap QR\$1 A p )}
 \begin{indpar}
-Read and return the location pointed at by {\tt p}.  In addition:
+For {\tt A} an atomic type,
+read and return the location pointed at by {\tt p}.  In addition:
 \begin{enumerate}
 \item
-All read operations for the current process that would be
+All read or atomic operations for the current process that would be
 before (or after) this operation in strict sequential program execution
 are before (or after) this operation in actual optimized program execution.
 \item
@@ -8154,11 +8185,12 @@ or process of part of the memory being read.
 
 {\tt function std atomic write ( ap QW\$1 A p, A v )}
 \begin{indpar}
-Write the value {\tt v} to the location pointed at by {\tt p}.
+For {\tt A} an atomic type,
+write the value {\tt v} to the location pointed at by {\tt p}.
 In addition:
 \begin{enumerate}
 \item
-All write operations for the current process that would be
+All write or atomic operations for the current process that would be
 before (or after) this operation in strict sequential program execution
 are before (or after) this operation in actual optimized program execution.
 \item
@@ -8167,15 +8199,17 @@ or process of part of the memory being read.
 \end{enumerate}
 \end{indpar}
 
-{\tt function std bool r = atomic compare and set ( ap QW\$1 A p, A vr, A vw )}
+{\tt function std bool r =
+	atomic compare and set ( ap QRW\$1 A p, A vr, A vw )}
 \begin{indpar}
-Read the location pointed at by {\tt p} and compare it to {\tt vr}.
+For {\tt A} an atomic type,
+read the location pointed at by {\tt p} and compare it to {\tt vr}.
 If equal, write {\tt vw} to the location, and return {\tt true}.
 If not equal, just return {\tt false}.
 In addition:
 \begin{enumerate}
 \item
-All read and write operations for the current process that would be
+All read and write and atomic operations for the current process that would be
 before (or after) this operation in strict sequential program execution
 are before (or after) this operation in actual optimized program execution.
 \item
