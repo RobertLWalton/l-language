@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 18, 2022
+September 19, 2022
 
 \bigskip
  
@@ -7653,7 +7653,15 @@ The name of the pointer type as a name string.
 Type map for the data type of the pointer type.
 \end{indpar}
 
-\section{Built-In Run-Time Functions and Constants}
+\subsection{Compile-Time Machine Parameters}
+
+{\tt const atomc types = \{ "int", "uns", \ldots{} \}}
+\begin{indpar}
+These are the types for which atomic operations\pagnote{ATOMIC-OPERATIONS}
+are defined.
+\end{indpar}
+
+\section{Builtin Run-Time Functions and Constants}
 
 Run-time functions execute at run-time, and but may have
 parts that execute at compile-time, and may even return
@@ -8113,6 +8121,70 @@ Accessing the target of a null pointer usually produces
 a segmentation fault, as the virtual page with address zero
 is usually undefined.
 \end{indpar}
+
+\section{Atomic Operations}
+\label{ATOMIC-OPERATIONS}
+
+\key{Atomic operations} read and write memory locations
+that are shared between multiple CPUs or processes
+using the same RAM memory.
+
+When a process executes a program, the process may move
+memory reads and writes around so they are no longer
+done at the time they would be done were the program
+statements executed in strict sequential order.  The
+execution does this if the effect of the program is not
+changed, under the assumption that the program is the
+only user of the RAM memory.  But if there are multiple CPUs,
+or a multi-tasking system, this assumption is not correct.
+
+{\tt function A r = std atomic read ( ap QR\$1 A p )}
+\begin{indpar}
+Read and return the location pointed at by {\tt p}.  In addition:
+\begin{enumerate}
+\item
+All read operations for the current process that would be
+before (or after) this operation in strict sequential program execution
+are before (or after) this operation in actual optimized program execution.
+\item
+The read cannot be interrupted by a write executed by a different CPU
+or process of part of the memory being read.
+\end{enumerate}
+\end{indpar}
+
+{\tt function std atomic write ( ap QW\$1 A p, A v )}
+\begin{indpar}
+Write the value {\tt v} to the location pointed at by {\tt p}.
+In addition:
+\begin{enumerate}
+\item
+All write operations for the current process that would be
+before (or after) this operation in strict sequential program execution
+are before (or after) this operation in actual optimized program execution.
+\item
+The write cannot be interrupted by a read executed by a different CPU
+or process of part of the memory being read.
+\end{enumerate}
+\end{indpar}
+
+{\tt function std bool r = atomic compare and set ( ap QW\$1 A p, A vr, A vw )}
+\begin{indpar}
+Read the location pointed at by {\tt p} and compare it to {\tt vr}.
+If equal, write {\tt vw} to the location, and return {\tt true}.
+If not equal, just return {\tt false}.
+In addition:
+\begin{enumerate}
+\item
+All read and write operations for the current process that would be
+before (or after) this operation in strict sequential program execution
+are before (or after) this operation in actual optimized program execution.
+\item
+The operation cannot be interrupted by a read or write
+executed by a different CPU or process of any of the memory this operation
+reads or writes.
+\end{enumerate}
+\end{indpar}
+
 	
 
 \end{document}
