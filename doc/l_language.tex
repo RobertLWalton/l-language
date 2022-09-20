@@ -6392,10 +6392,21 @@ The rules for assigning depth to {\em statements} are as follows:
 		  end of the inline function declaration that are not inside
 		  a sub-block of $S$ will have depth $D+1$.
 \\[1ex]
-\key{(S4)}	& A {\em statement} in the sub-block $S$ at the end of an
-                  \underline{out-of-line} function declaration that itself
-		  is a {\em statement} of depth $D$, and also not
-		  in any sub-block of $S$, is assigned depth $D+1$.
+		& Note: If an inline function is called from a {\em statement}
+		  of depth $D$, the depth $D'$ of the function's declaration
+		  must such that $D'\leq D$, since the calling {\em statement}
+		  must be in the scope of the declaration.
+		  So when the {\em statements}
+		  of sub-block $S$ access {\tt *LOCAL*} pointer values
+		  defined by the context of the \underline{declaration},
+		  rule (L5) will give the same answers at it would if
+		  the {\em statements} of $S$ had depth $D'+1$ instead of
+		  $D+1$.
+\\[1ex]
+\key{(S4)}	& Let $S$ be the sub-block at the end of an
+                  \underline{out-of-line} function declaration that is of
+		  depth $D$.  Then any statement in $S$ that is not also
+		  in a sub-block of $S$ is assigned depth $D+1$.
 \end{tabular}
 \end{indpar}
 
@@ -6426,7 +6437,7 @@ Given this, the rules for assigning depth to variables are:
 		  (i.e., as the actual base {\em reference-expression}
 		  in the {\em reference-call}).
 \\[1ex]
-		& In addition, a {\em reference-expressions}
+		& In addition, a {\em reference-expression}
 		  that is not a {\em reference-call} (i.e., that is builtin)
 		  is treated for the purposes of assigning depth to
 		  its result as if it were a {\em reference-call};
@@ -6436,6 +6447,9 @@ Given this, the rules for assigning depth to variables are:
 \\[1ex]
 \key{(V6)}	& Argument variables in an \underline{out-of-line}
 		  {\em function-prototype} are assigned depth 0.
+		  If they are of {\tt *LOCAL} pointer type, they
+		  may be assigned {\tt *LOCAL*} actual argument
+		  values.
 \\[1ex]
 \key{(V7)}	& Result variables in an \underline{out-of-line}
 		  {\em function-prototype} are assigned depth 0,
@@ -6446,7 +6460,7 @@ Given this, the rules for assigning depth to variables are:
 An example is:
 \begin{indpar}\begin{verbatim}
 type list element:
-    ap list element @after
+    ap list element @after   // target is *LOCAL* by default
 
 // Circular list:
 //
