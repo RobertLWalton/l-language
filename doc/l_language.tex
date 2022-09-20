@@ -264,13 +264,6 @@ written by some other piece of code that accesses the value under another
 name.  The qualifier {\tt *WRITE-ONLY*} says that the value cannot be
 read but can be written using the variable name given,
 but might be read by some other piece of code or other device.
-The {\tt *VOLATILE*} qualifier says a value may be
-read or written by some device other than the processor, or by some process
-independent of the current process, at any time, and the
-{\tt *ATOMIC*} qualifier says that the entire value must be read
-or written without any other process trying to read or write part of the
-value at the same time.
-A {\tt *VOLATILE*} or {\tt *ATOMIC*} value cannot be {\tt co}.
 
 There are also three qualifiers that specify the lifetime of the target
 of a pointer: {\tt *LOCAL*}, {\tt *GLOBAL*}, and {\tt *HEAP*}.  The
@@ -823,29 +816,15 @@ The {\tt *UNCHECKED*} function is needed to produce a direct pointer
 from other pointer types, though this cannot be done for some pointer types
 (e.g., field pointer types).
 
-L-Language does not necessarily make any use of registers, other
-than as temporaries during the execution of a single statement,
-and registers that hold the current function
-execution frame address, current module data address, and stack pointer.
-However, registers can be used to cache data that exists in
-RAM memory, or that should exist in RAM memory but does not
-due to optimization.  We call such registers
-\skey{software cach}{es}.
-
-Software caches of a RAM memory location are flushed when an out-of-line
-function is called if the location does not have the {\tt co} qualifier.
-Attaching the {\tt *VOLATILE*} qualifier to a location
-flushes software caches of the location between statements.
-
 A pointer type
 has two places where a qualifier may appear, as in
 
 \begin{indpar}\begin{verbatim}
 type my control block:
-    co ap *VOLATILE* uns32 @cr
+    co ap *GLOBAL* uns32 @cr
     ....
 \end{verbatim}\end{indpar}
-in which {\tt @cr} is a constant pointing at a volatile
+in which {\tt @cr} is a constant pointing at a global
 {\tt uns32} location {\tt cr}.
 
 Pointer types cannot be cascaded, but there is a work-around
@@ -2089,14 +2068,11 @@ L-Language uses several kinds of names:
     \begin{tabular}[t]{rl}
     ::= & \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE}
                      $|$ \ttakey{WRITE-ONLY} \\
-    $|$ & \ttakey{VOLATILE} $|$ \ttakey{ATOMIC} \\
     $|$ & \ttakey{GLOBAL} $|$ \ttakey{LOCAL} $|$ \ttakey{HEAP} \\
     \end{tabular}
 \begin{indpar}
 {\tt co} abbreviates `constant' meaning `never changes' \\
 {\tt ro} abbreviates `read-only' meaning `other code may change' \\
-{\tt *VOLATILE*} flushes software caches between statements \\
-{\tt *ATOMIC*} locks memory when reading or writing \\
 {\tt *GLOBAL*} has global (forever) lifetime \\
 {\tt *LOCAL*} has lifetime that ends when current stack frame is destroyed \\
 {\tt *HEAP*} has lifetime managed by a garbage collector
@@ -2728,10 +2704,6 @@ Given Container and Field Qualifiers
 that are being initialized.  It has the same effect as {\tt *WRITE-ONLY*}
 except that it forces fields/subfields of the container to be {\tt *INIT*}
 even if they are {\tt co} or {\tt ro}.
-\item The {\em reference-expression} result is {\tt *VOLATILE*} if either
-the container or field/subfield is.
-\item The {\em reference-expression} result is {\tt *ATOMIC*} if either
-the container or field/subfield is.
 \item The {\em reference-expression} has the same lifetime qualifier
 ({\tt *GLOBAL*}, {\tt *HEAP*}, or {\tt *LOCAL*} )
 and lifetime depth as the container.
@@ -7697,8 +7669,6 @@ The following are qualifier conversions:
 \item {\tt co} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
-\item {\tt *VOLATILE*} may added
-\item {\tt *ATOMIC*} may added
 \item {\tt *GLOBAL*} may be replaced by {\tt *LOCAL*} with depth {\tt 0}
 
 \item {\tt *HEAP*} may be replaced by {\tt *LOCAL*} of depth 0 when copying
