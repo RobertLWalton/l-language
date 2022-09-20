@@ -8189,6 +8189,39 @@ reads or writes.
 \end{enumerate}
 \end{indpar}
 
+Example 1:
+\begin{indpar}
+A device has registers in global memory which are shared between the
+device an a process.  The registers are either owned by the process
+and the device is inactive, or the registers are owned by the device
+which is executing an operation.  There is a register with a GO bit
+which is turned on by the process to activate the devices, and another
+register with a READY bit which is set by the devince when its current
+operation is done.
+
+The GO bit is set by an atomic write, which guarentees that all writes
+to registers in the code before the GO bit is set are actually done
+before the GO bit is set.
+
+The READY bit is read by an atomic read, which guarentees that all reads
+from registers in the code after the READY bit has been read as being on 
+are actually done after the READY bit has been read as being on.
+\end{indpar}
+
+Example 2:
+\begin{indpar}
+A device has registers as in Example 1.  The device also has a large
+memory accessed via two registers: A and D.  A holds the address of
+a location in device memory, and D holds the contents of that location:
+reading D reads the location contents, and writing D writes the location
+contents.
+
+Register A is set by an atomic write and then register D
+is read by an atomic read.  Because atomic operations execute in the
+same order as they appear in the code, the read will be done after the
+write.
+\end{indpar}
+
 	
 
 \end{document}
