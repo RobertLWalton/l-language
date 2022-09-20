@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 19, 2022
+September 20, 2022
 
 \bigskip
  
@@ -8220,6 +8220,28 @@ Register A is set by an atomic write and then register D
 is read by an atomic read.  Because atomic operations execute in the
 same order as they appear in the code, the read will be done after the
 write.
+\end{indpar}
+
+Example 3:
+\begin{indpar}
+A data structure which is shared among processes perhaps executing
+on different CPUs is guarded by a lock consisting of two integer
+memory locations: B (before) and A (after).  When the structure is
+not being written, B == A.  A writer first increments B, then
+updates the structure, and then increments A.
+
+To get a write lock, the writer reads A atomically and then does
+a compare and set on B that checks that B == A and if so writes
+B+1 to B and acquires the lock.
+
+To read, the reader reads A atomically and saves the value V,
+then reads data from the structure, then reads B atomically and
+checks that the value read equals V.  If the check passes, the data
+is uncorrupted by writing that is simultaneous with the reading.
+If the check fails, the data may be corrupted.  The reader must be
+sure corrupted data does not destroy the integrity of the reader's execution,
+but can read B atomically and check the value against V
+at any time to see if the data read so far is uncorrupted.
 \end{indpar}
 
 	
