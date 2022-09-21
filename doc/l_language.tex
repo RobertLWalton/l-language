@@ -7641,11 +7641,20 @@ Type map for the data type of the pointer type.
 
 \subsection{Compile-Time Machine Parameters}
 
-{\tt const atomc types = \{ "int", "uns", \ldots{} \}}%
+{\tt const com atomc types = \{ "int", "uns", \ldots{} \}}%
 \label{ATOMIC-TYPES}
 \begin{indpar}
 These are the types for which atomic operations\pagnote{ATOMIC-OPERATIONS}
 are defined.
+\end{indpar}
+
+{\tt const com hardware overflow = \ldots{}} ~~~~~[{\tt TRUE} or {\tt FALSE}]%
+\label{HARDWARE-OVERFLOW}
+\begin{indpar}
+{\tt TRUE} iff hardware computes the overflow {\tt bool} for integer
+addition and subtraction.\pagnote{ADD-SUB-OVERFLOW}
+{\tt FALSE} if this is computed when needed by software
+(much more slowly).
 \end{indpar}
 
 \section{Builtin Run-Time Functions and Constants}
@@ -7697,7 +7706,8 @@ variable which is {\tt co}).
 \subsubsection{Numeric Implicit Conversions}
 \label{NUMERIC-IMPLICIT-CONVERSIONS}
 
-Any value of number type {\tt N1} can be implicitly converted to a value
+Any value of number or {\tt bool} type {\tt N1}
+can be implicitly converted to a value
 of number type {\tt N2} if every value of type {\tt N1} can be
 precisely represented by a value of type {\tt N2}.  More specifically,
 the implicit conversions are defined by:
@@ -7715,8 +7725,7 @@ in the following cases:
 \tt flt16 & no & no & no
 \\\hline
 \tt int\ldots{} & no & no & no \\
-\tt uns\ldots{} & no & no & no \\
-\tt bool & no & no & no
+\tt uns\ldots{} & no & no & no
 \\\hline
 \end{tabular}
 \\[2ex]
@@ -7733,8 +7742,7 @@ in the following cases:
 \tt int16 & no & no & no & yes \\
 \tt int8 & no & no & no & no
 \\\hline
-\tt uns\ldots{} & no & no & no & no \\
-\tt bool & no & no & no & no
+\tt uns\ldots{} & no & no & no & no
 \\\hline
 \end{tabular}
 \\[2ex]
@@ -7756,8 +7764,6 @@ in the following cases:
 \tt uns16 & no & no & no & yes & yes \\
 \tt uns8 & no & no & no & no & yes
 \\\hline
-\tt bool & no & no & no & no & no
-\\\hline
 \end{tabular}
 \end{center}
 
@@ -7771,7 +7777,7 @@ See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 {\tt function F r = std F (N v)}
 \begin{indpar}
 Where {\tt F} is any builtin floating point type
-and {\tt N} is any builtin number type.
+and {\tt N} is any builtin number or {\tt bool} type.
 
 Converts {\tt v} to the type {\tt F}.  The result may be
 {\tt +Inf} or {\tt -Inf}, or precision may be lost.
@@ -7792,7 +7798,7 @@ rounds towards positive infinity, {\tt truncate} rounds toward
 zero, and {\tt round} rounds to the nearest integer, or to the
 even integer if there are two nearest integers.
 
-The floating point flags set are those set by division (see above), plus the
+The floating point flags set are those set by division (see below), plus the
 inexact flag may be set if the division quotient is not a integer, plus
 the invalid flag is set if the result is outside the range storable in
 {\tt I}.  In the last case, and the result is
@@ -7802,7 +7808,7 @@ an indefinite integer.\pagnote{INDEFINITE-INTEGER}
 {\tt function I1 r = std \ttkey{*UNCHECKED*} ( I2 v )}
 \begin{indpar}
 Where {\tt I1} and {\tt I2} are any builtin integer types
-such that one of the following is true:
+such that at least one of the following is true:
 \begin{enumerate}
 \item {\tt I1} is shorter than {\tt I2}
 \item {\tt I1} and {\tt I2} are of equal length and one
@@ -7810,7 +7816,7 @@ is {\tt int\ldots} while the other is {\tt uns\ldots}
 \item {\tt I2} is {\tt int\ldots} while {\tt I1} is {\tt uns\ldots}.
 \end{enumerate}
 
-These convert {\tt v} to a bit-string of unbounded length (e.g., by
+These in effect convert {\tt v} to a bit-string of unbounded length (e.g., by
 sign extension) and
 then truncate it to the length of {\tt I1}.
 \end{indpar}
@@ -7924,7 +7930,7 @@ and returns {\tt 0} otherwise.
 type~std~\ttkey{FP flags}: \\
 \begin{tabular}[t]{@{~~~~~}l}
 \tt uns flags \\
-\tt [\ldots] bool invalid operand(s) (for a given operation) \\
+\tt [\ldots] bool invalid (operand for a given operation) \\
 \tt [\ldots] bool divide by zero \\
 \tt [\ldots] bool overflow \\
 \tt [\ldots] bool underflow \\
@@ -7974,8 +7980,8 @@ when values are interpreted as signed two's complement integers.
 If S0, S1, and Sr are the signs of {\tt v1}, {\tt v2}, and {\tt r},
 for two operand "+" this would equal {\tt S0 $=$ S1 $\neq$ Sr}.
 {\tt ovfl} is computed by some hardware, but is expensive to
-compute if not supported by hardware.  See
-{\tt com hardware["ovfl"]}.
+compute if not supported by hardware.\label{ADD-SUB-OVERFLOW}  See
+{\tt com hardware overflow}.\pagnote{HARDWARE-OVERFLOW}
 
 \end{indpar}
 
