@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 20, 2022
+September 22, 2022
 
 \bigskip
  
@@ -6234,9 +6234,10 @@ There are three possible variable \skey{lifetime type}s:
 \ttkey{*GLOBAL*}	& The lifetime starts when the program
                           starts and stops when the program terminates.
 \\[1ex]
-\ttkey{*LOCAL*}		& The lifetime starts when the statement allocating
-                          the variable executes and stops when the smallest
-			  block containing the statement terminates.
+\ttkey{*LOCAL*}		& The lifetime starts when the statement declaring
+                          (and allocating)
+                          the variable executes and stops when 
+			  scope of the variable's declaration ends.
 \\[1ex]
 \ttkey{*HEAP*}		& The lifetime starts when the variable is allocated
                           to the heap (i.e., garbage collectible
@@ -6253,6 +6254,13 @@ has a particular lifetime is said to have that lifetime:
 thus we have {\tt *GLOBAL*} pointers, {\tt *LOCAL*} pointers, etc.
 In general a pointer cannot be stored in a variable unless one of the
 \skey{lifetime rule}s of this section permits it.
+
+Variables also have lifetime types.  Assignment, argument, and
+result variables are all (automatically) {\tt *LOCAL*}.
+A target variable has its lifetime type specified by the target
+qualifier of the pointer that points to the target containing the
+variable.
+
 
 The goal of these rules is to keep a pointer with a given lifetime
 from being stored in a variable with a longer lifetime.
@@ -6271,17 +6279,20 @@ The first rules are:
 		  to identify {\tt *GLOBAL*} pointers and treat them
 		  differently.
 \\[1ex]
-\key{(L4)}	& A {\tt *LOCAL*} pointer
-                  can\underline{not} be stored in
+\key{(L4)}	& A {\tt *LOCAL*} pointer can only be stored in a
+                  {\tt *LOCAL*} variable.  It
+                  can\underline{not} be stored in a
 		  {\tt *GLOBAL*} or {\tt *HEAP} variable.
 \end{tabular}
 \\[1ex]
-Note that for (L1) and (L2) the variable in which the pointer is stored
-must have the same pointer type as the pointer value being stored.
-These rules do \underline{not} permit qualifier conversions:
+Note: The variable in which a pointer is stored
+must have a pointer type that is the same as the
+type of the pointer value being stored:
 e.g., when a {\tt *HEAP*} pointer is stored in a {\tt *LOCAL*}
 variable the {\tt *LOCAL*} variable's type must be a pointer type
 with the {\tt *HEAP*} qualifier.
+In particular, (L1) and (L2) do \underline{not} permit implied
+lifetime qualifier conversions.
 \end{indpar}
 
 An example is:
@@ -6295,9 +6306,10 @@ type list element:
 // Circular list:
 //
 ap *GLOBAL* *READ-WRITE* list element @last:  // `=@ global' is implied
-    last@after = null
+    last.@after = null
     // Last element is pointed at by last.@after
     // First element is pointed at by last.after.@after
+    // Empty list has last.@after == null
 
 // Put two elements in list.
 //
@@ -6348,6 +6360,7 @@ ap *READ-WRITE* list element @last:  // `=@ local' is implied
     last.@after = null
     // Last element is pointed at by last.@after
     // First element is pointed at by last.after.@after
+    // Empty list has last.@after == null
 
 // Put two elements in list.
 //
@@ -6468,6 +6481,7 @@ ap *READ-WRITE* list element @last:      // `=@ local' is implied
     last.@after = null
     // Last element is pointed at by last.@after
     // First element is pointed at by last.after.@after
+    // Empty list has last.@after == null
     // The variable `last' has depth 1
 
 // Add element to end of circular list:
