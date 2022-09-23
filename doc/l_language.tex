@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 22, 2022
+September 23, 2022
 
 \bigskip
  
@@ -6329,11 +6329,17 @@ ap *GLOBAL* list element @Y:
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
+{\tt *LOCAL*} variables have lifetimes that depend upon the
+extent of the scope of the declaration that created them.
+Scopes are nested, and declarations have depths in this nesting.
+Variables with greater depths have smaller scopes and shorter
+lifetimes.  Pointers to variables with greater depth must
+\underline{not} be stored in variables of less depth.
 
+So we introduce the notion of \key{lifetime depth} of {\tt *LOCAL*}
+variables and {\tt *LOCAL*} pointers.
 The rule on when a {\tt *LOCAL*} pointer
-can be stored a {\tt *LOCAL*} variable
-refers to lifetime depth of values, which are defined below.
-The rule is:
+can be stored a {\tt *LOCAL*} variable is:
 
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
@@ -6345,46 +6351,10 @@ The rule is:
 \end{tabular}
 \end{indpar}
 
-An example is:
-\begin{indpar}\begin{verbatim}
-type list element:
-    ap list element @after
-
-// In the following, `=@ local' is implied because the pointers
-// default to *LOCAL*.  Also, non-external assignment-variables
-// of top level statements have depth 1.
-
-// Circular list:
-//
-ap *READ-WRITE* list element @last:  // `=@ local' is implied
-    last.@after = null
-    // Last element is pointed at by last.@after
-    // First element is pointed at by last.after.@after
-    // Empty list has last.@after == null
-
-// Put two elements in list.
-//
-ap list element @X  // `=@ local = *DEFERRED*' is implied
-ap list element @Y  // `=@ local = *DEFERRED*' is implied
-
-// Now @last, @X, @Y all have depth 1
-
-ap list element @X:
-    // Put X on empty list
-    X.@after = @X
-    last.@after = @X
-    // List now consists of (X)
-ap list element @Y:
-    // Add Y to end of list
-    Y.@after = last.after.@after 
-    last.after.@after = @Y
-    last.@after = @Y
-    // List now consists of (X, Y)
-\end{verbatim}\end{indpar}
-
-The \key{lifetime depth} 
-of an assignment variable is determined mostly by the \key{statement depth}
-of the {\em assignment-statement} creating the variable.
+The lifetime depth of an assignment variable is determined
+by the \key{statement depth}
+of the {\em assignment-statement} creating the variable, except for
+external variables which are given depth 0.
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
@@ -6422,6 +6392,44 @@ The rules for assigning depth to {\em statements} are as follows:
 		  in a sub-block of $S$ is assigned depth $D+1$.
 \end{tabular}
 \end{indpar}
+
+
+An example is:
+\begin{indpar}\begin{verbatim}
+type list element:
+    ap list element @after
+
+// In the following, `=@ local' is implied because the pointers
+// default to *LOCAL*.  Also, non-external assignment-variables
+// of top level statements have depth 1.
+
+// Circular list:
+//
+ap *READ-WRITE* list element @last:  // `=@ local' is implied
+    last.@after = null
+    // Last element is pointed at by last.@after
+    // First element is pointed at by last.after.@after
+    // Empty list has last.@after == null
+
+// Put two elements in list.
+//
+ap list element @X  // `=@ local = *DEFERRED*' is implied
+ap list element @Y  // `=@ local = *DEFERRED*' is implied
+
+// Now @last, @X, @Y all have depth 1
+
+ap list element @X:
+    // Put X on empty list
+    X.@after = @X
+    last.@after = @X
+    // List now consists of (X)
+ap list element @Y:
+    // Add Y to end of list
+    Y.@after = last.after.@after 
+    last.after.@after = @Y
+    last.@after = @Y
+    // List now consists of (X, Y)
+\end{verbatim}\end{indpar}
 
 Given this, the rules for assigning depth to variables are:
 \begin{indpar}[0.2in]
