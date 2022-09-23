@@ -6439,27 +6439,35 @@ ap list element @Y:
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
-The more specific rules for assigning depth to variables are:
+The more specific rules for assigning depth to variables and pointers are:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
 \key{(V1)}	& \underline{Non-external} assignment variables are
 		  assigned the depth of the {\em statement} which
 		  creates them.
-\\[1ex]
+\end{tabular}
+\\
+\begin{tabular}{lp{5.0in}}
 \key{(V2)}	& External assignment variables are assigned depth 0,
 		  and therefore cannot store {\tt *LOCAL*} pointers.
-\\[1ex]
+\end{tabular}
+\\
+\begin{tabular}{lp{5.0in}}
 \key{(V3)}	& Argument variables in an \underline{inline}
 		  {\em function-prototype}
                   or a {\em reference-function-prototype} are assigned
 		  the same depth as the corresponding actual call argument
 		  in the {\em statement} that called the prototype.
-\\[1ex]
+\end{tabular}
+\\
+\begin{tabular}{lp{5.0in}}
 \key{(V4)}	& Result variables in an \underline{inline}
 		  {\em function-prototype}
 		  are assigned the same depth as the {\em statement}
 		  that called the prototype.
-\\[1ex]
+\end{tabular}
+\\
+\begin{tabular}{lp{5.0in}}
 \key{(V5)}	& Result variables in a {\em reference-function-prototype}
 		  are assigned the same depth as
 		  {\em reference-pattern-argument}
@@ -6473,16 +6481,26 @@ The more specific rules for assigning depth to variables are:
 		  i.e., its result is given the same depth as
 		  its base {\em reference-expression} variable
 		  or result.
-\\[1ex]
+\end{tabular}
+\\
+\begin{tabular}{lp{5.0in}}
 \key{(V6)}	& Argument variables in an \underline{out-of-line}
 		  {\em function-prototype} are assigned depth 0.
 		  If they are of {\tt *LOCAL} pointer type, they
 		  may be assigned {\tt *LOCAL*} actual argument
 		  values.
-\\[1ex]
+\end{tabular}
+\\
+\begin{tabular}{lp{5.0in}}
 \key{(V7)}	& Result variables in an \underline{out-of-line}
 		  {\em function-prototype} are assigned depth 0,
 		  and therefore cannot store {\tt *LOCAL*} pointers.
+\end{tabular}
+\\
+\begin{tabular}{lp{5.0in}}
+\key{(V8)}	& A pointer stored in a variable of depth $D$ is
+                  assigned depth $D$, and the variables in its
+		  target are assigned depth $D$.
 \end{tabular}
 \end{indpar}
 
@@ -6514,9 +6532,9 @@ function add ( ap *READ-WRITE* @element ):
 // Put two elements in list.
 //
 ap *READ-WRITE* list element @X          // `=@ local' is implied
-                                         // X memory is depth 1
+                                         // @X and X are depth 1
 ap *READ-WRITE* list element @Y          // `=@ local' is implied
-                                         // Y memory is depth 1
+                                         // @Y and Y are depth 1
 add ( @X )           // X is first element
 add ( @Y )           // Y is second element
 \end{verbatim}\end{indpar}
