@@ -6544,12 +6544,18 @@ pointers to be converted to {\tt *LOCAL*} pointers:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
 \key{(C1)}	& A {\tt *GLOBAL*} pointer can be implicitly
-                  converted to a {\tt *LOCAL*} pointer of depth 0.
+                  converted to a {\tt *LOCAL*} pointer of depth 0
+		  provided that either the {\tt *LOCAL*} pointer
+		  is read-only ({\tt ro}) or the target of the
+		  pointer has no field that is a {\tt *LOCAL*} pointer.
 \\[1ex]
 \key{(C2)}	& A {\tt *HEAP*} pointer can be implicitly
                   converted to a {\tt *LOCAL*} pointer of depth 0
 		  provided the {\tt *HEAP*} pointer is stored in
-		  an assignment variable or argument variable.
+		  an assignment variable or argument variable, and
+		  either the {\tt *LOCAL*} pointer
+		  is read-only ({\tt ro}) or the target of the
+		  pointer has no field that is a {\tt *LOCAL*} pointer.
 \\[1ex]
 		& Note 1: the variable in which the {\tt *HEAP*} pointer
 		  is stored is {\tt co} and will exist as long as
