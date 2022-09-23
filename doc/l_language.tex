@@ -6351,9 +6351,9 @@ can be stored a {\tt *LOCAL*} variable is:
 \end{tabular}
 \end{indpar}
 
-The lifetime depth of an assignment variable is determined
-by the \key{statement depth}
-of the {\em assignment-statement} creating the variable, except for
+The lifetime depth of an assignment variable equals
+the \key{statement depth}
+of the {\em assign\-ment-statement} creating the variable, except for
 external variables which are given depth 0.
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
@@ -6393,6 +6393,14 @@ The rules for assigning depth to {\em statements} are as follows:
 \end{tabular}
 \end{indpar}
 
+When a {\tt *LOCAL*} pointer is stored in a variable of depth $D$,
+the pointer is given depth $D$ and variables in its target are
+given depth $D$.  This is because by (L5) the pointer must have
+depth $\leq D$ and depth $D$ has the shortest lifetime and
+is therefore the least presumptive of the
+possibilities, and the lifetime of a target must be at least
+as great as the lifetime of the pointer to the target.
+All this is stated with more precision below.
 
 An example is:
 \begin{indpar}\begin{verbatim}
@@ -6416,7 +6424,7 @@ ap *READ-WRITE* list element @last:  // `=@ local' is implied
 ap list element @X  // `=@ local = *DEFERRED*' is implied
 ap list element @Y  // `=@ local = *DEFERRED*' is implied
 
-// Now @last, @X, @Y all have depth 1
+// Now @last, @X, @Y, last.@after, X.@after, etc. all have depth 1
 
 ap list element @X:
     // Put X on empty list
@@ -6431,7 +6439,7 @@ ap list element @Y:
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
-Given this, the rules for assigning depth to variables are:
+The more specific rules for assigning depth to variables are:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
 \key{(V1)}	& \underline{Non-external} assignment variables are
