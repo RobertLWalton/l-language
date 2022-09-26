@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 23, 2022
+September 26, 2022
 
 \bigskip
  
@@ -876,13 +876,7 @@ value without using `{\tt *INCLUDE*}' statements.
 
 
 
-\section{Syntax}
-
-In this chapter we describe the syntax of L-Language programs
-and briefly indicate the associated semantics, which is
-elaborated in later sections.
-
-\subsection{Lexemes}
+\section{Lexemes}
 \label{LEXEMES}
 
 A L-Language source file is a sequence of bytes that is a UTF-8 encoding
@@ -1318,7 +1312,7 @@ and is \underline{not} used to represent a number; instead
 the lexeme pair {\tt D\# "2/3"} is used to represent a rational
 number constant (value of {\tt const} type).
 
-\subsection{Logical Lines, Blocks, and Statements}
+\section{Logical Lines, Blocks, and Statements}
 \label{LOGICAL-LINES-BLOCKS-AND-STATEMENTS}
 
 Each non-blank physical line begins with an {\em indent} lexeme
@@ -1463,7 +1457,7 @@ a block that itself consists of a sequence of statements.
 
 \newpage
 
-\subsection{Expressions}
+\section{Expressions}
 
 Expressions are built from operators, such as \TT{+} and \TT{*},
 and primaries, such as variable names and function calls.
@@ -1929,7 +1923,7 @@ but the following examples give an idea of some of this semantics:
 	and `{\tt x \TT{=} x + y}' if {\tt x} is {\tt *READ-WRITE*}.
 \end{indpar}
 
-\subsection{Primaries}
+\section{Primaries}
 \label{PRIMARIES}
 
 A \key{primary} is an {\em expression} that has no operators outside
@@ -1955,7 +1949,7 @@ Note that a {\em rational-constant} is an operator (e.g. {\tt D\#})
 followed by a {\em string-constant}, and therefore contains an operator
 and is not a {\em primary}.
 
-\subsubsection{Names}
+\subsection{Names}
 \label{NAMES}
 
 A \key{name} is a sequence of lexemes used to name things like
@@ -2204,7 +2198,7 @@ Note that {\em function-term-names} used in {\em function-calls}
 cannot be abbreviated.
 
 
-\subsubsection{Constants}
+\subsection{Constants}
 \label{CONSTANTS}
 
 A \key{constant} is a value of type \ttkey{const} computed at
@@ -2273,7 +2267,7 @@ never a compile error.  If necessary the converted value is
 following sections.
 
 
-\subsubsubsection{Rational Constants}
+\subsubsection{Rational Constants}
 \label{RATIONAL-CONSTANTS}
 
 A \key{rational constant} is a rational number with unbounded
@@ -2398,7 +2392,7 @@ to a run-time floating type is however
 never a compile error.  If necessary the converted value is
 {\tt +Inf} or {\tt -Inf} or precision is lost.
 
-\subsubsubsection{Map Constants}
+\subsubsection{Map Constants}
 \label{MAP-CONSTANTS}
 
 A \key{map constant} has two parts, a list (a.k.a, a vector) and a dictionary.
@@ -2535,7 +2529,7 @@ with the read-only part including elements with labels like
 Users can add their own elements if these do not conflict
 with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 
-\subsubsection{Reference Expressions}
+\subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
 A \emkey{reference-expression} computes either a pointer to a location
@@ -2738,7 +2732,7 @@ X.W = "P"                // X and Y are both {"C", "D", "W" => "P"}.
                          // Now Z is {{"C", "D", "W" => "P"}, "M"},
 \end{verbatim}\end{indpar}
 
-\subsubsection{Function Calls}
+\subsection{Function Calls}
 \label{FUNCTION-CALLS}
 
 The syntax of function calls is:
@@ -2809,7 +2803,7 @@ step in matching is to scan the {\em function-call} to identify the
 done: if the results of this initial scan do not lead to a satisfying
 match, the entire call-prototype match fails.
 
-\subsubsection{Bracketed Expressions}
+\subsection{Bracketed Expressions}
 \label{BRACKETED-EXPRESSIONS}
 
 The syntax of a {\em bracketed-expression} is:
@@ -2844,8 +2838,8 @@ in which the parenthesis pair surrounding `{\tt y "*" z}' is implied.
 This allows the {\em module-abbre\-via\-tion} to be applied to the outermost
 operator in the {\em expression}.
 
-\subsection{Statements}
-\label{STATEMENTS}
+\section{Executable Statements}
+\label{EXECUTABLE-STATEMENTS}
 
 The following is a complete list of the kinds of statements:
 \begin{indpar}
@@ -2864,7 +2858,7 @@ The following is a complete list of the kinds of statements:
     \end{tabular}
 \end{indpar}
 
-\subsubsection{Assignment Statements}
+\subsection{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
 
 {\em Assignment-statements} have a list of variables on the
@@ -3146,7 +3140,7 @@ may allocate to the stack at most 4x4 = 16 times as much
 memory as any single iteration call to `{\tt local}'.
 
 
-\subsubsubsection{Expression Assignment Statements}
+\subsubsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
 
 The syntax of an {\em expression-assign\-ment-statement} is:
@@ -3218,7 +3212,7 @@ for cases where their operand types are the same as their result type,
 and {\tt int} variables may be implicitly converted to {\tt flt}
 but not vice-versa.
 
-\subsubsubsection{Call Assignment Statements}
+\subsubsection{Call Assignment Statements}
 \label{CALL-ASSIGNMENT-STATEMENTS}
 
 The syntax of a {\em call-assignment-statement} is:
@@ -3259,7 +3253,7 @@ form `\dots{} {\em type-name} $w$', and $v$ is a {\em variable-name}
 that by itself is the actual argument matched to $w$.
 See \pagref{PROTOTYPE-NEXT-RESULT}.
 
-\subsubsubsection{Block Assignment Statements}
+\subsubsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
 
 The syntax of {\em block-assignment-statements} is:
@@ -3396,7 +3390,7 @@ next x =:
     next x = x + 1
 \end{verbatim}\end{indpar}
 
-\subsubsubsection{Deferred Assignment Statements}
+\subsubsection{Deferred Assignment Statements}
 \label{DEFERRED-ASSIGNMENT-STATEMENTS}
 
 The syntax of {\em defer\-red-assignment-state\-ments} is:
@@ -3452,7 +3446,7 @@ an {\em allocation-call} in their {\em deferred-assignment-statement}
 have their target type changed to {\tt *INIT*}
 inside their companions.
 
-\subsubsubsection{Loop Assignment Statements}
+\subsubsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
 
 A {\em loop-assignment-statement} has the syntax:
@@ -3589,7 +3583,7 @@ while i < 4:
     next i = i + 1
 \end{verbatim}\end{indpar}
 
-\subsubsection{Conditional Statements}
+\subsection{Conditional Statements}
 \label{CONDITIONAL-STATEMENTS}
 
 A {\em conditional-statement} executes another {\em statement}
@@ -3633,7 +3627,7 @@ int z:
 // Now z = 11
 \end{verbatim}\end{indpar}
 
-\subsubsection{Declarations}
+\section{Declarations}
 \label{DECLARATIONS}
 
 The following is a complete list of declarations:
@@ -3669,7 +3663,7 @@ The following is a complete list of declarations:
 \end{indpar}
 
 
-\subsubsubsection{Type Declarations}
+\subsection{Type Declarations}
 \label{TYPE-DECLARATIONS}
 
 The syntax of a type declaration is:
@@ -3841,7 +3835,7 @@ An `\ttkey{*OFFSET*} {\em integer-const-expression}' sub-declaration
 changes the current offset to an integer.  Offsets set this way
 may be negative.  Offsets are in bits.
 
-\subsubsubsubsection{Defined Type Expansions }
+\subsubsection{Defined Type Expansions }
 \label{DEFINED-TYPE-EXPANSIONS}
 
 A defined type can have just one or several {\em type-declara\-tions}.
@@ -3953,7 +3947,7 @@ rule may not be detected until load time.
 The `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration may be used
 in a linear expansion tree to incrementally add fields to a defined type.
 
-\subsubsubsubsection{Type Fields}
+\subsubsection{Type Fields}
 
 A field of a value of a user defined type is accessed by prepending
 `\TT{.}' to the {\em field-label} to form a {\em member-name} in
@@ -4043,7 +4037,7 @@ type my type:       // Expansion of my type
 // how offsets are assigned to believe this.
 \end{verbatim}\end{indpar}
 
-\subsubsubsubsection{Type Subfields}
+\subsubsection{Type Subfields}
 
 Subfields are parts of the previously declared number type field.
 The bits occupied
@@ -4085,7 +4079,7 @@ bool vegetable = X.vegetable
 flt weight = X.weight
 \end{verbatim}\end{indpar}
 
-\subsubsubsubsection{Type Dimensions}
+\subsubsection{Type Dimensions}
 
 If a {\em field-declaration} with {\em field-label}\, {\tt F} contains 
 a single {\em field-dimension} {\tt [$n$]} then $n$ fields are
@@ -4162,7 +4156,7 @@ In all cases `\TT{][}' may be replaced by `\TT{,~}' (the space
 after the comma is required), so that,
 for example, `{\tt [$i$][$j$]}' is equivalent to `{\tt [$i$, $j$]}'.
 
-\subsubsubsubsection{Type Conversions}
+\subsubsection{Type Conversions}
 \label{TYPE-CONVERSIONS}
 
 When the compiler is confronted with code such as:
@@ -4226,7 +4220,7 @@ be {\tt const}, and you cannot define your own {\tt *IMPLICIT* *CONVERSION*}
 function is both types are builtin.
 
 
-\subsubsubsection{Pointer Type Declarations}
+\subsection{Pointer Type Declarations}
 \label{POINTER-TYPE-DECLARATIONS}
 
 A pointer type has an
@@ -4509,7 +4503,7 @@ av uns8 @n = f.@name
 . . . . .
 \end{verbatim}\end{indpar}
 
-\subsubsubsection{Inline Function Declarations}
+\subsection{Inline Function Declarations}
 \label{INLINE-FUNCTION-DECLARATIONS}
 
 The syntax of a function declaration is:
@@ -4869,7 +4863,7 @@ is too deep or the code generated by one statement is too much.
 
 A macro function can\underline{not} be {\tt *DEFERRED*}.
 
-\subsubsubsubsection{Inline Call-Prototype Matching}
+\subsubsection{Inline Call-Prototype Matching}
 \label{INLINE-CALL-PROTOTYPE-MATCHING}
 
 Each {\em function-call} in a statement must be matched to a single
@@ -5175,7 +5169,7 @@ bool b2 = ( flt64 ( x ) == 5 )
     // is the one with N = int32.
 \end{verbatim}\end{indpar}
 
-\subsubsubsection{Reference Function Declarations}
+\subsection{Reference Function Declarations}
 \label{REFERENCE-FUNCTION-DECLARATIONS}
 
 A \key{reference function} is a function that can be
@@ -5356,7 +5350,7 @@ using the base {\em reference-expression} qualifiers as the
 container qualifiers and the protype {\em result-variable-declaration}
 qualifiers are field qualifiers.
 
-\subsubsubsubsection{Reference Call-Prototype Matching}
+\subsubsection{Reference Call-Prototype Matching}
 \label{REFERENCE-CALL-PROTOTYPE-MATCHING}
 
 Two major differences between {\em refer\-ence-call}-prototype
@@ -5463,7 +5457,7 @@ flt64 y = D[1]  // Now y == -7.33
 \end{verbatim}\end{indpar}
 
 
-\subsubsubsection{Out-of-Line Function Declarations}
+\subsection{Out-of-Line Function Declarations}
 \label{OUT-OF-LINE-FUNCTION-DECLARATIONS}
 
 An out-of-line function prototype is a limited subset of
@@ -5571,7 +5565,7 @@ the declaration's module.
 This allows a module to call out-of-line functions defined by
 a companion in another module that imports the first module.
 
-\subsubsubsubsection{Function Type Declarations}
+\subsubsection{Function Type Declarations}
 \label{FUNCTION-TYPE-DECLARATIONS}
 
 A function type whose values are pointers to out-of-line
@@ -5633,7 +5627,7 @@ Internally, this value is a run-time pointer to the out-of-line function.
 
 
 
-\subsubsubsection{Module and Body Declarations}
+\subsection{Module and Body Declarations}
 \label{MODULE-AND-BODY-DECLARATIONS}
 
 A \key{module} is a file whose first statement is a {\em module-declaration}:
@@ -5736,7 +5730,7 @@ the same module,
 and determine the order in which bodies are initialized:
 see \itemref{PROGRAM-INITIALIZATION}.
 
-\subsubsubsection{Program Initialization}
+\subsubsection{Program Initialization}
 \label{PROGRAM-INITIALIZATION}
 
 A module is initialized by executing its top level {\em statements}
@@ -5760,7 +5754,7 @@ bodies it must be initialized after is called
 the `\key{initialization graph}'\label{INITIALIZATION-GRAPH}
 and \underline{must be acyclic}.
 
-\subsubsection{Inclusions}
+\section{Inclusions}
 \label{INCLUSIONS}
 
 Each {\em statement} $S$ has its own \ttkey{*INCLUDE*} {\tt const} variable
@@ -5889,7 +5883,7 @@ Thus if {\tt X = "A"} then \\
 }
 \end{itemize}
 
-\subsubsection{Parser Output}
+\section{Parser Output}
 \label{PARSER-OUTPUT}
 
 The output produced by the parser when it parses code is as
@@ -6001,7 +5995,7 @@ Parser Output:
 \label{PARSER-OUTPUT-EXAMPLE}
 \end{boxedfigure}
 
-\subsection{Scope}
+\section{Scope}
 \label{SCOPE}
 
 A {\em declaration} has a \key{scope},
@@ -6213,7 +6207,7 @@ are equivalent if no {\em function-prototype}
 is in scope, where $ma$ is a module abbreviation for a module
 other than `{\tt my\_own\_module}'.
 
-\subsection{Lifetimes}
+\section{Lifetimes}
 \label{LIFETIMES}
 
 The \key{lifetime} of a variable, i.e., a piece of memory,
@@ -6589,7 +6583,7 @@ other {\tt *LOCAL*} pointers stored into it.
 
 See \itemref{QUALIFIER-IMPLICIT-CONVERSIONS} for more details.
 
-\subsection{Memory Management}
+\section{Memory Management}
 \label{MEMORY-MANAGEMENT}
 
 Space for variables allocated by {\em variable-declarations}
@@ -6653,7 +6647,7 @@ following during non-GC execution:
 The three kinds of GC are discussed in detail in the following sub-sections.
 
 
-\subsubsection{Copying Garbage Collection}
+\subsection{Copying Garbage Collection}
 \label{COPYING-GARBAGE-COLLECTION}
 
 In copying garbage collection the stub of a datum is the datum's
@@ -6740,7 +6734,7 @@ deallocated bodies if they are permitted.
 The {\tt no-stub} option may \underline{not} be used with
 copying GC.
 
-\subsubsection{Marking Garbage Collection}
+\subsection{Marking Garbage Collection}
 
 In marking GC, stubs are allocated to a separate space
 from bodies, and bodies are not copied during GC.
@@ -6774,7 +6768,7 @@ vectors whose elements point at stubs to be scavenged.
 When a stub is first marked it is put on the list
 of stubs to be scavenged.
 
-\subsubsection{Counting Garbage Collection}
+\subsection{Counting Garbage Collection}
 
 In counting GC each stub has a reference
 count.  The fundamental non-GC operation is storing
