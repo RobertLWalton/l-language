@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 26, 2022
+September 27, 2022
 
 \bigskip
  
@@ -4563,9 +4563,9 @@ The syntax of a function declaration is:
     ::= & {\em result-variable-declaration}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{bool} {\em variable-name}
-          \TT{??} {\em default-value} \\
+          \{ \TT{??} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{macro} {\em variable-name}
-          \TT{=?} {\em default-value} \\
+          \{ \TT{=?} {\em default-value} \}\QMARK{} \\
     $|$ & {\em result-variable-declaration}
           \TT{==} {\em required-value} \\
     \end{tabular}
@@ -4766,11 +4766,12 @@ F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( FALSE )
 A {\em prototype-argument-declaration} with the syntax:
 \begin{indpar}
 \emkey{prototype-argument-declaration}\label{MACRO-ARGUMENT-DECLARATION} ::= \\
-\hspace*{1in} \TT{macro} {\em variable-name} \TT{=?} {\em default-value}
+\hspace*{1in} \TT{macro} {\em variable-name}
+                         \{ \TT{=?} {\em default-value} \}\QMARK{}
 \end{indpar}
 causes the argument value in a call to be the \underline{parse}
 of the actual argument, which is a {\tt const} value.  If the
-{\em default-value} is used, its parse becomes the argument value.
+{\em default-value} is used, it is evaluated as a {\em const-expression}.
 
 If a {\em required-value} is given in a prototype, the call must
 have an equal {\tt const} valued actual argument value
