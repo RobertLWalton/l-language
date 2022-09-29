@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 27, 2022
+September 29, 2022
 
 \bigskip
  
@@ -2889,16 +2889,20 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{expression-list} ::= see \pagref{EXPRESSION-LIST}
 \\[0.5ex]
-\emkey{call-assignment-statement} ::= \\
-\hspace*{0.5in}
-    \begin{tabular}[t]{@{}rll}
-        & {\em assignment-result}
-                \{ \TT{,} {\em assignment-result} \}\STAR{}
-		\TT{=} {\em function-call} \\
-    $|$ & {\em function-call} \\
-    \end{tabular}
+\emkey{call-assignment-statement} \\
+\hspace*{0.5in} \begin{tabular}{rl}
+                ::= & {\em assignment-result}
+                      \{ \TT{,} {\em assignment-result} \}\STAR{}
+		      \TT{=} {\em assignment-call} \\
+		$|$ & {\em assignment-call}
+		\end{tabular}
 \\[0.5ex]
-\emkey{function-call} ::= see \pagref{FUNCTION-CALLS}
+\emkey{assignment-call} ::= {\em function-call} $|$
+                            {\em call-expression}
+\\[0.5ex]
+\emkey{function-call} ::= see \pagref{FUNCTION-CALL}
+\\[0.5ex]
+\emkey{call-expression} ::= see \pagref{CALL-EXPRESSION}
 \\[0.5ex]
 \emkey{block-assignment-statement} ::= \\
 \hspace*{0.5in}
