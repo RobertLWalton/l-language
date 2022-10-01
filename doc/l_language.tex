@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-September 29, 2022
+October 1, 2022
 
 \bigskip
  
@@ -1447,7 +1447,8 @@ lexemes in the logical line
 are removed from the logical line.  If the result is
 empty, e.g., the logical line is a comment line, it is discarded.
 Otherwise the
-modified logical line becomes a L-Language `\emkey{statement}'.
+modified logical line becomes a L-Language
+`\emkey{statement}'\label{STATEMENT}.
 
 Therefore a file is a sequence of top-level statements.
 
@@ -2838,27 +2839,7 @@ in which the parenthesis pair surrounding `{\tt y "*" z}' is implied.
 This allows the {\em module-abbre\-via\-tion} to be applied to the outermost
 operator in the {\em expression}.
 
-\section{Executable Statements}
-\label{EXECUTABLE-STATEMENTS}
-
-The following is a complete list of the kinds of statements:
-\begin{indpar}
-\emkey{statement}\label{STATEMENT}
-    \begin{tabular}[t]{@{}rll}
-    ::= & {\em assignment-statement}
-        & [\pagref{ASSIGNMENT-STATEMENTS}] \\
-    $|$ & {\em control-statement}
-        & [\pagref{CONTROL-STATEMENT}] \\
-    $|$ & {\em conditional-statement}
-        & [\pagref{CONDITIONAL-STATEMENTS}] \\
-    $|$ & {\em declaration-statement}
-        & [\pagref{DECLARATION-STATEMENT}] \\
-    $|$ & {\em include-statement}
-        & [\pagref{INCLUDE-STATEMENT}] \\
-    \end{tabular}
-\end{indpar}
-
-\subsection{Assignment Statements}
+\section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
 
 {\em Assignment-statements} have a list of variables on the
@@ -3587,7 +3568,7 @@ while i < 4:
     next i = i + 1
 \end{verbatim}\end{indpar}
 
-\subsection{Conditional Statements}
+\section{Conditional Statements}
 \label{CONDITIONAL-STATEMENTS}
 
 A {\em conditional-statement} executes another {\em statement}
@@ -5174,8 +5155,8 @@ bool b2 = ( flt64 ( x ) == 5 )
     // is the one with N = int32.
 \end{verbatim}\end{indpar}
 
-\subsubsection{Macro Functions}
-\label{MACRO-FUNCTIONS}
+\subsubsection{Macro Functions and Statements}
+\label{MACRO-FUNCTIONS-AND-STATEMENTS}
 
 A \key{macro function} is an inline function whose
 {\em prototype-result} has the form `\ttkey{macro} {\em variable-name}'.
@@ -5220,7 +5201,42 @@ $W$ will be a unique variable name not duplicated in any other
 code within the same compilation.
 \end{indpar}
 
-TBD
+A {\em macro-statement} is a statement of the form:
+\begin{indpar}
+\emkey{macro-statement}\label{MACRO-STATEMENT} ::= \\
+\hspace*{0.5in} \begin{tabular}{rl}
+                ::= & {\em assignment-result}
+                      \{ \TT{,} {\em assignment-result} \}\STAR{}
+		      \TT{=} {\em function-call} \TT{:} \\
+		    & \TT{~~~~}{\em statement}\STAR{} \\
+		$|$ & {\em function-call} \TT{:} \\
+		    & \TT{~~~~}{\em statement}\STAR{} \\
+		\end{tabular}
+\begin{itemize}
+\item The {\em function-call} must call a macro function.
+\end{itemize}
+\end{indpar}
+
+When called, the macro function in a {\em macro-statement}
+the parsed {\em macro-statement} is the value of the
+\ttkey{*STATEMENT*} const variable.  The macro function can
+output a edited version of this parsed {\em macro-statement}
+in the {\tt *INCLUDE*} variable, as described in
+the section on inclusions: see \pagref{INCLUSIONS}.
+The macro function returns the {\tt const} value {\tt NONE}
+which signals the compilation of the {\em macro-statement}
+is complete.  Therefore the {\em macro-statement} does nothing
+but set the {\tt *INCLUDE*} variable.
+
+The macro function may alternatively return an {\em expression}
+which must be a {\em function-call} to another macro function.
+If multiple macro functions are thusly called by a {\em macro-statement},
+each macro function execution adds to or modifies the {\tt *INCLUDE*} variable
+value computed  by the previous macro function execution.
+
+Macro functions are commonly used to translate user defined declarations
+into builtin declarations, or to translate user defined loop or
+other flow control constructs into builtin executable statements.
 
 
 
