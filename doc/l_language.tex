@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 1, 2022
+October 2, 2022
 
 \bigskip
  
@@ -6449,9 +6449,9 @@ The rules for assigning depth to {\em statements} are as follows:
                   (i.e., is not in a sub-block; i.e., is top-level)
 		  is assigned depth 1.
 \\[1ex]
-\key{(S2)}	& A {\em statement} that is inside a sub-block at the end
+\key{(S2)}	& A {\em statement} that is inside a sub-block $S$ at the end
                   of a {\em statement} of depth $D$, and is not also
-		  inside a sub-block of that sub-block, is assigned depth $D+1$.
+		  inside a sub-block of $S$, is assigned depth $D+1$.
 \\[1ex]
 \key{(S3)}	& An \underline{inline} {\em function-call} is treated
                   as creating a sub-block immediately inside
@@ -6469,7 +6469,7 @@ The rules for assigning depth to {\em statements} are as follows:
 		  So when the {\em statements}
 		  of sub-block $S$ access {\tt *LOCAL*} pointer values
 		  defined by the context of the \underline{declaration},
-		  rule (L5) will give the same answers at it would if
+		  rule (L5) will give the same answers as it would if
 		  the {\em statements} of $S$ had depth $D'+1$ instead of
 		  $D+1$.
 \\[1ex]
@@ -6485,7 +6485,7 @@ the pointer is given depth $D$ and variables in its target are
 given depth $D$.  This is because by (L5) the pointer must have
 depth $\leq D$ and depth $D$ has the shortest lifetime and
 is therefore the least presumptive of the
-possibilities, and the lifetime of a target must be at least
+possibilities, while the lifetime of a target must be at least
 as great as the lifetime of the pointer to the target.
 All this is stated with more precision below.
 
@@ -6574,7 +6574,7 @@ The more specific rules for assigning depth to variables and pointers are:
 \key{(V6)}	& Argument variables in an \underline{out-of-line}
 		  {\em function-prototype} are assigned depth 0.
 		  If they are of {\tt *LOCAL} pointer type, they
-		  may be assigned {\tt *LOCAL*} actual argument
+		  may be assigned {\tt *LOCAL*} pointer actual argument
 		  values.
 \end{tabular}
 \\
@@ -6585,8 +6585,8 @@ The more specific rules for assigning depth to variables and pointers are:
 \end{tabular}
 \\
 \begin{tabular}{lp{5.0in}}
-\key{(V8)}	& A pointer stored in a variable of depth $D$ is
-                  assigned depth $D$, and the variables in its
+\key{(V8)}	& A {\tt *LOCAL*} pointer stored in a variable of depth $D$ is
+                  assigned depth $D$, and any {\tt *LOCAL*} variables in its
 		  target are assigned depth $D$.
 \end{tabular}
 \end{indpar}
@@ -6648,13 +6648,13 @@ pointers to be converted to {\tt *LOCAL*} pointers:
 		  \itemref{COPYING-GARBAGE-COLLECTION}.
 \end{tabular}
 
-Note: It is a compile error if the target of a {\tt *GLOBAL*} or {\tt *HEAP*}
-pointer has a type that has a field that is a {\tt *LOCAL*} pointer,
+Note: It is a compile error if a {\tt *GLOBAL*} or {\tt *HEAP*}
+pointer has a target type that has a field that is a {\tt *LOCAL*} pointer,
 as per (L4).  So the converted {\tt *LOCAL*} pointer cannot have
-other {\tt *LOCAL*} pointers stored into it.
+any {\tt *LOCAL*} pointers stored into its target.
 \end{indpar}
 
-See \itemref{QUALIFIER-IMPLICIT-CONVERSIONS} for more details.
+Also see \itemref{QUALIFIER-IMPLICIT-CONVERSIONS}.
 
 \section{Memory Management}
 \label{MEMORY-MANAGEMENT}
