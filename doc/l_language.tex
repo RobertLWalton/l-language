@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-October 6, 2022
+March 14, 2023
 
 \bigskip
  
@@ -339,7 +339,7 @@ Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
 ap ro int @Z = @Y        // Copies pointer value @Y.
-                         // Variable conversion from *READ-WRITE*
+                         // Pointer conversion from *READ-WRITE*
                          // to ro is legal.
 \end{verbatim}\end{indpar}
 
@@ -560,7 +560,7 @@ size of the type in bits (which may increase with later sub-declarations).
 The `{\tt ***}' sub-declaration at the end of a
 {\em type-declaration} defining a user defined type indicates
 that the definition may be continued by a later {\em type-declaration},
-as is done for {\tt my\_type} above.
+as is done for {\tt my type} above.
 The sub-declarations of the later {\em type-declaration} are
 simply appended to those of previous {\em type-declarations}.
 
@@ -884,7 +884,7 @@ value without using `{\tt *INCLUDE*}' statements.
 \section{Lexemes}
 \label{LEXEMES}
 
-A L-Language source file is a sequence of bytes that is a UTF-8 encoding
+An L-Language source file is a sequence of bytes that is a UTF-8 encoding
 of a sequence of UNICODE characters.  This is scanned into a sequence
 of \skey{lexeme}s.
 
@@ -1145,7 +1145,7 @@ warning messages.
 	\begin{tabular}[t]{@{}rl@{}}
 	:::= & {\em sign}\QMARK{} {\em integer-part}
 	                          {\em exponent-part}\QMARK{}
-	     [that is not a {\em natural}] \\
+	     that is not a {\em natural} \\
 	 $|$ & {\em sign}\QMARK{} {\em integer-part}\QMARK{}
 	                          {\em fraction-part}
 				  {\em exponent-part}\QMARK{} \\
@@ -1153,15 +1153,11 @@ warning messages.
 	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{numeric} :::= {\em middle-lexeme}
-                  \begin{tabular}[t]{@{}l@{}}
-		  that contains a {\em digit} before any {\em letter} \\
-		  and is not a {\em natural} or {\em number}
-		  \end{tabular}
-\\[0.5ex]
+\begin{tabular}[t]{@{}l@{\hspace{0.6in}}l@{}}
 \emkey{integer-part} :::= {\em decimal-digit}\PLUS{}
-\\[0.5ex]
+&
 \emkey{fraction-part} :::= \TT{.} {\em decimal-digit}\PLUS{}
+\end{tabular}
 \\[0.5ex]
 \emkey{exponent-part} :::= {\em exponent-indicator} {\em sign}\QMARK{}
                            {\em decimal-digit}\PLUS{}
@@ -1171,6 +1167,12 @@ warning messages.
 &
 \emkey{exponent-indicator} :::= \TT{e} $|$ \TT{E}
 \end{tabular}
+\\[0.5ex]
+\emkey{numeric} :::= {\em middle-lexeme}
+                  \begin{tabular}[t]{@{}l@{}}
+		  that contains a {\em digit} before any {\em letter} \\
+		  and is not a {\em natural} or {\em number}
+		  \end{tabular}
 \\[0.5ex]
 \emkey{mark}\label{MARK} :::= {\em middle-lexeme} not containing a
                               {\em letter} or a {\em digit}
@@ -1344,7 +1346,7 @@ A logical line may end with a \key{block} that is itself a sequence of
 logical lines that have indents greater than the indent of the
 logical line containing the block.
 The block is introduced by a `\TT{:}' at the end
-of a physical line, provided the `\TT{:}' is not inside brackets
+of a \underline{physical} line, provided the `\TT{:}' is not inside brackets
 or quotes
 (e.g., not inside \TT{(~)} or \TT{`~'}).
 If the first {\em indent} lexeme after the
@@ -1648,7 +1650,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-1}
 \ttkey{at most} &       &        &       &
 \\\cline{1-4}
-\ttkey{atimes} & iterator & afix   & (none) & \\
+\ttkey{times} & iterator & afix   & (none) & \\
                & modifier &        &       &
 \\\hline
 \ttkey{if} & selector & infix & selector & 10000
@@ -1745,13 +1747,13 @@ Figures~\itemref{L-LANGUAGE-LINE-OPERATORS},
 and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-2}
 have precedences in
 the range {\em [L,H]}.
-Precedence {\em (H+1)} is reserved for the `error operator' which is a
+Precedence {\em (L-1)} is reserved for the `error operator' which is a
 nofix operator inserted by the parser to `fix up' parsing errors
 so parsing can continue.
 
 The first {\em P-operator} in a {\em P-expression} determines
 the {\em P-expression}'s \key{format}, which is one of the following,
-where in describing expressions we use:
+where in describing expression formats we use:
 \begin{center}
 `expression' to mean {\em P-expression}, \\
 `operator' to mean {\em P-operator}, \\
@@ -1778,7 +1780,7 @@ and `operand' to mean {\em (P+1)-expression}:
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
 \ttkey{declaration}
-    & The expression must consist of the declaring operator followed by
+    & The expression must consist of an operator followed by
       an operand (that may contain {\tt =} and {\tt ,}) followed sometimes
       by a subblock operator.
 \end{tabular}
@@ -1910,6 +1912,10 @@ but the following examples give an idea of some of this semantics:
       one is the type of a reference expression operand, that is used.
       Otherwise if several work, it is a compile error.
 
+      Changing the expression to `{\tt T(x) < y < z}' will force
+      the target type to be {\tt T} if that works, or a compile
+      error otherwise.
+
 \hspace*{-0.2in}{\tt v[x+5] \TT{=} y} \\
       The target type of subscript expressions such as `{\tt x + 5}'
       is {\tt int}.
@@ -1925,8 +1931,10 @@ but the following examples give an idea of some of this semantics:
        {\tt x ** 0 \TT{==} 1} and {\tt x ** 1 \TT{==} x} for all {\tt x}.
 
 \hspace*{-0.2in}{\tt x \TT{+=} y} \\
-	Means `{\tt next x = x + y}' if {\tt x} is {\tt co},
-	and `{\tt x \TT{=} x + y}' if {\tt x} is {\tt *READ-WRITE*}.
+	Means `{\tt x \TT{=} x + y}', where {\tt x} must be {\tt *READ-WRITE*}.
+
+\hspace*{-0.2in}{\tt next x \TT{+=} y} \\
+	Means `{\tt next x = x + y}'.  `{\tt next x}' must be defined.
 \end{indpar}
 
 \section{Primaries}
@@ -1945,9 +1953,9 @@ parentheses or brackets:
 \\[0.5ex]
 \emkey{constant-primary} ::= {\em constant} other than {\em rational-constant}
 \\[0.5ex]
-\emkey{constant} ::= see \pagref{CONSTANTS}
+{\em constant} ::= see \pagref{CONSTANTS}
 \\[0.5ex]
-\emkey{rational-constant} ::= see \pagref{RATIONAL-CONSTANTS}
+{\em rational-constant} ::= see \pagref{RATIONAL-CONSTANTS}
 
 \end{indpar}
 
@@ -1964,7 +1972,7 @@ variables and functions.  Names are building blocks of primaries.
 \begin{indpar}
 \emkey{name}\label{NAME} ::=
     {\em initial-name-item} {\em continuing-name-item}\STAR{} \\
-\emkey{initial-name-item} ::= {\em name-item} other than {\em natural-number} \\
+\emkey{initial-name-item} ::= {\em name-item} other than {\em natural} \\
 \emkey{continuing-name-item} ::= {\em name-item} not containing `\TT{.}' \\
 \emkey{name-item}\label{NAME-ITEM}
     \begin{tabular}[t]{@{}rl}
@@ -1973,7 +1981,7 @@ variables and functions.  Names are building blocks of primaries.
         & [i.e., `\TT{.}'s can only be at the \underline{beginning}
 	   of the {\em word}] \\
         & [see text about splitting words with embedded `\TT{.}'s] \\
-    $|$ & {\em natural-number} less than $10^9$ \\
+    $|$ & {\em natural} [see \pagref{LEXEME-TYPE-CONVERSION}] \\
     $|$ & {\em quoted-mark} containing no `\TT{.}' that follows a character \\
         & that is not the beginning \TT{"} or another `\TT{.}' \\
         & [i.e., `\TT{.}'s can only be at the \underline{beginning}
@@ -2160,12 +2168,13 @@ names in certain contexts as having the form:
 where \MA denotes an optional {\em module-abbreviation},
 and while scanning this sequence from left to right,
 the name resolver does \underline{not} back up after identifying
-one of the components of the sequence.
+a {\em qualifier-name}, {\em module-name}, {\em pointer-type-name}
+or {\em type-name} in the sequence.
 
 {\em Variable-names}, {\em type-names}, and {\em pointer-type-names}
 that begin with a {\em module-abbreviation} are called
 \key{external}\label{EXTERNAL-NAME}.
-Other names are called \key{internal}\label{INTERNAL-NAME}.
+Non-external names are called \key{internal}\label{INTERNAL-NAME}.
 
 A name can abbreviate another name, using the statement:
 \begin{indpar}
@@ -2174,7 +2183,7 @@ A name can abbreviate another name, using the statement:
 \end{indpar}
 For example:
 \begin{center}
-\tt "bool" \ABV{} "std bool"
+\tt bool \ABV{} std bool
 \end{center}
 
 Note that it is whole names that are abbreviated, and not parts of
@@ -2362,7 +2371,7 @@ The syntax of the argument strings is:
 \emkey{character-constant-string} :::=
 	\TT{"}~ {\em character-representative}~ \TT{"}
 \\[0.5ex]
-\emkey{character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
+{\em character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
 \\[1ex]
 where
 \begin{itemize}
@@ -2438,21 +2447,19 @@ A map constant is computed by a {\em map-expression} whose syntax is:
 \emkey{const-expression}\label{CONST-EXPRESSION}
     ::= {\tt const} valued {\em expression} evaluatable at compile-time
 \\[0.5ex]
-\emkey{expression} ::= see \pagref{EXPRESSION}
+{\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
 \emkey{phrase-constant} ::= \TT{`} {\em expression} \TT{'}
 \\[0.5ex]
 \emkey{expression-constant} ::= \TT{\{*} {\em expression} \TT{*\}}
 \\[0.5ex]
-\emkey{expression} ::= see \pagref{EXPRESSION}
-\\[0.5ex]
 \emkey{type-constant} ::= {\em type-name}
 \\[0.5ex]
 \emkey{pointer-type-constant} ::= {\em pointer-type-name}
 \\[0.5ex]
-\emkey{type-name} ::= see \pagref{TYPE-NAME}
+{\em type-name} ::= see \pagref{TYPE-NAME}
 \\[0.5ex]
-\emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
+{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \end{indpar}
 
 Maps \underline{cannot} be represented at run-time.
@@ -2497,7 +2504,8 @@ sublists and moves bracket and separator punctuation to annotations
 \end{tabular}
 \end{center}
 In an \TT{\{*} {\em expression} \TT{*\}} constant,
-line level operators are recognized if and only if
+line level operators (those in Figure~\itemref{L-LANGUAGE-LINE-OPERATORS})
+are recognized if and only if
 they are outside parentheses in the {\em expression}.
 
 \emkey{Phrase-constants}\label{PHRASE-CONSTANT}
@@ -2600,11 +2608,11 @@ The syntax of {\em reference-expressions} is:
 \emkey{index}\label{REFERENCE-INDEX}
     ::= {\em expression}
 \\[0.5ex]
-\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
+{\em variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
-\emkey{member-name} ::= see \pagref{MEMBER-NAME}
+{\em member-name} ::= see \pagref{MEMBER-NAME}
 \\[0.5ex]
-\emkey{reference-call} ::= see \pagref{REFERENCE-CALL}
+{\em reference-call} ::= see \pagref{REFERENCE-CALL}
 \end{indpar}
 
 A {\em reference-call} is a call to a reference function.
@@ -2660,7 +2668,8 @@ When a {\em reference-expression} consists of a base that designates
 a \key{container} followed by a {\em member-name} that designates a field
 or subfield of this container, both the container and the field or
 subfield have qualifiers.
-If the container is in a function frame its sole qualifier is {\tt co}.
+If the container is in a function frame its sole qualifier is {\tt co}
+or {\TT *INIT*}, as determined by context.
 Otherwise the container is the target of a pointer, and its qualifiers
 are the target qualifiers of the pointer type.  A field's qualifiers
 are those its {\em field-declaration}\pagnote{FIELD-DECLARATION}.
@@ -2706,7 +2715,7 @@ except that it forces fields/subfields of the container to be {\tt *INIT*}
 even if they are {\tt co} or {\tt ro}.
 \item The {\em reference-expression} has the same lifetime qualifier
 ({\tt *GLOBAL*}, {\tt *HEAP*}, or {\tt *LOCAL*} )
-and lifetime depth as the container.
+and lifetime depth as the container (see \itemref{LIFETIMES}).
 \end{itemize}
 \end{minipage}
 \end{center}
@@ -2763,7 +2772,7 @@ The syntax of function calls is:
     {\em quoted-marks} and {\em quoted-separators}
     \end{tabular}
 \\[0.5ex]
-\emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
+{\em function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
 \emkey{call-argument-list}\label{CALL-ARGUMENT-LIST}
     \begin{tabular}[t]{rl}
@@ -2781,9 +2790,11 @@ The syntax of function calls is:
 \\[0.5ex]
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
-\emkey{expression} ::= see \pagref{EXPRESSION}
+{\em expression} ::= see \pagref{EXPRESSION}
 \begin{itemize}
 \item {\em Call-term-names} cannot be abbreviated.
+\item {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
+equivalent to `{\tt x(FALSE)}'.
 \end{itemize}
 \end{indpar}
 
@@ -2794,9 +2805,6 @@ which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
 Also \TT{[~]} bracketed {\em call-argument-lists} cannot be placed
 before a {\em call-term-name}, a syntactic distinction to their
 use in {\em reference-calls}.
-
-{\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
-equivalent to `{\tt x(FALSE)}'.
 
 {\em Function-calls} are matched to function prototypes.  The
 {\em call-term-names} in a match are identical to the
@@ -2873,7 +2881,7 @@ The forms of an {\em assignment-statement} are:
                 \{ \TT{,} {\em assignment-result} \}\STAR{}
 		\TT{=} {\em expression-list}
 \\[0.5ex]
-\emkey{expression-list} ::= see \pagref{EXPRESSION-LIST}
+{\em expression-list} ::= see \pagref{EXPRESSION-LIST}
 \\[0.5ex]
 \emkey{call-assignment-statement} \\
 \hspace*{0.5in} \begin{tabular}{rl}
@@ -2886,9 +2894,9 @@ The forms of an {\em assignment-statement} are:
 \emkey{assignment-call} ::= {\em function-call} $|$
                             {\em call-expression}
 \\[0.5ex]
-\emkey{function-call} ::= see \pagref{FUNCTION-CALL}
+{\em function-call} ::= see \pagref{FUNCTION-CALL}
 \\[0.5ex]
-\emkey{call-expression} ::= see \pagref{CALL-EXPRESSION}
+{\em call-expression} ::= see \pagref{CALL-EXPRESSION}
 \\[0.5ex]
 \emkey{block-assignment-statement} ::= \\
 \hspace*{0.5in}
@@ -2930,13 +2938,13 @@ The forms of an {\em assignment-statement} are:
     \TT{~~~~}{\em statement}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{iteration-control} ::= see \pagref{ITERATION-CONTROL}
+{\em iteration-control} ::= see \pagref{ITERATION-CONTROL}
 \\[0.5ex]
 \emkey{block-label}\label{BLOCK-LABEL} ::= {\em statement-label}
 \\[0.5ex]
 \emkey{exit-label} ::= {\em statement-label}
 \\[0.5ex]
-\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL}
+{\em statement-label} ::= see \pagref{STATEMENT-LABEL}
 \\[0.5ex]
 \emkey{assignment-result}\label{ASSIGNMENT-RESULT}
     \begin{tabular}[t]{@{}rll}
@@ -2945,7 +2953,7 @@ The forms of an {\em assignment-statement} are:
     $|$ & {\em reference-expression}
     \end{tabular}
 \\[0.5ex]
-\emkey{reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
+{\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
@@ -2977,23 +2985,23 @@ The forms of an {\em assignment-statement} are:
 	    & ~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
-\emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
+{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \\[0.5ex]
-\emkey{type-name} ::= see \pagref{TYPE-NAME}
+{\em type-name} ::= see \pagref{TYPE-NAME}
 \\[0.5ex]
-\emkey{variable-name} ::= see \pagref{VARIABLE-NAME}
+{\em variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
-\emkey{target-variable} ::= see \pagref{TARGET-VARIABLE}
+{\em target-variable} ::= see \pagref{TARGET-VARIABLE}
 \\[0.5ex]
-\emkey{pointer-variable} ::= see \pagref{POINTER-VARIABLE}
+{\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
 \\[0.5ex]
 \emkey{allocation-call} ::= {\em function-call}
 \\[2ex]
 where
 \begin{itemize}
-\item A line ending \TT{:} may be omitted if the
+\item A line-ending \TT{:} may be omitted if the
 {\em statement} subblock following is empty.
 \item The allocation subexpression `\TT{=@ local}' may be
 omitted for {\em pointer-variable} declarations whose
@@ -3143,9 +3151,9 @@ The syntax of an {\em expression-assign\-ment-statement} is:
 \emkey{expression-list}\label{EXPRESSION-LIST} ::=
 	      {\em expression} \{ \TT{,} {\em expression} \}\STAR{}
 \\[0.5ex]
-\emkey{assignment-result} ::= see \pagref{ASSIGNMENT-RESULT}
+{\em assignment-result} ::= see \pagref{ASSIGNMENT-RESULT}
 \\[0.5ex]
-\emkey{expression} ::= see \pagref{EXPRESSION}
+{\em expression} ::= see \pagref{EXPRESSION}
 \\[2.0ex]
 where
 \begin{itemize}
@@ -3194,7 +3202,7 @@ flt y = 6              // target type of 6 is flt
 flt z = 7              // target type of 7 is flt
 flt r1 = x + y         // target type of +, x, y is flt
 flt r2 = x + y * z     // target type of +, x, *, y, z is flt
-int x = z              // illegal; target type of z is int
+next x = z             // illegal; target type of z is int
 \end{verbatim}\end{indpar}
 
 Here the {\tt +} and {\tt *} operator functions are only defined
@@ -3218,11 +3226,11 @@ The syntax of a {\em call-assignment-statement} is:
 \emkey{assignment-call} ::= {\em function-call} $|$
                             {\em call-expression}
 \\[0.5ex]
-\emkey{assignment-result} ::= see \pagref{ASSIGNMENT-RESULT}
+{\em assignment-result} ::= see \pagref{ASSIGNMENT-RESULT}
 \\[0.5ex]
-\emkey{function-call} ::= see \pagref{FUNCTION-CALL}
+{\em function-call} ::= see \pagref{FUNCTION-CALL}
 \\[0.5ex]
-\emkey{call-expression} ::= see \pagref{CALL-EXPRESSION}
+{\em call-expression} ::= see \pagref{CALL-EXPRESSION}
 \end{indpar}
 
 A {\em call-assignment-statement} with {\em assignment-results}
@@ -3417,6 +3425,9 @@ A pointer variable may have an {\em allocation-call} in either its
 {\em deferred-assignment-statement} or in its companion, but not
 both.
 
+{\em Deferred-assignment-statements} and their companions must be
+top-level.
+
 {\em Deferred-assignment-statement} variable initialization is the
 same as {\em block-assignment-state\-ment} variable initialization,
 except that after the statement the variables
@@ -3424,8 +3435,25 @@ are made {\em ro} and not {\em co} if they are not set
 by an {\em allocation-call} in the {\em deferred-assignment-statement}.
 Code that reads such {\tt ro} variables
 before companions compute their values will
-read zero.  For pointers this will typically reference undefined memory which
+read zero.
+For pointers this will typically reference undefined memory which
 will cause a memory fault if accessed.
+For code after a companion in the same file as the companion the
+variable qualifier will be changed to {\tt co}.
+
+
+For pointers allocated by a {\em deferred-assignment-statment},
+the target value will be zeroed and the
+the pointer target will be given the {\tt ro} qualifier, except for
+code after the pointer's companion in the same file as the companion,
+for which the pointer target will be given its declared qualifiers.
+In particular, function bodies after the companion in the companion's
+file will see these declared qualifiers.\footnote{
+If the companion is in a body, that body may not be initialized
+(thereby executing the companion)
+until \underline{after} code that imports the body's module is initialized:
+see \itemref{PROGRAM-INITIALIZATION}.}
+
 
 The variables declared in a {\em deferred-assignment-statement} are treated as
 normal {\em block-vari\-able-declaration} variables inside their companions.
@@ -3470,7 +3498,7 @@ A {\em loop-assignment-statement} has the syntax:
 \\[0.5ex]
 \emkey{loop-label} ::= {\em statement-label}
 \\[0.5ex]
-\emkey{statement-label} ::= see \pagref{STATEMENT-LABEL} \\
+{\em statement-label} ::= see \pagref{STATEMENT-LABEL} \\
 \\[0.5ex]
 \emkey{int-expression} ::= {\em expression} evaluating to an {\tt int}
 \\[0.5ex]
@@ -3666,7 +3694,7 @@ The syntax of a type declaration is:
     $|$ & \ttkey{type} {\em defined-type-name} \TT{:} \ttkey{*DEFERRED*} \\
     \end{tabular} \\
 \emkey{defined-type-name} ::= {\em type-name} \\
-\emkey{type-name} ::= see \pagref{TYPE-NAME}
+{\em type-name} ::= see \pagref{TYPE-NAME}
 \\[2ex]
 \emkey{type-subdeclaration}
     \begin{tabular}[t]{@{}rl}
@@ -3756,7 +3784,7 @@ The syntax of a type declaration is:
 		    with non-negative integer value \\
 \emkey{lowbit} ::= {\tt const} valued {\em expression}
 		   with non-negative integer value \\
-\emkey{dit} ::= see \pagref{DIT}
+{\em dit} ::= see \pagref{DIT}
 \\[2ex]
 \emkey{alignment} ::= {\tt const} valued {\em expression}
 		      with power of 2 integer value
@@ -3800,11 +3828,6 @@ without declaring the definition of the named type.
 Such a {\em type-declaration} is typically used allow the
 {\em defined-type-name}
 to be used as the target type of a pointer.
-For any non-deferred {\em type-declaration} there may be one or more
-deferred {\em type-declarations} of the same {\em defined-type-name}.
-For any two {\em type-declarations} with the same {\em defined-type-name},
-one must be within the scope of the other, whether or not they are
-deferred.
 
 The {\em defined-type-name} in a {\em type-declaration} is declared before
 the {\em type-declaration}'s sub-declarations are processed, so these
@@ -4222,9 +4245,9 @@ specified by a pointer type declaration.  The syntax is:
 \hspace*{0.5in}\ttkey{pointer type} {\em defined-pointer-type-name}
 	       \TT{is type} {\em type-name}
 \\[0.5ex]
-\emkey{pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
+{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \\[0.5ex]
-\emkey{type-name} ::= see \pagref{TYPE-NAME}
+{\em type-name} ::= see \pagref{TYPE-NAME}
 \end{indpar}
 An {\tt *UNCHECKED*} conversion is defined from the associated data
 type to data with the given pointer type, and an explicit conversion
@@ -4575,7 +4598,7 @@ The syntax of a function declaration is:
 \emkey{pattern-term}\label{PATTERN-TERM}
     ::= {\em function-term-name}~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
-\emkey{function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
+{\em function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
 \\[0.5ex]
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::= \\
 \hspace*{0.5in}
