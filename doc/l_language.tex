@@ -3997,11 +3997,11 @@ type list element:
 
 // Make circular list.
 //
-list element @Y      // `=@ local = *DEFERRED*' is implied
-list element @X:     // `=@ local' is implied
+ap list element @Y      // `=@ local = *DEFERRED*' is implied
+ap list element @X:     // `=@ local' is implied
     X.value = 1
     X.@after = @Y
-list element @Y:
+ap list element @Y:
     Y.value = 2
     Y.@after = @X
 //
@@ -4025,7 +4025,7 @@ ap *READ-WRITE* my type @X    // `=@ local = *DEFERRED*' is implied
                     // computed at load time.  The allocated value
                     // will be zeroed.
 ap ro my type @Y = @X  // Legal, only ap copied.
-my type @Z:         // Legal, `=@ local' is implied
+ap my type @Z:      // Legal, `=@ local' is implied
     Z = X           // Legal, the value at @X is copied to
                     // the value at @Z.  However in this
                     // case the value is completely zero.
@@ -4086,7 +4086,7 @@ type my type:
 my type X:
     // Within this block X is write-only.
     X.kind = HIPPOPOTAMUS
-        // Also sets animal and vegetable bits.
+        // Also sets animal bit and clears vegetable bit.
     X.weight = 152.34
 uns8 kind = X.kind
 bool animal = X.animal
