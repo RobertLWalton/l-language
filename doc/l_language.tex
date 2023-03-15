@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 14, 2023
+March 15, 2023
 
 \bigskip
  
@@ -3878,44 +3878,48 @@ Non-root {\em type-declarations} in the expansion tree are called
 {\em expansions}, and the root {\em type-declaration} is called just
 the \key{root}.
 
-In an expansion tree, all {\em type-declarations} but at most one must end with
-the {\tt ***}\label{***} sub-declaration, or alternatively all but at most one
-must end with the {\tt *EXTERNAL*}\label{*EXTERNAL*} sub-declara\-tion.
-If {\tt ***} is used, and the root is in a
-module\pagnote{MODULE-AND-BODY-DECLARATIONS},
-all members of the expansion tree must be in
-the module or one of its bodies, even if the defined type's name is
-external.  If {\tt *EXTERNAL*} is used, the defined type's name must
-be external (so the root must be in a module)
-and the expansion tree members can appear anywhere within
-the scope of the root of the tree.
-
-{\em Type-declarations} that end with {\tt ***} or {\tt *EXTERNAL*}
-are called \key{expandable},
-so at most one {\em type-declaration} in an expansion tree can be
-non-expandable.  Furthermore, if the tree has a non-expandable
-{\em type-declaration}, the tree must be linear (it cannot have
-any branching).  Violation of this rule may not be detected until load time.
-
-A defined type must be inside the scope of the root of its expansion
+A {\em defined-type-name} must be inside the scope of the root of its expansion
 tree to be visible, and hence usable.
-If a defined type has a non-expandable {\em type-declaration},
-the defined type is said to be \key{non-expandable} within the
-scope of that non-expandable {\em type-declaration}, and expandable
-outside that scope.
 
-The final size and alignment of an expandable defined type
-is not known until load time.
+A \key{leaf} in an expansion tree is a {\em type-declaration} that
+is not the parent of any other {\em type-declaration} in the expansion
+tree (equivalently, a leaf is a tree node with no children).  An expansion
+tree is \key{linear} if it has only one leaf (equivalently, no tree node
+has more than one child).
+The sole leaf of a linear expansion tree is called a \key{linear leaf}.
+
+Expansion trees are either internal or external.
+
+Each {\em type-declaration} in an \key{internal expansion tree}
+that is not a linear leaf must end with
+the {\tt ***}\label{***} sub-declaration, and {\em type-declarations}
+in the tree must be in the same module or its bodies.  However the
+{\em defined-type-name} may be external.
+If the tree has a linear leaf that does \underline{not}
+have a {\tt ***} sub-declaration, the {\em defined-type-name}
+is \key{non-expandable}
+within the scope of the linear leaf {\em type-declaration}.
+Outside that scope, but within the scope of the tree root,
+the {\em defined-type-name} is said to be expandable.
+
+Each {\em type-declaration} in an \key{external expansion tree}
+must end with the {\tt *EXTERNAL*}\label{*EXTERNAL*} sub-declaration.
+The {\em defined-type-name} is expandable whereever it is defined
+(i.e., within the scope of the tree root).
+
+The final size and alignment of an expandable {\em defined-type-name}
+are not known until load time.
 Allocators use the load time
 size and alignment to allocate memory for a value of
 the type and then zero that memory.  Thus the `{\tt local}' allocator 
-can allocate a datum of an expandable defined type and return a pointer
-to the datum.
+can allocate a datum of an expandable {\em defined-type-name}
+and return a pointer to the datum.
 
-A defined type \underline{must be non-expandable} if its name is used as
+A {\em defined-type-name} \underline{must be non-expandable} if it is used as
 a {\em type-name} in a variable declaration, or as a {\em field-type-name}
 in a {\em type-subdeclaration}, or as a {\em defined-type-name} in an
-{\tt *INCLUDE*} {\em type-subdeclaration}.  However an expandable defined type
+{\tt *INCLUDE*} {\em type-subdeclaration}.  However an expandable
+{\em defined-type-name}
 can be used as the target of a pointer type used as a variable type or
 field type.
 
@@ -3926,7 +3930,7 @@ in which the {\em field-label} or {\em subfield-label} is declared,
 and may \underline{not} be re-declared within this scope.
 
 Similarly an {\em origin-label} may only be used only within its
-defining {\em type-declaration} X and within other {\em tpe-declarations}
+defining {\em type-declaration} X and within other {\em type-declarations}
 in the same expansion tree that are within the scope of X, and
 may \underline{not} be re-declarated in the places it can be used.
 
@@ -3949,16 +3953,14 @@ as both type-violations and unexpected field allocations can result.
 
 An `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 changes the current offset to the size of values of the type
-begin defined, as it is computed at the point where the {\tt *OFFSET* *SIZE*}
+being defined, as it is computed at the point where the {\tt *OFFSET* *SIZE*}
 sub-declaration is encountered.  This is just the maximum of all
 offset values previously computed in the current {\em type-declaration}
 and its ancestors in the expansion tree.
 The `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
-is only allowed in linear expansion trees.  Violation of this
-rule may not be detected until load time.
-
-The `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration may be used
-in a linear expansion tree to incrementally add fields to a defined type.
+is \underline{not} allowed in a {\em type-declaration}
+if any of the ancestors of the {\em type-declaration} in its expansion
+tree has more than one child.
 
 \subsubsection{Type Fields}
 
