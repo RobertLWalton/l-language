@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 15, 2023
+March 16, 2023
 
 \bigskip
  
@@ -3868,6 +3868,7 @@ the scope\pagnote{SCOPE} of another {\em type-declaration}
 in the expansion tree, and
 the expansion tree is a tree-graph in which each {\em type-declaration} X is
 the root of a subtree containing all {\em type-declarations} Y
+in the tree
 that are within the scope of X
 (or equivalently, that have a scope
 that is a subset of the scope of X).  Thus the \key{parent} of
@@ -3892,7 +3893,7 @@ Expansion trees are either internal or external.
 
 Each {\em type-declaration} in an \key{internal expansion tree}
 that is not a linear leaf must end with
-the {\tt ***}\label{***} sub-declaration, and {\em type-declarations}
+the {\tt ***}\label{***} sub-declaration, and all {\em type-declarations}
 in the tree must be in the same module or its bodies.  However the
 {\em defined-type-name} may be external.
 If the tree has a linear leaf that does \underline{not}
@@ -4251,9 +4252,9 @@ specified by a pointer type declaration.  The syntax is:
 \\[0.5ex]
 {\em type-name} ::= see \pagref{TYPE-NAME}
 \end{indpar}
-An {\tt *UNCHECKED*} conversion is defined from the associated data
-type to data with the given pointer type, and an explicit conversion
-is defined in the other direction.
+An {\tt *UNCHECKED*} conversion is implicitly defined from the associated data
+type the given pointer type, and an explicit conversion
+is implicitly defined in the other direction.
 
 It is important that there be a 1-1 correspondence between
 pointer types and their associated data types.  In particular,
@@ -4272,10 +4273,10 @@ type std data for ap:
     dp ro int @base
     int offset
 
-function dp Q$1 T$1 @r = std *UNCHECKED* ( std data for dp dap )
+function dp Q$1 T$1 @r = std *UNCHECKED* ( std data for dp ddp )
 function ap Q$1 T$1 @r = std *UNCHECKED* ( std data for ap dap )
-function std data for dp r = std pointer to data ( dp Q$1 T$1 @ptr )
-function std data for ap r = std pointer to data ( ap Q$1 T$1 @ptr )
+function std data for dp r = std data for dp ( dp Q$1 T$1 @ptr )
+function std data for ap r = std data for ap ( ap Q$1 T$1 @ptr )
     // These functions just copy the argument value to the
     // result value changing the type of the value.  Here
     // Q$1 is a wild-card that matches any list of qualifier-names,
@@ -4287,12 +4288,12 @@ function std data for ap r = std pointer to data ( ap Q$1 T$1 @ptr )
 // *GLOBAL*.
 // 
 dp *GLOBAL* int std @zero    // value zero is initialized to 0
-function std ap QG$1 t$1 @r = std *IMPLICIT* *CONVERSION*
+function std ap QG$1 T$1 @r = std *IMPLICIT* *CONVERSION*
         ( std dp QG$1 T$1 @p ):
-    std data for dp d = std pointer to data ( dp QG$1 T$1 @p )
+    std data for dp ddp = std data for dp ( dp QG$1 T$1 @p )
     std data for ap dap:
         dap.@base  = std @zero
-        dap.offset = d.address
+        dap.offset = ddp.address
     @r = *UNCHECKED* ( dap )
 
 // This function enables *UNCHECKED* conversion of `ap ...' to
@@ -4300,9 +4301,9 @@ function std ap QG$1 t$1 @r = std *IMPLICIT* *CONVERSION*
 // of the ap.
 //
 function std data for dp r = std *POINTER* *UNCHECKED* *CONVERSION*
-        ( std data for ap d ):
+        ( std data for ap dap ):
     std data for dp ddp:
-        ddp.address = d.base + d.offset
+        ddp.address = dap.base + dap.offset
     r = ddp
 
 // This function enables conversion of `ap ...' to `dp ...'
@@ -4311,9 +4312,9 @@ function std data for dp r = std *POINTER* *UNCHECKED* *CONVERSION*
 // base and offset of the ap.
 //
 function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
-        ( std data for ap d ):
+        ( std data for ap dap ):
     std data for dp ddp:
-        ddp.address = d.base + d.offset
+        ddp.address = dap.base + dap.offset
     r = ddp
 \end{verbatim}\end{indpar}
 
@@ -4321,7 +4322,7 @@ A {\em pointer-type-declaration} `{\tt pointer type $P$ is type $D$}'
 implicitly declares the functions:
 \begin{indpar} \tt
 function $P$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $D$ data ) \\
-function $D$ r = {\em ma}\QMARK{} pointer to data ( $P$ Q\$1 T\$1 @ptr )
+function $D$ r = $D$ ( $P$ Q\$1 T\$1 @ptr )
 \end{indpar}
 where {\em ma}\QMARK{} denotes the {\em module-abbreviation} of $P$,
 if any.
@@ -4409,7 +4410,7 @@ This implicitly defines the reference function:
 \begin{indpar} \tt
 reference function $P2$ Q\$1 T\$1 @r = \\
 \hspace*{1in}{\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p1 ) ".@": \\
-\hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
+\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 = *POINTER* *ACCESS* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
@@ -4444,7 +4445,7 @@ and none have argument type {\tt P1 ...}, ambiguity may lead to a compile error.
 
 You can define a function with the above prototype, or you can define
 \begin{indpar} \tt
-function $D2$ r ={\em ma}\QMARK{}  \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
+function $D2$ r = {\em ma}\QMARK{}  \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
 			( $D1$ data )
 \end{indpar}
 which implicitly defines the function:
@@ -4452,7 +4453,7 @@ which implicitly defines the function:
 function $P2$ Q\$1 T\$1 @r = \\
 \hspace*{1in}{\em ma}\QMARK{} \ttkey{*IMPLICIT* *CONVERSION*}
 	( $P1$ Q\$1 T\$1 @p1 ): \\
-\hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
+\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ dd = *POINTER* *IMPLICIT* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
@@ -4470,7 +4471,7 @@ which implicitly defines the function:
 \begin{indpar} \tt
 function $P2$ Q\$1 T\$1 @r = {\em ma}\QMARK{} \TT{*UNCHECKED*}
 	( $P1$ Q\$1 T\$1 @p1 ): \\
-\hspace*{0.3in}$D1$ d1 = pointer to data ( @p1 ) \\
+\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ dd = *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@r = *UNCHECKED* ( d2 )
 \end{indpar}
@@ -4501,7 +4502,7 @@ type data for fd:
 pointer type fd is type data for fd
 
 reference function ap Q$1 file @r = ( fd Q$1 file @p ) .@:
-    data for fd d = pointer to data ( @p )
+    data for fd d = data for fd ( @p )
     ap file *READ_WRITE* @f = @files[d.index]
     @r = @f  // Implicitly converts *READ-WRITE* to Q$1
 
