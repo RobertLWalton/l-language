@@ -4713,7 +4713,20 @@ in the prototype
 were surrounded by parentheses {\tt (~)}.  Note that for an argument
 list in the prototype to match an argument list in the call, both
 must be surrounded by the same brackets; either both have {\tt (~)}
-or both have {\tt [~]}.
+or both have {\tt [~]}, except that implied parentheses in the
+call are treated as {\tt (~)} during matching.
+
+As an example of this last,
+\\[0.5ex]
+\centerline{
+{\tt r = x + y}
+}
+\\
+is treated for matching purposes is as
+\\[1ex]
+\centerline{
+{\tt ( r ) "=" ( ( x ) "+" ( y ) )}
+}
 
 Note that {\em quoted-marks} and {\em quoted-separators}
 in {\em function-term-names} may appear with or without quotes in
@@ -4779,6 +4792,21 @@ F ( 5 ) OPTION     // Equivalent to F ( 5 ) OPTION ( TRUE )
 F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( FALSE )
 \end{verbatim}\end{indpar}
 
+A function prototype result may be named `\TT{next} $v$' if
+the prototype has an argument named $v$, in which case a call matching
+the prototype must match the prototype argument $v$ to a variable
+name $w$ for which `\TT{next} $w$' is a legal {\em assignment-result}.
+Then `\TT{next} $w$' may be omitted as an {\em assignment-result}
+and will be implied.  For example:
+
+\begin{indpar}\begin{verbatim}
+function next x = inc ( int x ):
+    next x = x + 1
+. . . . . . . . . .
+int y
+inc ( y )  // Equivalent to `next y = y + 1'.
+\end{verbatim}\end{indpar}
+
 A {\em prototype-argument-declaration} with the syntax:
 \begin{indpar}
 \emkey{prototype-argument-declaration}\label{MACRO-ARGUMENT-DECLARATION} ::= \\
@@ -4793,7 +4821,8 @@ If a {\em required-value} is given in a prototype, the call must
 have an equal {\tt const} valued actual argument value
 in order for the call to match the prototype.
 Note that the argument variable type need not be {\tt const},
-as {\tt const} values can be converted to run-time values.
+as {\tt const} values can be converted to run-time values:
+equality will be checked after conversion to the argument type.
 Matches to prototypes with more {\em required-values}
 are preferred over matches to prototypes with less {\em required-values}.
 Thus the example:
