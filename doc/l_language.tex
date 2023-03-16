@@ -4579,11 +4579,11 @@ The syntax of a function declaration is:
     ::= & {\em result-variable-declaration}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{bool} {\em variable-name}
-          \{ \TT{??} {\em default-value} \}\QMARK{} \\
+          \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{macro} {\em variable-name}
-          \{ \TT{=?} {\em default-value} \}\QMARK{} \\
+          \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & {\em result-variable-declaration}
-          \TT{==} {\em required-value} \\
+          \TT{!=} {\em required-value} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
@@ -4752,7 +4752,7 @@ A {\em pattern-term} with the syntax:
 \emkey{boolean-pattern-term}\label{BOOLEAN-PATTERN-TERM} ::= \\
 \hspace*{1in} {\em function-term-name} \TT{(}
         \TT{bool} {\em variable-name}
-	\TT{??} {\em default-value} \TT{)}
+	\TT{?=} {\em default-value} \TT{)}
 \end{indpar}
 
 triggers special syntax in a call that matches the prototype.
@@ -4772,7 +4772,7 @@ omitted {\em function-term-name} & is equivalent to
 \end{center}
 Thus the example:
 \begin{indpar}\begin{verbatim}
-function F ( int x ) OPTION ( bool y ?? TRUE )
+function F ( int x ) OPTION ( bool y ?= TRUE )
     . . . . . . . . . .
 F ( 5 )            // Equivalent to F ( 5 ) OPTION ( TRUE )
 F ( 5 ) OPTION     // Equivalent to F ( 5 ) OPTION ( TRUE )
@@ -4783,7 +4783,7 @@ A {\em prototype-argument-declaration} with the syntax:
 \begin{indpar}
 \emkey{prototype-argument-declaration}\label{MACRO-ARGUMENT-DECLARATION} ::= \\
 \hspace*{1in} \TT{macro} {\em variable-name}
-                         \{ \TT{=?} {\em default-value} \}\QMARK{}
+                         \{ \TT{?=} {\em default-value} \}\QMARK{}
 \end{indpar}
 causes the argument value in a call to be the \underline{parse}
 of the actual argument, which is a {\tt const} value.  If the
@@ -4798,7 +4798,7 @@ Matches to prototypes with more {\em required-values}
 are preferred over matches to prototypes with less {\em required-values}.
 Thus the example:
 \begin{indpar}\begin{verbatim}
-function F ( int x ) G ( int y == 5 ):  // First F declaration
+function F ( int x ) G ( int y != 5 ):  // First F declaration
     . . . . . . . . . .
 function F ( int x ) G ( int y ?= 5 ):  // Second F declaration
     . . . . . . . . . .
@@ -5610,7 +5610,7 @@ The syntax of an out-of-line function declaration is:
 The rules for inline {\em function-declarations} on
 \pagref{FUNCTION-DECLARATION} must be followed where applicable.
 \item
-`{\tt ??}' {\tt bool} defaults are not allowed.
+`{\tt ?=}' {\tt bool} defaults are not allowed.
 \item
 {\tt macro} arguments are not allowed.
 \item
@@ -7190,13 +7190,13 @@ except {\tt !=} which returns {\tt TRUE}.
 \end{indpar}
 
 {\tt function const r1, const r2 =
-    std \ttkey{floor} (const n1, const n2 =?~1 )} \\
+    std \ttkey{floor} (const n1, const n2 ?=~1 )} \\
 {\tt function const r1, const r2 =
-    std \ttkey{ceiling} (const n1, const n2 =?~1 )} \\
+    std \ttkey{ceiling} (const n1, const n2 ?=~1 )} \\
 {\tt function const r1, const r2 =
-    std \ttkey{truncate} (const n1, const n2 =?~1 )} \\
+    std \ttkey{truncate} (const n1, const n2 ?=~1 )} \\
 {\tt function const r1, const r2 =
-    std \ttkey{round} (const n1, const n2 =?~1 )}
+    std \ttkey{round} (const n1, const n2 ?=~1 )}
 \begin{indpar}
 These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
 result rounded to an integer and {\tt r2} as the remainder.
@@ -7359,7 +7359,7 @@ otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
 {\tt function const r = std} \ttkey{unparse brackets}
-	( const v, const f =? "\%0.16g"  )
+	( const v, const f ?= "\%0.16g"  )
 \begin{indpar}
 Inverse of {\tt parse brackets}.  Return a string $S$ such
 that {\tt ` "$S$" '} equals {\tt v} with numeric rounding differences.
@@ -7377,7 +7377,7 @@ otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
 \end{indpar}
 
 {\tt function const r = std} \ttkey{unparse}
-	( const v, const f =? "\%0.16g"  )
+	( const v, const f ?= "\%0.16g"  )
 \begin{indpar}
 Inverse of {\tt parse}.  Return a string $S$ such
 that {\tt \{* "$S$" *\}} equals {\tt v} with numeric rounding differences.
@@ -7444,8 +7444,8 @@ The {\em dictionary-labels} are strings.  The list may be empty.
 \end{indpar}
 
 
-{\tt reference function const r = std} {\tt ( const m ) [ const s =?~NONE ]} \\
-{\tt reference function std} {\tt ( const m ) [ const s =?~NONE ] = const v}
+{\tt reference function const r = std} {\tt ( const m ) [ const s ?=~NONE ]} \\
+{\tt reference function std} {\tt ( const m ) [ const s ?=~NONE ] = const v}
 \begin{indpar}
 Here {\tt m} is map and {\tt m[s]} is used to reference a
 vector element or dictionary entry of {\tt m} as follows:
@@ -7954,10 +7954,10 @@ Converts {\tt v} to the type {\tt F}.  The result may be
 {\tt +Inf} or {\tt -Inf}, or precision may be lost.
 \end{indpar}
 
-{\tt function I r = std \ttkey{floor} (F v1, F v2 =?~1.0 )} \\
-{\tt function I r = std \ttkey{ceiling} (F v1, F v2 =?~1.0 )} \\
-{\tt function I r = std \ttkey{truncate} (F v1, F v2 =?~1.0 )} \\
-{\tt function I r = std \ttkey{round} (F v1, F v2 =?~1.0 )}
+{\tt function I r = std \ttkey{floor} (F v1, F v2 ?=~1.0 )} \\
+{\tt function I r = std \ttkey{ceiling} (F v1, F v2 ?=~1.0 )} \\
+{\tt function I r = std \ttkey{truncate} (F v1, F v2 ?=~1.0 )} \\
+{\tt function I r = std \ttkey{round} (F v1, F v2 ?=~1.0 )}
 \begin{indpar}
 Where {\tt I} is any builtin \underline{signed} integer type
 and {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
@@ -8041,10 +8041,10 @@ going to the value whose least significant bit is zero.
 \end{itemlist}
 \end{indpar}
 
-{\tt function F r = std \ttkey{floor} (F v1, F v2 =?~1.0 )} \\
-{\tt function F r = std \ttkey{ceiling} (F v1, F v2 =?~1.0 )} \\
-{\tt function F r = std \ttkey{truncate} (F v1, F v2 =?~1.0 )} \\
-{\tt function F r = std \ttkey{round} (F v1, F v2 =?~1.0 )}
+{\tt function F r = std \ttkey{floor} (F v1, F v2 ?=~1.0 )} \\
+{\tt function F r = std \ttkey{ceiling} (F v1, F v2 ?=~1.0 )} \\
+{\tt function F r = std \ttkey{truncate} (F v1, F v2 ?=~1.0 )} \\
+{\tt function F r = std \ttkey{round} (F v1, F v2 ?=~1.0 )}
 \begin{indpar}
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, or {\tt flt32}.
 
