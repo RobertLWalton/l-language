@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 16, 2023
+March 18, 2023
 
 \bigskip
  
@@ -4925,9 +4925,17 @@ Each {\em function-call} in a statement must be matched to a single
 {\em function-prototype}, else compilation of the statement fails
 with a compile error.
 
-This section applies to matching non-{\em reference-calls}.  The
-rules of this section are modified when matching {\em reference-calls}
+This section applies to matching non-{\em const-expressions} and
+non-{\em reference-calls}.  The
+rules of this section are modified when matching {\em const-expressions}
+assording to section \itemref{CONST-EXPRESSIONS} and
+{\em reference-calls}
 according to section \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}.
+Both {\em const-expression} and {\em reference-call} analysis
+is a bottom-up process that must be done \underline{before} applying the
+rules of this section.  In particular, this section assumes that
+all {\em const-expressions} have been replaced by {\tt const} value,
+and that the types of all {\em reference-expressions} are know.
 
 Conceptually, a \key{matching map} is built for each subexpression
 of the statement that is not in a subblock within the statement
@@ -4951,7 +4959,7 @@ a function prototype	& the subexpression is a function call that
 \end{center}
 
 If the subexpression is a {\em reference-expression} or {\em const-expression}
-$e$ whose type is not exactly the target-type,
+value $e$ whose type is not exactly the target-type,
 the compiler replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
 and attempts to find a function prototype for this revised expression.
@@ -4959,19 +4967,22 @@ and attempts to find a function prototype for this revised expression.
 The implications of this last are brought out by the following
 example:
 \begin{indpar}\begin{verbatim}
-int x = 5.5 - 5.5     // Sets x = 0
-int y = 5.5 - 5.0     // Fails trying to set y = 0.5
+int x = 5.5 - 1.5     // Sets x = 4
+int y = 5.5 - 1.0     // Fails trying to set y = 4.5
 \end{verbatim}\end{indpar}
-The {\tt const} matching map entries for `{\tt 5.5 - 5.5}' and
-`{\tt 5.5 - 5.0}' are not {\tt *FAIL*}, so call-prototype matching
-selects {\tt const} `{\tt -}' operators and {\tt const} values are
-subtracted in the compiler to produce {\tt 0} or {\tt 0.5} before
-these values are converted to {\tt int}.  The error in converting
-{\tt 0.5} to {\tt int} is \underline{not} detected by call-prototype
+The right sides of these statements are {\em const-expressions} that
+are evaluated to {\tt 4.0} and {\tt 4.5} respectively
+before the rules of this section are applied.
+The error in converting
+{\tt 4.5} to {\tt int} is \underline{not} detected by call-prototype
 matching; it is detected when the code produced by call-prototype
 matching: \\
-\centerline{\tt int y = *IMPLICIT* *CONVERSION* ( 5.5 - 5.0 )}
+\centerline{\tt int y = *IMPLICIT* *CONVERSION* ( 4.5 )}
 is compiled.
+
+Note that matching maps are not used in the modified versions
+of this section's algorithm that are used for {\em const-expressions}
+and {\em reference-expressions}.
 
 The matching map for a particular subexpression in a statement does
 \underline{not} depend on the parts of the statement that contain
