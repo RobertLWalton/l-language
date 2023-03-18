@@ -2444,8 +2444,10 @@ A map constant is computed by a {\em map-expression} whose syntax is:
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
     ::= {\em const-expression}
 \\[0.5ex]
-\emkey{const-expression}\label{CONST-EXPRESSION}
-    ::= {\tt const} valued {\em expression} evaluatable at compile-time
+{\em const-expression} ::= \\
+\hspace*{0.2in}
+        {\tt const} valued {\em expression} evaluatable at compile-time,
+        see \itemref{CONST-EXPRESSIONS}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
@@ -3758,8 +3760,12 @@ The syntax of a type declaration is:
 \emkey{basic-name} ::=  see \pagref{BASIC-NAME}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
-\emkey{dimension-size} ::=  {\tt const} valued {\em expression}
-			    with non-negative integer value
+\emkey{dimension-size} ::=  {\em const-expression}
+			    with non-negative integer value \\
+{\em const-expression} ::= \\
+\hspace*{0.2in}
+        {\tt const} valued {\em expression} evaluatable at compile-time,
+        see \itemref{CONST-EXPRESSIONS}
 \\[2ex]
 \emkey{subfield-declaration} ::= \\
 \hspace*{0.5in}
@@ -3776,17 +3782,17 @@ The syntax of a type declaration is:
     $|$ &  \TT{[} {\em highlowbits} \TT{]} \\
     $|$ &  \TT{[} {\em highbit} \TT{-} {\em lowbit} \TT{]}
     \end{tabular} \\
-\emkey{onlybit} ::= {\tt const} valued {\em expression}
+\emkey{onlybit} ::= {\tt const-expression}
 		    with non-negative integer value \\
 \emkey{highlowbits} :::= {\em dit}+ \TT{-} {\em dit}+
            ~~~~~ [this is a single lexeme] \\
-\emkey{highbit} ::= {\tt const} valued {\em expression}
+\emkey{highbit} ::= {\tt const-expression}
 		    with non-negative integer value \\
-\emkey{lowbit} ::= {\tt const} valued {\em expression}
+\emkey{lowbit} ::= {\tt const-expression}
 		   with non-negative integer value \\
 {\em dit} ::= see \pagref{DIT}
 \\[2ex]
-\emkey{alignment} ::= {\tt const} valued {\em expression}
+\emkey{alignment} ::= {\tt const-expression}
 		      with power of 2 integer value
 \end{indpar}
 
@@ -4592,7 +4598,10 @@ The syntax of a function declaration is:
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
-{\em const-expression} ::= see \pagref{CONST-EXPRESSION}
+{\em const-expression} ::= \\
+\hspace*{0.2in}
+        {\tt const} valued {\em expression} evaluatable at compile-time,
+        see \itemref{CONST-EXPRESSIONS}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
     ::= {\em parenthesized-pattern-argument-list}\STAR{}~
@@ -5301,6 +5310,50 @@ into builtin declarations, or to translate user defined loop or
 other flow control constructs into builtin executable statements.
 
 
+
+\subsection{{\tt Const}-Expressions}
+\label{CONST-EXPRESSIONS}
+
+A \emkey{const-expression} is an {\em expression}
+that evaluates at compile time to a {\tt const} value.
+
+More specifically, {\em const-expressions} are discovered by
+a bottom up transversal of a statement, and when discovered
+are replaced by their {\tt const} values.
+
+During this bottom up transversal, an {\em expression} is
+deemed to be a {\em const-expression} if and only if it
+is a {\tt const} constant, a {\em reference-expression}
+evaluating to a {\em const} value,
+or a {\em function-call} such that:
+\begin{enumerate}
+\item All call arguments are {\tt const} constant values
+(after replacement of {\em const-subexpressions} by their
+values).
+\item An unambiguous function prototype is found matching
+the {\em function-call},
+using the algorithm of \itemref{INLINE-CALL-PROTOTYPE-MATCHING},
+where only prototypes all of whose arguments
+and results have the {\tt const} type are considered.
+\end{enumerate}
+
+When a {\em const-expression} is found by the bottom-up
+transversal, it is immediately evaluated at compile time,
+and replaced by its {\tt const} value, unless it is the
+{\em function-call} in a
+{\em call-assignment-statement}\pagnote{CALL-ASSIGNMENT-STATEMENTS}.
+In this latter case, the evaluted {\em function-call} instead sets
+the {\em call-assignment-statement's} {\em assignment-results}.
+
+It is a compile error if a function called during this
+evaluation attempts to execute run-time code: e.g., if
+it attempts to allocate a variable to the run-time stack.
+The function may, however, use the {\tt *INCLUDE*}
+variable (see \itemref{INCLUSIONS})
+to generate run-time code that will be compiled
+outside the context of the function execution - this code
+will be compiled immeidately after evaluation of the
+the function that produced the code.
 
 \subsection{Reference Function Declarations}
 \label{REFERENCE-FUNCTION-DECLARATIONS}
