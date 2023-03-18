@@ -2599,6 +2599,7 @@ The syntax of {\em reference-expressions} is:
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
     $|$ & \TT{next}~ {\em variable-name} \\
+    $|$ & {\em constant} \\
     $|$ & {\em reference-expression} \TT{[} {\em index-list} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     $|$ & {\em reference-call} \\
@@ -2611,6 +2612,8 @@ The syntax of {\em reference-expressions} is:
     ::= {\em expression}
 \\[0.5ex]
 {\em variable-name} ::= see \pagref{VARIABLE-NAME}
+\\[0.5ex]
+{\em constant} ::= see \pagref{CONSTANT}
 \\[0.5ex]
 {\em member-name} ::= see \pagref{MEMBER-NAME}
 \\[0.5ex]
@@ -2668,7 +2671,8 @@ or to a vector or list element of the variable's value.
 
 When a {\em reference-expression} consists of a base that designates
 a \key{container} followed by a {\em member-name} that designates a field
-or subfield of this container, both the container and the field or
+or subfield of this container, and the container is not a {\tt const}
+value, both the container and the field or
 subfield have qualifiers.
 If the container is in a function frame its sole qualifier is {\tt co}
 or {\TT *INIT*}, as determined by context.
@@ -2707,6 +2711,7 @@ Given Container and Field Qualifiers
 \tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT*
 \\\hline
 \end{tabular}
+\\[1ex]
 \begin{minipage}{6.0in}
 \raggedright
 \begin{itemize}
@@ -5160,6 +5165,8 @@ information in the {\em reference-expression}'s type
 ignoring the part of a {\em statement} containing the
 {\em reference-expression}:
 see \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}).
+Note that a constant that replaces a {\em const-expression}
+is itself a {\em reference-expression} of type {\tt const}.
 
 If different values are assigned to the same wildcard by this
 process (by different prototype-actual argument matches),
@@ -5167,7 +5174,7 @@ the call-prototype match fails.
 
 \item\label{CALL-PROTOTYPE-REQUIRED-VALUES}
 If a {\em prototype-argument-declaration} has a {\em required-value},
-its matching {\em actual-argument} must be {\tt const} valued with
+its matching {\em actual-argument} must be a {\em const-expression} with
 a value equal to the {\em required-value}, after both are converted
 to the argument type specified by the {\em prototype-argument-declaration},
 else the call-prototype
