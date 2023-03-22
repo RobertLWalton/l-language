@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 21, 2023
+March 22, 2023
 
 \bigskip
  
@@ -5337,7 +5337,7 @@ into builtin declarations, or to translate user defined loop or
 other flow control constructs into builtin executable statements.
 
 When the macro function is executing in a {\em macro-statement}
-the entire parsed {\em macro-statement} is the value of the
+the entire parsed {\em macro-state\-ment} is the value of the
 \ttkey{*STATEMENT*} const variable.  The macro function can
 output a edited version of this parsed {\em macro-statement}
 in the {\tt *INCLUDE*} variable, as described in
@@ -5354,6 +5354,28 @@ will be executed in turn.
 If multiple macro functions are thusly called by a {\em macro-statement},
 each macro function execution adds to or modifies the {\tt *INCLUDE*} variable
 value computed  by the previous macro function execution.
+
+An example is:
+\begin{indpar}[1em]\begin{verbatim}
+// Iterate for v = 0, 1, 2, ..., limit-1.
+//
+function macro r = for ( macro V, macro LIMIT ):
+    const P = *STATEMENT*[1] // Indented paragraph
+    const VNAME = V[0]
+    *INCLUDE* (V, LIMIT, P, VNAME):
+        int VNAME = 0
+        while ( V < LIMIT ):
+            do P
+            next VNAME += 1
+    r = NONE
+
+// Compute sum = 1 + 2 + ... + 15
+//
+int sum = 0
+for ( x, 15 ):
+    next sum += x + 1
+    
+\end{verbatim}\end{indpar}
 
 
 
