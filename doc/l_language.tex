@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 22, 2023
+March 24, 2023
 
 \bigskip
  
@@ -5482,6 +5482,8 @@ The syntax of a {\em reference-call} is:
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
+{\em reerence-expression} ::= see \pagref{REFERENCE-EXPRESSION}
+\\[0.5ex]
 {\em call-term} ::= see \pagref{CALL-TERM}
 \\[0.5ex]
 \emkey{parenthesized-call-term} ::=
@@ -5594,9 +5596,6 @@ smaller {\em reference-expression} that has already been deliminated
 and which is surrounded in the {\em reference-call} by
 parentheses {\tt (~)} that may be \underline{implied} and not explicit,
 unless the {\em reference-call} starts with a {\em module-abbreviation}.
-\item
-If there is a {\em result-variable-declaration}, there is exactly one,
-and it cannot have the form `{\tt next $v$}'.
 \item
 The {\em reference-pattern-argument} in the prototype cannot
 contain default or required values or be a {\tt macro} argument.
