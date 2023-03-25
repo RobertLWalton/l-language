@@ -4664,8 +4664,7 @@ $v$ must be the {\em vari\-able-name} in a {\em prototype-argument-declaration}
 of the form `\dots{} {\em type-name} $v$', and
 any actual argument associated to the {\em prototype-argument-declaration}
 by some {\em function-call}
-must be a {\em variable-name} $w$ for which `\TT{next} $w$' is a legal
-{\em assignment-statement} {\em next-variable-declaration}.
+must be a {\em reference-expression}.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must
@@ -4807,18 +4806,27 @@ F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( FALSE )
 \end{verbatim}\end{indpar}
 
 A function prototype result may be named `\TT{next} $v$' if
-the prototype has an argument named $v$, in which case a call matching
-the prototype must match the prototype argument $v$ to a variable
-name $w$ for which `\TT{next} $w$' is a legal {\em assignment-result}.
-Then `\TT{next} $w$' may be omitted as an {\em assignment-result}
-and will be implied.  For example:
+the prototype has an argument named $v$, in which case a {\em function-call}
+matching the prototype must match the prototype argument $v$ to a
+{\em reference-expression} $e$ that is not a constant and
+does not have the form `\TT{next} {\em variable-name}'.
+Then the {\em assignment-result}
+corresponding to the prototype `\TT{next} $v$' may be omitted, and will
+be taken to be `\TT{next} $e$' if $e$ is a {\em variable-name}
+naming a stack \TT{co} variable for which `\TT{next} $e$' is legal,
+and will otherwise be taken to be simply $e$.
+
+For example:
 
 \begin{indpar}\begin{verbatim}
 function next x = inc ( int x ):
     next x = x + 1
 . . . . . . . . . .
-int y
+int y = ...
 inc ( y )  // Equivalent to `next y = y + 1'.
+ap *READ-WRITE* int @z:
+    z = ...
+inc ( z )  // Equivalent to `z = z + 1'.
 \end{verbatim}\end{indpar}
 
 A {\em prototype-argument-declaration} with the syntax:
