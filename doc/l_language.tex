@@ -5348,19 +5348,20 @@ When the macro function is executing in a {\em macro-statement}
 the entire parsed {\em macro-state\-ment} is the value of the
 \ttkey{*STATEMENT*} const variable.  The macro function can
 output a edited version of this parsed {\em macro-statement}
-in the {\tt *INCLUDE*} variable, as described in
+in the {\tt *INCLUSION*} variable, as described in
 the section on inclusions: see \pagref{INCLUSIONS}.
 The macro function returns the {\tt const} value {\tt NONE}
 which signals that the compilation of the {\em macro-statement}
 is complete.  Therefore the {\em macro-statement} does nothing
-but set the {\tt *INCLUDE*} variable.
+but set the {\tt *INCLUSION*} variable.
 
 Alternatively,
 the macro function may return an {\em expression}
 which must be a {\em function-call} to another macro function which
 will be executed in turn.
 If multiple macro functions are thusly called by a {\em macro-statement},
-each macro function execution adds to or modifies the {\tt *INCLUDE*} variable
+each macro function execution adds to or modifies
+the {\tt *INCLUSION*} variable
 value computed  by the previous macro function execution.
 
 An example is:
@@ -5443,7 +5444,7 @@ becoming the {\em expression-list}.
 It is a compile error if a function called during this
 evaluation attempts to execute run-time code: e.g., if
 it attempts to allocate a variable to the run-time stack.
-The function may, however, use the {\tt *INCLUDE*}
+The function may, however, use the {\tt *INCLUSION*}
 variable (see \itemref{INCLUSIONS})
 to generate run-time code that will be compiled
 outside the context of the function execution - this code
@@ -6042,21 +6043,26 @@ and \underline{must be acyclic}.
 \section{Inclusions}
 \label{INCLUSIONS}
 
-Each {\em statement} $S$ has its own \ttkey{*INCLUDE*} {\tt const} variable
+Each {\em statement} $S$ has its own \ttkey{*INCLUSION*} {\tt const} variable
 that contains a list of {\em statements} that is prepended
 immediately after the compilation of $S$ is finished
 to the current list of {\em statements} to be compiled. 
-Before $S$ is compiled its {\tt *INCLUDE*} variable is initialized
+Before $S$ is compiled its {\tt *INCLUSION*} variable is initialized
 to the empty list.  Inline functions compiled during the compilation of $S$
-can read and write the {\tt *INCLUDE*} variable of $S$.
+can read and write the {\tt *INCLUSION*} variable of $S$.
 
 Since {\em statements} can be nested, compilation of {\em statements}
-can be nested, and at any given time the innermost {\tt *INCLUDE*}
-variable hides outer {\tt *INCLUDE*} variables.  Thus at any time
-during compilation there is a current {\tt *INCLUDE*} variable.
+can be nested, and at any given time the innermost {\tt *INCLUSION*}
+variable hides outer {\tt *INCLUSION*} variables.  Thus at any time
+during compilation there is a current {\tt *INCLUSION*} variable.
+
+If one statement is contained in another, the statements in
+the inner {\tt *INCLUSION*} are appended to the outer {\tt *INCLUSION*}
+when the inner statement finishes compiling.
 
 It is not necessary to include certain annotations
-in {\tt *INCLUDE*} statements or expressions.
+in statements or expressions added to the {\tt *INCLUSION*}
+variable value.
 
 Specifically, it is \underline{not} necessary to
 include the {\tt .position} or
@@ -6125,7 +6131,7 @@ An {\em include-statement} is executed at compile time;
 its {\em statements} are parsed and the parser output is
 appended to the list designated by the {\em include-variable},
 which must be a {\tt const} variable.  The {\em include-variable}
-defaults to {\tt *INCLUDE*}.
+defaults to {\tt *INCLUSION*}.
 
 Each {\em include-argument} must be a {\tt const} variable assigned
 a value before the {\em include-state\-ment} compiles.
