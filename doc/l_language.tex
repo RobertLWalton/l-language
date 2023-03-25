@@ -5369,12 +5369,11 @@ An example is:
 //
 function macro r = for ( macro V, macro LIMIT ):
     const P = *STATEMENT*[1] // Indented paragraph
-    const VNAME = V[0]
-    *INCLUDE* (V, LIMIT, P, VNAME):
-        int VNAME = 0
-        while ( V < LIMIT ):
-            do P
-            next VNAME += 1
+    *INCLUDE* (V, LIMIT, P):
+        int V = 0
+        while V < ( LIMIT ):
+            P
+            next V += 1
     r = NONE
 
 // Compute sum = 1 + 2 + ... + 15
@@ -5382,6 +5381,13 @@ function macro r = for ( macro V, macro LIMIT ):
 int sum = 0
 for ( x, 15 ):
     next sum += x + 1
+
+// The above for ... statement is expanded to:
+//
+//     int x = 0
+//     while x < ( 15 ):
+//         next sum += x + 1
+//         next x += 1
     
 \end{verbatim}\end{indpar}
 
