@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 24, 2023
+March 25, 2023
 
 \bigskip
  
@@ -5601,11 +5601,12 @@ The {\em reference-pattern-argument} in the prototype cannot
 contain default or required values or be a {\tt macro} argument.
 \item
 A {\em member-name} cannot be followed immediately by a {\em pattern-term};
-in this case, a \TT{()} must be placed immediately after the {\em member-name}.
+a \TT{()} must be placed immediately after the {\em member-name}
+to indicate the boundary between it and the following {\em pattern-term}.
 This is the \underline{only} situation in which \TT{()} should be used.
 \item
 {\em Pattern-argument-lists} with square brackets are restricted to
-appearing just after the {\em reference-expression}.
+appearing just after the {\em reference-pattern-argument}.
 \end{itemize}
 \end{indpar}
 
@@ -5614,7 +5615,7 @@ qualifiers are computed in the same manner as for builtin
 {\em reference-expressions} (see \pagref{QUALIFIER-COMPUTATION})
 using the base {\em reference-expression} qualifiers as the
 container qualifiers and the protype {\em result-variable-declaration}
-qualifiers are field qualifiers.
+qualifiers as field qualifiers.
 
 \subsubsection{Reference Call-Prototype Matching}
 \label{REFERENCE-CALL-PROTOTYPE-MATCHING}
@@ -5680,6 +5681,8 @@ wildcards have been assigned by arguments.
 
 Implicit conversion of the {\em reference-expression}
 that is the first argument is \underline{not} permitted.
+I.e., the {\em reference-pattern-argument} type must
+map to {\tt *EXACT*}.
 
 \end{itemize}
 \end{indpar}
@@ -5692,8 +5695,8 @@ Example:
 // from 0 through X.length-1.
 //
 type my vector:
-    uns offset        // Offset of first element in bytes.
-    uns length        // Number of elements.
+    int offset        // Offset of first element in bytes.
+    int length        // Number of elements.
     align 64
     *LABEL* first     // Offset of first element in bits.
 
@@ -5703,9 +5706,9 @@ reference function ap Q$1 flt64 @x =
             ( @v, v.offset, 0, v.length )
         // The *UNCHECKED* function is a builtin function
         // that performs a variety of conversions which
-        // violate type checking.  Here it takes @v, adds
-        // v.offset to its offset, and returns this ap as an
-        // av with bounds 0 and v.length.
+        // violate type checking.  Here it takes the ap @v,
+        // adds v.offset to its offset, and returns this as
+        // an av with bounds 0 and v.length.
     @x = @p[index]
 
 type my data:
@@ -5720,6 +5723,8 @@ D[0] = 5.5      // Computes and uses pointer @D[0]
 D[1] = -7.33    // Computes and uses pointer @D[1]
 flt64 x = D[0]  // Now x == 5.5
 flt64 y = D[1]  // Now y == -7.33
+
+D[2] = 1.0      // Run-time error: bounds limit exceeded.
 \end{verbatim}\end{indpar}
 
 
