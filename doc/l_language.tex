@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-March 25, 2023
+March 26, 2023
 
 \bigskip
  
@@ -3888,7 +3888,7 @@ with the smallest scope that contains Y.
 
 Non-root {\em type-declarations} in the expansion tree are called
 {\em expansions}, and the root {\em type-declaration} is called just
-the \key{root}.
+the \key{root}\label{ROOT}.
 
 A {\em defined-type-name} must be inside the scope of the root of its expansion
 tree to be visible, and hence usable.
@@ -6376,15 +6376,23 @@ bodies that import the module.
 sub-declaration must have external {\em type-names}
 (beginning with a {\em module-abbreviation}).
 Expansions of such a {\em type-declaration} may appear
-anywhere within scope of the initial root {\em type-declaration},
+anywhere within scope of the initial root {\em type-declaration}\pagnote{ROOT},
 but must have a {\em type-name} that references the same module
 as the {\em type-declaration} they are expanding (they need not use the same
 {\em module-abbreviation} to do so).
 
-Sub-declarations of any {\em type-declaration} have the scope of
+If two {\em type-declarations} have overlapping scope,
+they must follow the rules of \itemref{DEFINED-TYPE-EXPANSIONS}.
+{\em Type-subdeclarations} of any {\em type-declaration} have the scope of the
 {\em type-declaration} in which they appear, and if they appear in
-an expansion, their scope is that of the expansion and not
-the {\em type-declaration} being expanded.  
+an expansion, their scope is that of the expansion and not the scope of
+any ancestor {\em type-declaration} in the expansion.  A name declared by a
+a {\em type-subdeclaration} is only visible within the
+{\em type-declarations} in the same expansion tree, unless
+special syntax is used to pair the name with the name of
+the defined type declared by that expansion tree (e.g.,
+{\em member-names} in {\em reference-expressions}).
+
 
 A {\em module-abbreviation} that makes a {\em declaration} external
 must abbreviate the module in which the {\em declaration} occurs,
@@ -6403,16 +6411,8 @@ of the same {\em name} have overlapping
 scope, one of these scopes must include the other,
 and the declaration with the smaller scope is said to 
 `\key{hide}'\label{HIDE} the other declaration.
-Hiding of this kind is a compile error (note this does
-not apply o {\em type-declarations}).
-
-If two {\em type-declarations} have overlapping scope, the one
-with the larger scope must end with {\tt ***} or {\tt *EXTERNAL*},
-in which case the {\em type-declaration} with the smaller scope
-is an expansion of the other.   If the declaration with larger
-scope does not end with {\tt ***} or {\tt *EXTERNAL*}, it is
-hidden by the declaration with smaller scope, and this is
-a compile error.
+Hiding of this kind is a compile error (note this `hiding error' does
+not apply to {\em type-declarations}).
 
 A {\em next-variable-declaration} is allowed
 within the scope of a previous {\em result-variable-de\-clar\-a\-tion},
@@ -6425,15 +6425,18 @@ as an implicitly {\tt *INIT*}\pagnote{INIT-FORCING} {\em reference-expression}
 is allowed within a subblock of the {\em block-assignment-state\-ment}
 or {\em loop-assignment-statement} that assigns a value to the
 declared {\tt next} variable.
+Also note that {\em next-variable-declarations} can be implied
+in {\em block-assignment-statements}\pagnote{BLOCK-NEXT-PROMOTION}
+and {\em loop-assignment-statements}\pagnote{LOOP-NEXT-PROMOTION}.
 
-Prototypes \underline{cannot} hide each other.  If the
+Function prototypes \underline{cannot} hide each other.  If the
 current scope contains two declarations whose prototypes
 both match a call, the call is ambiguous and in error,
 even if the scope of one declaration is within
 the scope of the other.
 
-{\em Statement-labels}, that is {\em block-labels},
-{\em exit-labels}, and {\em loop-labels}, have as their scope
+{\em Statement-labels} ({\em block-labels},
+{\em exit-labels}, and {\em loop-labels}), have as their scope
 the block in which they are defined.  It is a compile
 error if {\em statement-labels} hide each other.
 
