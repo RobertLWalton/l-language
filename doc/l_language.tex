@@ -6312,17 +6312,15 @@ in any {\em block} at the end of the {\em statement}
 containing the {\em declaration} (recall that a {\em statement} is a
 logical line that can end in a {\em block}), and
 all {\em statements} following the {\em statement} containing
-the {\em declaration} up to the end of the {\em block} or file
+the {\em declaration} up to the end of the smallest {\em block}
 containing this {\em statement}.
-
-The scope of a sub-declaration of a {\em type-declaration} is
-the same as the scope of the particular {\em type-declaration}
-in which the sub-declaration occurs.
 
 A \key{top-level} {\em declaration} is a {\em declaration} that is
 \underline{not} in a {\em statement} inside any {\em block}.
-The scope of top-level {\em declarations} in a module file is extended
-to each body file of the module.
+The scope of a top-level {\em declaration} lasts to the end of the
+file containing the {\em declaration}.
+The scope of a top-level {\em declaration} in a module file is extended
+to include each body file of the module.
 
 Some {\em declarations} are \key{external}\label{EXTERNAL}.
 These must be top-level declarations in a module (and \underline{not}
@@ -6340,7 +6338,7 @@ is external if the {variable-name} declared begins with a
 A {\em next-variable-declaration}
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.  However, the {\em next-variable-declaration}
-must be in the same module as the {\em result-variable-declaration}
+must be in the same module file as the {\em result-variable-declaration}
 whose variable name it shares.
 
 A {\em type-declaration}, {\em pointer-type-declaration}, or
@@ -6378,7 +6376,7 @@ bodies that import the module.
 sub-declaration must have external {\em type-names}
 (beginning with a {\em module-abbreviation}).
 Expansions of such a {\em type-declaration} may appear
-anywhere within scope of the initial non-expansion {\em type-declaration},
+anywhere within scope of the initial root {\em type-declaration},
 but must have a {\em type-name} that references the same module
 as the {\em type-declaration} they are expanding (they need not use the same
 {\em module-abbreviation} to do so).
