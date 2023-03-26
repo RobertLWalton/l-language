@@ -38,3 +38,7 @@ int X = 5
 int Y = X + 2             // Now Y == 7; Y is co
 next Y = Y - 4            // Now Y == 3; Y is co
 Y = Y + 1                 // Illegal!  Y is co
+
+Z1 = x 1 + y 1
+Z2 = ( x 2 ) + y 2
+Z3 = `x 3' + y 3

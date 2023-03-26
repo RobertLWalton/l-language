@@ -6213,14 +6213,27 @@ For an implicitly bracketed subexpression the parser produces a list which has
 The list elements are strings and numbers representing lexemes, and
 lists representing subexpressions.
 
-The parser collapses lists that have either no annotations or {\tt (~)}
-annotations.  For example, for {\tt ((\ldots))} the parser outputs
-only one list, the same as it outputs for {\tt (\ldots)}.  If a list
-with no annotations is collapsed with a list with {\tt (~)} annotations,
-the result has {\tt (~)} annotations.
+The parser does \underline{not} introduce implied brackets where there
+are explict brackets.  For example,
+\begin{indpar}
+{\tt x + y} parses as {\tt \{ \{ "x" \}, "+", \{ "y" \} \}} \\
+{\tt ( x ) + y} \begin{tabular}[t]{@{}l@{}}
+		parses as \\
+                \tt \{ \{ "x", ".initiator" => "(", ".terminator" => ")" \}, \\
+		\tt ~~"+", \{ "y" \} \} \\
+                \end{tabular}
+\end{indpar}
 
 Operators that are separators, such as `\TT{,}', are not included as elements
-of a list, but become a \ttkey{.separator} annotation of the list.
+of a list, but become a \ttkey{.separator} annotation of the list.  Thus,
+\begin{indpar}
+{\tt ( x, y )} parses as \begin{tabular}[t]{@{}l@{}}
+                \tt \{ "x", "y", \\
+		\tt ~~".separator" => ",", \\
+		\tt ~~".initiator" => "(", \\
+		\tt ~~".terminator" => ")" \} \\
+                \end{tabular}
+\end{indpar}
 
 Quoted strings become a list with the string as a single element
 and a {\tt .type} annotation equal to {\tt "<Q>"}
