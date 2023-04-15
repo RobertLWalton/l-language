@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 14, 2023
+April 15, 2023
 
 \bigskip
  
@@ -4971,7 +4971,7 @@ a function prototype	& the subexpression is a function call that
 \end{tabular}
 \end{center}
 
-If the subexpression is a {\em reference-expression} or {\em const-expression}
+If the subexpression is a {\em reference-expression}
 value $e$ whose type is not exactly the target-type,
 the compiler replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
@@ -4984,16 +4984,24 @@ int x = 5.5 - 1.5     // Sets x = 4
 int y = 5.5 - 1.0     // Fails trying to set y = 4.5
 \end{verbatim}\end{indpar}
 The right sides of these statements are {\em const-expressions} that
-are evaluated to {\tt 4.0} and {\tt 4.5} respectively
-before the rules of this section are applied.
-The error in converting
-{\tt 4.5} to {\tt int} is \underline{not} detected by call-prototype
-matching; it is detected when the code produced by call-prototype
-matching: \\
-\centerline{\tt int y = *IMPLICIT* *CONVERSION* ( 4.5 )}
-is compiled.
+evaluate to {\tt 4.0} and {\tt 4.5} respectively
+before the rules of this section are applied.  These {\tt const}
+values are reference expressions and therefore the statements become:
+\begin{indpar}\begin{verbatim}
+int x = *IMPLICIT* *CONVERSION* ( 4.0 )  // No error.
+int y = *IMPLICIT* *CONVERSION* ( 4.5 )  // Compile error.
+\end{verbatim}\end{indpar}
+In both cases the builtin function:
+\begin{indpar}\begin{verbatim}
+int x = std *IMPLICIT* *CONVERSION* ( const y )
+\end{verbatim}\end{indpar}
+is matched to its {\em function-call}, but in the first case
+this function compiles to run-time code that returns the {\tt int}
+value {\tt 4}, while in the second case this function announces a
+compile error because it cannot convert {\tt const} value {\tt 4.5}
+to an {\tt int} value.
 
-Note that matching maps are not used in the modified versions
+Note that matching maps are \underline{not} used in the modified versions
 of this section's algorithm that are used for {\em const-expressions}
 and {\em reference-expressions}.
 
