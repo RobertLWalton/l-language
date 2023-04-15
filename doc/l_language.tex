@@ -6233,13 +6233,20 @@ The list elements are strings and numbers representing lexemes, and
 lists representing subexpressions.
 
 The parser does \underline{not} introduce implied brackets where there
-are explict brackets.  For example,
+are explict or implied brackets, but will introduce implied brackets
+surrouding quoted strings.  For example,
 \begin{indpar}
 {\tt x + y} parses as {\tt \{ \{ "x" \}, "+", \{ "y" \} \}} \\
 {\tt ( x ) + y} \begin{tabular}[t]{@{}l@{}}
 		parses as \\
                 \tt \{ \{ "x", ".initiator" => "(", ".terminator" => ")" \}, \\
 		\tt ~~"+", \{ "y" \} \} \\
+                \end{tabular} \\
+{\tt ( x, "y" )} \begin{tabular}[t]{@{}l@{}}
+		parses as \\
+                \tt \{ \{ "x" \}, \{ \{ "y", ".type" => "<Q>" \} \}, \\
+		\tt ~~".initiator" => "(", ".terminator" => ")", \\
+		\tt ~~".separator" => "," \} \\
                 \end{tabular}
 \end{indpar}
 
@@ -6297,7 +6304,7 @@ Parser Output:
       "=",
       { { "B" }, { "A", 1 }, ".separator" => "," },
       ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>" },
-    { { "const", "P" }, "=", { "HOHO", ".type" => "<Q>" },
+    { { "const", "P" }, "=", { { "HOHO", ".type" => "<Q>" } },
       ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>" },
     { { "const", "Q" }, "=",
       { { 5 }, "+", { "P" } },
@@ -7346,15 +7353,15 @@ a single argument is a string, it must have the format of
 a number or rational constant (rational operator followed
 by quoted string).
 If the argument is a map, it may have the format of
-a number or rational constant in \TT{`~'} quotes, e.g.:
-\begin{indpar}\begin{verbatim}
-`5.5'         { "5.5" }
-`B# "1.1"'    { "B#", { "1.1", ".type" => "<Q>" } }
-\end{verbatim}\end{indpar}
-
+a number or rational constant in \TT{`~'} quotes,
 or it may be a list of two strings, the first element
 being a rational operator and the second
-the string it operates on, e.g. {\tt \{ "B\#", "1.1" \} }.
+the string it operates on.  E.g., 
+\begin{indpar}\begin{verbatim}
+`5.5'         { "5.5" }
+`B# "1.1"'    { "B#", "1.1" }
+\end{verbatim}\end{indpar}
+
 
 A conversion
 error produces an {\tt UNDEF} result and an error message.
