@@ -5082,6 +5082,7 @@ preceding {\em call-term} and `{\tt (FALSE)}' is appended to the
 current {\em call-term}, while otherwise `{\tt (TRUE)}' is appended to the
 current {\em call-term}.
 
+\item\label{CALL-TERM-MATCHING}
 A {\em call-term}
 must match its corresponding prototype {\em pattern-term} according
 the rules that follow.  Failure of any call-prototype term match
@@ -5112,15 +5113,15 @@ is found, and instead a {\em call-argument-list} with {\tt [~]}
 or the end of the {\em call-term} is found,
 the empty list {\tt ()} is inserted.
 
-Note that {\em argument-lists} with {\tt [~]} brackets cannot
+Note that {\em argument-lists} with {\tt [~]} brackets can\underline{not}
 be omitted or have their {\tt [~]} brackets omitted.
 
 If a {\em call-argument-list} is shorter than the
 corresponding {\em pattern-argument-list}, and all omitted
-arguments in the {\em call-argument-list} have {\em default-values}
+arguments at the end of the {\em call-argument-list} have {\em default-values}
 in the {\em pattern-argument-list}, the {\em default-values} corresponding
-to the omitted arguments are inserted into
-the {\em call-argument-list}.
+to the omitted arguments are added to
+the end of the {\em call-argument-list}.
 The {\em default-values} are compiled in the context of the prototype
 and not the context of the call: see \pagref{DEFAULT-CONTEXT}.
 
