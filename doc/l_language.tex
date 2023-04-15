@@ -5715,6 +5715,17 @@ map to {\tt *EXACT*}.
 Example:
 
 \begin{indpar}\label{REFERENCE-FUNCTION-EXAMPLE}\begin{verbatim}
+// The *UNCHECKED* function used below is a builtin function
+// that performs a variety of conversions which violate type
+// checking.  Here it has the prototype:
+//
+//    av Q$ T$ @r = std *UNCHECKED*
+//        ( ap Q$ T$ @p, int offset, int lower, int upper )
+//
+// that takes the ap @p, adds the offset argument to the
+// pointer offset, and returns this as an av with bounds
+// lower and upper.
+
 // In my vector X, a vector with flt64 elements is located
 // at X.offset from the address of X and allows index range
 // from 0 through X.length-1.
@@ -5729,11 +5740,7 @@ reference function ap Q$1 flt64 @x =
         ( ap Q$1 my vector @v ) [ int index ]:
     av Q$1 flt64 @p = *UNCHECKED*
             ( @v, v.offset, 0, v.length )
-        // The *UNCHECKED* function is a builtin function
-        // that performs a variety of conversions which
-        // violate type checking.  Here it takes the ap @v,
-        // adds v.offset to its offset, and returns this as
-        // an av with bounds 0 and v.length.
+        // See *UNCHECKED* above.
     @x = @p[index]
 
 type my data:
@@ -5748,6 +5755,8 @@ D[0] = 5.5      // Computes and uses pointer @D[0]
 D[1] = -7.33    // Computes and uses pointer @D[1]
 flt64 x = D[0]  // Now x == 5.5
 flt64 y = D[1]  // Now y == -7.33
+flt64 z = D[2]  // Run time error: 2 >= upper bound of av
+                // that equals D.length.
 
 D[2] = 1.0      // Run-time error: bounds limit exceeded.
 \end{verbatim}\end{indpar}
