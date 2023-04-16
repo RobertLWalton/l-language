@@ -6412,13 +6412,9 @@ they must follow the rules of \itemref{DEFINED-TYPE-EXPANSIONS}.
 {\em Type-subdeclarations} of any {\em type-declaration} have the scope of the
 {\em type-declaration} in which they appear, and if they appear in
 an expansion, their scope is that of the expansion and not the scope of
-any ancestor {\em type-declaration} in the expansion.  A name declared by a
-a {\em type-subdeclaration} is only visible within the
-{\em type-declarations} in the same expansion tree, unless
-special syntax is used to pair the name with the name of
-the defined type declared by that expansion tree (e.g.,
-{\em member-names} in {\em reference-expressions}).
-
+any ancestor {\em type-declaration} in their expansion tree.
+A non-member names declared by a {\em type-subdeclaration}
+are never visible outside {\em type-declarations} in the same expansion tree.
 
 A {\em module-abbreviation} that makes a {\em declaration} external
 must abbreviate the module in which the {\em declaration} occurs,
