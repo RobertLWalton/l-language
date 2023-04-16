@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 15, 2023
+April 16, 2023
 
 \bigskip
  
@@ -6544,36 +6544,35 @@ the variable is deallocated.  The compiler tracks lifetimes by assigning each
 variable a lifetime type and in some cases a separate lifetime depth.
 
 The possible \skey{variable}s are:
-\begin{indpar}[0.2in]
-\begin{tabular}{lp{4.0in}}
-\key{assignment variable} &
+\begin{indpar}[0.5in]
+\hspace*{-0.3in}\key{assignment variable} ~
 	The value stored in a {\tt co} variable created by a
 	{\em result-variable-de\-clar\-a\-tion},
 	{\em block-variable-declaration},
-	or {\em next-variable-declaration}
+	{\em next-variable-declaration},
+	or {\em deferred-variable-declaration},
 	of an {\em assignment-state\-ment}.
 \\[1ex]
-\key{argument variable} &
+\hspace*{-0.3in}\key{argument variable} ~
 	The value stored in a {\tt co} variable created by an
 	{\em prototype-argument-declaration} in a {\em function-prototype}
 	when the function is called.
 \\[1ex]
-\key{result variable} &
+\hspace*{-0.3in}\key{result variable} ~
 	The value stored in variable created by an
 	{\em prototype-result-declaration} in a {\em function-prototype}
 	when the function is called.
 \\[1ex]
-\key{target variable} &
+\hspace*{-0.3in}\key{target variable} ~
 	A value that is part of the target of a pointer
 	(e.g., a field, element of a field, etc.).
-\end{tabular}
 \end{indpar}
 
 There are three possible variable \skey{lifetime type}s:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
-\ttkey{*GLOBAL*}	& The lifetime starts when the program
-                          starts and stops when the program terminates.
+\ttkey{*GLOBAL*}	& The lifetime starts when the variable is created
+                          and stops when the program terminates.
 \\[1ex]
 \ttkey{*LOCAL*}		& The lifetime starts when the statement declaring
                           (and allocating)
@@ -6590,18 +6589,19 @@ There are three possible variable \skey{lifetime type}s:
 \end{tabular}
 \end{indpar}
 
-Lifetime types qualify pointer target types.  A pointer whose target
-has a particular lifetime is said to have that lifetime:
+All external variables are {\tt *GLOBAL*}
+These are all top-level assignment variables in module files.
+Other assignment variables, all argument variables, and
+and all result variables are {\tt *LOCAL*}.
+A target variable has its lifetime type specified by the target
+qualifier of the pointer that points to the target containing the
+variable.  For example, the target of a pointer of type
+{\tt ap *GLOBAL* int} has {\tt *GLOBAL*} lifetime.
+
+A pointer whose target has a particular lifetime is said to have that lifetime:
 thus we have {\tt *GLOBAL*} pointers, {\tt *LOCAL*} pointers, etc.
 In general a pointer cannot be stored in a variable unless one of the
 \skey{lifetime rule}s of this section permits it.
-
-Variables also have lifetime types.  Assignment, argument, and
-result variables are all (automatically) {\tt *LOCAL*}.
-A target variable has its lifetime type specified by the target
-qualifier of the pointer that points to the target containing the
-variable.
-
 
 The goal of these rules is to keep a pointer with a given lifetime
 from being stored in a variable with a longer lifetime.
@@ -6670,6 +6670,7 @@ ap *GLOBAL* list element @Y:
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
+{\tt *LOCAL*} pointers can only be stored in {\tt *LOCAL*} variables.
 {\tt *LOCAL*} variables have lifetimes that depend upon the
 extent of the scope of the declaration that created them.
 Scopes are nested, and declarations have depths in this nesting.
@@ -6695,7 +6696,8 @@ can be stored a {\tt *LOCAL*} variable is:
 The lifetime depth of an assignment variable equals
 the \key{statement depth}
 of the {\em assign\-ment-statement} creating the variable, except for
-external variables which are given depth 0.
+external variables which are given depth 0 (and therefore cannot
+store a {\tt *LOCAL*} pointer).
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
@@ -6704,7 +6706,8 @@ The rules for assigning depth to {\em statements} are as follows:
 		  is assigned depth 1.
 \\[1ex]
 \key{(S2)}	& A {\em statement} that is inside a sub-block $S$ at the end
-                  of a {\em statement} of depth $D$, and is not also
+                  of an {\em assignment-statement} of depth $D$, and
+		  is not also
 		  inside a sub-block of $S$, is assigned depth $D+1$.
 \\[1ex]
 \key{(S3)}	& An \underline{inline} {\em function-call} is treated
