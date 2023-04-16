@@ -6613,27 +6613,37 @@ The first rules are:
 \\[1ex]
 \key{(L2)}	& A {\tt *HEAP*} pointer can be stored in any variable.
 \\[1ex]
-\key{(L3)}	& The {\tt *GLOBAL*} lifetime type can be
-		  implicitly converted to the {\tt *HEAP*} lifetime type.
+\key{(L3)}	& A {\tt *GLOBAL*} lifetime type qualifier can be
+		  implicitly converted to a {\tt *HEAP*} lifetime type
+		  qualifier.
 \\[1ex]
 		& Note: This requires the garbage collector to be able
 		  to identify {\tt *GLOBAL*} pointers and treat them
 		  differently.
 \\[1ex]
-\key{(L4)}	& A {\tt *LOCAL*} pointer can only be stored in a
+\key{(L4)}	& A {\tt *GLOBAL*} lifetime type qualifier can be
+		  implicitly converted to a {\tt *LOCAL*} lifetime type
+		  qualifier of depth 0 (see discussion of depth below).
+
+\\[1ex]
+\key{(L5)}	& A {\tt *LOCAL*} pointer can only be stored in a
                   {\tt *LOCAL*} variable.  It
                   can\underline{not} be stored in a
 		  {\tt *GLOBAL*} or {\tt *HEAP*} variable.
 \end{tabular}
 \\[1ex]
 Note: The variable in which a pointer is stored
-must have a pointer type that is the same as the
+by default must have a pointer type that is the same as the
 type of the pointer value being stored:
 e.g., when a {\tt *HEAP*} pointer is stored in a {\tt *LOCAL*}
 variable the {\tt *LOCAL*} variable's type must be a pointer type
 with the {\tt *HEAP*} qualifier.
 In particular, (L1) and (L2) do \underline{not} permit implied
 lifetime qualifier conversions.
+
+However, (L3) and (L4) do permit {\tt *GLOBAL*} pointers to be stored in
+variables whose pointer type has the {\tt *HEAP*} or {\tt *LOCAL*}
+qualifier.
 \end{indpar}
 
 An example is:
