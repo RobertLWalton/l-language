@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 16, 2023
+April 17, 2023
 
 \bigskip
  
@@ -6624,9 +6624,22 @@ The first rules are:
 \key{(L4)}	& A {\tt *GLOBAL*} lifetime type qualifier can be
 		  implicitly converted to a {\tt *LOCAL*} lifetime type
 		  qualifier of depth 0 (see discussion of depth below).
-
 \\[1ex]
-\key{(L5)}	& A {\tt *LOCAL*} pointer can only be stored in a
+\key{(L5)}	& A {\tt *HEAP*} pointer can be implicitly
+                  converted to a {\tt *LOCAL*} pointer of depth 0
+		  provided the {\tt *HEAP*} pointer is stored in
+		  an assignment variable or argument variable.
+\\[1ex]
+		& Note 1: the variable in which the {\tt *HEAP*} pointer
+		  is stored is {\tt co} and will exist as long as
+		  the {\tt *LOCAL*} pointer exists.
+\\[1ex]
+		& Note 2: because of this conversion, both {\tt *HEAP*}
+		  and {\tt *LOCAL*} pointers in the stack will have
+		  to be updated by by some kinds of garbage collection: see
+		  \itemref{COPYING-GARBAGE-COLLECTION}.
+\\[1ex]
+\key{(L6)}	& A {\tt *LOCAL*} pointer can only be stored in a
                   {\tt *LOCAL*} variable.  It
                   can\underline{not} be stored in a
 		  {\tt *GLOBAL*} or {\tt *HEAP*} variable.
@@ -6643,7 +6656,10 @@ lifetime qualifier conversions.
 
 However, (L3) and (L4) do permit {\tt *GLOBAL*} pointers to be stored in
 variables whose pointer type has the {\tt *HEAP*} or {\tt *LOCAL*}
-qualifier.
+qualifier, and (L5) permits {\tt *HEAP*} pointers to be stored in
+variables whose pointer type has the {\tt *LOCAL*} qualifier.
+
+Also see \itemref{QUALIFIER-IMPLICIT-CONVERSIONS}.
 \end{indpar}
 
 An example is:
@@ -6680,34 +6696,45 @@ ap *GLOBAL* list element @Y:
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
-{\tt *LOCAL*} pointers can only be stored in {\tt *LOCAL*} variables.
-{\tt *LOCAL*} variables have lifetimes that depend upon the
+{\tt *LOCAL*} pointers can only be stored in assignment, argument,
+or result variables, or in targets of {\tt *LOCAL*} pointers.
+{\tt *LOCAL*} pointers have lifetimes that depend upon the
 extent of the scope of the declaration that created them.
 Scopes are nested, and declarations have depths in this nesting.
-Variables with greater depths have smaller scopes and shorter
-lifetimes.  Pointers to variables with greater depth must
-\underline{not} be stored in variables of less depth.
+The depth of a pointer is the depth of its declaration statement,
+and pointers with greater depth have smaller scopes and shorter
+lifetimes.
+{\tt *LOCAL*} pointers with greater depth must
+\underline{not} be stored in targets of {\tt *LOCAL*} pointers of less depth.
 
-So we introduce the notion of \key{lifetime depth} of {\tt *LOCAL*}
-variables and {\tt *LOCAL*} pointers.
-The rule on when a {\tt *LOCAL*} pointer
+So we introduce the notion of \key{lifetime depth} of {\tt *LOCAL*} pointers.
+Our rule on when a {\tt *LOCAL*} pointer
 can be stored a {\tt *LOCAL*} variable is:
 
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
-\key{(L5)}	& A {\tt *LOCAL*} pointer of
-                  lifetime depth $d1$
+\key{(L7)}	& A {\tt *LOCAL*} pointer of lifetime depth $d1$
                   can be stored in
-		  a {\tt *LOCAL*} variable of lifetime depth $d2$
-		  if $0\leq d1\leq d2$ and $0<d2$.
+		  the target of a {\tt *LOCAL*} pointer of lifetime depth $d2$
+		  if $d2 = d1 \not= 0$.
 \end{tabular}
 \end{indpar}
 
-The lifetime depth of an assignment variable equals
-the \key{statement depth}
-of the {\em assign\-ment-statement} creating the variable, except for
-external variables which are given depth 0 (and therefore cannot
-store a {\tt *LOCAL*} pointer).
+Not that this seems more restrictive than necessary.  The less
+restrictive rule is simply $d2 < d1$.  However the compiler
+cannot enforce this rule; to use the rule it would be necessary
+to record the lifetime depth of a {\tt *LOCAL*} pointer in its
+run-time value and check the rule at runtime, and we choose not
+to do this.
+
+The lifetime depth of a pointer created
+by a `{\tt @= local \ldots}' {\em allocation-call}\pagnote{ALLOCATION-CALL}
+is the depth of the statement that assigns the variable.
+The lifetime depth of the value of an assignment variable or inline prototype
+argument or result variable is the lifetime depth of the value assigned
+to the variable.  Note that in the case that the pointer assigned is
+{\tt *GLOBAL*}, this depth is 0.
+
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
@@ -6736,7 +6763,7 @@ The rules for assigning depth to {\em statements} are as follows:
 		  So when the {\em statements}
 		  of sub-block $S$ access {\tt *LOCAL*} pointer values
 		  defined by the context of the \underline{declaration},
-		  rule (L5) will give the same answers as it would if
+		  rule (L6) will give the same answers as it would if
 		  the {\em statements} of $S$ had depth $D'+1$ instead of
 		  $D+1$.
 \\[1ex]
@@ -6747,14 +6774,10 @@ The rules for assigning depth to {\em statements} are as follows:
 \end{tabular}
 \end{indpar}
 
-When a {\tt *LOCAL*} pointer is stored in a variable of depth $D$,
-the pointer is given depth $D$ and variables in its target are
-given depth $D$.  This is because by (L5) the pointer must have
-depth $\leq D$ and depth $D$ has the shortest lifetime and
-is therefore the least presumptive of the
-possibilities, while the lifetime of a target must be at least
-as great as the lifetime of the pointer to the target.
-All this is stated with more precision below.
+Because of (L7), a {\tt *LOCAL*} pointer read from the target of a {\tt *LOCAL*}
+pointer must have the same depth as that pointer.  So the compiler
+always knows the depth of a {\tt *LOCAL*} pointer and can enforce
+(L7).
 
 An example is:
 \begin{indpar}\begin{verbatim}
@@ -6793,72 +6816,8 @@ ap list element @Y:
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
-The more specific rules for assigning depth to variables and pointers are:
-\begin{indpar}[0.2in]
-\begin{tabular}{lp{5.0in}}
-\key{(V1)}	& \underline{Non-external} assignment variables are
-		  assigned the depth of the {\em statement} which
-		  creates them.
-\end{tabular}
-\\
-\begin{tabular}{lp{5.0in}}
-\key{(V2)}	& External assignment variables are assigned depth 0,
-		  and therefore cannot store {\tt *LOCAL*} pointers.
-\end{tabular}
-\\
-\begin{tabular}{lp{5.0in}}
-\key{(V3)}	& Argument variables in an \underline{inline}
-		  {\em function-prototype}
-                  or a {\em reference-function-prototype} are assigned
-		  the same depth as the corresponding actual call argument
-		  in the {\em statement} that called the prototype.
-\end{tabular}
-\\
-\begin{tabular}{lp{5.0in}}
-\key{(V4)}	& Result variables in an \underline{inline}
-		  {\em function-prototype}
-		  are assigned the same depth as the {\em statement}
-		  that called the prototype.
-\end{tabular}
-\\
-\begin{tabular}{lp{5.0in}}
-\key{(V5)}	& Result variables in a {\em reference-function-prototype}
-		  are assigned the same depth as
-		  {\em reference-pattern-argument}
-		  (i.e., as the actual base {\em reference-expression}
-		  in the {\em reference-call}).
-\\[1ex]
-		& In addition, a {\em reference-expression}
-		  that is not a {\em reference-call} (i.e., that is builtin)
-		  is treated for the purposes of assigning depth to
-		  its result as if it were a {\em reference-call};
-		  i.e., its result is given the same depth as
-		  its base {\em reference-expression} variable
-		  or result.
-\end{tabular}
-\\
-\begin{tabular}{lp{5.0in}}
-\key{(V6)}	& Argument variables in an \underline{out-of-line}
-		  {\em function-prototype} are assigned depth 0.
-		  If they are of {\tt *LOCAL} pointer type, they
-		  may be assigned {\tt *LOCAL*} pointer actual argument
-		  values.
-\end{tabular}
-\\
-\begin{tabular}{lp{5.0in}}
-\key{(V7)}	& Result variables in an \underline{out-of-line}
-		  {\em function-prototype} are assigned depth 0,
-		  and therefore cannot store {\tt *LOCAL*} pointers.
-\end{tabular}
-\\
-\begin{tabular}{lp{5.0in}}
-\key{(V8)}	& A {\tt *LOCAL*} pointer stored in a variable of depth $D$ is
-                  assigned depth $D$, and any {\tt *LOCAL*} variables in its
-		  target are assigned depth $D$.
-\end{tabular}
-\end{indpar}
 
-An example is:
+An example involving inline functions is:
 \begin{indpar}\begin{verbatim}
 type list element:
     ap list element @after   // target is *LOCAL* by default
@@ -6892,36 +6851,6 @@ ap *READ-WRITE* list element @Y          // `=@ local' is implied
 add ( @X )           // X is first element
 add ( @Y )           // Y is second element
 \end{verbatim}\end{indpar}
-
-Lastly, the following rules allow {\tt *GLOBAL*} and {\tt *HEAP*}
-pointers to be converted to {\tt *LOCAL*} pointers:
-\begin{indpar}[0.2in]
-\begin{tabular}{lp{5.0in}}
-\key{(C1)}	& A {\tt *GLOBAL*} pointer can be implicitly
-                  converted to a {\tt *LOCAL*} pointer of depth 0.
-\\[1ex]
-\key{(C2)}	& A {\tt *HEAP*} pointer can be implicitly
-                  converted to a {\tt *LOCAL*} pointer of depth 0
-		  provided the {\tt *HEAP*} pointer is stored in
-		  an assignment variable or argument variable.
-\\[1ex]
-		& Note 1: the variable in which the {\tt *HEAP*} pointer
-		  is stored is {\tt co} and will exist as long as
-		  the {\tt *LOCAL*} pointer exists.
-\\[1ex]
-		& Note 2: because of this conversion, both {\tt *HEAP*}
-		  and {\tt *LOCAL*} pointers in the stack will have
-		  to be updated by garbage collection: see
-		  \itemref{COPYING-GARBAGE-COLLECTION}.
-\end{tabular}
-
-Note: It is a compile error if a {\tt *GLOBAL*} or {\tt *HEAP*}
-pointer has a target type that has a field that is a {\tt *LOCAL*} pointer,
-as per (L4).  So the converted {\tt *LOCAL*} pointer cannot have
-any {\tt *LOCAL*} pointers stored into its target.
-\end{indpar}
-
-Also see \itemref{QUALIFIER-IMPLICIT-CONVERSIONS}.
 
 \section{Memory Management}
 \label{MEMORY-MANAGEMENT}
