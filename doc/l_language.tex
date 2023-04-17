@@ -6575,7 +6575,7 @@ There are three possible variable \skey{lifetime type}s:
                           and stops when the program terminates.
 \\[1ex]
 \ttkey{*LOCAL*}		& The lifetime starts when the statement declaring
-                          (and allocating)
+                          and creating
                           the variable executes and stops when 
 			  scope of the variable's declaration ends.
 \\[1ex]
@@ -6597,6 +6597,7 @@ A target variable has its lifetime type specified by the target
 qualifier of the pointer that points to the target containing the
 variable.  For example, the target of a pointer of type
 {\tt ap *GLOBAL* int} has {\tt *GLOBAL*} lifetime.
+This pointer can be stored in a {\tt *LOCAL*} assignment variable.
 
 A pointer whose target has a particular lifetime is said to have that lifetime:
 thus we have {\tt *GLOBAL*} pointers, {\tt *LOCAL*} pointers, etc.
@@ -6637,7 +6638,8 @@ The first rules are:
 		& Note 2: because of this conversion, both {\tt *HEAP*}
 		  and {\tt *LOCAL*} pointers in the stack will have
 		  to be updated by by some kinds of garbage collection: see
-		  \itemref{COPYING-GARBAGE-COLLECTION}.
+		  \itemref{COPYING-GARBAGE-COLLECTION}, Copying Garbage
+		  Collection.
 \\[1ex]
 \key{(L6)}	& A {\tt *LOCAL*} pointer can only be stored in a
                   {\tt *LOCAL*} variable.  It
@@ -6646,7 +6648,7 @@ The first rules are:
 \end{tabular}
 \\[1ex]
 Note: The variable in which a pointer is stored
-by default must have a pointer type that is the same as the
+must have by default a pointer type that is the same as the
 type of the pointer value being stored:
 e.g., when a {\tt *HEAP*} pointer is stored in a {\tt *LOCAL*}
 variable the {\tt *LOCAL*} variable's type must be a pointer type
@@ -6655,9 +6657,9 @@ In particular, (L1) and (L2) do \underline{not} permit implied
 lifetime qualifier conversions.
 
 However, (L3) and (L4) do permit {\tt *GLOBAL*} pointers to be stored in
-variables whose pointer type has the {\tt *HEAP*} or {\tt *LOCAL*}
+variables which have a pointer type with the {\tt *HEAP*} or {\tt *LOCAL*}
 qualifier, and (L5) permits {\tt *HEAP*} pointers to be stored in
-variables whose pointer type has the {\tt *LOCAL*} qualifier.
+variables which have a pointer type with the {\tt *LOCAL*} qualifier.
 
 Also see \itemref{QUALIFIER-IMPLICIT-CONVERSIONS}.
 \end{indpar}
@@ -6722,7 +6724,7 @@ can be stored a {\tt *LOCAL*} variable is:
 
 Not that this seems more restrictive than necessary.  The less
 restrictive rule is simply $d2 < d1$.  However the compiler
-cannot enforce this rule; to use the rule it would be necessary
+cannot enforce this last rule; to use the rule it would be necessary
 to record the lifetime depth of a {\tt *LOCAL*} pointer in its
 run-time value and check the rule at runtime, and we choose not
 to do this.
@@ -6733,7 +6735,7 @@ is the depth of the statement that assigns the variable.
 The lifetime depth of the value of an assignment variable or inline prototype
 argument or result variable is the lifetime depth of the value assigned
 to the variable.  Note that in the case that the pointer assigned is
-{\tt *GLOBAL*}, this depth is 0.
+{\tt *GLOBAL*}, this depth is 0 by (L4).
 
 The rules for assigning depth to {\em statements} are as follows:
 \begin{indpar}[0.2in]
@@ -6779,6 +6781,8 @@ pointer must have the same depth as that pointer.  So the compiler
 always knows the depth of a {\tt *LOCAL*} pointer and can enforce
 (L7).
 
+Rule (L7) permits a set of {\tt *LOCAL*} objects created at the
+\underline{same depth} to point at each other.
 An example is:
 \begin{indpar}\begin{verbatim}
 type list element:
@@ -6817,7 +6821,7 @@ ap list element @Y:
 \end{verbatim}\end{indpar}
 
 
-An example involving inline functions is:
+The same example using inline functions is:
 \begin{indpar}\begin{verbatim}
 type list element:
     ap list element @after   // target is *LOCAL* by default
@@ -6851,6 +6855,10 @@ ap *READ-WRITE* list element @Y          // `=@ local' is implied
 add ( @X )           // X is first element
 add ( @Y )           // Y is second element
 \end{verbatim}\end{indpar}
+
+For out-of-line functions, an argument value that is a
+{\tt *LOCAL*} pointer is given depth 0, preventing {\tt *LOCAL*}
+pointers taken from other arguments from being stored in its target.
 
 \section{Memory Management}
 \label{MEMORY-MANAGEMENT}
