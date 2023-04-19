@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 17, 2023
+April 18, 2023
 
 \bigskip
  
@@ -6341,6 +6341,9 @@ all {\em statements} following the {\em statement} containing
 the {\em declaration} up to the end of the smallest {\em block}
 containing this {\em statement}.
 
+The \key{context}\label{CONTEXT} of a statement is the set of declarations
+whose scope the statement is in.
+
 A \key{top-level} {\em declaration} is a {\em declaration} that is
 \underline{not} in a {\em statement} inside any {\em block}.
 The scope of a top-level {\em declaration} lasts to the end of the
@@ -6385,18 +6388,19 @@ is immediately preceded by a {\em module-abbreviation}.
 {\em variable-names} cannot begin with a {\em module-abbreviation},
 and therefore these {\em declarations} can never be external.
 
-A deferred external declaration may have a companion in a body of its module,
-but not in modules or bodies that import the declaration's module.
-As an exception, a deferred {\em out-of-line-function-declaration}
-may have a companion
+In general, a deferred declaration
+in a module may have a companion in that module
+or in a body of that module, but not in modules or bodies that import
+the declaration's module.
+As one exception, a deferred external {\em out-of-line-function-declaration}
+may have its companion
 anywhere within the scope of the original declaration.
-
-A deferred external {\em type-declaration} must have its
-companion in the same module as the deferred external {\em type-declaration},
-but that companion may have the {\tt ***} or {\tt *EXTERNAL*}
-sub-declaration that allows it to have expansions in the bodies of
-its module, and in the {\tt *EXTERNAL*} case, in other modules and
-bodies that import the module.
+As a second exception, a deferred {\em type-declaration} must have its
+companion in the same file as the deferred {\em type-declaration}.
+Note that a deferred {\em type-declaration} may have only one
+companion, but the companion may have many expansions in the
+scope of the companion (the companion is the root of its expansion tree:
+see \itemref{DEFINED-TYPE-EXPANSIONS}).
 
 {\em Type-declarations} that end with the {\tt *EXTERNAL*}
 sub-declaration must have external {\em type-names}
@@ -6407,14 +6411,15 @@ but must have a {\em type-name} that references the same module
 as the {\em type-declaration} they are expanding (they need not use the same
 {\em module-abbreviation} to do so).
 
-If two {\em type-declarations} have overlapping scope,
-they must follow the rules of \itemref{DEFINED-TYPE-EXPANSIONS}.
+If two {\em type-declarations} declaring the same {\em defined-type-name}
+have overlapping scope, they must follow the expansion tree rules
+of \itemref{DEFINED-TYPE-EXPANSIONS}.
 {\em Type-subdeclarations} of any {\em type-declaration} have the scope of the
 {\em type-declaration} in which they appear, and if they appear in
 an expansion, their scope is that of the expansion and not the scope of
 any ancestor {\em type-declaration} in their expansion tree.
-A non-member names declared by a {\em type-subdeclaration}
-are never visible outside {\em type-declarations} in the same expansion tree.
+{\em Origin-labels} declared by a {\em type-subdeclaration}
+are only visible inside {\em type-declarations} in the same expansion tree.
 
 A {\em module-abbreviation} that makes a {\em declaration} external
 must abbreviate the module in which the {\em declaration} occurs,
@@ -6452,7 +6457,7 @@ in {\em block-assignment-statements}\pagnote{BLOCK-NEXT-PROMOTION}
 and {\em loop-assignment-statements}\pagnote{LOOP-NEXT-PROMOTION}.
 
 Function prototypes \underline{cannot} hide each other.  If the
-current scope contains two declarations whose prototypes
+current context contains two function declarations whose prototypes
 both match a call, the call is ambiguous and in error,
 even if the scope of one declaration is within
 the scope of the other.
@@ -6462,11 +6467,8 @@ the scope of the other.
 the block in which they are defined.  It is a compile
 error if {\em statement-labels} hide each other.
 
-The \key{context}\label{CONTEXT} of a statement is the set of declarations
-whose scope the statement is in.
-
 When a {\em function-call} to an inline function is expanded,
-the context of the compilation is \underline{not} the current context but
+the context of the expansion is \underline{not} the current context but
 rather the context of the inline {\em function-declaration}
 that provided the {\em statements} executed by the call.
 Also the context in which any {\em default-value} expression
@@ -6475,7 +6477,7 @@ is the \underline{not} the current context but
 rather the context of that {\em function-declaration}.
 
 Similarly when a {\em reference-call} to a reference function is expanded,
-the context of the compilation is \underline{not} the current context but
+the context of the expansion is \underline{not} the current context but
 rather the context of the inline {\em reference-function-declaration}
 that provided the {\em statements} executed by the call.
 Also the context in which any {\em default-value} expression
@@ -6531,7 +6533,7 @@ are equivalent if no {\em function-prototype}
 \begin{center}
 \tt function int32 r = $ma$ my external function ( int32 v )
 \end{center}
-is in scope, where $ma$ is a module abbreviation for a module
+is in the current context, where $ma$ is a module abbreviation for a module
 other than `{\tt my\_own\_module}'.
 
 \section{Lifetimes}
