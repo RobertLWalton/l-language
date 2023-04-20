@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 18, 2023
+April 20, 2023
 
 \bigskip
  
@@ -6990,31 +6990,36 @@ of new space and the non-scavenged bodies at the end of
 new space.  This address can be use to tell if a new space
 body has been scavenged.
 
+The root pointers of GC are in the global memory (memory
+allocated at load time) and the stack.
+
 The GC can be either read-oriented or write-oriented.
 
 A read-oriented GC updates heap pointers when they are read
 from bodies by non-GC execution.
-The GC begins by updating all heap pointers in the
-stack, and from this point on, all pointers in the stack
+The GC begins by updating all heap pointers in global memory
+and the stack, and from this point on, all pointers in global
+memory and the stack
 point to new space and no special action is required when
 a pointer is written to a body (which itself will be in new
 space) by non-GC execution.
 
 A write-oriented GC updates heap pointers when they are
 written into scavenged bodies by non-GC execution. 
-Whenever all objects in new space have been scavenged,
-the GC updates all pointers in the stack, and if this does \underline{not}
+After \underline{all} objects in new space have been scavenged,
+the GC updates all pointers in global memory and the stack,
+and if this does \underline{not}
 move any bodies to new space, GC is done; otherwise
-GC resumes scavenging.  Heap pointers in the stack need
+GC resumes scavenging.  Heap pointers in global memory and the stack need
 not be updated during non-GC execution, and no special action is taken
 when reading a heap pointer from a body.
 
 The advantage of write-oriented over read-oriented is
 that write operations are less frequent than read
 operations and therefore write-oriented may be more
-efficient.  A disadvantage is that in order to finish, the GC
-must check the entire stack for updatable heap pointers
-without non-GC execution changing the stack.
+efficient.  The disadvantage is that in order to finish, the GC
+must update all pointers in global memory and
+the stack without non-GC execution changing the stack.
 
 It is possible to implement a deallocate operation
 which deallocates a body, except for its body pointer.
