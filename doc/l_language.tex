@@ -7099,6 +7099,57 @@ counting GC.
 Of course reference counting GC cannot collect data containing
 pointer loops, such as circular lists.
 
+\subsection{Locating Global and Local Heap Pointers}
+
+A list of global and local variables that contain {\tt *HEAP*}
+pointers needs to be made available to the garbage collector.
+
+From the point of view of the garbage collector, variables
+are held in two stacks: the \key{global stack} and
+the \key{local stack}.  These
+stacks are each a sequence of blocks.  Each block has at its
+beginning a \key{block type} ID which references load time data that tells
+the length of the block and contains a map specifying which words of the block
+contain {\tt *HEAP*} pointers.  Some types of blocks contain a vector
+of similar elements, and for these there is a separate count of the number of
+vector elements at the beginning of the block and the block type data
+only specifies that length of an element and
+which words of the element contain {\tt *HEAP*} pointers.
+
+An out-of-line function call begins by allocating a block in the
+local stack to hold
+its {\tt *LOCAL*} {\tt co} variables.  All the variables are allocated
+at the beginning of the call execution, so this block does not vary
+in size or layout during the function call execution.  Executions
+of `{\tt @= local}' during the function call will add a block to the
+local stack if the allocated memory size cannot be determined at
+compile time.  At the end of the out-of-line function call, all
+the blocks it allocated ti the local stack are deallocated.
+
+In the case of a statement containing `{@= local}' in a
+loop iteration, execution of the statement will re-use the block
+allocated by the last execution of that statement, unless that block
+is too small, in which case a new block of at least twice the size
+of the last block will be allocated.  This scheme allocates at most
+4 times as much memory as is actually used by the statement during
+any of its executions.
+
+When a block is allocated it is zeroed.  This
+allows the garbage collector to avoid variables containing
+{\tt *HEAP*} pointers that have not yet been set.
+
+The execution of each module and body file initialization is
+treated the same as an execution of an out-of-line function
+call, except that at load time, before initialization,
+a block holding the external variables of each module is
+allocated to the global stack.  This allows addresses of
+external variables to be computed at load time.
+
+Statements containing {\tt @= global} can be executed anytime
+and allocate blocks to the global stack.
+
+Blocks in the global stack are never deallocated.
+
 \section{Non-Function Operators}
 
 The majority of operators map onto functions.  For example, \\
