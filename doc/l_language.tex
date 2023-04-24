@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 20, 2023
+April 24, 2023
 
 \bigskip
  
@@ -224,7 +224,7 @@ initialized it is not writable.
 
 The following is another example:
 \begin{indpar}\begin{verbatim}
-av *READ-WRITE* uns8 @bp =@ local[81]
+av *READ-WRITE* uns8 @bp @= local[81]
 av uns8 @cp = "Hello!"
 int i = 0
 while i < @cp.upper:
@@ -334,7 +334,7 @@ For example:
 
 \begin{indpar}\begin{verbatim}
 int X = 5
-ap *READ-WRITE* int @Y   // `=@ local' is implied
+ap *READ-WRITE* int @Y   // `@= local' is implied
 Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
@@ -343,7 +343,7 @@ ap ro int @Z = @Y        // Copies pointer value @Y.
                          // to ro is legal.
 \end{verbatim}\end{indpar}
 
-Here the implied `{\tt =@ local}' allocates an {\tt int} to the current
+Here the implied `{\tt @= local}' allocates an {\tt int} to the current
 function frame, zeros it, and returns an `{\tt ap *READ-WRITE* int}'
 pointer to its location.
 
@@ -437,7 +437,7 @@ my type X:
     X.des = 3
 uns op = X.op code      // Now op == 5
 int d = X.des           // Now d == 3
-ap *READ-WRITE* my type @Y    // `=@ local' is implied
+ap *READ-WRITE* my type @Y    // `@= local' is implied
 Y.op code = 129
 fp *READ-WRITE* int @C = @Y.constant
 ap *READ-WRITE* uns8 @OP = @Y.op code
@@ -1619,7 +1619,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-2}
 \ttkey{>{}>=} & shift right & & &
 \\\hline
-\ttkey{=@} & pointer & infix & binary & 1100 \\
+\ttkey{@=} & pointer & infix & binary & 1100 \\
            & assignment & & &
 \\\hline
 \end{tabular}
@@ -1640,17 +1640,17 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \hline
 \ttkey{,} & separator & nofix & separator & 2000
 \\\hline
-\ttkey{do} & iterator & prefix & unary & 3000
+\ttkey{loop} & iterator & prefix & unary & 3000
 \\\cline{1-1}
 \ttkey{while} &       &        &       &
 \\\cline{1-1}
 \ttkey{until} &       &        &       &
 \\\cline{1-1}\cline{4-4}
-\ttkey{repeat} &       &        & iteration       &
+\ttkey{exactly} &       &        & iteration       &
 \\\cline{1-1}
 \ttkey{at most} &       &        &       &
 \\\cline{1-4}
-\ttkey{times} & iterator & afix   & (none) & \\
+\ttkey{times} & iteration & afix   & (none) & \\
                & modifier &        &       &
 \\\hline
 \ttkey{if} & selector & infix & selector & 10000
@@ -2978,9 +2978,9 @@ The forms of an {\em assignment-statement} are:
 	$|$ & \TT{next} {\em target-variable} \\
 	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
 	      {\em type-name} {\em pointer-variable} \\
-	    & ~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
+	    & ~~~~~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	$|$ & \TT{next} {\em pointer-variable}
-	      ~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
+	      ~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
 \emkey{deferred-variable-declaration}%
@@ -2989,7 +2989,7 @@ The forms of an {\em assignment-statement} are:
 	    & {\em type-name} {\em target-variable} \\
 	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
 	      {\em type-name} {\em pointer-variable} \\
-	    & ~~~~~ \{ \TT{=@} {\em allocation-call} \}\QMARK{} \\
+	    & ~~~~~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
@@ -3004,17 +3004,17 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 {\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
 \\[0.5ex]
-\emkey{allocation-call} ::= {\em function-call}
+\emkey{allocation-call}\label{ALLOCATION-CALL} ::= {\em function-call}
 \\[2ex]
 where
 \begin{itemize}
 \item A line-ending \TT{:} may be omitted if the
 {\em statement} subblock following is empty.
-\item The allocation subexpression `\TT{=@ local}' may be
+\item The allocation subexpression `\TT{@= local}' may be
 omitted for {\em pointer-variable} declarations whose
 targets have the \TT{*LOCAL*} qualifier provided the
 {\em allocator-call} has no arguments
-(e.g., `\TT{=@ local[\ldots]}' cannot be omitted).
+(e.g., `\TT{@= local[\ldots]}' cannot be omitted).
 \end{itemize}
 
 \end{indpar}
@@ -3074,7 +3074,7 @@ be {\tt *INIT*}\pagnote{INIT-FORCING}.
 The {\em pointer-variables} declared by {\em block-variable-declarations}
 \underline{with} {\em allocation-calls}
 are initialized by the {\em allocation-call}
-(see \pagref{ALLOCATION-CALL}) and are thereafter
+(see \pagref{ALLOCATION-CALLS}) and are thereafter
 {\tt co}, but the memory
 pointed at is zeroed initially, 
 {\tt *INIT*} in {\em statements}
@@ -3309,7 +3309,7 @@ an {\em allocation-call} are {\tt co}, but their target type is changed
 to {\tt *INIT*}, and after execution the target type
 qualifiers become whatever the pointer variable declarations specify.
 
-When a declaration has an {\em allocation-call}\label{ALLOCATION-CALL},
+When a declaration has an {\em allocation-call}\label{ALLOCATION-CALLS},
 its variable must have pointer
 type, and the {\em allocation-call} is executed to set the pointer
 before any {\em statements} in the {\em block-assignment-statement}
@@ -4009,8 +4009,8 @@ type list element:
 
 // Make circular list.
 //
-ap list element @Y      // `=@ local = *DEFERRED*' is implied
-ap list element @X:     // `=@ local' is implied
+ap list element @Y      // `@= local = *DEFERRED*' is implied
+ap list element @X:     // `@= local' is implied
     X.value = 1
     X.@after = @Y
 ap list element @Y:
@@ -4031,13 +4031,13 @@ An example is:
 
 \begin{indpar}\begin{verbatim}
 type my type : *DEFERRED*
-ap *READ-WRITE* my type @X    // `=@ local = *DEFERRED*' is implied
+ap *READ-WRITE* my type @X    // `@= local = *DEFERRED*' is implied
                     // Legal, my type members need not be declared.
                     // Size and alignment of my type values is
                     // computed at load time.  The allocated value
                     // will be zeroed.
 ap ro my type @Y = @X  // Legal, only ap copied.
-ap my type @Z:      // Legal, `=@ local' is implied
+ap my type @Z:      // Legal, `@= local' is implied
     Z = X           // Legal, the value at @X is copied to
                     // the value at @Z.  However in this
                     // case the value is completely zero.
@@ -4500,8 +4500,8 @@ An example implementing a new pointer type is:
 type file:
     *READ-WRITE* av uns8 @name
     . . . . .
-av *READ-WRITE* file @files =@ global [1000]
-ap *READ-WRITE* int @number of files =@ global
+av *READ-WRITE* file @files @= global [1000]
+ap *READ-WRITE* int @number of files @= global
 
 // Implement a file descriptor (fd) that addresses a file
 // in files.  The fd contains an index and addresses
@@ -4523,7 +4523,7 @@ function fd *READ-WRITE* file @r = allocate fd:
     @r = *UNCHECKED* ( d )
     number of files = number of files + 1
 
-fd *READ-WRITE* file @f =@ allocate fd
+fd *READ-WRITE* file @f @= allocate fd
 f.@name = ...
 . . . . .
 av uns8 @n = f.@name
@@ -5747,7 +5747,7 @@ type my data:
     *INCLUDE* my vector
     flt64[2]
 
-ap *READ-WRITE* my data @D:    // `=@ local' is implied
+ap *READ-WRITE* my data @D:    // `@= local' is implied
     D.offset = D.first / 8     // 8 converts bits to bytes.
     D.length = 2
 
@@ -6681,12 +6681,12 @@ An example is:
 type list element:
     ap *GLOBAL* list element @after
 
-// In the following, `=@ global' is implied because the pointers
+// In the following, `@= global' is implied because the pointers
 // are *GLOBAL*.
 
 // Circular list:
 //
-ap *GLOBAL* *READ-WRITE* list element @last:  // `=@ global' is implied
+ap *GLOBAL* *READ-WRITE* list element @last:  // `@= global' is implied
     last.@after = null
     // Last element is pointed at by last.@after
     // First element is pointed at by last.after.@after
@@ -6694,8 +6694,8 @@ ap *GLOBAL* *READ-WRITE* list element @last:  // `=@ global' is implied
 
 // Put two elements in list.
 //
-ap *GLOBAL* list element @X  // `=@ global = *DEFERRED*' is implied
-ap *GLOBAL* list element @Y  // `=@ global = *DEFERRED*' is implied
+ap *GLOBAL* list element @X  // `@= global = *DEFERRED*' is implied
+ap *GLOBAL* list element @Y  // `@= global = *DEFERRED*' is implied
 
 ap *GLOBAL* list element @X:
     // Put X on empty list
@@ -6742,7 +6742,7 @@ run-time value and check the rule at runtime, and we choose not
 to do this.
 
 The lifetime depth of a pointer created
-by a `{\tt @= local \ldots}' {\em allocation-call}\pagnote{ALLOCATION-CALL}
+by a `{\tt @= local \ldots}' {\em allocation-call}\pagnote{ALLOCATION-CALLS}
 is the depth of the statement that assigns the variable.
 The lifetime depth of the value of an assignment variable, an inline prototype
 argument variable, or an inline prototype result variable
@@ -6807,13 +6807,13 @@ An example is:
 type list element:
     ap list element @after
 
-// In the following, `=@ local' is implied because the pointers
+// In the following, `@= local' is implied because the pointers
 // default to *LOCAL*.  Also, non-external assignment-variables
 // of top level statements have depth 1.
 
 // Circular list:
 //
-ap *READ-WRITE* list element @last:  // `=@ local' is implied
+ap *READ-WRITE* list element @last:  // `@= local' is implied
     last.@after = null
     // Last element is pointed at by last.@after
     // First element is pointed at by last.after.@after
@@ -6821,8 +6821,8 @@ ap *READ-WRITE* list element @last:  // `=@ local' is implied
 
 // Put two elements in list.
 //
-ap list element @X  // `=@ local = *DEFERRED*' is implied
-ap list element @Y  // `=@ local = *DEFERRED*' is implied
+ap list element @X  // `@= local = *DEFERRED*' is implied
+ap list element @Y  // `@= local = *DEFERRED*' is implied
 
 // Now @last, @X, @Y, last.@after, X.@after, etc. all have depth 1
 
@@ -6847,7 +6847,7 @@ type list element:
 
 // Circular list:
 //
-ap *READ-WRITE* list element @last:      // `=@ local' is implied
+ap *READ-WRITE* list element @last:      // `@= local' is implied
     last.@after = null
     // Last element is pointed at by last.@after
     // First element is pointed at by last.after.@after
@@ -6867,9 +6867,9 @@ function add ( ap *READ-WRITE* @element ):
 
 // Put two elements in list.
 //
-ap *READ-WRITE* list element @X          // `=@ local' is implied
+ap *READ-WRITE* list element @X          // `@= local' is implied
                                          // @X and X are depth 1
-ap *READ-WRITE* list element @Y          // `=@ local' is implied
+ap *READ-WRITE* list element @Y          // `@= local' is implied
                                          // @Y and Y are depth 1
 add ( @X )           // X is first element
 add ( @Y )           // Y is second element
@@ -7152,22 +7152,37 @@ Blocks in the global stack are never deallocated.
 
 \section{Non-Function Operators}
 
-The majority of operators map onto functions.  For example, \\
+Some operators map onto functions.  For example, \\
 \centerline{{\tt x + y} maps onto {\tt x "+" y}}
 
 However the following operators do \underline{not} map onto functions:
 
 \begin{itemlist}[0.2in]
+\item[prefix \TT{type}]
+\item[prefix \TT{pointer type}] \vspace*{-0.15in}
+\item[prefix \TT{function}] \vspace*{-0.15in}
+\item[prefix \TT{reference function}] \vspace*{-0.15in}
+\item[prefix \TT{out-of-line function}] \vspace*{-0.15in}
+\item[afix infix \TT{is type}] \vspace*{-0.15in}
+\item[afix infix \TT{is function}] \vspace*{-0.15in} ~\\
+See Declarations\pagnote{DECLARATIONS}.
+
 \item[prefix \TT{if}]
 \item[prefix \TT{else if}] \vspace*{-0.15in}
-\item[initial \TT{else}] \vspace*{-0.15in} ~\\
+\item[initial \TT{else}] \vspace*{-0.15in}
+\item[afix right \TT{:}] \vspace*{-0.15in} ~\\
 See Conditional Statements\pagnote{CONDITIONAL-STATEMENTS}.
 
+\item[afix subblock]
+\item[postfix subblock] \vspace*{-0.15in} ~\\
+See Assignment Statements\pagnote{ASSIGNMENT-STATEMENTS}
+and Conditional Statements\pagnote{CONDITIONAL-STATEMENTS}.
+
 \item[prefix \TT{loop}]
-\item[prefix \TT{exactly} \ldots{}~\TT{times}] \vspace*{-0.15in}
-\item[prefix \TT{at atmost} \ldots{}~\TT{times}] \vspace*{-0.15in}
 \item[prefix \TT{while}] \vspace*{-0.15in}
-\item[prefix \TT{until}] \vspace*{-0.15in} ~\\
+\item[prefix \TT{until}] \vspace*{-0.15in}
+\item[prefix \TT{exactly} \ldots{}~\TT{times}] \vspace*{-0.15in}
+\item[prefix \TT{at most} \ldots{}~\TT{times}] \vspace*{-0.15in} ~\\
 See {\em iteration-control}\pagnote{ITERATION-CONTROL}.
 
 \item[infix \TT{=}] ~\\
@@ -7190,6 +7205,9 @@ Similarly for the other operators of the form `\TT{$B$=}'
 where $B$ is a binary operator,
 the statement `{\tt x $B$= y}' is syntactic sugar for
 `{\tt next x = x $B$ y}' or `{\tt x = x $B$ y}'.
+
+\item[infix \TT{@=}] ~\\
+See Allocation Call\pagnote{ALLOCATION-CALL}.
 
 \item[infix \TT{-{}-{}-{}>}] ~\\
 See Abbreviation Statements\pagnote{ABBREVIATION-STATEMENT}.
@@ -7511,12 +7529,12 @@ Rational data arguments are converted to numbers first.  Map data arguments
 are not allowed.
 \end{indpar}
 
-{\tt function const r = std} (const s1) \ttkey{"=="} {\tt ( const s2 )} \\
-{\tt function const r = std} (const s1) \ttkey{"!="} {\tt ( const s2 )} \\
-{\tt function const r = std} (const s1) \ttkey{"<"} {\tt ( const s2 )} \\
-{\tt function const r = std} (const s1) \ttkey{"<="} {\tt ( const s2 )} \\
-{\tt function const r = std} (const s1) \ttkey{">"} {\tt ( const s2 )} \\
-{\tt function const r = std} (const s1) \ttkey{">="} {\tt ( const s2 )}
+{\tt function const r = std (const s1) \ttkey{"=="} ( const s2 )} \\
+{\tt function const r = std (const s1) \ttkey{"!="} ( const s2 )} \\
+{\tt function const r = std (const s1) \ttkey{"<"} ( const s2 )} \\
+{\tt function const r = std (const s1) \ttkey{"<="} ( const s2 )} \\
+{\tt function const r = std (const s1) \ttkey{">"} ( const s2 )} \\
+{\tt function const r = std (const s1) \ttkey{">="} ( const s2 )}
 \begin{indpar}
 Standard lexigraphic comparison operators on strings {\tt s1} and {\tt s2}.
 Characters are compared by comparing their {\tt UTF-8} representations
@@ -7554,7 +7572,7 @@ subroutine library for linux: see {\tt pcrepattern[3]} in
 the linux documentation.  The only line ends recognized
 by {\tt \textbackslash R} and {\tt \$} are LF, CR, and CRLF (no other
 {\tt pcre32} options are used).  By default {\tt \textasciicircum}
-matches the beginning of {\tt s} and {\tt \$} matches the end.
+matches the beginning of the string being matched and {\tt \$} matches the end.
 This can be changed by the {\tt (?i)} option setter in the
 regular expression.
 \end{indpar}
@@ -7591,8 +7609,8 @@ as vector elements that are maps of the form: \\
 \hspace*{0.2in}{ \tt \{~{\rm \em represented-string},
 	         ".type" => "<Q>" \}}
 
-Syntax errors produce compiler error messages and are
-otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
+Syntax errors produce compiler error messages and
+return {\tt UNDEF}.
 \end{indpar}
 
 {\tt function const r = std} \ttkey{parse brackets} ( const s  )
@@ -7602,8 +7620,8 @@ See {\em phrase-constants}: \pagref{PHRASE-CONSTANT}.
 
 Specifically, parse the string {\tt s} recognizing brackets
 but not recognizing operators and return a map.
-Syntax errors produce compiler error messages and are
-otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
+Syntax errors produce compiler error messages and
+return {\tt UNDEF}.
 \end{indpar}
 
 {\tt function const r = std} \ttkey{unparse brackets}
@@ -7620,8 +7638,8 @@ Equivalent to {\tt \{* {\rm \em value of} s *\}}.
 See {\em expression-constants}: \pagref{EXPRESSION-CONSTANT}.
 
 Specifically, parse the string {\tt s} and return a map.
-Syntax errors produce compiler error messages and are
-otherwise `fixed up' more or less, instead of returning {\tt UNDEF}.
+Syntax errors produce compiler error messages and
+return {\tt UNDEF}.
 \end{indpar}
 
 {\tt function const r = std} \ttkey{unparse}
@@ -7663,7 +7681,7 @@ changed by the following:
 \begin{indpar}
 Makes the map label {\tt s} (a string) of the map {\tt m}
 read-write or read-only, and returns {\tt m}.  The map
-itself must be read-write.
+itself may be read-only or read-write.
 
 When a value is first written at a label, the label is created
 for the map and set to read-write.
@@ -7720,11 +7738,12 @@ Else if the entry exists and is read-write, and the map is read-write,
 the entry value is changed.
 Else if the entry exists and is read-only, or the map is read-only,
 a compile error results.
-\item If the value of {\tt s} is {\tt NONE}, reading pops the vector
-of {\tt m} and returns the value popped (i.e., as in `{\tt v = m[]}'),
+\item If the value of {\tt s} is {\tt NONE}, reading pops a value from the
+end of the vector
+of {\tt m} and returns the value popped (as in `{\tt v = m[]}'),
 or just returns {\tt NONE} if the vector is empty,
 and writing pushes the value written to the end of the vector of {\tt m}
-(i.e., as in `{\tt m[] = v}').
+(as in `{\tt m[] = v}').
 \item Otherwise if {\tt s} is neither an integer or a string,
 a compile-error results.
 \end{enumerate}
@@ -7774,18 +7793,25 @@ If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
 {\tt function const r = std} \ttkey{splice}
     {\tt ( const m, const i, const n, const v )}
 \begin{indpar}
-If {\tt i >= 0}, edits {\tt m} by replacing the vector element sequence
+If {\tt i >= 0} and {\tt n > 0} (these must be integers),
+edits {\tt m} by replacing the vector element sequence
 {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]} by the
 vector elements of {\tt v}.  Dictionary elements of {\tt v} are ignored;
 dictionary elements of {\tt m} are unchanged.
-If {\tt n <= 0}, the elements of {\tt v} are inserted after {\tt m[i]}. 
-If {\tt i >= \# m} the elements of {\tt v} are pushed to the end of {\tt m},
-else if {\tt i + n > \# m}, {\tt n} is decreased until {\tt i + n == \# m}.
-The edited map {\tt m} is returned.
+
+If {\tt i >= \# m} the elements of {\tt v} are pushed to the end of {\tt m}.
+
+Else if {\tt n <= 0}, the elements of {\tt v} are inserted before {\tt m[i]}.
+
+Else if {\tt i + n > \# m}, {\tt n} is decreased until {\tt i + n == \# m}.
 
 If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
 {\tt i} is incremented by 1 and {\tt n} decremented by 1 until 
-{\tt \# m + i == 0}.
+{\tt \# m + i == 0}, and then if {\tt n <= 0} the vector elements are
+inserted at the beginning of the vector.
+
+The edited map {\tt m} is returned.
+
 \end{indpar}
 
 {\tt function const r = std} \ttkey{truncate} {\tt ( const m, const i )}
