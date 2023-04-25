@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 24, 2023
+April 25, 2023
 
 \bigskip
  
@@ -7116,7 +7116,8 @@ vector elements at the beginning of the block and the block type data
 only specifies that length of an element and
 which words of the element contain {\tt *HEAP*} pointers.
 
-An out-of-line function call begins by allocating a block in the
+An out-of-line function call\label{OUT-OF-LINE-LOCALS}
+begins by allocating a block in the
 local stack to hold
 its {\tt *LOCAL*} {\tt co} variables.  All the variables are allocated
 at the beginning of the call execution, so this block does not vary
@@ -7142,7 +7143,7 @@ The execution of each module and body file initialization is
 treated the same as an execution of an out-of-line function
 call, except that at load time, before initialization,
 a block holding the external variables of each module is
-allocated to the global stack.  This allows addresses of
+allocated to the global stack\label{GLOBAL-MEMORY}.  This allows addresses of
 external variables to be computed at load time.
 
 Statements containing {\tt @= global} can be executed anytime
@@ -7950,11 +7951,14 @@ compilation.
 
 \ttkey{.fields}
 \begin{indpar}
-Dictionary of field maps for the fields of the type.  The labels
-of the dictionary entries are the names of the fields.
+A map listing field maps\pagnote{FIELD-MAPS} for the fields of the type.
+The dictionary entries list named fields by name.
+The vector entries list unnamed fields
+(which have subfields).
 
-Fields may be added during compilation of type expansions, and {\tt .fields}
-will be empty for {\tt *DEFERRED*} types not yet defined by the
+Fields may be added during compilation of type expansions.
+Will be empty if a type has no fields, or if the type is
+currently {\tt *DEFERRED*} and not yet defined by the
 compilation.
 \end{indpar}
 
@@ -8023,7 +8027,7 @@ if no dimensions.
 \begin{indpar}
 Dictionary of subfield maps for the subfields of the type.  The labels
 of the dictionary entries are the names of the subfields.
-Or {\tt NONE} if there are no subfields.
+Empty if there are no subfields.
 \end{indpar}
 
 \subsubsection{Subfield Maps}
@@ -8137,8 +8141,8 @@ The following are qualifier conversions:
 \item {\tt co} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
+\item {\tt *GLOBAL*} may be replaced by {\tt *HEAP*}
 \item {\tt *GLOBAL*} may be replaced by {\tt *LOCAL*} with depth {\tt 0}
-
 \item {\tt *HEAP*} may be replaced by {\tt *LOCAL*} of depth 0 when copying
 from a {\em reference-expression} that
 is nothing but a {\em pointer-variable} (i.e., is a stack
@@ -8262,7 +8266,7 @@ is {\tt int\ldots} while the other is {\tt uns\ldots}
 \end{enumerate}
 
 These in effect convert {\tt v} to a bit-string of unbounded length (e.g., by
-sign extension) and
+two's complement sign extension) and
 then truncate it to the length of {\tt I1}.
 \end{indpar}
 
@@ -8360,14 +8364,14 @@ flag is set.
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, {\tt flt32}, or {\tt flt16}.
 \begin{itemlist}
 \item[\tt is nan]
-Returns {\tt 1} if {\tt v1} is any NaN number (not just {\tt NaN}), and {\tt 0}
-otherwise.
+Returns {\tt true} if {\tt v1} is any NaN number (not just {\tt NaN}),
+and {\tt false} otherwise.
 \item[\tt is infinity]
-Returns {\tt 1} if {\tt v1} is {\tt +Inf} or {\tt -Inf}, and {\tt 0}
+Returns {\tt true} if {\tt v1} is {\tt +Inf} or {\tt -Inf}, and {\tt false}
 otherwise.
 \item[\tt is finite]
-Returns {\tt 1} if {\tt is nan} and {\tt is infinity} both return {\tt 0},
-and returns {\tt 0} otherwise.
+Returns {\tt true} if {\tt is nan} and {\tt is infinity}
+both return {\tt false}, and returns {\tt false} otherwise.
 \end{itemlist}
 \end{indpar}
 
@@ -8556,6 +8560,36 @@ This function returns zero converted to the pointer type.
 Accessing the target of a null pointer usually produces
 a segmentation fault, as the virtual page with address zero
 is usually undefined.
+\\[1ex]
+This function \underline{cannot} be called by an
+{\tt allocation-call}\pagnote{ALLOCATION-CALL}.
+\end{indpar}
+
+{\tt function P\$1 QL\$1 *LOCAL* T\$1 r =
+    std local ( uns length, uns alignment )}%
+\label{LOCAL}
+\begin{indpar}
+This function allocates a value of type {\tt T\$1} to local
+memory (the current out-of-line function execution's frame in the local stack:
+see \pagref{OUT-OF-LINE-LOCALS})
+and returns a pointer to the value.
+\\[1ex]
+This function can only be called by an
+{\tt allocation-call}\pagnote{ALLOCATION-CALL}.
+See \pagref{ALLOCATION-CALLS}.
+\end{indpar}
+
+{\tt function P\$1 QG\$1 *GLOBAL* T\$1 r =
+    std global ( uns length, uns alignment )}%
+\label{GLOBAL}
+\begin{indpar}
+This function allocates a value of type {\tt T\$1} to global
+memory (the global stack: see \pagref{GLOBAL-MEMORY})
+and returns a pointer to the value.
+\\[1ex]
+This function can only be called by an
+{\tt allocation-call}\pagnote{ALLOCATION-CALL}.
+See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
 \section{Atomic Operations}
