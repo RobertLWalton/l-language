@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 25, 2023
+April 26, 2023
 
 \bigskip
  
@@ -3289,10 +3289,24 @@ The syntax of {\em block-assignment-statements} is:
 \emkey{exit-label} ::= {\em statement-label}
 \\[0.5ex]
 {\em statement-label} ::= see \pagref{STATEMENT-LABEL} \\
-{\em statement} ::= see \pagref{STATEMENT} \\
+{\em statement} ::= see \pagref{STATEMENT}
+\\[0.5ex]
+\emkey{exception-subblock}\label{EXCEPTION-SUBBLOCK} ::=
+    {\em exit-subblock} whose {\em exit-label} is \ttkey{*EXCEPTION*}
+\\[0.5ex]
 \emkey{block-control-statement}\label{BLOCK-CONTROL-STATEMENT}
-	::= {\em goto-exit-statement} \\
-{\em go-to-exit-statement} ::= see \pagref{GO-TO-STATEMENT}
+	::= {\em goto-exit-statement} | {\em throw-exception-statement} \\
+{\em go-to-exit-statement} ::= see \pagref{GO-TO-STATEMENT} \\
+{\em throw-exception-statement} ::= see \pagref{THROW-EXCEPTION-STATEMENT}
+\\[2.0ex]
+where
+\begin{itemize}
+
+\item The {\em exit-label} \ttkey{*EXCEPTION*} is special and
+any {\em exception-subblock} must be the last {\em exit-subblock}
+in the {\em block-assignment-statement}.
+
+\end{itemize}
 \end{indpar}
 
 The {\em block-assignment-statement}
@@ -3346,7 +3360,8 @@ enter an {\em exit-subblock} of the block:
 \emkey{go-to-exit-statement}\label{GO-TO-STATEMENT} ::=
     \ttkey{go to} {\em go-to-label} \TT{exit}
 \\[0.5ex]
-\emkey{go-to-label} ::= {\em block-label} $|$ {\em exit-label}
+\emkey{go-to-label} ::= {\em block-label} $|$ {\em exit-label} other than
+                        {\tt *EXCEPTION*}
 \end{indpar}
 
 Unless a {\em go-to-exit-statement} is executed,
@@ -3357,6 +3372,23 @@ and an {\em exit-subblock} exits its containing block after the last
 A {\em go-to-exit-statement} in an {\em exit-subblock} may only enter
 a \underline{subsequent} {\em exit-subblock} or exit any of its containing
 {\em block-assignment-statements} by using that block's {\em block-label}.
+
+An {\em exception-subblock} is entered if any
+preceeding {\em statement} in the {\em block-assignment-state\-ment}
+executes a:
+\begin{indpar}
+\emkey{throw-exception-statement}\label{THROW-EXCEPTION-STATEMENT} ::=
+    \ttkey{throw} \TT{*EXCEPTION*}
+\end{indpar}
+It is also entered if any preceeding statement execution has a fault,
+such as a memory fault or an integer divide-by-zero fault.
+If a {\tt throw *EXCEPTION*} statement is executed in an
+{\em exception-subblock}, it behaves as if the containing
+{\em block-assignment-statement}
+were replaced by a {\tt throw *EXCEPTION*} statement.  If a
+{\em block-assignment-statement} has no {\em exception-subblock},
+it behaves as if it did have an {\em exception-subblock} whose only
+statement was a {\tt throw *EXCEPTION*} statement.
 
 {\em Go-to-exit-statements} define various possible execution
 paths through a {\em block-assignment-statement}
@@ -3372,8 +3404,15 @@ the {\em exit-subblock}.  A function prototype is `used' if and only if it
 matches a {\em function-call}.\footnote{Stack space for every
 stack variable that might be used by an out-of-line function is
 allocated when the out-of-line function is called.  Space allocated
-by the \TT{local} function is treated differently.  See
-Memory Management, \itemref{MEMORY-MANAGEMENT}.}
+by the \TT{local} function is treated differently:  see
+\pagref{OUT-OF-LINE-LOCALS}.}
+
+There is an exception to the last paragraph for {\em exception-subblocks}.
+In these any {\tt co} variable allocated in the
+{\em block-assignment-statement} may be read, but the value will
+be zero or {\tt null} if the variable's declaration has not been
+executed.  The `{\tt is set}' function\pagnote{IS-SET} should be
+used to test a variable in this case.
 
 If\label{BLOCK-NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
@@ -7125,7 +7164,7 @@ in size or layout during the function call execution.  Executions
 of `{\tt @= local}' during the function call will add a block to the
 local stack if the allocated memory size cannot be determined at
 compile time.  At the end of the out-of-line function call, all
-the blocks it allocated ti the local stack are deallocated.
+the blocks it allocated to the local stack are deallocated.
 
 In the case of a statement containing `{@= local}' in a
 loop iteration, execution of the statement will re-use the block
@@ -8590,6 +8629,18 @@ and returns a pointer to the value.
 This function can only be called by an
 {\tt allocation-call}\pagnote{ALLOCATION-CALL}.
 See \pagref{ALLOCATION-CALLS}.
+\end{indpar}
+
+{\tt function bool r = std is set ( N value )} \\
+{\tt function bool r = std is set ( P\$1 Q\$1 T\$1 pointer )}%
+\label{IS-SET}
+\begin{indpar}
+where {\tt N} is any number type.
+\\[1ex]
+Returns {\tt true} if the {\tt value} is not zero or the {\tt pointer}
+is not {\tt null}, and {\tt false} otherwise. 
+This function should only be used inside {\tt *EXCEPTION*}
+{\em exit-subblocks}\pagnote{EXCEPTION-SUBBLOCK}.
 \end{indpar}
 
 \section{Atomic Operations}
