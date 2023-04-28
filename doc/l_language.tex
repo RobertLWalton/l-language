@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 26, 2023
+April 28, 2023
 
 \bigskip
  
@@ -8169,27 +8169,6 @@ bool std false = 0
 
 See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 
-\subsubsection{Qualifier Implicit Conversions}
-\label{QUALIFIER-IMPLICIT-CONVERSIONS}
-
-Implicit conversions of qualifiers may occur whenever a pointer
-value is copied, unlike other implicit conversions.
-The following are qualifier conversions:
-\begin{indpar}
-\begin{enumerate}
-\item {\tt co} may be replaced by {\tt ro}
-\item {\tt *READ-WRITE*} may be replaced by {\tt ro}
-\item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
-\item {\tt *GLOBAL*} may be replaced by {\tt *HEAP*}
-\item {\tt *GLOBAL*} may be replaced by {\tt *LOCAL*} with depth {\tt 0}
-\item {\tt *HEAP*} may be replaced by {\tt *LOCAL*} of depth 0 when copying
-from a {\em reference-expression} that
-is nothing but a {\em pointer-variable} (i.e., is a stack
-variable which is {\tt co}).
-
-\end{enumerate}
-\end{indpar}
-
 
 \subsubsection{Numeric Implicit Conversions}
 \label{NUMERIC-IMPLICIT-CONVERSIONS}
@@ -8255,6 +8234,40 @@ in the following cases:
 \end{tabular}
 \end{center}
 
+\subsubsection{Pointer Implicit Conversions}
+\label{POINTER-IMPLICIT-CONVERSIONS}
+
+An aligned pointer may be implicitly converted to a direct pointer:
+
+\begin{indpar}
+{\tt function dp Q\$ T\$ @r = std *IMPLICIT* *CONVERSION* ( ap Q\$ T\$ @p )}
+\begin{indpar}
+The base address of {\tt @p} is added to the offset of {\tt @p} to
+produce the value of {\tt @r}.
+\end{indpar}
+\end{indpar}
+
+\subsubsection{Qualifier Implicit Conversions}
+\label{QUALIFIER-IMPLICIT-CONVERSIONS}
+
+Implicit conversions of qualifiers may occur whenever a pointer
+value is copied, unlike other implicit conversions.
+The following are qualifier conversions:
+\begin{indpar}
+\begin{enumerate}
+\item {\tt co} may be replaced by {\tt ro}
+\item {\tt *READ-WRITE*} may be replaced by {\tt ro}
+\item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
+\item {\tt *GLOBAL*} may be replaced by {\tt *HEAP*}
+\item {\tt *GLOBAL*} may be replaced by {\tt *LOCAL*} with depth {\tt 0}
+\item {\tt *HEAP*} may be replaced by {\tt *LOCAL*} of depth 0 when copying
+from a {\em reference-expression} that
+is nothing but a {\em pointer-variable} (i.e., is a stack
+variable which is {\tt co}).
+
+\end{enumerate}
+\end{indpar}
+
 \subsection{Builtin Explicit Conversions}
 \label{BUILTIN-EXPLICIT-CONVERSIONS}
 
@@ -8307,6 +8320,24 @@ is {\tt int\ldots} while the other is {\tt uns\ldots}
 These in effect convert {\tt v} to a bit-string of unbounded length (e.g., by
 two's complement sign extension) and
 then truncate it to the length of {\tt I1}.
+\end{indpar}
+
+\subsubsection{Pointer Explicit Conversions}
+
+{\tt function ap Q\$ T\$ @r = std \ttkey{*UNCHECKED*} ( dp Q\$ T\$ @p )}
+\begin{indpar}
+The base pointer of {\tt r} is set to point at a location that is
+always {\tt 0} and the offset of {\tt r} is set to point to the
+address stored as the value of {\tt p}.
+\end{indpar}
+
+{\tt function av Q\$ T\$ r = std \ttkey{*UNCHECKED*} \\
+\hspace*{0.2in}( ap Q\$ T\$ p, int offset, int lower, int upper )}
+\begin{indpar}
+The base pointer of {\tt @r} is set to the base pointer of {\tt @p},
+the offset of {\tt @r} is set to the sum of the offset of {\tt @p}
+and the {\tt offset} argument, and the bounds of {\tt @r} are set from
+the {\tt lower} and {\tt upper} arguments.
 \end{indpar}
 
 \subsection{Builtin Floating Point Operations}
