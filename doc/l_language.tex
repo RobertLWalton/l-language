@@ -8127,7 +8127,41 @@ The name of the pointer type as a name string.
 Type map for the data type of the pointer type.
 \end{indpar}
 
-\subsection{Compile-Time Machine Parameters}
+\subsection{Compile Time Exception and Trace Support}
+\label{COMPILE-TIME-EXCEPTION-AND-TRACE-SUPPORT}
+
+An L-Language \key{ID} is a {\tt const} integer storable
+at run time in an {\tt uns} variable that identifies something.
+{\em Throw-exception-statements} may have \skey{exception ID}s
+and {\em trace-statements} may have \skey{trace ID}s.
+
+The {\tt std} module defines the following {\tt const} maps and functions:
+
+{\tt const std exception ID map = \\
+\hspace*{0.3in}\{ "NONE", "DIVIDE", "INACCESSIBLE", "WRITE" \} } \\
+{\tt const std trace ID map = \{ "NONE" \}}
+
+{\tt function const r = std new exception ID ( const name ) }%
+\label{NEW-EXCEPTION-ID}
+\begin{indpar}
+A call to this function pushes {\tt name} to the end of
+{\tt std exception ID map} and returns the new length of the map minus 1.
+\end{indpar}
+
+{\tt function const r = std new trace ID ( const name ) }%
+\label{NEW-TRACE-ID}
+\begin{indpar}
+A call to this function pushes {\tt name} to the end of
+{\tt std trace ID map} and returns the new length of the map minus 1.
+
+There must be no more than 64 trace IDs.
+
+\end{indpar}
+
+TBD
+
+
+\subsection{Compile Time Machine Parameters}
 
 {\tt const com atomc types = \{ "int", "uns", \ldots{} \}}%
 \label{ATOMIC-TYPES}
@@ -8673,6 +8707,28 @@ is not {\tt null}, and {\tt false} otherwise.
 This function should only be used inside {\tt *EXCEPTION*}
 {\em exit-subblocks}\pagnote{EXCEPTION-SUBBLOCK}.
 \end{indpar}
+
+\subsection{Builtin Exeption and Trace Support Operations}
+\label{BUILTIN-EXCEPTION-AND-TRACE-SUPPORT-OPERATIONS}
+
+TBD
+
+An L-Language \key{ID} is an {\tt uns} that identifies something.
+{\em Throw-exception-statements} may have \skey{exception ID}s
+and {\em trace-statements} may have \skey{trace ID}s.
+
+\begin{center}
+\begin{tabular}{lp{3.0in}}
+\TT{std divide exception} & Integer divide by zero. \\
+\TT{std inaccessible exception} & Read or write of inaccessible
+                                  memory location.  \\
+\TT{std write exception} & Write of accessible but unwritable
+                           memory location.  \\
+
+\end{tabular}
+\end{center}
+
+
 
 \section{Atomic Operations}
 \label{ATOMIC-OPERATIONS}
