@@ -3701,6 +3701,26 @@ int z:
 // Now z = 11
 \end{verbatim}\end{indpar}
 
+\section{Trace Statements}
+\label{TRACE-STATEMENTS}
+
+A {\em trace-statement} optionally writes an information record into
+a trace file:
+\begin{indpar}
+\emkey{trace-statement}\label{TRACE-STATEMENT} ::\
+    \ttkey{trace} ~ {\em trace-ID} \TT{,} ~ {\em trace-description}
+        ~ \{ \TT{,} {\em trace-value} \}\STAR \\
+\emkey{trace-ID} ::=
+    {\em expression} with an {\tt uns} integer value in the range [0,63] \\
+\emkey{trace-description} ::=
+    {\em expression} with a {\tt const} string value \\
+\emkey{trace-value} ::=
+    {\em expression} with any run time value
+\end{indpar}
+
+TBD
+
+
 \section{Declarations}
 \label{DECLARATIONS}
 
