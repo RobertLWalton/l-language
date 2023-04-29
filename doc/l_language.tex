@@ -7145,7 +7145,7 @@ pointers needs to be made available to the garbage collector.
 
 From the point of view of the garbage collector, variables
 are held in two stacks: the \key{global stack} and
-the \key{local stack}.  These
+the \key{local stack}\label{LOCAL-STACK}.  These
 stacks are each a sequence of blocks.  Each block has at its
 beginning a \key{block type} ID which references load time data that tells
 the length of the block and contains a map specifying which words of the block
@@ -8137,9 +8137,8 @@ and {\em trace-statements} may have \skey{trace ID}s.
 
 The {\tt std} module defines the following {\tt const} maps and functions:
 
-{\tt const std exception ID map = \\
-\hspace*{0.3in}\{ "NONE", "DIVIDE", "INACCESSIBLE", "WRITE" \} } \\
-{\tt const std trace ID map = \{ "NONE" \}}
+{\tt const std exception ID map = \{ "NONE" \} } \\
+{\tt const std trace ID map = \{ \}}
 
 {\tt function const r = std new exception ID ( const name ) }%
 \label{NEW-EXCEPTION-ID}
@@ -8157,8 +8156,6 @@ A call to this function pushes {\tt name} to the end of
 There must be no more than 64 trace IDs.
 
 \end{indpar}
-
-TBD
 
 
 \subsection{Compile Time Machine Parameters}
@@ -8500,6 +8497,10 @@ functions.  The exact bits in the data that contain the flags
 are implementation dependent, and are here represented by `{\tt \ldots{}}'.
 \end{indpar}
 
+If a memory space has more than one process (a.k.a., thread - i.e., local
+stack\pagnote{LOCAL-STACK}), each process has its own
+{\tt std FP flags register}.
+
 \subsection{Builtin Integer Operations}
 \label{BUILTIN-INTEGER-OPERATIONS}
 
@@ -8708,26 +8709,73 @@ This function should only be used inside {\tt *EXCEPTION*}
 {\em exit-subblocks}\pagnote{EXCEPTION-SUBBLOCK}.
 \end{indpar}
 
-\subsection{Builtin Exeption and Trace Support Operations}
+\subsection{Builtin Exception and Trace Support Operations}
 \label{BUILTIN-EXCEPTION-AND-TRACE-SUPPORT-OPERATIONS}
 
-TBD
+Information about the last exception is recorded as follows:
 
-An L-Language \key{ID} is an {\tt uns} that identifies something.
-{\em Throw-exception-statements} may have \skey{exception ID}s
-and {\em trace-statements} may have \skey{trace ID}s.
+{\tt
+type~std~\ttkey{exception data}: \\
+\begin{tabular}[t]{@{~~~~~}l}
+\tt uns~ID~~~~~~~~~~// exception ID from throw statement \\
+\tt dp~uns8~@pc~~~~~// program counter of throw statement\\
+\end{tabular} \\
+}
+{\tt function std exception data r = std} \ttkey{current exception data} \\
+{\tt function} std \ttkey{current exception data} {\tt = std exception data v}
+\begin{indpar}
+The current exception data contain the exception ID and program counter
+of the last exception.  These are set by a {\em throw-statement} that
+gives an exception ID.   A {\em throw-statement} without an exception ID
+coes not change the current exception data.
+\end{indpar}
 
-\begin{center}
-\begin{tabular}{lp{3.0in}}
-\TT{std divide exception} & Integer divide by zero. \\
-\TT{std inaccessible exception} & Read or write of inaccessible
-                                  memory location.  \\
-\TT{std write exception} & Write of accessible but unwritable
-                           memory location.  \\
+If a memory space has more than one process (a.k.a., thread - i.e., local
+stack\pagnote{LOCAL-STACK}), each process has its own
+{\tt std current exception data}.
 
-\end{tabular}
-\end{center}
+A program fault executes the equivalent of a {\em throw-statement}
+with one of the following exception IDs:
 
+{\tt std divide exception = std new exception ID ( "DIVIDE" )} \\
+\hspace*{1in}{\tt // Integer divide by zero.} \\
+{\tt std inaccessible exception = std new exception ID ( "INACCESSIBLE" )} \\
+\hspace*{1in}{\tt // Read or write of inaccessible memory location.}  \\
+{\tt std write exception = std new exception ID ( "WRITE" )} \\
+\hspace*{1in}{\tt // Write of accessible but write-protected
+                  memory location.}
+
+See Compile Time Exception and Trace Support
+\itemref{COMPILE-TIME-EXCEPTION-AND-TRACE-SUPPORT}
+for the {\tt std new exception ID} function.
+
+A mask determining which {\em trace-statements} are active
+is recorded as follows:
+
+{\tt function uns64 r = std} \ttkey{current trace mask} \\
+{\tt function} std \ttkey{current trace mask} {\tt = uns64 v}
+\begin{indpar}
+Read and write the current trace mask.
+A {\em trace-statement} with trace ID X
+will be executed if the current trace mask has bit {\tt 1 <{}< X}
+on, and will be a no-operation otherwise.
+\end{indpar}
+
+If a memory space has more than one process (a.k.a., thread - i.e., local
+stack\pagnote{LOCAL-STACK}), each process has its own
+{\tt std current trace mask}.
+
+The following is an example trace mask:
+\begin{indpar}\begin{verbatim}
+uns64 trace file errors = 1 << std new trace ID ( "FILE ERRORS" )
+    // Note: 1 << X is an exact integer in the IEEE floating point
+    //       format used for const numbers even when X is
+    //       a large integer.
+\end{verbatim}\end{indpar}
+
+See Compile Time Exception and Trace Support
+\itemref{COMPILE-TIME-EXCEPTION-AND-TRACE-SUPPORT}
+for the {\tt std new trace ID} function.
 
 
 \section{Atomic Operations}
