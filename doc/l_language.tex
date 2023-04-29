@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1a)
 \\[0.5ex]
 Robert L. Walton\\
-April 28, 2023
+April 29, 2023
 
 \bigskip
  
@@ -3295,9 +3295,9 @@ The syntax of {\em block-assignment-statements} is:
     {\em exit-subblock} whose {\em exit-label} is \ttkey{*EXCEPTION*}
 \\[0.5ex]
 \emkey{block-control-statement}\label{BLOCK-CONTROL-STATEMENT}
-	::= {\em goto-exit-statement} | {\em throw-exception-statement} \\
+	::= {\em goto-exit-statement} | {\em throw-statement} \\
 {\em go-to-exit-statement} ::= see \pagref{GO-TO-STATEMENT} \\
-{\em throw-exception-statement} ::= see \pagref{THROW-EXCEPTION-STATEMENT}
+{\em throw-statement} ::= see \pagref{THROW-STATEMENT}
 \\[2.0ex]
 where
 \begin{itemize}
@@ -3377,18 +3377,28 @@ An {\em exception-subblock} is entered if any
 preceeding {\em statement} in the {\em block-assignment-state\-ment}
 executes a:
 \begin{indpar}
-\emkey{throw-exception-statement}\label{THROW-EXCEPTION-STATEMENT} ::=
-    \ttkey{throw} \TT{*EXCEPTION*}
+\emkey{throw-statement}\label{THROW-STATEMENT} ::=
+    \ttkey{throw} ~ {\em throw-ID}\QMARK{} \\
+\emkey{throw-ID} ::= {\em expression} evaluating to an {\tt uns} integer
 \end{indpar}
-It is also entered if any preceeding statement execution has a fault,
-such as a memory fault or an integer divide-by-zero fault.
-If a {\tt throw *EXCEPTION*} statement is executed in an
+If a {\tt throw-statement} is executed in an
 {\em exception-subblock}, it behaves as if the containing
 {\em block-assignment-statement}
-were replaced by a {\tt throw *EXCEPTION*} statement.  If a
+were replaced by the {\tt throw-statement}.  If a
 {\em block-assignment-statement} has no {\em exception-subblock},
 it behaves as if it did have an {\em exception-subblock} whose only
-statement was a {\tt throw *EXCEPTION*} statement.
+statement was a `{\tt throw}' statement (without {\em throw-ID}).
+
+A {\em throw-statement} with {\em throw-ID} stores the {\em throw-ID}
+and statement program counter in the {\tt std current exception data}:
+see section \itemref{BUILTIN-EXCEPTION-AND-TRACE-SUPPORT-OPERATIONS}.
+A {\em throw-statement} with\underline{out} a {\em throw-ID}
+leaves the {\tt std current exception data} untouched.
+
+A statement that has a fault,
+such as a memory fault or an integer divide-by-zero fault,
+executes as a {\em throw-statement} with one of the builtin {\em throw-IDs}
+of section \itemref{BUILTIN-EXCEPTION-AND-TRACE-SUPPORT-OPERATIONS}.
 
 {\em Go-to-exit-statements} define various possible execution
 paths through a {\em block-assignment-statement}
@@ -8697,6 +8707,14 @@ This function can only be called by an
 See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
+\subsection{Builtin Exception and Trace Support Operations}
+\label{BUILTIN-EXCEPTION-AND-TRACE-SUPPORT-OPERATIONS}
+
+The following functions can be used in an {\em exception-subblock}
+to determine which variables of its containing
+{\em block-assignment-statement} or {\em loop-assignment-statement}
+have been set.
+
 {\tt function bool r = std is set ( N value )} \\
 {\tt function bool r = std is set ( P\$1 Q\$1 T\$1 pointer )}%
 \label{IS-SET}
@@ -8705,14 +8723,11 @@ where {\tt N} is any number type.
 \\[1ex]
 Returns {\tt true} if the {\tt value} is not zero or the {\tt pointer}
 is not {\tt null}, and {\tt false} otherwise. 
-This function should only be used inside {\tt *EXCEPTION*}
-{\em exit-subblocks}\pagnote{EXCEPTION-SUBBLOCK}.
+These functions should only be used inside
+{\em exception-subblocks}\pagnote{EXCEPTION-SUBBLOCK}.
 \end{indpar}
 
-\subsection{Builtin Exception and Trace Support Operations}
-\label{BUILTIN-EXCEPTION-AND-TRACE-SUPPORT-OPERATIONS}
-
-Information about the last exception is recorded as follows:
+Information about the last exception is recorded in the following:
 
 {\tt
 type~std~\ttkey{exception data}: \\
@@ -8750,7 +8765,7 @@ See Compile Time Exception and Trace Support
 for the {\tt std new exception ID} function.
 
 A mask determining which {\em trace-statements} are active
-is recorded as follows:
+is recorded in the following:
 
 {\tt function uns64 r = std} \ttkey{current trace mask} \\
 {\tt function} std \ttkey{current trace mask} {\tt = uns64 v}
