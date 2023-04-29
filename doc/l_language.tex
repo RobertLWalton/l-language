@@ -3715,10 +3715,23 @@ a trace file:
 \emkey{trace-description} ::=
     {\em expression} with a {\tt const} string value \\
 \emkey{trace-value} ::=
-    {\em expression} with any run time value
+    {\em reference-expression} with a value of any run time type
 \end{indpar}
 
-TBD
+A {\em trace-statement} with {\em trace-ID} X is executed if bit
+{\tt 1 <{}< X} of the {\tt std current trace mask}\pagnote{CURRENT-TRACE-MASK}
+is on.  Otherwise the {\em trace-statement} is a no-operation.
+
+When a {\em trace-statement} is executed it outputs a trace record into
+a trace file (not specified by this document) that contains the program
+counter (as a {\tt dp uns8 @pc} value) followed by the {\em trace-values}.
+The program counter, when used with debugging information
+files output by the compiler and loader (not specified by this document),
+identifies the particular {\em trace-statement}, its
+{\em trace-description}, and the data types of the {\em trace-values}.
+This information allows the trace record to
+be printed in a human readable form (in a manner not specified by this
+document).
 
 
 \section{Declarations}
@@ -8787,7 +8800,8 @@ for the {\tt std new exception ID} function.
 A mask determining which {\em trace-statements} are active
 is recorded in the following:
 
-{\tt function uns64 r = std} \ttkey{current trace mask} \\
+{\tt function uns64 r = std} \ttkey{current trace mask}%
+\label{CURRENT-TRACE-MASK} \\
 {\tt function} std \ttkey{current trace mask} {\tt = uns64 v}
 \begin{indpar}
 Read and write the current trace mask.
