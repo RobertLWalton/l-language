@@ -2,89 +2,81 @@
     trace [+ parser output]
     trace [+ subexpression lines]
     trace [+ subexpression elements]
-BRACKETED EXPRESSION:
-    {|int X|} = {|{|Y|} - {|C# {|"0"|}|}|}
-    line ##:
+=== BRACKETED EXPRESSION: line ##:
 int X = Y - C#"0"
 ^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|av *READ-WRITE* uns8 @bp|} =@ {|local [81]|}
-    line ##:
+    {|int X|} = {|{|Y|} - {|C# {|"0"|}|}|}
+=== BRACKETED EXPRESSION: line ##:
 av *READ-WRITE* uns8 @bp =@ local[81]
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|av uns8 @cp|} = {|"Hello!"|}
-    line ##:
+    {|av *READ-WRITE* uns8 @bp|} =@ {|local [81]|}
+=== BRACKETED EXPRESSION: line ##:
 av uns8 @cp = "Hello!"
 ^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|int i|} = {|0|}
-    line ##:
+    {|av uns8 @cp|} = {|"Hello!"|}
+=== BRACKETED EXPRESSION: line ##:
 int i = 0
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|while {|{|i|} < {|@cp.upper|}|}|}:
-        {|bp [i]|} = {|cp [i]|}
-        {|next i|} = {|{|i|} + {|1|}|}
-    lines ##-##:
+    {|int i|} = {|0|}
+=== BRACKETED EXPRESSION: lines ##-##:
 while i < @cp.upper:
 ^^^^^^^^^^^^^^^^^^^^
     bp[i] = cp[i]
 ^^^^^^^^^^^^^^^^^
     next i = i + 1
 ^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|bp [cp.upper]|} = {|0|}
-    line ##:
+    {|while {|{|i|} < {|@cp.upper|}|}|}:
+        {|bp [i]|} = {|cp [i]|}
+        {|next i|} = {|{|i|} + {|1|}|}
+=== BRACKETED EXPRESSION: line ##:
 bp[cp.upper] = 0
 ^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|int X|} = {|5|}
-    line ##:
+    {|bp [cp.upper]|} = {|0|}
+=== BRACKETED EXPRESSION: line ##:
 int X = 5
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    ap *READ-WRITE* int @Y
-    line ##:
+    {|int X|} = {|5|}
+=== BRACKETED EXPRESSION: line ##:
 ap *READ-WRITE* int @Y    // `=@ local' is implied
 ^^^^^^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|Y|} = {|{|X|} + {|2|}|}
-    line ##:
+    ap *READ-WRITE* int @Y
+=== BRACKETED EXPRESSION: line ##:
 Y = X + 2                 // Now Y == 7
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|Y|} = {|{|Y|} - {|4|}|}
-    line ##:
+    {|Y|} = {|{|X|} + {|2|}|}
+=== BRACKETED EXPRESSION: line ##:
 Y = Y - 4                 // Now Y == 3
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|X|} = {|{|X|} + {|1|}|}
-    line ##:
+    {|Y|} = {|{|Y|} - {|4|}|}
+=== BRACKETED EXPRESSION: line ##:
 X = X + 1                 // Illegal!  X is co
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|ap ro int @Z|} = {|@Y|}
-    line ##:
+    {|X|} = {|{|X|} + {|1|}|}
+=== BRACKETED EXPRESSION: line ##:
 ap ro int @Z = @Y         // Copies pointer value @Y.
 ^^^^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|int X|} = {|5|}
-    line ##:
+    {|ap ro int @Z|} = {|@Y|}
+=== BRACKETED EXPRESSION: line ##:
 int X = 5
 ^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|int Y|} = {|{|X|} + {|2|}|}
-    line ##:
+    {|int X|} = {|5|}
+=== BRACKETED EXPRESSION: line ##:
 int Y = X + 2             // Now Y == 7; Y is co
 ^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|next Y|} = {|{|Y|} - {|4|}|}
-    line ##:
+    {|int Y|} = {|{|X|} + {|2|}|}
+=== BRACKETED EXPRESSION: line ##:
 next Y = Y - 4            // Now Y == 3; Y is co
 ^^^^^^^^^^^^^^
-BRACKETED EXPRESSION:
-    {|Y|} = {|{|Y|} + {|1|}|}
-    line ##:
+    {|next Y|} = {|{|Y|} - {|4|}|}
+=== BRACKETED EXPRESSION: line ##:
 Y = Y + 1                 // Illegal!  Y is co
 ^^^^^^^^^
+    {|Y|} = {|{|Y|} + {|1|}|}
+=== BRACKETED EXPRESSION: line ##:
+Z1 = x 1 + y 1
+^^^^^^^^^^^^^^
+    {|Z1|} = {|{|x 1|} + {|y 1|}|}
+=== BRACKETED EXPRESSION: line ##:
+Z2 = ( x 2 ) + y 2
+^^^^^^^^^^^^^^^^^^
+    {|Z2|} = {|(x 2) + {|y 2|}|}

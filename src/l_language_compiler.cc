@@ -2,7 +2,7 @@
 //
 // File:	l_language_compiler.cc
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Wed Jul 27 15:10:46 EDT 2022
+// Date:	Sun Aug 27 00:47:36 EDT 2023
 //
 // The authors have placed this program in the public
 // domain; they make no warranty and accept no liability
@@ -27,12 +27,7 @@ int main ( int argc, const char * argv[] )
         ( PAR::default_parser, std::cout );
     PAR::init_input_stream
         ( PAR::default_parser, std::cin,
-	    min::DISPLAY_PICTURE
-	  + min::DISPLAY_NON_GRAPHIC
-	  + min::DISPLAY_EOL );
-    PAR::init_line_display
-	( PAR::default_parser,
-	  min::DISPLAY_PICTURE );
+	    min::picture_line_format );
     PAR::default_parser->trace_flags |=
 	PAR::TRACE_PARSER_COMMANDS;
     PAR::parse();

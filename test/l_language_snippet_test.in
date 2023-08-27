@@ -2,7 +2,7 @@
 //
 // File:	l_language_snippet_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug  7 15:53:03 EDT 2022
+// Date:	Sun Aug 27 05:32:27 EDT 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -41,4 +41,3 @@ Y = Y + 1                 // Illegal!  Y is co
 
 Z1 = x 1 + y 1
 Z2 = ( x 2 ) + y 2
-Z3 = `x 3' + y 3
