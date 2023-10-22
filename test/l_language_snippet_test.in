@@ -2,7 +2,7 @@
 //
 // File:	l_language_snippet_test.in
 // Author:	Bob Walton (walton@acm.org)
-// Date:	Sun Aug 27 05:32:27 EDT 2023
+// Date:	Sun Oct 22 04:53:51 EDT 2023
 //
 // The authors have placed this data in the public
 // domain; they make no warranty and accept no liability
@@ -39,5 +39,53 @@ int Y = X + 2             // Now Y == 7; Y is co
 next Y = Y - 4            // Now Y == 3; Y is co
 Y = Y + 1                 // Illegal!  Y is co
 
-Z1 = x 1 + y 1
-Z2 = ( x 2 ) + y 2
+// Compute sum of 4, 5, and 6.
+//
+int sum = 0
+int i = 4
+next sum, next i = while i <= 6:
+    next sum = sum + i
+    next i = i + 1
+
+// Which is semantically equal to:
+//
+int sum = 0
+int i = 4
+next sum, next i:
+    next sum = sum + i
+    next i = i + 1
+next sum, next i:
+    next sum = sum + i
+    next i = i + 1
+next sum, next i:
+    next sum = sum + i
+    next i = i + 1
+
+// And this is semantically equal to:
+//
+int sum = 0
+int i = 4
+while i <= 6:
+    next sum = sum + i
+    next i = i + 1
+
+type my type:
+    uns32
+    [31-24]  uns8 op code
+    [31]     bool has constant
+    [23-0]   int constant
+    [23-16]  uns8 src1
+    [15-8]   uns8 src2
+    [7-0]    uns8 des
+
+function int r = max ( int x, int y ):
+    if x < y:
+        r = y
+    else:
+        r = x
+
+int x = ...
+int y = ...
+int z = max ( x, y )
+
+function N r = ( N v1 ) "+" ( N v2 )

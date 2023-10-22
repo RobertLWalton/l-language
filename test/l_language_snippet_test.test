@@ -73,10 +73,133 @@ Y = Y + 1                 // Illegal!  Y is co
 ^^^^^^^^^
     {|Y|} = {|{|Y|} + {|1|}|}
 === BRACKETED EXPRESSION: line ##:
-Z1 = x 1 + y 1
-^^^^^^^^^^^^^^
-    {|Z1|} = {|{|x 1|} + {|y 1|}|}
+int sum = 0
+^^^^^^^^^^^
+    {|int sum|} = {|0|}
 === BRACKETED EXPRESSION: line ##:
-Z2 = ( x 2 ) + y 2
+int i = 4
+^^^^^^^^^
+    {|int i|} = {|4|}
+=== BRACKETED EXPRESSION: lines ##-##:
+next sum, next i = while i <= 6:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    next sum = sum + i
+^^^^^^^^^^^^^^^^^^^^^^
+    next i = i + 1
 ^^^^^^^^^^^^^^^^^^
-    {|Z2|} = {|(x 2) + {|y 2|}|}
+    {|{|{|next sum|}, {|next i|}|} = {|while {|{|i|} <= {|6|}|}|}|}:
+        {|next sum|} = {|{|sum|} + {|i|}|}
+        {|next i|} = {|{|i|} + {|1|}|}
+=== BRACKETED EXPRESSION: line ##:
+int sum = 0
+^^^^^^^^^^^
+    {|int sum|} = {|0|}
+=== BRACKETED EXPRESSION: line ##:
+int i = 4
+^^^^^^^^^
+    {|int i|} = {|4|}
+=== BRACKETED EXPRESSION: lines ##-##:
+next sum, next i:
+^^^^^^^^^^^^^^^^^
+    next sum = sum + i
+^^^^^^^^^^^^^^^^^^^^^^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+    {|{|next sum|}, {|next i|}|}:
+        {|next sum|} = {|{|sum|} + {|i|}|}
+        {|next i|} = {|{|i|} + {|1|}|}
+=== BRACKETED EXPRESSION: lines ##-##:
+next sum, next i:
+^^^^^^^^^^^^^^^^^
+    next sum = sum + i
+^^^^^^^^^^^^^^^^^^^^^^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+    {|{|next sum|}, {|next i|}|}:
+        {|next sum|} = {|{|sum|} + {|i|}|}
+        {|next i|} = {|{|i|} + {|1|}|}
+=== BRACKETED EXPRESSION: lines ##-##:
+next sum, next i:
+^^^^^^^^^^^^^^^^^
+    next sum = sum + i
+^^^^^^^^^^^^^^^^^^^^^^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+    {|{|next sum|}, {|next i|}|}:
+        {|next sum|} = {|{|sum|} + {|i|}|}
+        {|next i|} = {|{|i|} + {|1|}|}
+=== BRACKETED EXPRESSION: line ##:
+int sum = 0
+^^^^^^^^^^^
+    {|int sum|} = {|0|}
+=== BRACKETED EXPRESSION: line ##:
+int i = 4
+^^^^^^^^^
+    {|int i|} = {|4|}
+=== BRACKETED EXPRESSION: lines ##-##:
+while i <= 6:
+^^^^^^^^^^^^^
+    next sum = sum + i
+^^^^^^^^^^^^^^^^^^^^^^
+    next i = i + 1
+^^^^^^^^^^^^^^^^^^
+    {|while {|{|i|} <= {|6|}|}|}:
+        {|next sum|} = {|{|sum|} + {|i|}|}
+        {|next i|} = {|{|i|} + {|1|}|}
+=== BRACKETED EXPRESSION: lines ##-##:
+type my type:
+^^^^^^^^^^^^^
+    uns32
+^^^^^^^^^
+    [31-24]  uns8 op code
+^^^^^^^^^^^^^^^^^^^^^^^^^
+    [31]     bool has constant
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    [23-0]   int constant
+^^^^^^^^^^^^^^^^^^^^^^^^^
+    [23-16]  uns8 src1
+^^^^^^^^^^^^^^^^^^^^^^
+    [15-8]   uns8 src2
+^^^^^^^^^^^^^^^^^^^^^^
+    [7-0]    uns8 des
+^^^^^^^^^^^^^^^^^^^^^
+    type {|my type|}:
+        uns32
+        [31-24] uns8 op code
+        [31] bool has constant
+        [23-0] int constant
+        [23-16] uns8 src1
+        [15-8] uns8 src2
+        [7-0] uns8 des
+=== BRACKETED EXPRESSION: lines ##-##:
+function int r = max ( int x, int y ):
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    if x < y:
+^^^^^^^^^^^^^
+        r = y
+^^^^^^^^^^^^^
+    else:
+^^^^^^^^^
+        r = x
+^^^^^^^^^^^^^
+    function {|{|int r|} = {|max ({|int x|}, {|int y|})|}|}:
+        if {|{|x|} < {|y|}|}:
+            {|r|} = {|y|}
+        else:
+            {|r|} = {|x|}
+=== BRACKETED EXPRESSION: line ##:
+int x = ...
+^^^^^^^^^^^
+    {|int x|} = {|"..."|}
+=== BRACKETED EXPRESSION: line ##:
+int y = ...
+^^^^^^^^^^^
+    {|int y|} = {|"..."|}
+=== BRACKETED EXPRESSION: line ##:
+int z = max ( x, y )
+^^^^^^^^^^^^^^^^^^^^
+    {|int z|} = {|max ({|x|}, {|y|})|}
+=== BRACKETED EXPRESSION: line ##:
+function N r = ( N v1 ) "+" ( N v2 )
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    function {|{|N r|} = {|(N v1) "+" (N v2)|}|}
