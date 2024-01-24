@@ -883,7 +883,10 @@ value without using `{\tt *INCLUDE*}' statements.
 
 An L-Language source file is a sequence of bytes that is a UTF-8 encoding
 of a sequence of UNICODE characters.  This is scanned into a sequence
-of \skey{lexeme}s.
+of \skey{lexeme}s.\footnote{
+L-Language lexemes are layered system standard
+lexemes, which are a compromise between the needs of programming languages
+and the needs of natural languages.}
 
 Unless otherwise specified, the term `\key{character}' in this
 document means a 32-bit UNICODE character.
@@ -1291,8 +1294,7 @@ which is equivalent to
 A {\em numeric-word}, {\em natural}, or {\em number} lexeme
 is a C/C++ constant, and 
 conversely a C/C++ decimal constant
-not ending in a {\em decimal-point}
-or a C/C++ special floating point value (e.g., {\tt +Inf})
+that does not end in a {\em decimal-point}
 is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
 All these lexemes are given an IEEE double precision number value
 after the manner of C/C++, and then their lexical type is changed
@@ -1324,7 +1326,11 @@ that is followed by a
 lexeme that cannot be an {\em indent}, {\em line-break}, or
 {\em end-of-file}.
 
-Lexemes are organized into \skey{logical line}s.  A logical line
+Lexemes are organized into \skey{logical line}s.\footnote{
+L-Language lexemes logical lines and indented paragraphs are
+layered system brcketed subexpression recognition pass
+logical lines and paragraphs.}
+A logical line
 begins immediately after an {\em indent} lexeme, and the
 \key{indent} of the logical line is the
 indent of this {\em indent} lexeme (i.e., the indent of the
@@ -1464,7 +1470,12 @@ a block that itself consists of a sequence of statements.
 
 \section{Expressions}
 
-Expressions are built from operators, such as \TT{+} and \TT{*},
+Expressions\footnote{
+L-Language expressions are
+layered system standard operator parsing pass
+expressions with the addition of some
+operators.}
+are built from operators, such as \TT{+} and \TT{*},
 and primaries, such as variable names and function calls.
 
 Operators are characterized by fixity, precedence, and format.
@@ -1479,29 +1490,43 @@ where an {\em P-expression}
 is an expression all of whose operators that are outside brackets
 have precedence equal to or greater than P:
 
-\begin{indpar}\begin{minipage}{6in}
-\emkey{expression}\label{EXPRESSION} ::= {\em L-expression}
+\begin{indpar}
+\emkey{expression}\label{EXPRESSION} ::= {\em (L-1)-expression}
 \\[0.5ex]
-\emkey{P-expression}
-    \begin{tabular}[t]{@{}rl}
-    ::= & \{ {\em (P+1)-expression} $|$ {\em P-operator)} \}\PLUS{} \\
-        & where no two {\em (P+1)-expressions} may be adjacent \\ 
-        & and the {\em P-operators} must obey the fixity rules below \\
+\emkey{P-expression} ::=
+    \begin{tabular}[t]{l}
+    {\em P-initial-operator}\STAR{} \\
+    \{ {\em (P+1)-expression} $|$ {\em P-middle-operator} \}\PLUS{} \\
+    {\em P-final-operator}\STAR{}
     \end{tabular}
+\\[0.5ex]
+\emkey{(H+1)-expression} ::= {\em non-operator}\PLUS{}
 \\[0.5ex]
 \emkey{P-operator} ::= operator of precedence P
 \\[0.5ex]
-\emkey{(H+1)-expression} ::= {\em primary}
+\emkey{P-initial-operator} ::= {\em P-operator} with \TT{initial} flag
 \\[0.5ex]
-\emkey{primary} ::= {\em primary-element}\PLUS{} ~~~~~ [see \pagref{PRIMARIES}]
+\emkey{P-final-operator} ::= {\em P-operator} with \TT{final} flag
 \\[0.5ex]
-\emkey{primary-element} ::= {\em non-operator-lexeme} $|$
-                            {\em bracketed-subexpression}
+\emkey{P-middle-operator} ::= {\em P-operator} with \underline{neither}
+                              \TT{initial} or \TT{final} flag
 \\[2.0ex]
-\hspace*{3em}\begin{tabular}{l}
-where P is any precedence in the range [L-1,H] \\
-\end{tabular}
-\end{minipage}\end{indpar}
+where in a {\em P-expression}: \\
+\hspace*{1em}\begin{tabular}[t]{l}
+       P is any precedence in the range [L-1,H]; \\
+       no two {\em (P+1)-expressions} may be adjacent; \\ 
+       each {\em P-operator} with a \TT{left} flag must be
+              preceded by a {\em (P+1)-expression}; \\
+       each {\em P-operator} with a \TT{right} flag must be
+	  followed by a {\em (P+1)-expression}; \\
+       any operator with an \TT{afix} flag must not be the first
+           {\em P-operator} \\
+       ~~~~~~~~in a {\em P-expression}; \\
+       no operator may have both a \TT{initial} and a \TT{left} flag; \\
+       no operator may have both a \TT{right} and a \TT{final} flag; \\
+       no operator may have both a \TT{initial} and an \TT{afix} flag; \\
+       \end{tabular}
+\end{indpar}
 
 
 Generally
