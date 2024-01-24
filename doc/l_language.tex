@@ -682,6 +682,7 @@ force the target type of $e$ to be {\tt T}.  As an example
 consider the following, where there are builtin functions:
 \begin{center} \tt
 \begin{tabular}{l}
+function N r = N ( N v1 ) \\
 function N r = ( N v1 ) "+" ( N v2 ) \\
 function bool r = ( N v1 ) "<" ( N v2 ) \\
 \end{tabular}
@@ -692,23 +693,26 @@ for every number type {\tt N}:
 int x = ...
 bool b1 = ( x + 3 < 5 )
     // Illegal: any target type N to which int is implicitly
-    // convertible can be used as the target type of "+" and "<" so
+    // convertible can be used as the target type of "+", so
     // this is ambiguous.
 bool b2 = ( flt ( x ) + 3 < 5 )
-    // Legal: type of flt ( x ) can only be flt, so that is the type
-    // of "+" and therefore "<".  Note that flt forces implicit
-    // conversion of x from int to flt.
+    // Legal: the type of flt ( x ) can only be flt, so that is the
+    // target type of "+", 3, and 5.  Note that the flt function
+    // forces implicit conversion of the value of the variable x
+    // from int to flt.
 bool b3 = ( x + 3 < int ( 5 ) )
     // Legal: type of int ( 5 ) can only be int, so that is the type
-    // of "<" which becomes the target type of "+".  Note that int
-    // forces implicit conversion of const to int.
+    // of the arguments of "<" and therefore the target type of "+".
+    // Note that the int function forces implicit conversion of
+    // the const 5 to int.
 \end{verbatim}\end{indpar}
 
 Integer arithmetic ignores overflows (as in C and C++); for example,
 if integer + produces a value too large for its
 target, the result is undefined and may or may not cause program
 termination.
-There are similar explicit conversion functions from a floating
+
+There are explicit conversion functions from a floating
 point type {\tt F} to any integer type {\tt I} with prototypes:
 \begin{center} \tt
 \begin{tabular}{l}
@@ -749,16 +753,19 @@ conversions are preferred.  For example,
 
 \begin{indpar}\begin{verbatim}
 int x = ...
-bool b = ( x < 6 )
+bool b1 = ( x < 6 )
     // There is a separate "<" operator for every number type,
     // so x and 6 could both be converted to, say, flt.  But this
     // is two implicit conversions, whereas using the "<" operator
     // for int requires only one conversion, so this is used.
-bool b = ( x < 6.5 )
+bool b2 = ( x < 6.5 )
     // Again int is chosen for "<", but this time 6.5 produces a
     // compiler error when converted to an int.  Inconveribility
     // of particular constant values is NOT considered in selecting
     // among overloaded function definitions.
+bool b3 = ( x <= floor ( 6.5 ) )
+    // Again int is chosen for "<", but this time 6.5 is replaced
+    // by 6.0 by the compile-time execution of the floor function.
 \end{verbatim}\end{indpar}
 
 It is possible to define compile-time functions:
@@ -791,8 +798,9 @@ function T$r r = max ( T$r x, T$r y ):
 const x = 2e5
 int y = 27e4
 int z = max ( x, y )      // T$r is int, x converts to int.
-const w = 34e4
-const v = max ( x, w )    // T$r is const, all values are const.
+const u = 34e4
+const v = max ( x, u )    // T$r is const, all values are const.
+const w = max ( x, y )    // Illegal: T$r is const, y is not.
 \end{verbatim}\end{indpar}
 
 A wildcard type of a result variable gets its value from the
@@ -819,33 +827,21 @@ which converts the pointer of type {\tt P\$s} to a pointer of
 type {\tt dp} (direct pointer) and calls the `foreign' C programming
 language subroutine {\tt strlen} with the direct pointer.
 The {\tt *UNCHECKED*} function is needed to produce a direct pointer
-from other pointer types, though this cannot be done for some pointer types
-(e.g., field pointer types).
+from other pointer types, though this function is undefined
+for some argument pointer types (e.g., field pointer types).
 
 A pointer type
 has two places where a qualifier may appear, as in
 
 \begin{indpar}\begin{verbatim}
 type my control block:
-    co ap *GLOBAL* uns32 @cr
+    *READ-WRITE* ap *GLOBAL* ro uns32 @cr
     ....
 \end{verbatim}\end{indpar}
-in which {\tt @cr} is a constant pointing at a global
-{\tt uns32} location {\tt cr}.
+in which {\tt @cr} is a read-write pointer variable pointing at a global
+read-only {\tt uns32} location {\tt cr}.
 
-Pointer types cannot be cascaded, but there is a work-around
-using defined types:
-\begin{indpar}\begin{verbatim}
-ap av flt64 @p = .....        // Illegal!
-
-struct my pointer
-    av flt64 @q
-
-. . . . . . . . . .
-
-ap my pointer @p = ...        // OK
-flt64 v = p.q[0]              // OK
-\end{verbatim}\end{indpar}
+Pointer types cannot be cascaded, but there are a work-arounds.
 
 Any inline function can create new code that is inserted
 after the statement containing a call to the function.
