@@ -161,10 +161,10 @@ L-LANGUAGE
 \end{center}
 \begin{center}
 \large \bf
-(Draft 1a)
+(Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-October 22, 2023
+January 24, 2024
 
 \bigskip
  
@@ -302,7 +302,7 @@ that contains the `base (byte) address' of the vector.
 Note that the {\tt av} value does \underline{not} contain
 the base address, but contains instead this pointer to where
 the base address is stored in memory.  This scheme allows
-the base address to be change without changing the {\tt av} value.
+the base address to be changed without changing the {\tt av} value.
 \item An `offset' {\tt int} that is added to the base address
 to form the byte address of the vector element
 that has index {\tt 0} in the vector (this element does not
@@ -317,7 +317,7 @@ There are other types of pointer.  An {\tt fv}, or `field vector',
 is like an {\tt av} aligned
 vector except that the offset {\tt int} has a bit address in its
 high order part and a field size in bits in its low order part.
-The {\tt ap} and {\tt fp} types are
+The {\tt ap} (`aligned pointer') and {\tt fp} (`field pointer')  types are
 similar but do not have the bounds and cannot be indexed.  Lastly
 there is the direct pointer, {\tt dp}, that is just a single {\tt int}
 containing a byte address; this is most useful for calling
@@ -577,20 +577,21 @@ A defined type value has a size in bytes just large enough to
 accommodate all its fields.  If a defined type has multiple
 {\em type-declarations}, this size may not be known until load time.
 
-Values of {\tt const} type are compile-time values, and are
-not available at run-time.  Number constants consisting of
+Values of defined types are strictly run-time values.  In contrast,
+values of {\tt const} type are compile-time values, and are
+not available at run-time.  Number lexemes consisting of
 digits and optional signs, decimal points, and exponents,
-are converted to IEEE 64-bit floating point values, as are
-special lexemes such as {\tt inf}, {\tt +inf}, {\tt -inf}, and
+are converted to IEEE 64-bit floating point {\tt const} values, as are
+special numeric-word lexemes such as {\tt inf}, {\tt +inf}, {\tt -inf}, and
 {\tt nan}.  Other number constants represent
-rationals with unbounded integral numerators
+rational {\tt const} values with unbounded integral numerators
 and denominators; for example,
 {\tt D\#"1/3"} represents the precise rational one-third.
 Number constants
 can be converted to run-time numbers during compilation.
 However it is a compile error
 if the result will not fit into the runtime number.
-This happens, for example, if either {\tt 1.1} or {\tt 1e20}
+This happens, for example, if {\tt 1.1}, {\tt 1e20}, or {\tt D\#"1/3"}
 is converted to an {\tt int32}.
 
 Quoted strings denote string {\tt const} values that can be
@@ -629,8 +630,8 @@ the constant value can be stored exactly in a variable
 of the run-time type or the run-time type is floating point
 (in which case there may be loss of precision or conversion to
 an infinity).
-Any number type variable may be implicitly converted
-at run-time to a type that will hold all the possible values of
+Any run-time numeric variable value may be implicitly converted
+at run-time to a number type that will hold all the possible values of
 the variable, or to any floating point type
 (in which case the run-time conversion result
 may be less precise or an infinity).
@@ -640,10 +641,10 @@ For a function call, the function result \underline{cannot}
 be implicitly converted to the target type.
 However a function call that returns a {\tt const}
 result is replaced by its value at compile time, and this value
-can be implicitly converted to the target type.  Also, variables
-may be implicitly converted to their target type.
+can be implicitly converted to the target type.  Also, variable values
+may be implicitly converted to a target type.
 
-Builtin operators, such as `{\tt +}',
+Most builtin operators, such as `{\tt +}',
 have operands of the same type as their result.
 
 An example of all this is:
