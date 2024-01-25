@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-January 24, 2024
+January 25, 2024
 
 \bigskip
  
@@ -1494,11 +1494,24 @@ have precedence equal to or greater than P:
 \emkey{expression}\label{EXPRESSION} ::= {\em (L-1)-expression}
 \\[0.5ex]
 \emkey{P-expression} ::=
-    \begin{tabular}[t]{l}
-    {\em P-initial-operator}\STAR{} \\
-    \{ {\em (P+1)-expression} $|$ {\em P-middle-operator} \}\PLUS{} \\
-    {\em P-final-operator}\STAR{}
+    \begin{tabular}[t]{@{}l}
+    {\em P-initial-operators}\QMARK{} \\
+    \{ {\em (P+1)-expression} $|$ {\em P-middle-operator)} \}\PLUS{} \\
+    {\em P-final-operators}\QMARK{} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{P-basic-expression} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em P-initial-operator}\QMARK{} \\
+    \{ {\em (P+1)-expression} $|$ {\em P-middle-operator)} \}\PLUS{} \\
+    {\em P-final-operator}\QMARK{} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{P-initial-operators} ::= {\em P-prefix-operator}\STAR{}
+				{\em P-initial-operator}
+\\[0.5ex]
+\emkey{P-final-operators} ::= {\em P-final-operator}
+				{\em P-postfix-operator}\STAR{}
 \\[0.5ex]
 \emkey{(H+1)-expression} ::= {\em non-operator}\PLUS{}
 \\[0.5ex]
@@ -1509,7 +1522,13 @@ have precedence equal to or greater than P:
 \emkey{P-final-operator} ::= {\em P-operator} with \TT{final} flag
 \\[0.5ex]
 \emkey{P-middle-operator} ::= {\em P-operator} with \underline{neither}
-                              \TT{initial} or \TT{final} flag
+                              \TT{initial} nor \TT{final} flag
+\\[0.5ex]
+\emkey{P-prefix-operator} ::= {\em P-operator} with \underline{both}
+                              the \TT{initial} and \TT{right} flags
+\\[0.5ex]
+\emkey{P-postfix-operator} ::= {\em P-operator} with \underline{both}
+                               the \TT{final} and \TT{left} flags
 \\[2.0ex]
 where in a {\em P-expression}: \\
 \hspace*{1em}\begin{tabular}[t]{l}
@@ -1525,16 +1544,30 @@ where in a {\em P-expression}: \\
        no operator may have both a \TT{initial} and a \TT{left} flag; \\
        no operator may have both a \TT{right} and a \TT{final} flag; \\
        no operator may have both a \TT{initial} and an \TT{afix} flag; \\
+       if there is more than one operator in a
+           {\em P-expression-initial-operators}, \\
+       ~~~~~~~~implicit `\TT{(}' left parentheses are inserted between
+                                 operators; \\
+       if there is more than one operator in a
+           {\em P-expression-final-operators}, \\
+       ~~~~~~~~implicit `\TT{)}' right parentheses are inserted between
+                                 operators; \\
+       if the implicit parentheses are not balanced, implicit parentheses \\
+       ~~~~~~~~are inserted at the beginning or end to balance the
+               implicit parentheses;
        \end{tabular}
 \end{indpar}
 
-
-Generally
+Essentially the expression being parsed is organized into {\em P-expressions}
+where $P$ is the precedence of the {\em P-expression}.  Generally
 a {\em P-expression} consists of a sequence of {\em (P+1)-expressions}
-separated by operators of precedence $P$.
-Precedence L-1 is reserved for an error operator used to fix up parsing errors,
-precedence H-1 is reserved for highest precedence prefix operators,
-and precedence H is reserved for highest precedence postfix operators.
+and operators of precedence $P$.
+If a {\em P-expression} is not a {\em P-basic-expression}, implicit
+parentheses are inserted to make the {\em P-expression} into a
+{\em P-basic-expression} that contains a subexpression that is
+also a {\em P-basic-expression}.  As an example of this, if `{\tt -}'
+is a prefix operator, `{\tt - - x}' is converted to the equivalent
+of `{\tt - (- x)}'.
 
 The operators can have any combination of the following \key{base fixities}:
 
@@ -1771,7 +1804,9 @@ have precedences in
 the range {\em [L,H]}.
 Precedence {\em (L-1)} is reserved for the `error operator' which is a
 nofix operator inserted by the parser to `fix up' parsing errors
-so parsing can continue.
+so parsing can continue.  Precedence {\em (H-1)} is reserved for prefix
+operators and precedence {\em H} is reserved for postfix operators
+(although not all prefix and postfix operators have these precedences).
 
 The first {\em P-operator} in a {\em P-expression} determines
 the {\em P-expression}'s \key{format}, which is one of the following,
