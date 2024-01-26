@@ -2110,21 +2110,27 @@ For example {\tt std} abbreviates the builtin standard module.
 L-Language uses many kinds of names:
 
 \begin{indpar}
-\emkey{simple-name} ::= {\em word} not containing any `\TT{.}'s or `\TT{@}'s \\
+\emkey{simple-name} ::= {\em word} not containing any `\TT{.}'s or `\TT{@}'s
+    [\ref{OPERATOR-RULE},
+     \ref{QUALIFIER-RULE}] \\
 \emkey{module-abbreviation}\label{MODULE-ABBREVIATION} ::= {\em simple-name} \\
 \emkey{ma} ::= {\em module-abbreviation} \\
 \emkey{pointer-type-name}\label{POINTER-TYPE-NAME} ::=
-    \MA{} {\em simple-name} (see rule \ref{POINTER-TYPE-NAME-RULE} below)
+    \MA{} {\em simple-name}
+    [\ref{POINTER-TYPE-NAME-RULE}] \\
 \\[1ex]
 \emkey{basic-name}\label{BASIC-NAME} ::=
 	\begin{tabular}[t]{@{}l}
 	{\em name} not containing a `\TT{.}', {\em quoted-mark}, or
-	    {\em quoted-separator} \\
-	(see rule \ref{BASIC-NAME-RULE} below)
+	    {\em quoted-separator} \\{}
+	[\ref{MODULE-ABBREVIATION-RULE},
+	 \ref{FUNCTION-KEYWORD-RULE},
+	 \ref{OPERATOR-RULE},
+	 \ref{QUALIFIER-RULE}] \\
 	\end{tabular} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
     \MA{} {\em basic-name} not containing `\TT{@}'s
-	(see rule \ref{TYPE-NAME-RULE} below) \\
+	[\ref{TYPE-NAME-RULE}] \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     \MA{} {\em basic-name} \\
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
@@ -2139,10 +2145,12 @@ L-Language uses many kinds of names:
 	::= \begin{tabular}[t]{@{}l@{}}
                         {\em name} beginning with a {\em word} or
 			{\em quoted-mark} containing a `\TT{.}', \\
-			but not containing a {\em quoted-separator} \\
+			but not containing a {\em quoted-separator}
+			[\ref{FUNCTION-KEYWORD-RULE},
+			 \ref{OPERATOR-RULE},
+			 \ref{QUALIFIER-RULE}] \\
 			(note: all `\TT{.}'s in a {\em name} must be at
 			 the beginning of the {\em name})
-			(also see rule \ref{MEMBER-NAME-RULE} below) \\
 			\end{tabular} \\
 \emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::=
     {\em member-name} with `\TT{@}' following the initial `\TT{.}'s \\
@@ -2154,7 +2162,10 @@ L-Language uses many kinds of names:
 \\[1ex]
 \emkey{function-term-name} ::= {\em name} not containing a `\TT{.}'
     \label{FUNCTION-TERM-NAME}
-	(see rule \ref{FUNCTION-TERM-NAME-RULE} below) \\
+	[\ref{MODULE-ABBREVIATION-RULE},
+	 \ref{FUNCTION-KEYWORD-RULE},
+	 \ref{OPERATOR-RULE},
+	 \ref{QUALIFIER-RULE}] \\
 \\[1ex]
 \emkey{qualifier-name}\label{QUALIFIER-NAME}
     \begin{tabular}[t]{rl}
@@ -2163,7 +2174,6 @@ L-Language uses many kinds of names:
     $|$ & \ttakey{GLOBAL} $|$ \ttakey{LOCAL} $|$ \ttakey{HEAP} \\
     \end{tabular}
 \begin{indpar}
-(see rule \ref{QUALIFIER-NAME-RULE} below) \\
 {\tt co} abbreviates `constant' meaning `never changes' \\
 {\tt ro} abbreviates `read-only' meaning `other code may change' \\
 {\tt *GLOBAL*} has global (forever) lifetime \\
@@ -2203,51 +2213,13 @@ L-Language uses many kinds of names:
 \hspace*{0.2in}\begin{tabular}{rll}
 \ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
 \ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
-\ttkey{L} & allows \TT{*LOCAL*}  & (see rule \ref{Q-FLAG-RULE} below)\\
-\ttkey{G} & allows \TT{*GLOBAL*} & (see rule \ref{Q-FLAG-RULE} below)\\
-\ttkey{H} & allows \TT{*HEAP*}   & (see rule \ref{Q-FLAG-RULE} below)\\
+\ttkey{L} & allows \TT{*LOCAL*}  & [\ref{Q-FLAG-RULE}] \\
+\ttkey{G} & allows \TT{*GLOBAL*} & [\ref{Q-FLAG-RULE}] \\
+\ttkey{H} & allows \TT{*HEAP*}   & [\ref{Q-FLAG-RULE}] \\
 \end{tabular}
-
-
-where the following rules should be followed, least there be
-various confusing syntax or semantic errors (some, but not all,
-violations of these rules will be detected as compilation errors):
-\begin{enumerate}
-\item\label{BASIC-NAME-RULE}
-{\em Basic-names} should not begin with a {\em module-abbre\-viation},
-contain {\em function-keywords}, begin with {\em initial-operators},
-end with {\em final-operators}, or contain {\em middle-operators}.
-\item\label{TYPE-NAME-RULE}
-A {\em type-name} should not begin with a {\em pointer-type-name}.
-\item\label{POINTER-TYPE-NAME-RULE}
-A {\em pointer-type-name} should not begin with a {\em type-name}.
-\item\label{FUNCTION-TERM-NAME-RULE}
-{\em Function-term-names}
-should not begin with a {\em module-abbre\-viation}
-or contain {\em function-keywords}.  Unless a {\em function-term-name}
-is an {\em operator}, it should not begin with an {\em initial-operator},
-end with a {\em final-operator}, or contain {\em middle-operators}.
-\item\label{MEMBER-NAME-RULE}
-{\em Member-names}
-should not contain {\em function-keywords}.  Unless a {\em member-name}
-is an {\em operator}, it should not
-end with a {\em final-operator}, or contain {\em middle-operators}.
-\item\label{QUALIFIER-NAME-RULE}
-{\em Names} that are not {\em qualifier-names}
-should not contain {\em qualifier-names}, with the
-exception that a {\em qualifier-name} by itself can be
-a {\em function-term}.
-\item\label{Q-FLAG-RULE}
-If any of {\tt L}, {\tt G}, or {\tt H} are
-used as a {\em qualifier-wild-card-flags}, those \underline{not} used
-indicate that their corresponding lifetime types are not allowed.
-If none of {\tt L}, {\tt G}, or {\tt H} are used,
-all lifetime types are allowed (as if {\tt LGH} has been used).
-\end{enumerate}
 \end{indpar}
 
-For example,
-the name resolver treats a sequence of
+The name resolver treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
 \begin{tabular}{l}
@@ -2261,7 +2233,36 @@ where \MA denotes an optional {\em module-abbreviation},
 and while scanning this sequence from left to right,
 the name resolver does \underline{not} back up after identifying
 a {\em qualifier-name}, {\em module-name}, {\em pointer-type-name}
-or {\em type-name} in the sequence.
+or {\em type-name} in the sequence.  As a consequence, the
+following rules should be followed, least there be
+various confusing syntax or semantic errors (some, but not all,
+violations of these rules will be detected as compilation errors):
+\begin{enumerate}
+\item\label{MODULE-ABBREVIATION-RULE}
+{\em Basic-names} and {\em function-term-names}
+should not begin with a {\em module-abbre\-viation}.
+\item\label{FUNCTION-KEYWORD-RULE}
+{\em Names} should not contain {\em function-keywords}.
+\item\label{OPERATOR-RULE}
+{\em Names} that are not themselves operator names should not
+begin with {\em initial-operators},
+end with {\em final-operators}, or contain {\em middle-operators}.
+\item\label{TYPE-NAME-RULE}
+A {\em type-name} should not begin with a {\em pointer-type-name}.
+\item\label{POINTER-TYPE-NAME-RULE}
+A {\em pointer-type-name} should not begin with a {\em type-name}.
+\item\label{QUALIFIER-RULE}
+{\em Names} that are not {\em qualifier-names}
+should not contain {\em qualifier-names}, with the
+exception that a {\em qualifier-name} by itself can be
+a {\em function-term}.
+\item\label{Q-FLAG-RULE}
+If any of {\tt L}, {\tt G}, or {\tt H} are
+used as a {\em qualifier-wild-card-flags}, those \underline{not} used
+indicate that their corresponding lifetime types are not allowed.
+If none of {\tt L}, {\tt G}, or {\tt H} are used,
+all lifetime types are allowed (as if {\tt LGH} has been used).
+\end{enumerate}
 
 {\em Variable-names}, {\em type-names}, and {\em pointer-type-names}
 that begin with a {\em module-abbreviation} are called
