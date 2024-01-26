@@ -2107,11 +2107,13 @@ A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULE-AND-BODY-DECLARATIONS}.
 For example {\tt std} abbreviates the builtin standard module.
 
-L-Language uses many kinds of names:
+L-Language uses many kinds of names (the numbers in brackets refer to
+rules below):
 
 \begin{indpar}
 \emkey{simple-name} ::= {\em word} not containing any `\TT{.}'s or `\TT{@}'s
-    [\ref{OPERATOR-RULE},
+    [\ref{FUNCTION-KEYWORD-RULE},
+     \ref{OPERATOR-RULE},
      \ref{QUALIFIER-RULE}] \\
 \emkey{module-abbreviation}\label{MODULE-ABBREVIATION} ::= {\em simple-name} \\
 \emkey{ma} ::= {\em module-abbreviation} \\
