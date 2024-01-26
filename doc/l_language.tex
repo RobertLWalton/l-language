@@ -2107,20 +2107,24 @@ A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULE-AND-BODY-DECLARATIONS}.
 For example {\tt std} abbreviates the builtin standard module.
 
-L-Language uses several kinds of names:
+L-Language uses many kinds of names:
 
 \begin{indpar}
 \emkey{simple-name} ::= {\em word} not containing any `\TT{.}'s or `\TT{@}'s \\
 \emkey{module-abbreviation}\label{MODULE-ABBREVIATION} ::= {\em simple-name} \\
 \emkey{ma} ::= {\em module-abbreviation} \\
 \emkey{pointer-type-name}\label{POINTER-TYPE-NAME} ::=
-    \MA{} {\em simple-name}
+    \MA{} {\em simple-name} (see rule \ref{POINTER-TYPE-NAME-RULE} below)
 \\[1ex]
 \emkey{basic-name}\label{BASIC-NAME} ::=
-	    {\em name} not containing a `\TT{.}', {\em quoted-mark}, or
+	\begin{tabular}[t]{@{}l}
+	{\em name} not containing a `\TT{.}', {\em quoted-mark}, or
 	    {\em quoted-separator} \\
+	(see rule \ref{BASIC-NAME-RULE} below)
+	\end{tabular} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
-    \MA{} {\em basic-name} not containing `\TT{@}'s \\
+    \MA{} {\em basic-name} not containing `\TT{@}'s
+	(see rule \ref{TYPE-NAME-RULE} below) \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     \MA{} {\em basic-name} \\
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
@@ -2138,6 +2142,7 @@ L-Language uses several kinds of names:
 			but not containing a {\em quoted-separator} \\
 			(note: all `\TT{.}'s in a {\em name} must be at
 			 the beginning of the {\em name})
+			(also see rule \ref{MEMBER-NAME-RULE} below) \\
 			\end{tabular} \\
 \emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::=
     {\em member-name} with `\TT{@}' following the initial `\TT{.}'s \\
@@ -2149,6 +2154,7 @@ L-Language uses several kinds of names:
 \\[1ex]
 \emkey{function-term-name} ::= {\em name} not containing a `\TT{.}'
     \label{FUNCTION-TERM-NAME}
+	(see rule \ref{FUNCTION-TERM-NAME-RULE} below) \\
 \\[1ex]
 \emkey{qualifier-name}\label{QUALIFIER-NAME}
     \begin{tabular}[t]{rl}
@@ -2157,6 +2163,7 @@ L-Language uses several kinds of names:
     $|$ & \ttakey{GLOBAL} $|$ \ttakey{LOCAL} $|$ \ttakey{HEAP} \\
     \end{tabular}
 \begin{indpar}
+(see rule \ref{QUALIFIER-NAME-RULE} below) \\
 {\tt co} abbreviates `constant' meaning `never changes' \\
 {\tt ro} abbreviates `read-only' meaning `other code may change' \\
 {\tt *GLOBAL*} has global (forever) lifetime \\
@@ -2196,9 +2203,9 @@ L-Language uses several kinds of names:
 \hspace*{0.2in}\begin{tabular}{rll}
 \ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
 \ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
-\ttkey{L} & allows \TT{*LOCAL*}  & (see rule \ref{Q-FLAG-RULE} below )\\
-\ttkey{G} & allows \TT{*GLOBAL*} & (see rule \ref{Q-FLAG-RULE} below )\\
-\ttkey{H} & allows \TT{*HEAP*}   & (see rule \ref{Q-FLAG-RULE} below )\\
+\ttkey{L} & allows \TT{*LOCAL*}  & (see rule \ref{Q-FLAG-RULE} below)\\
+\ttkey{G} & allows \TT{*GLOBAL*} & (see rule \ref{Q-FLAG-RULE} below)\\
+\ttkey{H} & allows \TT{*HEAP*}   & (see rule \ref{Q-FLAG-RULE} below)\\
 \end{tabular}
 
 
@@ -2206,19 +2213,26 @@ where the following rules should be followed, least there be
 various confusing syntax or semantic errors (some, but not all,
 violations of these rules will be detected as compilation errors):
 \begin{enumerate}
-\item
+\item\label{BASIC-NAME-RULE}
+{\em Basic-names} should not begin with a {\em module-abbre\-viation},
+contain {\em function-keywords}, begin with {\em initial-operators},
+end with {\em final-operators}, or contain {\em middle-operators}.
+\item\label{TYPE-NAME-RULE}
 A {\em type-name} should not begin with a {\em pointer-type-name}.
-\item
+\item\label{POINTER-TYPE-NAME-RULE}
 A {\em pointer-type-name} should not begin with a {\em type-name}.
-\item
-{\em Function-term-names} and {\em basic-names}
+\item\label{FUNCTION-TERM-NAME-RULE}
+{\em Function-term-names}
 should not begin with a {\em module-abbre\-viation}
-or contain {\em function-keywords}.
-\item
-{\em Names} not used as operators should not begin with initial {\em operators},
-should not end with final {\em operators}, and should not contain
-{\em operators} that are neither initial nor final.
-\item
+or contain {\em function-keywords}.  Unless a {\em function-term-name}
+is an {\em operator}, it should not begin with an {\em initial-operator},
+end with a {\em final-operator}, or contain {\em middle-operators}.
+\item\label{MEMBER-NAME-RULE}
+{\em Member-names}
+should not contain {\em function-keywords}.  Unless a {\em member-name}
+is an {\em operator}, it should not
+end with a {\em final-operator}, or contain {\em middle-operators}.
+\item\label{QUALIFIER-NAME-RULE}
 {\em Names} that are not {\em qualifier-names}
 should not contain {\em qualifier-names}, with the
 exception that a {\em qualifier-name} by itself can be
