@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-January 25, 2024
+January 26, 2024
 
 \bigskip
  
@@ -1721,7 +1721,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\hline
 \ttkey{NOT}  & logical not & prefix & unary & 11200
 \\\hline
-\ttkey{==}  & is equal & infix & (none) & 12000
+\ttkey{==}  & is equal & infix & infix & 12000
 \\\cline{1-2}
 \ttkey{!=}  & is not equal & & &
 \\\cline{1-2}
@@ -1860,7 +1860,8 @@ and `operand' to mean {\em (P+1)-expression}:
     & The expression operators must all be either \TT{if} or \TT{else}.
       The expression must consist of alternating operands
       and operators and begin and end with an operand.
-      The two possible operators alternate, with \TT{if} first.
+      The two possible operators alternate, with \TT{if} first
+      and \TT{else} last.
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
@@ -1876,14 +1877,25 @@ and `operand' to mean {\em (P+1)-expression}:
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
+\ttkey{infix}
+    & The expression must consist of alternating operands
+      and operators and begin and end with an operand.
+\\[1ex]
 \ttkey{n-ary}
     & All operators in the expression must be identical.
       The expression must consist of alternating operands
       and operators and begin and end with an operand.
-\\[1ex]
+\end{tabular}
+\\[0.5ex]
+\begin{tabular}{p{1in}p{5.0in}}
 \ttkey{unary}
     & The expression must consist of
       the operator followed by an operand.
+\\[1ex]
+\ttkey{iteration}
+    & The expression must consist of
+      the operator followed by an operand optionally followed
+      by the afix operator `\TT{times}',
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
@@ -1894,7 +1906,7 @@ and `operand' to mean {\em (P+1)-expression}:
 \end{tabular}
 \end{center}
 
-There are a few additional special syntactic rules:
+There is an additional special syntactic rule:
 \begin{enumerate}
 \item Non-line bitwise operators (\TT{|}, \TT{\&}, \TT{\textasciicircum},
 \TT{<{}<}, \TT{>{}>}, and \TT{\textasciitilde}) cannot be mixed
@@ -1984,8 +1996,9 @@ but the following examples give an idea of some of this semantics:
        and similarly for other bitwise operators.
 
 \hspace*{-0.2in}{\tt x \TT{**} y} \\
-       Requires that {\tt y} be a {\tt const} non-negative integer;
-       {\tt x ** 0 \TT{==} 1} and {\tt x ** 1 \TT{==} x} for all {\tt x}.
+       Requires that {\tt y} be a {\tt const} integer;
+       {\tt x ** 0 \TT{==} 1}, {\tt x ** 1 \TT{==} x},
+       {\tt x ** -1 \TT{==} 1/x} for all {\tt x}.
 
 \hspace*{-0.2in}{\tt x \TT{+=} y} \\
 	Means `{\tt x \TT{=} x + y}', where {\tt x} must be {\tt *READ-WRITE*}.
@@ -2035,19 +2048,24 @@ variables and functions.  Names are building blocks of primaries.
     \begin{tabular}[t]{@{}rl}
     ::= & {\em word} containing no `\TT{.}' that follows a character
                      that is not a `\TT{.}' \\
-        & [i.e., `\TT{.}'s can only be at the \underline{beginning}
-	   of the {\em word}] \\
         & [see text about splitting words with embedded `\TT{.}'s] \\
     $|$ & {\em natural} [see \pagref{LEXEME-TYPE-CONVERSION}] \\
+    $|$ & {\em quoted-word} containing no `\TT{.}' that follows a character \\
+        & that is not the beginning \TT{"} or another `\TT{.}' \\
     $|$ & {\em quoted-mark} containing no `\TT{.}' that follows a character \\
         & that is not the beginning \TT{"} or another `\TT{.}' \\
-        & [i.e., `\TT{.}'s can only be at the \underline{beginning}
-	   of the {\em mark}] \\
-        & [see text about splitting marks with embedded `\TT{.}'s] \\
     $|$ & {\em quoted-separator} not containing `\TT{.}'s \\
     \end{tabular} \\
+\emkey{quoted-word} :::= \TT{"} {\em word} \TT{"} \\
 \emkey{quoted-mark} :::= \TT{"} {\em mark} \TT{"} \\
 \emkey{quoted-separator} :::= \TT{"} {\em separator} \TT{"}
+
+\begin{itemize}
+\item `\TT{.}'s must appear at the beginning of {\em words}
+and {\tt marks} (examples: `\TT{..size}' and `\TT{.*}').
+See text about splitting {\em words} and {\em marks}
+with embedded `\TT{.}'s.
+\end{itemize}
 \end{indpar}
 
 {\em Words} and {\em marks} containing embedded `\TT{.}'s are split into
@@ -2066,17 +2084,20 @@ However it is a compile error if one of the parts is not a {\em word}
 or {\em mark}, as in the examples where {\tt .1} is a {\em number} and
 {\tt .,} is not a legal lexeme.
 
-{\em Quoted-marks} are \underline{not} split.
+{\em Quoted-words} and {\em quoted-marks} are \underline{not} split.
 
-A function may be defined with a {\em name} that is a {\em quoted-mark},
-such as {\tt "+"}.  It may then be called by an expression in which the
-quotes are omitted, such as {\tt x + y}.  Similarly a function may be
+A function may be defined with a {\em name} that is a {\em quoted-word}
+or {\em quoted-mark},
+such as {\tt "AND"} or {\tt "+"}.
+It may then be called by an expression in which the
+quotes are omitted, such as {\tt x AND y} or {\tt x + y}.
+Similarly a function may be
 defined with a function-term {\tt ".*"} and called by the expression
 {\tt p.*} which is split into {\tt p .*}.
 
 
 Name items beginning with more than one `\TT{.}' are reserved
-for use by systems and compilers (e.g., \TT{..size} in the example).
+for use by systems and compilers (e.g., \TT{..size} in the examples).
 Name items that are words containing `\TT{\$}' or that both
 begin and end with `\TT{*}' are
 similarly reserved.  For example, words of the form `\TT{T\$}\ldots'
