@@ -2225,20 +2225,21 @@ The name resolver treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
 \begin{tabular}{l}
-\{ {\em qualifier-name}\STAR{}~\MA {\em pointer-type-name}\}\QMARK{} \\
-\hspace*{0.5in}{\em qualifier-name}\STAR{}~
-\MA {\em type-name}~
-\MA {\em variable-name}
+\{ {\em qualifier-name}\STAR{} ~ {\em pointer-type-name}\}\QMARK{} \\
+\hspace*{0.5in}{\em qualifier-name}\STAR{} ~
+{\em type-name} ~ {\em variable-name}
 \end{tabular}
 \end{center}
-where \MA denotes an optional {\em module-abbreviation},
-and while scanning this sequence from left to right,
+where any {\em pointer-type-name}, {\em type-name}, or {\em variable-name}
+may begin with a {\em module-abbre\-via\-tion}.
+While scanning this sequence from left to right,
 the name resolver does \underline{not} back up after identifying
-a {\em qualifier-name}, {\em module-name}, {\em pointer-type-name}
+a {\em qualifier-name}, {\em module-abbreviation}, {\em pointer-type-name}
 or {\em type-name} in the sequence.  As a consequence, the
 following rules should be followed, least there be
-various confusing syntax or semantic errors (some, but not all,
-violations of these rules will be detected as compilation errors):
+various confusing syntax or semantic errors (some
+violations of these rules will be detected as compilation errors,
+but some will not be):
 \begin{enumerate}
 \item\label{MODULE-ABBREVIATION-RULE}
 {\em Basic-names} and {\em function-term-names}
@@ -2257,7 +2258,7 @@ A {\em pointer-type-name} should not begin with a {\em type-name}.
 {\em Names} that are not {\em qualifier-names}
 should not contain {\em qualifier-names}, with the
 exception that a {\em qualifier-name} by itself can be
-a {\em function-term}.
+a {\em function-term-name}.
 \item\label{Q-FLAG-RULE}
 If any of {\tt L}, {\tt G}, or {\tt H} are
 used as a {\em qualifier-wild-card-flags}, those \underline{not} used
