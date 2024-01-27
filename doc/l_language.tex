@@ -2537,18 +2537,16 @@ A map constant is computed by a {\em map-expression} whose syntax is:
 \emkey{dictionary-entry} ::=
     {\em dictionary-label} \TT{=>} {\em dictionary-value}
 \\[0.5ex]
-\emkey{list-element}\label{LIST-ELEMENT} ::= {\em const-expression}
+\emkey{list-element}\label{LIST-ELEMENT} ::= {\em pure-const-expression}
 \\[0.5ex]
 \emkey{dictionary-label}\label{DICTIONARY-LABEL}
-    ::= {\em const-expression} evaluating to a string
+    ::= {\em pure-const-expression} evaluating to a string
 \\[0.5ex]
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
-    ::= {\em const-expression}
+    ::= {\em pure-const-expression}
 \\[0.5ex]
-{\em const-expression} ::= \\
-\hspace*{0.2in}
-        {\tt const} valued {\em expression} evaluatable at compile-time,
-        see \itemref{CONST-EXPRESSIONS}
+{\em pure-const-expression} ::= an {\tt const} valued expression as
+    defined on \pagref{PURE-CONST-EXPRESSION}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
@@ -2568,9 +2566,9 @@ A map constant is computed by a {\em map-expression} whose syntax is:
 Maps \underline{cannot} be represented at run-time.
 
 By abuse of language, \key{list} is used to refer to a map whose
-dominant mode of access is to go through the map list elements
+dominant mode of usage is to go through the map list elements
 sequentially.  Similarly \key{vector} is used to refer to a map whose
-dominant mode of access is to access the map list elements randomly
+dominant mode of usage is to access the map list elements randomly
 using subscripts.  And \key{dictionary} is used to refer to a map
 whose dominant mode of usage is to access the map's dictionary elements.
 
@@ -3894,7 +3892,7 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
-    $|$ &  \ttkey{*OFFSET*} {\em integer-const-expression} \\
+    $|$ &  \ttkey{*OFFSET*} {\em integer-pure-const-expression} \\
     $|$ &  \ttkey{***} \\
     $|$ &  \ttkey{*EXTERNAL*} \\
     $|$ &  \ttkey{*OFFSET*} \ttkey{*SIZE*} \\
@@ -3948,12 +3946,10 @@ The syntax of a type declaration is:
 \emkey{basic-name} ::=  see \pagref{BASIC-NAME}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
-\emkey{dimension-size} ::=  {\em const-expression}
+\emkey{dimension-size} ::=  {\em pure-const-expression}
 			    with non-negative integer value \\
-{\em const-expression} ::= \\
-\hspace*{0.2in}
-        {\tt const} valued {\em expression} evaluatable at compile-time,
-        see \itemref{CONST-EXPRESSIONS}
+{\em pure-const-expression} ::= a {\tt const} valued expression as
+    defined on \pagref{PURE-CONST-EXPRESSION}
 \\[2ex]
 \emkey{subfield-declaration} ::= \\
 \hspace*{0.5in}
@@ -3970,17 +3966,17 @@ The syntax of a type declaration is:
     $|$ &  \TT{[} {\em highlowbits} \TT{]} \\
     $|$ &  \TT{[} {\em highbit} \TT{-} {\em lowbit} \TT{]}
     \end{tabular} \\
-\emkey{onlybit} ::= {\tt const-expression}
+\emkey{onlybit} ::= {\tt pure-const-expression}
 		    with non-negative integer value \\
 \emkey{highlowbits} :::= {\em dit}+ \TT{-} {\em dit}+
            ~~~~~ [this is a single lexeme] \\
-\emkey{highbit} ::= {\tt const-expression}
+\emkey{highbit} ::= {\tt pure-const-expression}
 		    with non-negative integer value \\
-\emkey{lowbit} ::= {\tt const-expression}
+\emkey{lowbit} ::= {\tt pure-const-expression}
 		   with non-negative integer value \\
 {\em dit} ::= see \pagref{DIT}
 \\[2ex]
-\emkey{alignment} ::= {\tt const-expression}
+\emkey{alignment} ::= {\tt pure-const-expression}
 		      with power of 2 integer value
 \end{indpar}
 
@@ -4038,7 +4034,7 @@ of the given {\em origin-label}.
 The {\em origin-label} must be defined by a preceding
 {\tt *LABEL*} sub-declaration.
 
-An `\ttkey{*OFFSET*} {\em integer-const-expression}' sub-declaration
+An `\ttkey{*OFFSET*} {\em integer-pure-const-expression}' sub-declaration
 changes the current offset to an integer.  Offsets set this way
 may be negative.  Offsets are in bits.
 
@@ -4782,14 +4778,12 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
-\emkey{required-value} ::= {\em const-expression}
+\emkey{required-value} ::= {\em pure-const-expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
-{\em const-expression} ::= \\
-\hspace*{0.2in}
-        {\tt const} valued {\em expression} evaluatable at compile-time,
-        see \itemref{CONST-EXPRESSIONS}
+{\em pure-const-expression} ::= an {\tt const} valued expression as
+    defined on \pagref{PURE-CONST-EXPRESSION}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
     ::= {\em parenthesized-pattern-argument-list}\STAR{}~
@@ -5020,7 +5014,7 @@ A {\em prototype-argument-declaration} with the syntax:
 \end{indpar}
 causes the argument value in a call to be the \underline{parse}
 of the actual argument, which is a {\tt const} value.  If the
-{\em default-value} is used, it is evaluated as a {\em const-expression}.
+{\em default-value} is used, it is evaluated as a {\em pure-const-expression}.
 
 If a {\em required-value} is given in a prototype, the call must
 have an equal {\tt const} valued actual argument value
@@ -5600,49 +5594,18 @@ During this bottom up transversal, an {\em expression} is
 deemed to be a {\em const-expression} if and only if it
 is a {\tt const} constant, a {\em reference-expression}
 evaluating to a {\em const} value,
-or a {\em function-call} such that:
-\begin{enumerate}
-\item All call arguments are {\tt const} constant values
-(after replacement of {\em const-subexpressions} by their
-values).
-\item An unambiguous function prototype is found matching
-the {\em function-call},
-using the algorithm of \itemref{INLINE-CALL-PROTOTYPE-MATCHING},
-where the only prototypes considered are those for which:
-\begin{enumerate}
-\item all prototype arguments and results have the {\tt const} type
-\item if the {\em function-call} to be matched is \underline{not}
-      the right side of
-      a {\em call-assignment-statement}\pagnote{CALL-ASSIGNMENT-STATEMENTS},
-      there is at least one result, and the first result will be
-      the value of the {\em function-call}
-\item if the {\em function-call} to be matched \underline{is} the right side
-      of a {\em call-assignment-statement}, the prototype has at least
-      as many prototype results as the {\em call-assignment-statement} has
-      {\em assignment-results}
-\end{enumerate}
-\end{enumerate}
+or a {\em function-call} which when inlined
+does not produce any run-time code (it may have run-time
+arguments whose types are queried but whose values are not used).
 
-When a {\em const-expression} is found by the bottom-up
-transversal, it is immediately evaluated at compile time.
-If the {\em const-expression} is \underline{not} the right side
-of a {\em call-assigment-statement}, its value replaces the
-{\em const-expression}.
-If the {\em const-expression} \underline{is} the right side
-of a {\em call-assigment-statement}, the {\em call-assignment-statement}
-is converted to an {\em expression-assignment-statement} with a list of
-the proper number of {\tt const} results of the {\em const-expression}
-becoming the {\em expression-list}.
-
-It is a compile error if a function called during this
-evaluation attempts to execute run-time code: e.g., if
-it attempts to allocate a variable to the run-time stack.
-The function may, however, use the {\tt *INCLUSION*}
-variable (see \itemref{INCLUSIONS})
+The {\em const-expression} {\em function-call} may,
+however, use the {\tt *INCLUSION*} variable (see \itemref{INCLUSIONS})
 to generate run-time code that will be compiled
-outside the context of the function execution - this code
-will be compiled immediately after code generated by compiling the
-statement containing the {\em const-expression}.
+outside the context of the function inlining.
+
+A {\em const-expression} that does not use the {\tt *INCLUSION*}
+variable (see below) is called a
+\emkey{pure-const-expression}\label{PURE-CONST-EXPRESSION}.
 
 \subsection{Reference Function Declarations}
 \label{REFERENCE-FUNCTION-DECLARATIONS}
