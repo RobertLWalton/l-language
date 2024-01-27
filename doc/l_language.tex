@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-January 26, 2024
+January 27, 2024
 
 \bigskip
  
@@ -2343,8 +2343,8 @@ The meanings of the {\em special-constants} are:
 \item[\TT{FALSE}] The boolean value false.  Convertible to {\tt bool ( 0 )}.
 \item[\TT{UNDEF}] The value exists but is undefined (unknown).
 \item[\TT{NONE}] The value does not exist.
-\item[\TT{*LOGICAL-LINE*}] see \itemref{PARSER-OUTPUT}
-\item[\TT{*INDENTED-PARAGRAPH*}] see \itemref{PARSER-OUTPUT}
+\item[\TT{*LOGICAL-LINE*}] see Section \itemref{PARSER-OUTPUT}
+\item[\TT{*INDENTED-PARAGRAPH*}] see Section \itemref{PARSER-OUTPUT}
 \end{itemize}
 \end{indpar}
 A special constant is not equal to any other constant.
@@ -2399,7 +2399,7 @@ Rational constants are computed at compile-time by the operators:
 \end{tabular}
 \end{center}
 
-Each of these operators takes a constant string as its sole argument.
+Each of these operators takes a {\tt const} string as its sole argument.
 The syntax of the argument strings is:
 
 \begin{indpar}
@@ -2487,9 +2487,10 @@ If there is a decimal point, there \underline{must}
 be at least one integer digit and
 one fraction digit.
 
-For decimal constants without \TT{/} the denominator is a power of \TT{10}; for
-binary constants without \TT{/} the denominator is a power of \TT{2}; and for
-hexadecimal constants without \TT{/} the denominator is a power of \TT{16}.
+For decimal constants without \TT{/} the denominator is specified by the
+exponent and is a power of \TT{10}; for
+binary constants, a power of \TT{2}; and for
+hexadecimal constants, a power of \TT{16}.
 
 The value of a character constant is the integral UNICODE code point of the
 {\em character-representative}.
@@ -2502,6 +2503,10 @@ Conversion of a rational constant
 to a run-time floating type is however
 never a compile error.  If necessary the converted value is
 {\tt +Inf} or {\tt -Inf} or precision is lost.
+
+There are also run-time {\tt D\#}, {\tt B\#}, and {\tt X\#}
+operators (see \pagref{RUN-TIME-STRING-TO-NUMBER-CONVERSIONS}),
+but rationals cannot be stored at run-time.
 
 \subsubsection{Map Constants}
 \label{MAP-CONSTANTS}
@@ -8492,6 +8497,32 @@ two's complement sign extension) and
 then truncate it to the length of {\tt I1}.
 \end{indpar}
 
+{\tt function N r, std FP flags f = std \ttkey{D\#} ( ap ro C s )} \\
+{\tt function N r, std FP flags f = std \ttkey{B\#} ( ap ro C s )} \\
+{\tt function N r, std FP flags f = std \ttkey{X\#} ( ap ro C s )}
+\label{RUN-TIME-STRING-TO-NUMBER-CONVERSIONS}
+\begin{indpar}
+Where {\tt N} is any number type
+and {\tt C} is {\tt uns8}, {\tt uns16}, or {\tt uns32} (for UTF8, UTF16,
+or UTF32 strings).
+
+These convert the string {\tt s} to the number {\tt r}, where the
+string is formatted as in Section \itemref{RATIONAL-CONSTANTS}.
+
+Error flags are set in {\tt f} (see \pagref{FP-FLAGS}).
+If there are no errors, no flags are set.
+If {\tt s} does not have the proper format,
+or its value is negative and {\tt N} is an unsigned integer,
+the {\tt Invalid} flag is set, {\tt NaN} is returned for floating point types,
+and {\tt 0} is returned for integer types.
+If the value is to large to store, the
+{\tt Overflow} flag is set,
+{\tt $\pm$Inf} is returned for floating point types,
+and the most positive or negative storable value is returned
+for integer types.  If the value must be rounded when it is stored,
+the {\tt Inexact} flag is set.
+\end{indpar}
+
 \subsubsection{Pointer Explicit Conversions}
 
 {\tt function ap Q\$ T\$ @r = std \ttkey{*UNCHECKED*} ( dp Q\$ T\$ @p )}
@@ -8616,7 +8647,7 @@ both return {\tt false}, and returns {\tt false} otherwise.
 \end{indpar}
 
 {\tt
-type~std~\ttkey{FP flags}: \\
+type~std~\ttkey{FP flags}:\label{FP-FLAGS} \\
 \begin{tabular}[t]{@{~~~~~}l}
 \tt uns flags \\
 \tt [\ldots] bool invalid (operand for a given operation) \\
