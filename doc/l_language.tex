@@ -3109,6 +3109,12 @@ The forms of an {\em assignment-statement} are:
 \\[2ex]
 where
 \begin{itemize}
+\item For a {\em pointer-variable} with an {\em allocation-call},
+the {\em allocation-call} allocates and zeros memory for the
+associated {\em target-variable}, and returns a pointer to the
+allocated memory that is stored in the {\em pointer-variable}.
+For such a {\em pointer-variable} it is the
+associated {\em target-variable} that is set by the {\em assignment-statement}.
 \item In an {\em isolated-variable-declaration} of a
 {\em pointer-variable} with no {\em allocation-call},
 `{\tt @= local}' is implied if the {\em pointer-variable}
@@ -3118,8 +3124,8 @@ has the {\tt *GLOBAL*} qualifier.
 \item In an {\em isolated-variable-declaration} `{\tt = *DEFERRED*}'
 is implied unless the declaration is of a {\tt *READ-WRITE*}
 {\em pointer-variable}.
-\item In an {\em isolated-variable-declaration} of a
-{\tt *READ-WRITE*} {\em pointer-variable} (i.e., for which
+\item An {\em isolated-variable-declaration} of a
+{\tt *READ-WRITE*} {\em pointer-variable} (for which
 `{\tt = *DEFERRED*}' is \underline{not} implied) is equivalent
 to a {\em block-assignment-statement} with an empty subblock.
 \end{itemize}
@@ -3145,10 +3151,12 @@ A {\em \ldots-variable-declaration}\label{VARIABLE-ALLOCATION}
 allocates memory for its variables
 in the frame of the currently executing out-of-line function.
 The sizes of these variables must be known at compile time.
+For a {\em pointer-variable} it is the pointer itself that is
+allocated to the currently executing out-of-line function; the
+memory pointed at can be allocated elsewhere.
 For sizes not known at compile time, a pointer to the variable
-can be allocated and the `\ttkey{local}' function called to set the pointer.
-The `{\tt local}' function allocates memory to the stack after the
-currently executing out-of-line function's frame.
+can be allocated by an {\em allocation-call} that is given the variable
+size at run-time.
 
 {\em Expression-assignment-statements} set the values of their result variables
 to the values of the {\em expressions} in the {\em expression-list}.
@@ -3268,7 +3276,7 @@ may allocate to the stack at most 4x4 = 16 times as much
 memory as any single iteration call to `{\tt local}'.
 
 
-\subsubsection{Expression Assignment Statements}
+\subsection{Expression Assignment Statements}
 \label{EXPRESSION-ASSIGNMENT-STATEMENTS}
 
 The syntax of an {\em expression-assign\-ment-statement} is:
@@ -3340,7 +3348,7 @@ for cases where their operand types are the same as their result type,
 and {\tt int} variables may be implicitly converted to {\tt flt}
 but not vice-versa.
 
-\subsubsection{Call Assignment Statements}
+\subsection{Call Assignment Statements}
 \label{CALL-ASSIGNMENT-STATEMENTS}
 
 The syntax of a {\em call-assignment-statement} is:
@@ -3381,7 +3389,7 @@ form `\dots{} {\em type-name} $w$', and $v$ is a {\em variable-name}
 that by itself is the actual argument matched to $w$.
 See \pagref{PROTOTYPE-NEXT-RESULT}.
 
-\subsubsection{Block Assignment Statements}
+\subsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
 
 the syntax of {\em block-assignment-statements} is:
@@ -3566,7 +3574,7 @@ next x =:
     next x = x + 1
 \end{verbatim}\end{indpar}
 
-\subsubsection{Deferred Assignment Statements}
+\subsection{Deferred Assignment Statements}
 \label{DEFERRED-ASSIGNMENT-STATEMENTS}
 
 The syntax of {\em defer\-red-assignment-state\-ments} is:
@@ -3642,7 +3650,7 @@ an {\em allocation-call} in their {\em deferred-assignment-statement}
 have their target type changed to {\tt *INIT*}
 inside their companions.
 
-\subsubsection{Loop Assignment Statements}
+\subsection{Loop Assignment Statements}
 \label{LOOP-ASSIGNMENT-STATEMENTS}
 
 A {\em loop-assignment-statement} has the syntax:
