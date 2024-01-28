@@ -2882,7 +2882,7 @@ The syntax of function calls is:
 \emkey{call-term-name}\label{CALL-TERM-NAME} ::=
     \begin{tabular}[t]{@{}l}
     {\em function-term-name} with quotes \underline{optionally} removed from \\
-    {\em quoted-marks} and {\em quoted-separators}
+    {\em quoted-words}, {\em quoted-marks}, and {\em quoted-separators}
     \end{tabular}
 \\[0.5ex]
 {\em function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
@@ -2911,7 +2911,8 @@ equivalent to `{\tt x(FALSE)}'.
 \end{itemize}
 \end{indpar}
 
-Thus a {\em function-call} is a sequence of {\em function-term-names}
+Thus a {\em function-call} is an optional {\em module-abbreviation}
+followed by a sequence of {\em function-term-names}
 and {\em call-argument-lists}.  Note that {\em Function-term-names} cannot
 contain `\TT{.}'s and therefore cannot be {\em member-names},
 which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
@@ -2922,7 +2923,7 @@ use in {\em reference-calls}.
 {\em Function-calls} are matched to function prototypes.  The
 {\em call-term-names} in a match are identical to the
 {\em function-term-names} taken from the prototype being matched, except
-that quotes (\TT{"}) in a prototype {\em quoted-mark} or
+that quotes (\TT{"}) in a prototype {\em quoted-word}, {\em quoted-mark}, or
 {\em quoted-separator} may (or may not) be omitted in the
 {\em function-call}.  The first
 step in matching is to scan the {\em function-call} to identify the
@@ -2987,6 +2988,7 @@ The forms of an {\em assignment-statement} are:
     $|$ & {\em block-assignment-statement} \\
     $|$ & {\em deferred-assignment-statement} \\
     $|$ & {\em loop-assignment-statement} \\
+    $|$ & {\em isolated-declaration-statement} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{expression-assignment-statement} ::= \\
@@ -3027,15 +3029,15 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{deferred-assignment-statement} ::= \\
 \hspace*{0.5in}
-        {\em deferred-variable-declaration}
-	    \{ \TT{,} {\em deferred-variable-declaration} \}\STAR{}
+        {\em result-variable-declaration}
+	    \{ \TT{,} {\em result-variable-declaration} \}\STAR{}
 	    \TT{=} \ttkey{*DEFERRED*}
 \\[0.5ex]
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
-        & {\em next-variable-declaration}
-                \{ \TT{,} {\em next-variable-declaration} \}\STAR{}
+        & {\em block-variable-declaration}
+                \{ \TT{,} {\em block-variable-declaration} \}\STAR{}
 		\TT{=} \\
 	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
@@ -3044,6 +3046,8 @@ The forms of an {\em assignment-statement} are:
         & ~~~~~ {\em statement}\STAR{} \\
         & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{isolated-declaration-statement} ::= {\em result-variable-declaration}
 \\[0.5ex]
 \emkey{exit-subblock} ::=
     \begin{tabular}[t]{l}
@@ -3061,42 +3065,33 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{assignment-result}\label{ASSIGNMENT-RESULT}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em result-variable-declaration} \\
-    $|$ & {\em next-variable-declaration} \\
+    ::= & {\em block-variable-declaration} \\
     $|$ & {\em reference-expression}
     \end{tabular}
 \\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
 \\[0.5ex]
+\emkey{block-variable-declaration}\label{BLOCK-VARIABLE-DECLARATION}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em result-variable-declaration} \\
+    $|$ & {\em next-variable-declaration} \\
+    \end{tabular}
+\\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em target-variable} \\
 	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      {\em type-name} {\em pointer-variable}
+	      {\em type-name} \\
+	    & ~~~~~~~~ {\em pointer-variable}
+	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION}
-    ::= \ttkey{next} {\em variable-name}
-\\[0.5ex]
-\emkey{block-variable-declaration}\label{BLOCK-VARIABLE-DECLARATION} ::= \\
+\emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION} \\
 \hspace*{0.5in}\begin{tabular}{rl}
-	    & {\em type-name} {\em target-variable} \\
-	$|$ & \TT{next} {\em target-variable} \\
-	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      {\em type-name} {\em pointer-variable} \\
-	    & ~~~~~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
-	$|$ & \TT{next} {\em pointer-variable}
+      ::= & \ttkey{next} {\em target-variable-name} \\
+      $|$ & \ttkey{next} {\em pointer-variable-name}
 	      ~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
-	\end{tabular}
-\\[0.5ex]
-\emkey{deferred-variable-declaration}%
-    \label{DEFERRED-VARIABLE-DECLARATION} ::= \\
-\hspace*{0.5in}\begin{tabular}{rl}
-	    & {\em type-name} {\em target-variable} \\
-	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      {\em type-name} {\em pointer-variable} \\
-	    & ~~~~~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
-	\end{tabular}
+      \end{tabular}
 \\[0.5ex]
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
@@ -3114,13 +3109,19 @@ The forms of an {\em assignment-statement} are:
 \\[2ex]
 where
 \begin{itemize}
-\item A line-ending \TT{:} may be omitted if the
-{\em statement} subblock following is empty.
-\item The allocation subexpression `\TT{@= local}' may be
-omitted for {\em pointer-variable} declarations whose
-targets have the \TT{*LOCAL*} qualifier provided the
-{\em allocator-call} has no arguments
-(e.g., `\TT{@= local[\ldots]}' cannot be omitted).
+\item In an {\em isolated-variable-declaration} of a
+{\em pointer-variable} with no {\em allocation-call},
+`{\tt @= local}' is implied if the {\em pointer-variable}
+has the {\tt *LOCAL*} qualifier, and 
+`{\tt @= global}' is implied if the {\em pointer-variable}
+has the {\tt *GLOBAL*} qualifier.
+\item In an {\em isolated-variable-declaration} `{\tt = *DEFERRED*}'
+is implied unless the declaration is of a {\tt *READ-WRITE*}
+{\em pointer-variable}.
+\item In an {\em isolated-variable-declaration} of a
+{\tt *READ-WRITE*} {\em pointer-variable} (i.e., for which
+`{\tt = *DEFERRED*}' is \underline{not} implied) is equivalent
+to a {\em block-assignment-statement} with an empty subblock.
 \end{itemize}
 
 \end{indpar}
@@ -3367,12 +3368,11 @@ See \pagref{PROTOTYPE-NEXT-RESULT}.
 \subsubsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
 
-The syntax of {\em block-assignment-statements} is:
+the syntax of {\em block-assignment-statements} is:
 
 \begin{indpar}
 \emkey{block-assignment-statement} ::= \\
-\hspace*{0.5in}
-    \begin{tabular}[t]{@{}rll}
+\hspace*{0.5in}\begin{tabular}[t]{@{}rll}
         & {\em block-variable-declaration}
                 \{ \TT{,} {\em block-variable-declaration} \}\STAR{} \\
 	& ~~~~~ \{ \TT{=} \{ \ttkey{do} {\em block-label} \}\QMARK{} \}\QMARK{}
@@ -3559,13 +3559,13 @@ The syntax of {\em defer\-red-assignment-state\-ments} is:
 \emkey{deferred-assignment-statement} ::= \\
 \hspace*{0.3in}
     \begin{tabular}[t]{@{}l}
-        {\em deferred-variable-declaration}
-                \{ \TT{,} {\em deferred-variable-declaration} \}\STAR{}
+        {\em result-variable-declaration}
+                \{ \TT{,} {\em result-variable-declaration} \}\STAR{}
 		     \TT{=} \ttkey{*DEFERRED*} \\
     \end{tabular}
 \\[0.5ex]
-{\em deferred-variable-declaration} ::=
-    see \pagref{DEFERRED-VARIABLE-DECLARATION}
+{\em result-variable-declaration} ::=
+    see \pagref{RESULT-VARIABLE-DECLARATION}
 \end{indpar}
 
 Each variable declared by a {\em deferred-variable-declaration}
@@ -4217,7 +4217,7 @@ An example is:
 
 \begin{indpar}\begin{verbatim}
 type my type : *DEFERRED*
-ap *READ-WRITE* my type @X    // `@= local = *DEFERRED*' is implied
+ap *READ-WRITE* my type @X    // `@= local' is implied
                     // Legal, my type members need not be declared.
                     // Size and alignment of my type values is
                     // computed at load time.  The allocated value
