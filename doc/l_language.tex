@@ -3150,35 +3150,38 @@ can be allocated and the `\ttkey{local}' function called to set the pointer.
 The `{\tt local}' function allocates memory to the stack after the
 currently executing out-of-line function's frame.
 
-{\em Expression-assignment-statements} set the values of their variables
+{\em Expression-assignment-statements} set the values of their result variables
 to the values of the {\em expressions} in the {\em expression-list}.
-{\em Call-assignment-statements} set the values of their variables
+{\em Call-assignment-statements} set the values of their result variables
 to the values returned by the {\em function-call}.
 
 A {\em block-variable-declaration}
 initializes its variables
 according to the declaration syntax as follows:
 \begin{indpar}[0.05in]
-Non-{\tt next} variable declaration with no {\em allocation-call}\,:~
-The memory is zeroed. \\
-{\tt Next} variable declaration with no {\em allocation-call}\,:~
-Previous value of the named variable. \\
-Variable declaration with {\em allocation-call}\,:~
-Value returned by the {\em allocation-call}.
+Non-{\tt next} variable declaration with no {\em allocation-call}\,: \\
+\hspace*{3em}The memory is zeroed. \\
+{\tt Next} variable declaration with no {\em allocation-call}\,: \\
+\hspace*{3em}Previous value of the named variable. \\
+Variable declaration with {\em allocation-call}\,: \\
+\hspace*{3em}Value returned by the {\em allocation-call}
+             (the allocated memory is zeroed).
 \end{indpar}
 Zeroed numbers are zero, while zeroed pointers typically
 cause segmentation faults when de-referenced.
 
-The variables declared by {\em block-variable-declarations}
+In a {\em block-assignment-statement},
+variables declared by {\em block-variable-declarations}
 \underline{without} {\em allocation-calls}
 are given the qualifier {\tt *INIT*} in {\em statements}
 of the {\em block-assignment-statement} and {\tt co} after the
 {\em block-assignment-statement}.
-The {\tt *INIT*} qualifer is equivalent to {\tt *WRITE-ONLY*}
+The {\tt *INIT*} qualifer is equivalent to {\tt *WRITE-\EOL ONLY*}
 except that it forces fields and elements of the value to also
 be {\tt *INIT*}\pagnote{INIT-FORCING}.
 
-The {\em pointer-variables} declared by {\em block-variable-declarations}
+In a {\em block-assignment-statement},
+{\em pointer-variables} declared by {\em block-variable-declarations}
 \underline{with} {\em allocation-calls}
 are initialized by the {\em allocation-call}
 (see \pagref{ALLOCATION-CALLS}) and are thereafter
@@ -3188,6 +3191,16 @@ pointed at is zeroed initially,
 of the {\em block-assignment-statement}, and 
 subject to the {\em pointer-variable} {\em qualifiers} after
 the {\em block-assignment-statement}.
+
+A {\em loop-assignment-statement} is similar to a
+{\em block-assignment-statement} except that variables declared
+by {\em next-variable-declarations} are reallocated for each iteration
+of the loop, and the value given by the previous iteration can be
+read by the current iteration using the {\em variable-name}
+(without a preceeding `{\tt next}').
+Non-{\tt next} variables are allocated only at the start of the
+{\em loop-assignment-statement}, and are {\tt *INIT*} (and not readable)
+throughout all iterations.
 
 If a {\em declaration} declares a {\em pointer-variable},
 an associated {\em target-variable} is implicitly declared at the same time
@@ -3202,8 +3215,10 @@ qualifier of a declared variable is {\tt co} after the
 {\em assignment-statements} meaning that
 the value of the variable once initially set is never changed.
 The qualifiers of a {\em target-variable} associated with a
-{\em pointer-variable} are those of the target of
-its associated pointer.
+{\em pointer-variable} are {\tt *INIT*} in the subblock {\em statements}
+of a {\em block/loop-assignment-statement} and those of the target of
+its associated pointer after the
+{\em block/loop-assignment-statement}.
 
 A {\em next-variable-declaration} for a {\em variable} {\tt v}
 must occur in the scope of either a non-{\em next-variable-declaration}
@@ -3214,34 +3229,35 @@ The {\em next-variable-declaration} re-declares {\tt v} making a new
 variable that hides the previously declared {\tt v}.  The new variable
 has the same types and qualifiers as the previous variable named {\tt v}.
 
-A {\em next-variable-declaration} for variable {\tt v} enables
-`{\tt next v}' to be used like a {\em variable-name}
-in {\em reference-expressions} within the {\em statements}
-of the {\em assignment-statement}.  Use of
-{\tt v} within these statements outside of `{\tt next v}'
+A {\em next-variable-declaration} for a variable {\tt v} enables
+`{\tt next v}' to be used as an {\em assignment-result} within the subblock
+{\em statements} of a {\em block/loop assignment-statement}.  Use of
+{\tt v} within these statements without the `{\tt next}'
 refers to the value of {\tt v} just
-before the {\em assignment-statement} was executed.
+before a {\em block-assignment-statement} or current
+{\em loop-assignment-statement} iteration was executed.
 
 Under some circumstances `{\tt next v}' will
 be implicitly added to the {\em assignment-result}
 list of a {\em call-statement} (see \pagref{CALL-NEXT-PROMOTION}),
 the {\em block-variable-declaration} list
 of a {\em block-assignment-statement} (see \pagref{BLOCK-NEXT-PROMOTION}),
-or the {\em next-variable-declaration} list of a
+or the {\em block-variable-declaration} list of a
 {\em loop-assignment-statement} (see \pagref{LOOP-NEXT-PROMOTION}).
 
-A {\em deferred-variable-declaration} behaves like a
-{\em block-variable-declaration} with an empty block, but in addition
-allows the variable to be redeclared in a subsequent
+A {\em deferred-assignment-statement}
+behaves like a {\em block-assignment-statement} with an empty block,
+but in addition allows each of its variables to be redeclared in a subsequent
 `companion' {\em block-variable-delcaration} which does not
-reallocate the variable.
+reallocate the variable (there may be separate companions for different
+variables).
 
 For loops\label{LOOP-ALLOCATION},
 4 copies of the variables allocated by an iteration
 are allocated to the out-of-line function frame when the function is called,
 and the loop cycles among these copies.
-A call to `{\tt local}' inside a loop sets a pointer
-allocated to one of these 4 copies.  If such a pointer is already
+A call to `{\tt local}' inside a loop stores a pointer value in
+one of these 4 copies.  If such a pointer is already
 allocated by a previous loop iteration, its memory is reused, or
 doubled in size and reallocated.  This means that the total memory allocated
 to a pointer inside a loop copy by `{\tt local}' will never be more than
