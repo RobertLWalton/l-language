@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-January 28, 2024
+January 29, 2024
 
 \bigskip
  
@@ -3309,9 +3309,10 @@ may consist of a single {\em reference-call}.
 \end{indpar}
 
 Sub-{\em expressions} computable at compile-time are evaluated
-in left to right order and replaced by their {\tt const} values
+in bottom-to-top left-to-right order and replaced by their {\tt const} values
 before the {\em statement} is compiled into run-time code.
-At run-time {\em expressions} are evaluated in left-to-right order and
+At run-time {\em expressions} are evaluated in bottom-to-top
+left-to-right order and
 then the {\em expression} values are stored in the {\em assignment-results}.
 
 Variable names declared by {\em result-variable-declarations} that are
@@ -3375,7 +3376,10 @@ A {\em call-assignment-statement} with {\em assignment-results}
 follows the same general rules
 as {\em expres\-sion-assignment-state\-ments} except that its right
 side is a single {\em function-call} or the functionally similar
-{\em call-expression}.
+{\em call-expression} and the result values of the call are stored
+in the {\em assignment-results} proceeding left-to-right.
+Excess call results are discarded.  There must be an least as many
+call results as there are {\em assignment-results}.
 
 The types of the function prototype results \underline{cannot}
 be implicitly converted to the types of the {\em assignment-results}.
@@ -3386,8 +3390,14 @@ an implied `\TT{next} $v$' if the {\em function-prototype} has
 a `\TT{next} $w$' {\em prototype-result-declaration}
 and a {\em prototype-argument-declaration} of the
 form `\dots{} {\em type-name} $w$', and $v$ is a {\em variable-name}
-that by itself is the actual argument matched to $w$.
-See \pagref{PROTOTYPE-NEXT-RESULT}.
+that by itself is the actual argument matched to $w$
+(see \pagref{PROTOTYPE-NEXT-RESULT}).  An example is:
+\begin{indpar}\begin{verbatim}
+function next w = inc ( int w ):
+    next w = w + 1
+int v = 5
+inc ( v )    // Equivalent to `next v = v + 1'.
+\end{verbatim}\end{indpar}
 
 \subsection{Block Assignment Statements}
 \label{BLOCK-ASSIGNMENT-STATEMENTS}
