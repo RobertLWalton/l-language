@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-January 31, 2024
+February 1, 2024
 
 \bigskip
  
@@ -3568,7 +3568,8 @@ If\label{BLOCK-NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
 {\em block-assignment-statement} that is not within the scope of
 a {\em result-variable-declaration} for the {\em variable-name}
-that is also within the {\em block-assignment-statement},
+that is also within some {\em statement} of the
+{\em block-assignment-statement},
 then `{\tt next} {\em variable-name}' will be automatically added
 to the {\em block-variable-declarations}
 of the {\em block-assignment-state\-ment},
@@ -3581,7 +3582,7 @@ do:
 is equivalent to:
 \begin{indpar}\begin{verbatim}
 int x = 5
-next x =:
+next x = do:
     next x = x + 1
 \end{verbatim}\end{indpar}
 
@@ -3670,8 +3671,8 @@ A {\em loop-assignment-statement} has the syntax:
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
-        & {\em next-variable-declaration}
-                \{ \TT{,} {\em next-variable-declaration} \}\STAR{}
+        & {\em block-variable-declaration}
+                \{ \TT{,} {\em block-variable-declaration} \}\STAR{}
 		\TT{=} \\
 	& ~~~~~~~~~~~~~~~ {\em iteration-control-list} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
@@ -3700,10 +3701,7 @@ A {\em loop-assignment-statement} has the syntax:
 \emkey{int-expression} ::= {\em expression} evaluating to an {\tt int}
 \\[0.5ex]
 \emkey{bool-expression}\label{BOOL-EXPRESSION} ::=
-    \begin{tabular}[t]{@{}l}
-    {\em expression} evaluating to a {\tt bool} \\
-    or to a {\em const} value that is either {\tt "TRUE"} or {\tt "FALSE"}
-    \end{tabular}
+    {\em expression} evaluating to a {\tt bool}
 \\[0.5ex]
 \emkey{loop-control-statement}\label{LOOP-CONTROL-STATEMENT} ::=
     {\em break-statement} $|$ {\em continue-statement}
@@ -3715,7 +3713,9 @@ A {\em loop-assignment-statement} has the syntax:
     \ttkey{continue} {\em loop-label}\QMARK{}
 \end{indpar}
 
-A {\em loop-assignment-statement} is the semantic equivalent of
+A {\em loop-assignment-statement} that has no {\em result-variable-declarations}
+(as opposed to {\em next-variable-declarations})
+is the semantic equivalent of
 a sequence of zero or more copies of the statement with
 its {\em iteration-controls} deleted, making these copies into
 {\em block-assignment-statements}.  Each copy is called an
@@ -3754,6 +3754,40 @@ are discarded, which would not be the case if the compiler
 actually inserted iterations in the source code. 
 This only affects debugging.
 
+If instead there are {\em result-variable-declarations}, these are
+treated as if they had been moved to an immediately outer
+{\em block-assignment-statement}.  For example:
+\begin{indpar}\begin{verbatim}
+int sum = 0
+int i = 1
+int result, next sum, next i = loop:
+    next sum = sum + i
+    next i = i + 1
+    if i + 1 >= 4:
+        result = sum
+        break // terminate loop
+\end{verbatim}\end{indpar}
+is semantically equivalent to:
+\begin{indpar}\begin{verbatim}
+int sum = 0
+int i = 1
+int result:
+    next sum, next i = loop:
+        next sum = sum + i
+        next i = i + 1
+        if i + 1 >= 4:
+            result = sum
+            break // terminate loop
+\end{verbatim}\end{indpar}
+
+Another way of putting this is that the variables of
+{\em next-variable-declarations} get allocated anew each
+iteration, but the variables of {\em result-variable-declarations}
+are only allocated once before the first iteration.  As they
+have the {\tt *INIT*} qualifier throughout the
+{\em loop-assignment-statement}, they can only be written
+inside that {\em statement}.
+
 The {\em iteration-controls} are independent of each other:
 {\tt loop x} just provides a {\em loop-label},
 {\tt exactly x times} and {\tt at most x times} both terminate
@@ -3778,7 +3812,7 @@ is being exited.
 As in {\em block-assignment-statements}, if `{\tt next V}' occurs
 as an {\em assignment-result} within the loop {\em statements}
 but is not within the scope of a {\em result-variable-declaration}
-for {\tt V} that is also within the {\em loop-assignment-statement},
+for {\tt V} that is also within the loop {\em statements},
 `{\tt next V}' will be added to the {\em next-variable-declaration}
 list of the {\em loop-assignment-statement}.  Therefore the
 above example could be written as:
