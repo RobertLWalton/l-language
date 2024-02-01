@@ -3882,7 +3882,7 @@ int z:
 A {\em trace-statement} optionally writes an information record into
 a trace file:
 \begin{indpar}
-\emkey{trace-statement}\label{TRACE-STATEMENT} ::\
+\emkey{trace-statement}\label{TRACE-STATEMENT} ::=
     \ttkey{trace} ~ {\em trace-ID} \TT{,} ~ {\em trace-description}
         ~ \{ \TT{,} {\em trace-value} \}\STAR \\
 \emkey{trace-ID} ::=
@@ -3933,14 +3933,26 @@ The following is a complete list of declarations:
     \begin{tabular}[t]{@{}rll}
     ::= & {\em type-declaration}
         & [\pagref{TYPE-DECLARATIONS}] \\
+    $|$ & {\em field-declaration}
+        & [\pagref{FIELD-DECLARATION}] \\
+    $|$ & {\em subfield-declaration}
+        & [\pagref{SUBFIELD-DECLARATION}] \\
     $|$ & {\em pointer-type-declaration}
         & [\pagref{POINTER-TYPE-DECLARATIONS}] \\
-    $|$ & {\em inline-function-declaration}
-        & [\pagref{INLINE-FUNCTION-DECLARATIONS}] \\
+    $|$ & {\em function-declaration}
+        & [\pagref{FUNCTION-DECLARATION}] \\
     $|$ & {\em reference-function-declaration}
         & [\pagref{REFERENCE-FUNCTION-DECLARATIONS}] \\
     $|$ & {\em out-of-line-function-declaration}
         & [\pagref{OUT-OF-LINE-FUNCTION-DECLARATIONS}] \\
+    $|$ & {\em function-type-declaration}
+        & [\pagref{FUNCTION-TYPE-DECLARATION}] \\
+    $|$ & {\em function-constant-declaration}
+        & [\pagref{FUNCTION-CONSTANT-DECLARATION}] \\
+    $|$ & {\em module-declaration}
+        & [\pagref{MODULE-DECLARATION}] \\
+    $|$ & {\em body-declaration}
+        & [\pagref{BODY-DECLARATION}] \\
     \end{tabular}
 \end{indpar}
 
@@ -4027,7 +4039,7 @@ The syntax of a type declaration is:
 {\em pure-const-expression} ::= a {\tt const} valued expression as
     defined on \pagref{PURE-CONST-EXPRESSION}
 \\[2ex]
-\emkey{subfield-declaration} ::= \\
+\emkey{subfield-declaration}\label{SUBFIELD-DECLARATION} ::= \\
 \hspace*{0.5in}
     {\em bit-range} {\em subfield-type-name} {\em subfield-label}
     		{\em subfield-dimension}\STAR{} \\
@@ -6604,7 +6616,7 @@ or {\em function-type-name}
 declared begins with a
 {\em module-abbrev\-i\-a\-tion}.
 
-A {\em inline-function-declaration}, {\em reference-function-declaration},
+A {\em function-declaration}, {\em reference-function-declaration},
 or {\em out-of-line-function-declar\-a\-tion}
 is external\label{EXTERNAL-FUNCTION}
 if the {\em prototype-pattern} in the {\em declaration}
