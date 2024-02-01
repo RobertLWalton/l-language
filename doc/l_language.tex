@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-January 29, 2024
+January 31, 2024
 
 \bigskip
  
@@ -3550,8 +3550,8 @@ does not contain the declaration.
 Note that declarations not in {\em exit-subblocks} have scope
 that includes the {\em exit-subblocks}, but declarations
 within an {\em exit-subblock} have scope that ends with the end of
-the {\em exit-subblock}.  A function prototype is `used' if and only if it
-matches a {\em function-call}.\footnote{Stack space for every
+the {\em exit-subblock}.  A function declaration is `used' if and only if its
+prototype matches a {\em function-call}.\footnote{Stack space for every
 stack variable that might be used by an out-of-line function is
 allocated when the out-of-line function is called.  Space allocated
 by the \TT{local} function is treated differently:  see
@@ -3570,7 +3570,8 @@ If\label{BLOCK-NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
 a {\em result-variable-declaration} for the {\em variable-name}
 that is also within the {\em block-assignment-statement},
 then `{\tt next} {\em variable-name}' will be automatically added
-to the {\em variable-declarations} of the {\em block-assignment-statement},
+to the {\em block-variable-declarations}
+of the {\em block-assignment-state\-ment},
 if it is not already there.  For example:
 \begin{indpar}\begin{verbatim}
 int x = 5
@@ -3602,19 +3603,19 @@ The syntax of {\em defer\-red-assignment-state\-ments} is:
     see \pagref{RESULT-VARIABLE-DECLARATION}
 \end{indpar}
 
-Each variable declared by a {\em deferred-variable-declaration}
+Each variable declared by a {\em result-variable-declaration}
 of a {\em deferred-assignment-statement} must be declared identically,
 except for addition or subtraction of an {\em allocation-call},
 as a {\em block-variable-declaration} of a {\em block-assignment-statement}
 that is within the scope\pagnote{SCOPE} of the
 {\em deferred-assignment-statement}.  The {\em block-assignment-statement},
-known as the \key{companion} of the {\em deferred-variable-declaration},
+known as the \key{companion} of the {\em result-variable-declaration},
 computes the value of the
 declared variable, except in the case of a pointer variable whose value is
 set by an {\em allocation-call} in the {\em deferred-assignment-statement}.
 If a {\em deferred-assignment-statement} is in a module
 (\itemref{MODULE-AND-BODY-DECLARATIONS}), companions
-of its {\em deferred-variable-declarations}
+of its {\em result-variable-declarations}
 must be in that module or its bodies.
 
 A pointer variable may have an {\em allocation-call} in either its
@@ -6550,9 +6551,8 @@ The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
 
-A {\em result-variable-declaration},
-{\em block-variable-declaration},
-or {\em deferred-variable-declaration},
+A {\em result-variable-declaration} or
+{\em block-variable-declaration}
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.
 
@@ -6622,8 +6622,6 @@ and companions of deferred
 
 If two different {\em result-variable-declarations},
 {\em block-variable-declarations},
-{\em deferred-variable-de\-clar\-ations},
-{\em next-variable-declarations},
 {\em function-constant-de\-clar\-ations},
 {\em pointer-type-de\-clar\-a\-tions}, or {\em function-type-de\-clar\-a\-tions}
 of the same {\em name} have overlapping
@@ -6741,10 +6739,8 @@ The possible \skey{variable}s are:
 \begin{indpar}[0.5in]
 \hspace*{-0.3in}\key{assignment variable} ~
 	The value stored in a {\tt co} variable created by a
-	{\em result-variable-de\-clar\-a\-tion},
+	{\em result-variable-declaration} or
 	{\em block-variable-declaration},
-	{\em next-variable-declaration},
-	or {\em deferred-variable-declaration},
 	of an {\em assignment-state\-ment}.
 \\[1ex]
 \hspace*{-0.3in}\key{argument variable} ~
