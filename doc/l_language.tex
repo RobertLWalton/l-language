@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 1, 2024
+February 2, 2024
 
 \bigskip
  
@@ -3972,15 +3972,19 @@ The syntax of a type declaration is:
 \emkey{defined-type-name} ::= {\em type-name} \\
 {\em type-name} ::= see \pagref{TYPE-NAME}
 \\[2ex]
-\emkey{type-subdeclaration}
+\emkey{type-subdeclaration} ::= \\
+\hspace*{0.5in}%
     \begin{tabular}[t]{@{}rl}
     ::= &  {\em field-declaration} \\
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
     $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
-    $|$ &  \ttkey{*ORIGIN*} {\em origin-label} \\
-    $|$ &  \ttkey{*OFFSET*} {\em integer-pure-const-expression} \\
+    $|$ &  \ttkey{*OFFSET*} {\em origin-label} \{ \{\TT{+}|\TT{-}\}
+                            {\em integer-pure-const-expression} \}\QMARK{} \\
+    $|$ &  \ttkey{*OFFSET*} \{\TT{+}|\TT{-}\}\QMARK{}
+                            {\em integer-pure-const-expression} \\
+    $|$ &  \ttkey{*OFFSET* *SIZE*} \\
     $|$ &  \ttkey{***} \\
     $|$ &  \ttkey{*EXTERNAL*} \\
     $|$ &  \ttkey{*OFFSET*} \ttkey{*SIZE*} \\
@@ -4089,6 +4093,10 @@ of a defined type is the least common multiple of the alignment of
 any of its fields, which, since all alignments are powers of two,
 is the same as the largest alignment of any of the fields.
 
+A value of {\tt bool} type has a size of 1 bit and an alignment
+of 8 bits.  When it is stored in 8 bits, the value is encoded
+like a signed integer equal to -1 for {\tt true} and 0 for {\tt false}.
+
 An `\ttkey{align} $N$' sub-declaration behaves like an unnamed
 field of alignment $N$ bits and zero length,
 and in addition sets the align/pack switch to `align'.
@@ -4105,7 +4113,7 @@ A \ttkey{*DEFERRED*} {\em type-declaration} declares a {\em defined-type-name}
 without declaring the definition of the named type.
 Such a {\em type-declaration} is typically used allow the
 {\em defined-type-name}
-to be used as the target type of a pointer.
+to be used as the target type of a pointer before its fields are declared.
 
 The {\em defined-type-name} in a {\em type-declaration} is declared before
 the {\em type-declaration}'s sub-declarations are processed, so these
@@ -4114,17 +4122,13 @@ sub-declarations may use the {\em defined-type-name} as a pointer target type.
 A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
 given {\em origin-label} and provides the {\em origin-label}
 for use by subsequent {\tt *ORIGIN*} sub-declarations.
-Each {\em origin-label} may be defined only once.
+Each {\em origin-label} may be defined only once for a given
+defined type.
 
-An `\ttkey{*ORIGIN*} {\em origin-label}' sub-declaration
-changes the current offset to that
-of the given {\em origin-label}.
-The {\em origin-label} must be defined by a preceding
-{\tt *LABEL*} sub-declaration.
-
-An `\ttkey{*OFFSET*} {\em integer-pure-const-expression}' sub-declaration
-changes the current offset to an integer.  Offsets set this way
-may be negative.  Offsets are in bits.
+An \ttkey{*OFFSET*} sub-declaration changes the current offset to the value
+of a given {\em origin-label}, or to that value plus or minus
+an integer, or to a given integer.
+`\ttkey{*OFFSET* *SIZE*} is special: see \pagref{OFFSET-SIZE}.
 
 \subsubsection{Defined Type Expansions }
 \label{DEFINED-TYPE-EXPANSIONS}
@@ -4230,7 +4234,7 @@ to overlay sections of a defined type's value, and create what in other
 languages are union types.  Care must be taken in using union values
 as both type-violations and unexpected field allocations can result.
 
-An `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
+An `\ttkey{*OFFSET*} \ttkey{*SIZE*}'\label{OFFSET-SIZE} sub-declaration
 changes the current offset to the size of values of the type
 being defined, as it is computed at the point where the {\tt *OFFSET* *SIZE*}
 sub-declaration is encountered.  This is just the maximum of all
