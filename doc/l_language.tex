@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 2, 2024
+February 3, 2024
 
 \bigskip
  
@@ -431,7 +431,7 @@ type my type:
 
 my type X:
     X.op code = 5       // This is an initialization block
-    X.src1 = 2          // for X in which X is write-only.
+    X.src1 = 2          // for X in which X is *INIT*.
     X.src2 = 3
     X.des = 3
 uns op = X.op code      // Now op == 5
@@ -490,19 +490,19 @@ type my type:
     ***                      // Enables type extension.
 
 type my type:
-    *ORIGIN*  extension
+    *OFFSET*  extension
     flt64   height           // Object Height
     flt64   width            // Object Width
     ***                      // Enables type extension.
 
 type my type:
-    *ORIGIN*  extension
+    *OFFSET*  extension
     flt64   volume           // Object Volume; overlays height.
                              // No further type extension allowed.
 
 type your type:
     *INCLUDE* my type // Copy sub-declarations of my type
-    *ORIGIN* *SIZE*   // *SIZE* is max origin seen so far.
+    *OFFSET* *SIZE*   // *SIZE* is max origin seen so far.
     av uns8 @name     // Aligned vector pointer to name
                       // character string
 
@@ -552,7 +552,7 @@ alignments of its aligned fields.
 A {\tt *LABEL*} is like a zero length field that has no value and
 is used to associate an origin-label with the current offset.
 Here {\tt extension} has the offset value of 128 bits (16 bytes).
-The {\tt *ORIGIN*} sub-declaration resets the current offset to the offset
+The {\tt *OFFSET*} sub-declaration resets the current offset to the offset
 of a given origin-label, or to {\tt *SIZE*}, which denotes the current
 size of the type in bits (which may increase with later sub-declarations).
 
@@ -4121,7 +4121,7 @@ sub-declarations may use the {\em defined-type-name} as a pointer target type.
 
 A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
 given {\em origin-label} and provides the {\em origin-label}
-for use by subsequent {\tt *ORIGIN*} sub-declarations.
+for use by subsequent {\tt *OFFSET*} sub-declarations.
 Each {\em origin-label} may be defined only once for a given
 defined type.
 
@@ -4212,8 +4212,9 @@ only be used within the scope of the {\em type-declaration}
 in which the {\em field-label} or {\em subfield-label} is declared,
 and may \underline{not} be re-declared within this scope.
 
-Similarly an {\em origin-label} may only be used only within its
-defining {\em type-declaration} X and within other {\em type-declarations}
+Similarly an {\em origin-label} may only be used only after its definition
+in its defining {\em type-declaration} X
+and within other {\em type-declarations}
 in the same expansion tree that are within the scope of X, and
 may \underline{not} be re-declarated in the places it can be used.
 
@@ -4226,10 +4227,10 @@ other, or it might name completely different fields in the two scopes.
 At the beginning of each {\em type-declaration} the align/pack switch
 is set to align, the offset is set to zero if the {\em type-declaration}
 is the root of its expansion tree, and the offset is undefined and
-must be set by an {\tt *ORIGIN*} or {\tt *OFFSET*} statement before
+must be set by an {\tt *OFFSET*} statement before
 it is used if the {\em type-declaration} is a non-root.
 
-{\tt *LABEL*} and {\tt *ORIGIN*} sub-declarations are typically used
+{\tt *LABEL*} and {\tt *OFFSET*} sub-declarations are typically used
 to overlay sections of a defined type's value, and create what in other
 languages are union types.  Care must be taken in using union values
 as both type-violations and unexpected field allocations can result.
@@ -4258,7 +4259,7 @@ type my type:
     flt     weight
 
 my type X:
-    // Within this block X is write-only.
+    // Within this block X is *INIT*.
     X.kind = HIPPOPOTAMUS
     X.weight = 152.34
 uns8 kind = X.kind
@@ -4269,28 +4270,28 @@ If a {\em field-label} is a {\em pointer-label}, an
 associated {\em target-label} is declared consisting of the
 {\em pointer-label} minus its first `{\tt @}'.  The {\em target-label}
 references a virtual field consisting of the target value stored
-at the location pointed at by the {\em pointer-label} field's pointer.
-An example\footnote{As `{\tt next}' is a keyword, we use `{\tt after}'
+at the location pointed at by the {\em pointer-label} field's pointer value.
+An example\footnote{As `{\tt next}' is a keyword, we use `{\tt successor}'
 here.} is:
 
 \begin{indpar}\begin{verbatim}
 type list element:
     int value
-    ap list element @after
+    ap list element @successor
 
 // Make circular list.
 //
 ap list element @Y      // `@= local = *DEFERRED*' is implied
 ap list element @X:     // `@= local' is implied
     X.value = 1
-    X.@after = @Y
+    X.@successor = @Y
 ap list element @Y:
     Y.value = 2
-    Y.@after = @X
+    Y.@successor = @X
 //
-// Now X.value == 1 and X.after.value == 2 and
-// similarly Y.value == 2 and Y.after.value == 1,
-// while X.@after == @Y and Y.@after == @X are
+// Now X.value == 1 and X.successor.value == 2 and
+// similarly Y.value == 2 and Y.successor.value == 1,
+// while X.@successor == @Y and Y.@successor == @X are
 // pointers to local memory.
 \end{verbatim}\end{indpar}
 
@@ -4301,7 +4302,7 @@ of a {\em type-declaration} declaring the field.
 An example is:
 
 \begin{indpar}\begin{verbatim}
-type my type : *DEFERRED*
+type my type: *DEFERRED*
 ap *READ-WRITE* my type @X    // `@= local' is implied
                     // Legal, my type members need not be declared.
                     // Size and alignment of my type values is
@@ -4321,13 +4322,13 @@ X.I = 55            // Legal, .I has been declared.  X is
                     // *READ-WRITE*.
 
 type my type:       // Expansion of my type
-    *ORIGIN* *SIZE*
+    *OFFSET* *SIZE*
     int J           // Now X.J == 0
     ***
 X.J = 66            // Legal, .J has been declared.
 
 type my type:       // Expansion of my type
-    *ORIGIN* origin
+    *OFFSET* origin
     int K1
     int K2
 
@@ -4344,13 +4345,14 @@ by a subfield are given by its {\em bit-range}, where bits are numbered
 
 A subfield value may have fewer bits than the number-type of the subfield.
 For integer types, the value is the low order bits of the integer, with
-the high order bits added when the value is read by with adding 0 bits
+the high order bits added when the value is read by adding 0 bits
 for unsigned integers or copies of the highest order bit for signed integers.
 For floating types, the value is missing low order mantissa bits, which
 are added as zeros.  If a value outside the representable range is stored,
-it is not an error.  Integer values are truncated, and floating values
+it is not an error.  Unsigned and two's complement
+integer values are truncated, and IEEE floating values
 have low order mantissa bits dropped (there is no rounding).  However, it is
-a compile error to have a floating type whose exponent part plus
+a compile error to have a floating type whose sign and exponent parts plus
 1 mantissa bit cannot be stored in the subfield value.
 
 {\em Subfield-labels} and {\em field-labels} have the same standing within
@@ -4367,7 +4369,7 @@ type my type:
     flt      weight
 
 my type X:
-    // Within this block X is write-only.
+    // Within this block X is *INIT*.
     X.kind = HIPPOPOTAMUS
         // Also sets animal bit and clears vegetable bit.
     X.weight = 152.34
@@ -4405,7 +4407,9 @@ In a {\em field-declaration}
 \underline{two} {\em field-dimensions} {\tt [$n1$][$n2$]} is
 treated as syntactic sugar for {\tt [$n1$*$n2$]} with
 {\tt F[$i1$][$i2$]} being syntactic sugar for
-{\tt F[$i1$*$n2$+$i2$]}.  Similarly
+{\tt F[$i1$*$n2$+$i2$]}.\footnote{Thus arrays are stored in
+row major order: last subscript varies fastest, as in C/C++}
+Similarly
 {\tt [$n1$][$n2$][$n3$]} is
 syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
 {\tt F[$i1$][$i2$][$i3$]} being syntactic sugar for
@@ -4422,15 +4426,16 @@ For example:
 
 \begin{indpar}\begin{verbatim}
 type hex digits:
-    uns32
+    uns32 container
     [3-0] uns hex digit [8]
+        // hex digit[i] is stored in bits [4*i+3, 4*i]
 
 hex digits X:
     int i = 0
     while i < 8:
         X.hex digit[i] = i
         next i = i + 1
-// Now X == X#"76543210"
+// Now X.container == X#"76543210"
 \end{verbatim}\end{indpar}
 
 A {\em subfield-declaration} with {\em subfield-label} S
@@ -4515,7 +4520,7 @@ The types {\tt T1} and {\tt T2} may also be pointer types:
 see \pagref{POINTER-IMPLICIT-CONVERSION}.  Or one may be a pointer-type
 and one a non-pointer type.  However, {\tt T2} cannot
 be {\tt const}, and you cannot define your own {\tt *IMPLICIT* *CONVERSION*}
-function is both types are builtin.
+function if both types are builtin.
 
 
 \subsection{Pointer Type Declarations}
@@ -4535,7 +4540,7 @@ specified by a pointer type declaration.  The syntax is:
 {\em type-name} ::= see \pagref{TYPE-NAME}
 \end{indpar}
 An {\tt *UNCHECKED*} conversion is implicitly defined from the associated data
-type the given pointer type, and an explicit conversion
+type to the given pointer type, and an explicit conversion
 is implicitly defined in the other direction.
 
 It is important that there be a 1-1 correspondence between
@@ -4544,11 +4549,21 @@ pointer types and their associated data types.  In particular,
 more than one pointer type.  This is why associated data types
 are generally user defined types.
 
+A {\em pointer-type-declaration} `{\tt pointer type $P$ is type $D$}'
+implicitly declares the functions:
+\begin{indpar} \tt
+function $P$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $D$ data ) \\
+function $D$ r = $D$ ( $P$ Q\$1 T\$1 @ptr )
+\end{indpar}
+where {\em ma}\QMARK{} denotes the {\em module-abbreviation} of $P$,
+if any.
+These just copy values changing type.
+
 For example, the following are builtin:
 
 \begin{indpar}\begin{verbatim}
-pointer type dp is type std data for dp
-pointer type ap is type std data for ap
+pointer type std dp is type std data for dp
+pointer type std ap is type std data for ap
 type std data for dp:
     int address
 type std data for ap:
@@ -4563,7 +4578,64 @@ function std data for ap r = std data for ap ( ap Q$1 T$1 @ptr )
     // result value changing the type of the value.  Here
     // Q$1 is a wild-card that matches any list of qualifier-names,
     // and T$1 is a wild-card that matches any type-name.
+\end{verbatim}\end{indpar}
 
+Reading and writing values using a pointer of type $P$
+can be accomplished by the functions:
+
+\begin{indpar}[1ex] \tt
+reference function T\$1 r =
+    {\em ma}\QMARK{} ( $P$ QR\$1 T\$1 @p ) \ttkey{".*"} \\
+reference function {\em ma}\QMARK{} ( $P$ QW\$1 T\$1 @p ) \ttkey{".*"} =
+    T\$1 r
+\end{indpar}
+where {\em ma}, if present here, refers to the module in which $P$ is defined.
+
+These functions can be defined after $P$ is defined.
+They allow the pointer to be used to read a copy of the
+value pointed at, or write the value, but do not allow
+members or elements of the value to be accessed
+(members and elements of the copy may be accessed).
+
+These functions are implicitly called when the target
+of a pointer variable is read or written.  For example:
+\begin{indpar}\begin{verbatim}
+ap int @p:
+    p = 5
+        // This translates to:
+        //   @p.* = 5
+int x = p
+  // This translates to:
+  //   int x = @p.*
+\end{verbatim}\end{indpar}
+
+Note that these are reference
+functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
+A {\tt .@} function, if it exists,
+overrides these functions: see \pagref{.@}.
+
+When {\tt .*} is inserted into code in this way, it is inserted without any
+{\em module-abbreviation}, so if there are conflicting
+definitions in different imported
+modules there will be a compile error.
+Calls to {\tt .*} are {\em reference-calls}, so matching is bottom-up
+and not top-down, and only arguments are matched,
+not result types.\pagnote{REFERENCE-CALL-PROTOTYPE-MATCHING}
+Thus the inserted calls, which have no
+module abbreviation, can be matched only if there
+is at most one {\tt ".*"} function definition in the current context
+with suitable qualifiers and type (e.g., {\tt Q\$1} and {\tt T\$1})
+for a given $P1$.
+But you can provide variable definitions of {\tt .*} with diffenent actual
+types in place of {\tt T\$1}, and these will be used in preference
+to the definition that has the wildcard {\tt T\$1}.
+
+\subsubsection{Pointer Type Conversions}
+\label{POINTER-TYPE-CONVERSIONS}
+
+TBD
+
+\begin{indpar}\begin{verbatim}
 // This function enables implicit conversion of `dp ...' to
 // `ap ...', where the latter has the constant 0 for a base
 // and the dp value for its offset, provided the target is
@@ -4600,55 +4672,6 @@ function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
     r = ddp
 \end{verbatim}\end{indpar}
 
-A {\em pointer-type-declaration} `{\tt pointer type $P$ is type $D$}'
-implicitly declares the functions:
-\begin{indpar} \tt
-function $P$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $D$ data ) \\
-function $D$ r = $D$ ( $P$ Q\$1 T\$1 @ptr )
-\end{indpar}
-where {\em ma}\QMARK{} denotes the {\em module-abbreviation} of $P$,
-if any.
-These just copy values changing type.
-
-Reading and writing values using a pointer of type $P$
-can be accomplished by the functions:
-
-\begin{indpar}[1ex] \tt
-reference function T\$1 r =
-    {\em ma}\QMARK{} ( $P$ QR\$1 T\$1 @p ) \ttkey{".*"} \\
-reference function {\em ma}\QMARK{} ( $P$ QW\$1 T\$1 @p ) \ttkey{".*"} =
-    T\$1 r
-\end{indpar}
-where {\em ma}, if present here, refers to the module in which $P$ is defined.
-
-Note that these are reference
-functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
-A {\tt .@} function, if it exists,
-overrides these functions: see below.
-
-These functions can be defined after $P$ is defined.
-They allow the pointer to be used to read a copy of the
-value pointed at, or write the value, but do not allow
-members or elements of the value to be accessed
-(members and elements of the copy may be accessed).
-
-These functions are implicitly called when the target
-of a pointer variable is read or written.  For example:
-\begin{indpar}\begin{verbatim}
-ap int @p:
-    p = 5
-        // This translates to:
-        //   @p.* = 5
-int x = p
-  // This translates to:
-  //   int x = @p.*
-\end{verbatim}\end{indpar}
-
-When {\tt .*} is inserted into code in this way, it is inserted without any
-{\em module-abbreviation}, so if there are conflicting
-definitions in different imported
-modules there will be a compile error.
-
 An alternative strategy is to convert a pointer of type $P1$
 to a pointer of type $P2$ that allows members and elements
 to be accessed.  Suppose we are given:
@@ -4658,6 +4681,7 @@ pointer type $P2$ is type $D2$
 \end{indpar}
 
 Then we can define a reference function with the prototype:
+\label{.@}
 \begin{indpar} \tt
 reference function $P2$ Q\$1 T\$1 @r =
     {\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p ) \ttkey{".@"}
@@ -4674,14 +4698,15 @@ the value, but to also read or write members or elements of the
 value.
 
 Since {\tt @p.*} and {\tt @p.@} are syntactically
-{\em reference-calls}\pagnote{REFERENCE-CALL}, these expressions
+{\em reference-calls}, these expressions
 can only match reference function prototypes, and such matches
 ignore the prototype result types, and use only the prototype
-argument types.  Thus the inserted calls, which have no
+argument types.\pagnote{REFERENCE-CALL-PROTOTYPE-MATCHING}
+Thus the inserted calls, which have no
 module abbreviation, can be matched only if there
 is at most one {\tt ".*"} function in the current context
-with wildcards {\tt Q\$1} and {\tt T\$1} for a given $P1$, and
-similarly for {\tt ".@"}.
+suitable qualifiers and type (e.g., {\tt Q\$1} and {\tt T\$1})
+for a given $P1$.
 
 Alternatively you can define a function with prototype
 \begin{indpar} \tt
@@ -6917,7 +6942,7 @@ Also see \itemref{QUALIFIER-IMPLICIT-CONVERSIONS}.
 An example is:
 \begin{indpar}\begin{verbatim}
 type list element:
-    ap *GLOBAL* list element @after
+    ap *GLOBAL* list element @successor
 
 // In the following, `@= global' is implied because the pointers
 // are *GLOBAL*.
@@ -6925,10 +6950,10 @@ type list element:
 // Circular list:
 //
 ap *GLOBAL* *READ-WRITE* list element @last:  // `@= global' is implied
-    last.@after = null
-    // Last element is pointed at by last.@after
-    // First element is pointed at by last.after.@after
-    // Empty list has last.@after == null
+    last.@successor = null
+    // Last element is pointed at by last.@successor
+    // First element is pointed at by last.successor.@successor
+    // Empty list has last.@successor == null
 
 // Put two elements in list.
 //
@@ -6937,14 +6962,14 @@ ap *GLOBAL* list element @Y  // `@= global = *DEFERRED*' is implied
 
 ap *GLOBAL* list element @X:
     // Put X on empty list
-    X.@after = @X
-    last.@after = @X
+    X.@successor = @X
+    last.@successor = @X
     // List now consists of (X)
 ap *GLOBAL* list element @Y:
     // Add Y to end of list
-    Y.@after = last.after.@after 
-    last.after.@after = @Y
-    last.@after = @Y
+    Y.@successor = last.successor.@successor 
+    last.successor.@successor = @Y
+    last.@successor = @Y
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
@@ -7043,7 +7068,7 @@ Rule (L7) permits a set of {\tt *LOCAL*} objects created at the
 An example is:
 \begin{indpar}\begin{verbatim}
 type list element:
-    ap list element @after
+    ap list element @successor
 
 // In the following, `@= local' is implied because the pointers
 // default to *LOCAL*.  Also, non-external assignment-variables
@@ -7052,28 +7077,29 @@ type list element:
 // Circular list:
 //
 ap *READ-WRITE* list element @last:  // `@= local' is implied
-    last.@after = null
-    // Last element is pointed at by last.@after
-    // First element is pointed at by last.after.@after
-    // Empty list has last.@after == null
+    last.@successor = null
+    // Last element is pointed at by last.@successor
+    // First element is pointed at by last.successor.@successor
+    // Empty list has last.@successor == null
 
 // Put two elements in list.
 //
 ap list element @X  // `@= local = *DEFERRED*' is implied
 ap list element @Y  // `@= local = *DEFERRED*' is implied
 
-// Now @last, @X, @Y, last.@after, X.@after, etc. all have depth 1
+// Now @last, @X, @Y, last.@successor, X.@successor, etc.
+// all have depth 1
 
 ap list element @X:
     // Put X on empty list
-    X.@after = @X
-    last.@after = @X
+    X.@successor = @X
+    last.@successor = @X
     // List now consists of (X)
 ap list element @Y:
     // Add Y to end of list
-    Y.@after = last.after.@after 
-    last.after.@after = @Y
-    last.@after = @Y
+    Y.@successor = last.successor.@successor 
+    last.successor.@successor = @Y
+    last.@successor = @Y
     // List now consists of (X, Y)
 \end{verbatim}\end{indpar}
 
@@ -7081,27 +7107,27 @@ ap list element @Y:
 The same example using inline functions is:
 \begin{indpar}\begin{verbatim}
 type list element:
-    ap list element @after   // target is *LOCAL* by default
+    ap list element @successor   // target is *LOCAL* by default
 
 // Circular list:
 //
 ap *READ-WRITE* list element @last:      // `@= local' is implied
-    last.@after = null
-    // Last element is pointed at by last.@after
-    // First element is pointed at by last.after.@after
-    // Empty list has last.@after == null
+    last.@successor = null
+    // Last element is pointed at by last.@successor
+    // First element is pointed at by last.successor.@successor
+    // Empty list has last.@successor == null
     // The variable `last' has depth 1
 
 // Add element to end of circular list:
 //
 function add ( ap *READ-WRITE* @element ):
     // element depth is taken from actual argument
-    if last.@after == null:
-        element.@after = @element
+    if last.@successor == null:
+        element.@successor = @element
     else:
-        element.@after = last.after.@after
-        last.after.@after = @element
-    last.@after = @element
+        element.@successor = last.successor.@successor
+        last.successor.@successor = @element
+    last.@successor = @element
 
 // Put two elements in list.
 //
