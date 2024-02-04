@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 3, 2024
+February 4, 2024
 
 \bigskip
  
@@ -4633,6 +4633,17 @@ or {\tt fv}, the $P2$ pointer can be used to not only read or write
 the value, but to also read or write members or elements of the
 value.
 
+Thus the above example becomes:
+\begin{indpar}\begin{verbatim}
+ap int @p:
+    p = 5
+        // This translates to:
+        //   @p.@.* = 5
+int x = p
+  // This translates to:
+  //   int x = @p.@.*
+\end{verbatim}\end{indpar}
+
 Since {\tt @p.*} and {\tt @p.@} are syntactically
 {\em reference-calls}, these expressions
 can only match reference function prototypes, and such matches
@@ -4648,18 +4659,74 @@ Because there can be at most one matching {\tt .@} reference function
 declaration, {\tt .@} calls can be chained by the compiler.  In particular,
 a {\tt .@} reference function that produces an {\tt ap} result will
 be chained to the builtin:
-\begin{indpar}\begin{tabular}{@{}l}
-reference function dp Q\$1 T\$1 @r = std ( ap Q\$1 T\$1 @p ) \ttkey{".@"}: \\
-~~~~~~~~std data for ap dap = std data for ap ( @p ) \\
-~~~~~~~~std data for dp ddp: \\
-~~~~~~~~~~~~~~~~ddp.address = dap.base + dap.offset \\
-~~~~~~~~r = *UNCHECKED* ( ddp )
-\end{tabular}\end{indpar}
+\begin{indpar}\begin{verbatim}
+reference function dp Q\$1 T\$1 @r =
+        std ( ap Q\$1 T\$1 @p ) \ttkey{".@"}:
+    std data for ap dap = std data for ap ( @p )
+    std data for dp ddp:
+        ddp.address = dap.base + dap.offset
+    @r = *UNCHECKED* ( ddp )
+\end{verbatim}\end{indpar}
 
 You can provide reference function definitions of {\tt .*} or {\tt .@}
 with different actual
 types in place of {\tt T\$1}, and these will be used in preference
 to the definition that has the wildcard {\tt T\$1}.
+
+As a convenience feature, instead of defining {\tt .@}, you
+can define a reference function with prototype:
+\begin{indpar} \tt
+reference function $D2$ r = \\
+\hspace*{4em} {\em ma}\QMARK{} \ttkey{*POINTER* *ACCESS* *CONVERSION*}
+		( $D1$ data )
+\end{indpar}
+where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
+This implicitly defines the reference function:
+\begin{indpar} \tt
+reference function $P2$ Q\$1 T\$1 @r = \\
+\hspace*{1in}{\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p1 ) ".@": \\
+\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
+\hspace*{0.3in}$D2$ d2 = *POINTER* *ACCESS* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}@r = *UNCHECKED* ( d2 )
+\end{indpar}
+where {\em ma} is the same module as that of the
+{\tt *POINTER* *ACCESS* *CONVERSION*} function, if any.
+
+An example implementing a new pointer type is:
+
+\begin{indpar}\begin{verbatim}
+type file:
+    *READ-WRITE* av uns8 @name
+    . . . . .
+av *READ-WRITE* file @files @= global [1000]
+ap *READ-WRITE* int @number of files @= global
+
+// Implement a file descriptor (fd) that addresses a file
+// in files.  The fd contains an index and addresses
+// files[index].
+
+type data for fd:
+    int index
+
+pointer type fd is type data for fd
+
+reference function ap Q$1 file @r = ( fd Q$1 file @p ) .@:
+    data for fd d = data for fd ( @p )
+    ap file *READ_WRITE* @f = @files[d.index]
+    @r = @f  // Implicitly converts *READ-WRITE* to Q$1
+
+function fd *READ-WRITE* file @r = allocate fd:
+    data for fd d:
+        d.index = number of files
+    @r = *UNCHECKED* ( d )
+    number of files = number of files + 1
+
+fd *READ-WRITE* file @f @= allocate fd
+f.@name = ...
+. . . . .
+av uns8 @n = f.@name
+. . . . .
+\end{verbatim}\end{indpar}
 
 \subsubsection{Pointer Type Conversions}
 \label{POINTER-TYPE-CONVERSIONS}
@@ -4702,22 +4769,6 @@ function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
         ddp.address = dap.base + dap.offset
     r = ddp
 \end{verbatim}\end{indpar}
-
-Alternatively you can define a function with prototype
-\begin{indpar} \tt
-function $D2$ r = {\em ma}\QMARK{} \ttkey{*POINTER* *ACCESS* *CONVERSION*} ( $D1$ data )
-\end{indpar}
-where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
-This implicitly defines the reference function:
-\begin{indpar} \tt
-reference function $P2$ Q\$1 T\$1 @r = \\
-\hspace*{1in}{\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p1 ) ".@": \\
-\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
-\hspace*{0.3in}$D2$ d2 = *POINTER* *ACCESS* *CONVERSION* ( d1 ) \\
-\hspace*{0.3in}@r = *UNCHECKED* ( d2 )
-\end{indpar}
-where {\em ma} is the same module as that of the
-{\tt *POINTER* *ACCESS* *CONVERSION*} function, if any.
 
 When the compiler is confronted with code such as:%
 \label{POINTER-IMPLICIT-CONVERSION}
@@ -4784,42 +4835,6 @@ examples of {\tt *POINTER* \ldots{}~*CON\-VER\-SION*} functions.
 In the above function prototypes you can use different wildcard names,
 e.g, {\tt T\$XXX} instead of {\tt T\$1}.  You can also
 use non-wildcards, e.g., {\tt int} instead of {\tt T\$1}.
-
-An example implementing a new pointer type is:
-
-\begin{indpar}\begin{verbatim}
-type file:
-    *READ-WRITE* av uns8 @name
-    . . . . .
-av *READ-WRITE* file @files @= global [1000]
-ap *READ-WRITE* int @number of files @= global
-
-// Implement a file descriptor (fd) that addresses a file
-// in files.  The fd contains an index and addresses
-// files[index].
-
-type data for fd:
-    int index
-
-pointer type fd is type data for fd
-
-reference function ap Q$1 file @r = ( fd Q$1 file @p ) .@:
-    data for fd d = data for fd ( @p )
-    ap file *READ_WRITE* @f = @files[d.index]
-    @r = @f  // Implicitly converts *READ-WRITE* to Q$1
-
-function fd *READ-WRITE* file @r = allocate fd:
-    data for fd d:
-        d.index = number of files
-    @r = *UNCHECKED* ( d )
-    number of files = number of files + 1
-
-fd *READ-WRITE* file @f @= allocate fd
-f.@name = ...
-. . . . .
-av uns8 @n = f.@name
-. . . . .
-\end{verbatim}\end{indpar}
 
 \subsection{Inline Function Declarations}
 \label{INLINE-FUNCTION-DECLARATIONS}
