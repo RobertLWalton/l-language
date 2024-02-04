@@ -4552,8 +4552,8 @@ are generally user defined types.
 A {\em pointer-type-declaration} `{\tt pointer type $P$ is type $D$}'
 implicitly declares the functions:
 \begin{indpar} \tt
-function $P$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $D$ data ) \\
-function $D$ r = $D$ ( $P$ Q\$1 T\$1 @ptr )
+function $P$ Q\$1 T\$1 @p = {\em ma}\QMARK{} *UNCHECKED* ( $D$ d ) \\
+function $D$ d = $D$ ( $P$ Q\$1 T\$1 @p )
 \end{indpar}
 where {\em ma}\QMARK{} denotes the {\em module-abbreviation} of $P$,
 if any.
@@ -4619,8 +4619,8 @@ pointer type $P2$ is type $D2$
 
 Then we can define a reference function with the prototype:
 \begin{indpar} \tt
-reference function $P2$ Q\$1 T\$1 @r =
-    {\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p ) \ttkey{".@"}
+reference function $P2$ Q\$1 T\$1 @p2 =
+    {\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p1 ) \ttkey{".@"}
 \end{indpar}
 which converts a pointer of type $P1$ to a pointer of type $P2$,
 where {\em ma}\QMARK{}, if present, refers to a module in which
@@ -4660,8 +4660,7 @@ declaration, {\tt .@} calls can be chained by the compiler.  In particular,
 a {\tt .@} reference function that produces an {\tt ap} result will
 be chained to the builtin:
 \begin{indpar}\begin{verbatim}
-reference function dp Q\$1 T\$1 @r =
-        std ( ap Q\$1 T\$1 @p ) \ttkey{".@"}:
+reference function dp Q$1 T$1 @r = std ( ap Q$1 T$1 @p ) ".@":
     std data for ap dap = std data for ap ( @p )
     std data for dp ddp:
         ddp.address = dap.base + dap.offset
@@ -4676,21 +4675,34 @@ to the definition that has the wildcard {\tt T\$1}.
 As a convenience feature, instead of defining {\tt .@}, you
 can define a reference function with prototype:
 \begin{indpar} \tt
-reference function $D2$ r = \\
+reference function $D2$ d2 = \\
 \hspace*{4em} {\em ma}\QMARK{} \ttkey{*POINTER* *ACCESS* *CONVERSION*}
-		( $D1$ data )
+		( $D1$ d1 )
 \end{indpar}
 where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
 This implicitly defines the reference function:
 \begin{indpar} \tt
-reference function $P2$ Q\$1 T\$1 @r = \\
+reference function $P2$ Q\$1 T\$1 @p2 = \\
 \hspace*{1in}{\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p1 ) ".@": \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 = *POINTER* *ACCESS* *CONVERSION* ( d1 ) \\
-\hspace*{0.3in}@r = *UNCHECKED* ( d2 )
+\hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
 \end{indpar}
 where {\em ma} is the same module as that of the
 {\tt *POINTER* *ACCESS* *CONVERSION*} function, if any.
+An example usage is the builtin:
+\begin{indpar}\begin{verbatim}
+// This function enables conversion of `ap ...' to `dp ...'
+// when an ap pointer is being used to access a value or
+// member or element of a value.  The dp is the sum of the
+// base and offset of the ap.
+//
+function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
+        ( std data for ap dap ):
+    std data for dp ddp:
+        ddp.address = dap.base + dap.offset
+    r = ddp
+\end{verbatim}\end{indpar}
 
 An example implementing a new pointer type is:
 
@@ -4731,7 +4743,9 @@ av uns8 @n = f.@name
 \subsubsection{Pointer Type Conversions}
 \label{POINTER-TYPE-CONVERSIONS}
 
-TBD
+You can define an implicit conversion of one pointer type
+to another, after the manner of Section~\ref{TYPE-CONVERSIONS}.
+An example is:
 
 \begin{indpar}\begin{verbatim}
 // This function enables implicit conversion of `dp ...' to
@@ -4747,7 +4761,50 @@ function std ap QG$1 T$1 @r = std *IMPLICIT* *CONVERSION*
         dap.@base  = std @zero
         dap.offset = ddp.address
     @r = *UNCHECKED* ( dap )
+\end{verbatim}\end{indpar}
 
+As a convenience feature, we can define a
+{\tt *POINTER* *IMPLICIT* *CONVERSION*} (non-reference) function instead.
+ Suppose we are given:
+\begin{indpar} \tt
+pointer type $P1$ is type $D1$ \\
+pointer type $P2$ is type $D2$
+\end{indpar}
+Then this function has prototype:
+\begin{indpar}\label{POINTER-IMPLICIT-CONVERSION} \tt
+function $D2$ d2 = {\em ma}\QMARK{} \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
+                  ( $D1$ d1 )
+\end{indpar}
+where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
+This implicitly defines the function:
+\begin{indpar} \tt
+function $P2$ Q\$1 T\$1 @p2 = \\
+\hspace*{1in}{\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( $P1$ Q\$1 T\$1 @p1 ): \\
+\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
+\hspace*{0.3in}$D2$ d2 = *IMPLICIT* *ACCESS* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
+\end{indpar}
+where {\em ma} is the same module as that of the
+{\tt *IMPLICIT* *ACCESS* *CONVERSION*} function, if any.
+
+One can define an {\tt *UNCHECKED*} function to convert
+$P1$ values to $P2$ values.  As a convience, this can be
+done by defining:
+\begin{indpar} \tt
+function $D2$ d2 = {\em ma}\QMARK{}  \ttkey{*POINTER* *UNCHECKED* *CONVERSION*}
+			( $D1$ d1 )
+\end{indpar}
+which implicitly defines the function:
+\begin{indpar} \tt
+function $P2$ Q\$1 T\$1 @p2 = {\em ma}\QMARK{} \ttkey{*UNCHECKED*}
+	( $P1$ Q\$1 T\$1 @p1 ): \\
+\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
+\hspace*{0.3in}$D2$ d2 = *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
+\end{indpar}
+
+An example is the builtin:
+\begin{indpar}\begin{verbatim}
 // This function enables *UNCHECKED* conversion of `ap ...' to
 // `dp ...' where the latter is the sum of the base and offset
 // of the ap.
@@ -4757,84 +4814,13 @@ function std data for dp r = std *POINTER* *UNCHECKED* *CONVERSION*
     std data for dp ddp:
         ddp.address = dap.base + dap.offset
     r = ddp
-
-// This function enables conversion of `ap ...' to `dp ...'
-// when an ap pointer is being used to access a value or
-// member or element of a value.  The dp is the sum of the
-// base and offset of the ap.
-//
-function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
-        ( std data for ap dap ):
-    std data for dp ddp:
-        ddp.address = dap.base + dap.offset
-    r = ddp
 \end{verbatim}\end{indpar}
 
-When the compiler is confronted with code such as:%
-\label{POINTER-IMPLICIT-CONVERSION}
-\begin{indpar}\begin{verbatim}
-P1 ... @p1 = ...
-P2 ... @p2 = @p1
-\end{verbatim}\end{indpar}
-where {\tt P1} and {\tt P2} are different pointer types,
-the compiler just rewrites the code to:
-\begin{indpar}\begin{verbatim}
-P1 ... @p1 = ...
-P2 ... @p2 = *IMPLICIT* *CONVERSION* ( @p1 )
-\end{verbatim}\end{indpar}
-and compiles the rewritten code.  If you define a function
-with the prototype
-\begin{indpar} \tt
-function P2 Q\$1 T\$1 @r = \\
-\hspace*{1in}{\em ma}\QMARK{} *IMPLICIT* *CONVERSION*
-                                  ( P1 Q\$1 T\$1 @p )
+Lastly, one can define an explicit pointer conversion function with
+prototype:
+\begin{indpar}
+function $P2$ Q\$1 T\$1 @p2 = {\em ma}\QMARK{} $P2$ ( $P1$ Q\$1 T\$1 @p1 )
 \end{indpar}
-the compiler will used this function.  Otherwise the compiler
-will try to chain pointer implicit conversions together to get to a
-successful compile.  Of course such chaining will only work
-if there is at least one {\tt *IMPLICIT* *CONVERSION*} function with
-target type {\tt P2 ...}.  If there is more than one such function,
-and none have argument type {\tt P1 ...}, ambiguity may lead to a compile error.
-
-You can define a function with the above prototype, or you can define
-\begin{indpar} \tt
-function $D2$ r = {\em ma}\QMARK{}  \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
-			( $D1$ data )
-\end{indpar}
-which implicitly defines the function:
-\begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = \\
-\hspace*{1in}{\em ma}\QMARK{} \ttkey{*IMPLICIT* *CONVERSION*}
-	( $P1$ Q\$1 T\$1 @p1 ): \\
-\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
-\hspace*{0.3in}$D2$ dd = *POINTER* *IMPLICIT* *CONVERSION* ( d1 ) \\
-\hspace*{0.3in}@r = *UNCHECKED* ( d2 )
-\end{indpar}
-
-You may want the conversion from $P1$ to $P2$ to
-be explicit and unchecked instead of implied.  This can be achieved by defining:
-\begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = {\em ma}\QMARK{} *UNCHECKED* ( $P1$ Q\$1 T\$1 @p )
-\end{indpar}
-Alternatively you can define a function with prototype
-\begin{indpar} \tt
-function $D2$ r ={\em ma}\QMARK{}  \ttkey{*POINTER* *UNCHECKED* *CONVERSION*} ( $D1$ data )
-\end{indpar}
-which implicitly defines the function:
-\begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @r = {\em ma}\QMARK{} \TT{*UNCHECKED*}
-	( $P1$ Q\$1 T\$1 @p1 ): \\
-\hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
-\hspace*{0.3in}$D2$ dd = *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
-\hspace*{0.3in}@r = *UNCHECKED* ( d2 )
-\end{indpar}
-
-The example at the beginning of this section contains
-examples of {\tt *POINTER* \ldots{}~*CON\-VER\-SION*} functions.
-
-In the above function prototypes you can use different wildcard names,
-e.g, {\tt T\$XXX} instead of {\tt T\$1}.  You can also
-use non-wildcards, e.g., {\tt int} instead of {\tt T\$1}.
 
 \subsection{Inline Function Declarations}
 \label{INLINE-FUNCTION-DECLARATIONS}
