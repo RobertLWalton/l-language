@@ -4855,6 +4855,7 @@ The syntax of a function declaration is:
     \begin{tabular}[t]{@{}rl}
         & {\em prototype-result-list} \\
     $|$ & \ttkey{macro} {\em variable-name} \\
+    $|$ & \ttkey{inclusion} {\em variable-name} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{prototype-result-list}\label{PROTOTYPE-RESULT-LIST} ::= \\
@@ -4864,15 +4865,29 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{prototype-result-declaration}\label{PROTOTYPE-RESULT-DECLARATION} \\
 \hspace*{0.5in}\begin{tabular}[t]{rl}
-    ::= & {\em result-variable-declaration} \\
-    $|$ & {\em next-variable-declaration} \\
+    ::= & {\em prototype-result-variable-declaration} \\
+    $|$ & {\em prototype-next-variable-declaration} \\
     \end{tabular}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
-{\em result-variable-declaration} ::= see \pagref{RESULT-VARIABLE-DECLARATION}
+\emkey{prototype-result-variable-declaration}%
+    \label{PROTOTYPE-RESULT-VARIABLE-DECLARATION} ::= \\
+\hspace*{0.5in}\begin{tabular}{rl}
+	    & {\em type-name} {\em target-variable} \\
+	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      {\em type-name} {\em pointer-variable}
+	\end{tabular}
 \\[0.5ex]
-{\em next-variable-declaration} ::= see \pagref{NEXT-VARIABLE-DECLARATION}
+{\em type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[0.5ex]
+{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
+\\[0.5ex]
+\emkey{prototype-next-variable-declaration}%
+    \label{PROTOTYPE-NEXT-VARIABLE-DECLARATION}
+      ::= \ttkey{next} {\em variable-name}
 \\[0.5ex]
 \emkey{input-variable-list} ::= \\
 \hspace*{0.5in}{\em prototype-argument-declaration}
@@ -4880,13 +4895,13 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{prototype-argument-declaration}\label{PROTOTYPE-ARGUMENT-DECLARATION} \\
 \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
-    ::= & {\em result-variable-declaration}
+    ::= & {\em prototype-result-variable-declaration}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{bool} {\em variable-name}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{macro} {\em variable-name}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
-    $|$ & {\em result-variable-declaration}
+    $|$ & {\em prototype-result-variable-declaration}
           \TT{!=} {\em required-value} \\
     \end{tabular}
 \\[0.5ex]
@@ -4974,7 +4989,8 @@ A wild-card name of the form {\tt P\$\ldots} is treated as a
 {\em pointer-type-name}.
 A wild-card name of the form {\tt Q\ldots\$\ldots} is treated as a
 {\em qualifier-name} and \underline{must not} be combined with
-other {\em qualifier-names} in the same {\em result-variable-declaration}
+other {\em qualifier-names} in the same
+{\em prototype-result-variable-declaration}
 or {\em prototype-argument-declaration}.
 \item
 A {\tt *DEFERRED*} {\em function-declaration} may \underline{not} have a
@@ -5819,7 +5835,7 @@ The syntax of a {\em reference-function-declaration} is:
 \hspace*{0.25in}
     \begin{tabular}[t]{rl}
         ::= & \ttkey{reference function} \\
-	    & \TT{~~~~}{\em result-variable-declaration}~ \TT{=}~ \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~ \\
             & \TT{~~~~~~~~}{\em module-abbreviation}\QMARK{}~
 	      {\em reference-prototype-pattern} \\
         $|$ & \ttkey{reference function} \\
@@ -5830,7 +5846,8 @@ The syntax of a {\em reference-function-declaration} is:
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
-{\em result-variable-declaration} ::= see \pagref{RESULT-VARIABLE-DECLARATION}
+{\em prototype-result-variable-declaration} ::=
+    see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
 \\[0.5ex]
 \emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN} \\
 \hspace*{2em}\begin{tabular}[t]{rl}
@@ -5848,7 +5865,7 @@ The syntax of a {\em reference-function-declaration} is:
     \end{tabular}
 \\[0.5ex]
 \emkey{reference-pattern-argument} ::=
-    \TT{(} {\em result-variable-declaration}~ \TT{)}
+    \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
 \\[0.5ex]
 {\em pattern-term} ::= see \pagref{PATTERN-TERM}
 \\[0.5ex]
@@ -5904,7 +5921,7 @@ When a {\em reference-call} computes a pointer, the pointer target
 qualifiers are computed in the same manner as for builtin
 {\em reference-expressions} (see \pagref{QUALIFIER-COMPUTATION})
 using the base {\em reference-expression} qualifiers as the
-container qualifiers and the protype {\em result-variable-declaration}
+container qualifiers and the {\em prototype-result-variable-declaration}
 qualifiers as field qualifiers.
 
 \subsubsection{Reference Call-Prototype Matching}
