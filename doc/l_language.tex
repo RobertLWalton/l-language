@@ -4722,7 +4722,7 @@ type data for fd:
 
 pointer type fd is type data for fd
 
-reference function ap Q$1 file @r = ( fd Q$1 file @p ) .@:
+reference function ap Q$1 file @r = ( fd Q$1 file @p ) ".@":
     data for fd d = data for fd ( @p )
     ap file *READ_WRITE* @f = @files[d.index]
     @r = @f  // Implicitly converts *READ-WRITE* to Q$1
@@ -4750,10 +4750,11 @@ An example is:
 \begin{indpar}\begin{verbatim}
 // This function enables implicit conversion of `dp ...' to
 // `ap ...', where the latter has the constant 0 for a base
-// and the dp value for its offset, provided the target is
+// and the dp value for its offset, provided the dp target is
 // *GLOBAL*.
 // 
-dp *GLOBAL* int std @zero    // value zero is initialized to 0
+dp *GLOBAL* int std @zero:
+    zero = 0
 function std ap QG$1 T$1 @r = std *IMPLICIT* *CONVERSION*
         ( std dp QG$1 T$1 @p ):
     std data for dp ddp = std data for dp ( dp QG$1 T$1 @p )
