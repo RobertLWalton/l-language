@@ -4986,6 +4986,13 @@ In a {\em pattern-argument-list} or {\em input-variable-list}
 a {\em prototype-argument-declaration} with no {\em de\-fault-value} cannot
 follow a {\em prototype-argument-declaration} with a {\em default-value}.
 \item
+The first {\em prototype-argument-declaration}
+in a {\em pattern-argument-list} that is at the very beginning
+of a {\em prototype-pattern}, \underline{before} the first
+{\em function-term}, must not have a {\em default-value}.
+I.e., these {\em pattern-argument-lists} cannot be omitted from
+{\em function-calls}.
+\item
 A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
 is treated in a {\em function-prototype} as a {\em type-name}.
 A wild-card name of the form {\tt P\$\ldots} is treated as a
@@ -4997,7 +5004,10 @@ other {\em qualifier-names} in the same
 or {\em prototype-argument-declaration}.
 \item
 A {\tt *DEFERRED*} {\em function-declaration} may \underline{not} have a
-`{\tt macro} {\em variable-name}' {\em prototype-result}.
+`{\tt macro} {\em variable-name}',
+`{\tt constant} {\em variable-name}',
+or `{\tt inclusion} {\em variable-name}'
+{\em prototype-result}.
 
 \end{itemize}
 \end{indpar}
@@ -5015,7 +5025,7 @@ the first {\em function-term-name} which must be the same in the
 declaration and the call.  Thus the {\em call-terms} of the call
 are re-ordered to match the order of the {\em pattern-terms} of the
 declaration.  If one of the {\em pattern-terms} is omitted in the
-call, but its arguments have {\em default-values}
+call, but its arguments have {\em default-values},
 the {\em pattern-term} with its
 {\em default-values} will be inserted into the call
 (here {\tt H ( 7 )} is inserted).
@@ -5026,14 +5036,16 @@ An example containing an {\em input-variable-list} is:
 \begin{indpar}\begin{verbatim}
 function F [ int x ] = int y,  int z ?= 5:
     . . . . . . . . . .
-F[10] = 6
+F[10] = 6  // Effectively becomes F[10] "=" ( 6, 5 )
 \end{verbatim}\end{indpar}
 which is treated as if {\tt =} were a {\em function-term-name}
 that must be the last such in the call, and the comma separated
 values after {\tt =}
 in the call and {\em prototype-argument-declarations} after {\tt =}
 in the prototype
-were surrounded by parentheses {\tt (~)}.  Note that for an argument
+were surrounded by parentheses {\tt (~)}.
+
+For an argument
 list in the prototype to match an argument list in the call, both
 must be surrounded by the same brackets; either both have {\tt (~)}
 or both have {\tt [~]}, except that implied parentheses in the
@@ -5124,7 +5136,7 @@ Then the {\em assignment-result}
 corresponding to the prototype `\TT{next} $v$' may be omitted, and will
 be taken to be `\TT{next} $e$' if $e$ is a {\em variable-name}
 naming a stack \TT{co} variable for which `\TT{next} $e$' is legal,
-and will otherwise be taken to be simply $e$.
+and will otherwise be taken to be simply the {\em reference-expression} $e$.
 
 For example:
 
@@ -5138,16 +5150,6 @@ ap *READ-WRITE* int @z:
     z = ...
 inc ( z )  // Equivalent to `z = z + 1'.
 \end{verbatim}\end{indpar}
-
-A {\em prototype-argument-declaration} with the syntax:
-\begin{indpar}
-\emkey{prototype-argument-declaration}\label{MACRO-ARGUMENT-DECLARATION} ::= \\
-\hspace*{1in} \TT{macro} {\em variable-name}
-                         \{ \TT{?=} {\em default-value} \}\QMARK{}
-\end{indpar}
-causes the argument value in a call to be the \underline{parse}
-of the actual argument, which is a {\tt const} value.  If the
-{\em default-value} is used, it is evaluated as a {\em pure-const-expression}.
 
 If a {\em required-value} is given in a prototype, the call must
 have an equal {\tt const} valued actual argument value
@@ -5171,8 +5173,28 @@ F ( 8 ) G ( z )    // Matches only second F declaration
                    // (z is not const valued).
 \end{verbatim}\end{indpar}
 
+A {\em prototype-argument-declaration} with the syntax:
+\begin{indpar}
+\emkey{prototype-argument-declaration}\label{MACRO-ARGUMENT-DECLARATION} ::= \\
+\hspace*{1in} \TT{macro} {\em variable-name}
+                         \{ \TT{?=} {\em default-value} \}\QMARK{}
+\end{indpar}
+causes the argument value in a call to be the \underline{parse}
+of the actual argument, which is a {\tt const} value.  If the
+{\em default-value} is used, it is evaluated as a {\em pure-const-expression}.
+
 A {\em prototype-result} of the form `{\tt macro} {\em variable-name}'
 makes the function a \key{macro function}.  When called, {\em variable-name}
+must be set to a {\tt const} value that is a parsed expression which replaces
+the {\em function-call}.
+
+A {\em prototype-result} of the form `{\tt constant} {\em variable-name}'
+makes the function a \key{constant function}.  When called, {\em variable-name}
+must be set to a {\tt const} value that replaces
+the {\em function-call}.
+
+A {\em prototype-result} of the form `{\tt inclusion} {\em variable-name}'
+makes the function a \key{inclusion function}.  When called, {\em variable-name}
 must be set to a {\tt const} value that is a parsed expression which replaces
 the {\em function-call}.
 
@@ -5216,11 +5238,14 @@ A {\tt *DEFERRED*} declaration and its companion non-{\tt *DEFERRED*}
 declaration must have identical prototypes, except:
 \label{COMPANION-DECLARATION}
 \begin{itemize}
-\item Default values must appear only in the {\tt *DEFERRED*} declaration
-and are omitted in the companion.
-\item Required values need not have the same computing expressions
-in the two declarations, but these expressions must evaluate to the
-same values.  Note that the two expressions are each evaluated where
+\item {\em Default-values} and {\em required-values} may appear
+only in the {\tt *DEFERRED*} declaration
+and be omitted in the companion, but not vice-versa.
+\item If {\em default-values} and {\em required-values} appear
+in both the {\tt *DEFERRED*} declaration and its companion,
+they must evaluate to the same {\em const} value.  They need not
+have the same {\em constant-expressions}, but note
+that the two {\em constant-expressions} are each evaluated where
 their prototype is declared, and therefore are evaluated in
 two different contexts.
 \end{itemize}
@@ -5239,7 +5264,8 @@ for if it is not, there
 will be a compile error when the compiler decides the inline nesting
 is too deep or the code generated by one statement is too much.
 
-A macro function can\underline{not} be {\tt *DEFERRED*}.
+A macro function, constant function, or inclusion function
+can\underline{not} be {\tt *DEFERRED*}.
 
 \subsubsection{Inline Call-Prototype Matching}
 \label{INLINE-CALL-PROTOTYPE-MATCHING}
