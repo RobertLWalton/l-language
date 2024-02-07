@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 4, 2024
+February 7, 2024
 
 \bigskip
  
@@ -4854,8 +4854,11 @@ The syntax of a function declaration is:
 \hspace*{0.25in}
     \begin{tabular}[t]{@{}rl}
         & {\em prototype-result-list} \\
+    $|$ & \ttkey{constant} {\em variable-name}
+          \{ \TT{,} {\em prototype-result-list} \}\QMARK{} \\
     $|$ & \ttkey{macro} {\em variable-name} \\
-    $|$ & \ttkey{inclusion} {\em variable-name} \\
+    $|$ & \ttkey{inclusion} {\em variable-name}
+          \{ \TT{,} {\em prototype-result-list} \}\QMARK{} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{prototype-result-list}\label{PROTOTYPE-RESULT-LIST} ::= \\
