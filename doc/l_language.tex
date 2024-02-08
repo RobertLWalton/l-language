@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 7, 2024
+February 8, 2024
 
 \bigskip
  
@@ -5194,9 +5194,11 @@ must be set to a {\tt const} value that replaces
 the {\em function-call}.
 
 A {\em prototype-result} of the form `{\tt inclusion} {\em variable-name}'
-makes the function a \key{inclusion function}.  When called, {\em variable-name}
-must be set to a {\tt const} value that is a parsed expression which replaces
-the {\em function-call}.
+makes the function a \key{inclusion function}.  This can only be matched to
+a {\em function-call} at statement level in a {\em call-assign\-ment-statement}.
+When called, {\em variable-name}
+must be set to a {\tt const} value that is a parsed list of {\em statements}
+that replaces the {\em call-assignment-statement}.
 
 A `{\tt *DEFERRED*}' {\em function-declaration} permits
 inline functions defined between it and a later
@@ -5274,17 +5276,71 @@ Each {\em function-call} in a statement must be matched to a single
 {\em function-prototype}, else compilation of the statement fails
 with a compile error.
 
-This section applies to matching non-{\em const-expressions} and
+This section applies to matching
 non-{\em reference-calls}.  The
-rules of this section are modified when matching {\em const-expressions}
-assording to section \itemref{CONST-EXPRESSIONS} and
+rules of this section are modified when matching
 {\em reference-calls}
 according to section \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}.
-Both {\em const-expression} and {\em reference-call} analysis
-is a bottom-up process that must be done \underline{before} applying the
-rules of this section.  In particular, this section assumes that
-all {\em const-expressions} have been replaced by {\tt const} value,
-and that the types of all {\em reference-expressions} are know.
+
+The algorithm for finding a {\em function-declaration} whose prototype
+matches a {\em function-call} is as follows:
+
+\centerline{\bf Function Prototype Search Algorithm}
+\begin{enumerate}
+\item Search for \underline{macro} {\em function-declarations}
+whose prototypes match the {\em function-call}.
+If there are 0, go to the next step in this algorithm.
+If there are more than 1, it is a compile error.
+
+Otherwise execute in the compiler the function associated with the prototype
+and replace the {\em function-call} by the result, which must be a {\em const}
+value representing a \underline{parsed} {\em expression}. Then process this
+{\em expression}: e.g., if it is also a {\em function-call}, repeat this
+step for that {\em function-call}.
+
+\item Search for \underline{constant} {\em function-declarations}
+whose prototypes match the {\em function-call}.
+If there are 0, go to the next step in this algorithm.
+If there are more than 1, it is a compile error.
+
+Otherwise execute in the compiler the function associated with the prototype
+and replace the {\em function-call} by the result which must be a {\em const}
+value.  Then process this
+result: e.g., if the {\em function-call} is at the
+top level of a {\em call-assignment-statement}, store the {\em const}
+value in the first result variable.
+of the {\em call-assignment-statement}.
+
+In general, the situation is the same as if the word
+{\tt constant} in the prototype were replaced by {\tt const}
+and Step \ref{UNLABELED-MATCH} were executed.  What the word {\tt constant}
+does is promise that the inline function will not produce any run-time code
+when it is executed at compile-time.
+
+\item If the {\em function-call}
+is \underline{not} at the top level of a {\em call-assignment-statement},
+go to the next step in this algorithm.
+Otherwise search for \underline{inclusion} {\em function-declarations}
+whose prototypes match the {\em function-call}.
+If there are 0, go to the next step in this algorithm.
+If there are more than 1, it is a compile error.
+
+Otherwise execute in the compiler the function associated with the prototype
+and replace the {\em call-assignment-statement} by the result which must
+be a {\em const} value representing a sequence of \underline{parsed}
+{\em statements}.
+Then process these {\em statements}.
+
+\item\label{UNLABELED-MATCH}
+Search for {\em function-declarations} that are \underline{not}
+{\tt macro}, {\tt constant}, or {\tt inclusion} declarations and
+whose prototypes match the {\em function-call}.
+If there are 0 or 1, it is a compile error.
+Otherwise execute in the compiler the function associated with the prototype
+to optinally produce run-time code.
+\end{enumerate}
+
+TBD
 
 Conceptually, a \key{matching map} is built for each subexpression
 of the statement that is not in a subblock within the statement
@@ -5301,9 +5357,8 @@ a function prototype	& the subexpression is a function call that
 			  prototypes
 \\[1ex]
 \ttkey{*EXACT*}		& the subexpression is a reference expression or
-			  {\em const-expression}
+			  {\tt const} value
 			  whose type is exactly the target-type
-
 \end{tabular}
 \end{center}
 
