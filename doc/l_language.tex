@@ -5366,9 +5366,9 @@ when parsed it must be
 checked to see if it is a call to a {\tt macro}, {\tt constant}, or
 {\tt inclusion} function.  The result of this is the following:
 
-When a parsed {\em function-call} is first processed, it must be
-processed to see if it is a call to a {\tt macro}, {\tt constant}, or
-{\tt inclusion} function.  This processing in turn memoizes the following:
+When a {\em function-call} is first parsed, it must be
+processed to see if it is a call to a special function.
+This processing in turn memoizes the following:
 
 \begin{center}
 \begin{tabular}{lp{4.0in}}
@@ -5383,12 +5383,12 @@ a {\em {\tt const}-value}
 \end{tabular}
 \end{center}
 
-More specifically, when a parsed {\em function-call} is first processed,
-The following algorithm is applied:
+More specifically, when a {\em function-call} is first parsed,
+the following algorithm is applied:
 
 \bigskip
 
-\centerline{\bf Call-Prototype First Encounter Algorithm}
+\centerline{\bf Function Call Special Algorithm}
 \begin{enumerate}
 \item Search for \underline{macro} {\em function-declarations}
 whose prototypes match the {\em function-call}.
@@ -5398,7 +5398,8 @@ If there are more than 1, it is a compile error.
 Otherwise execute in the compiler the function defined by the
 {\em function-declaration}
 and replace the {\em function-call} by the result, which must be a {\em const}
-value representing a \underline{parsed} {\em expression}. Then if it is a
+value representing a \underline{parsed} {\em expression}. Then if this
+parsed {\em expression} is a
 {\em function-call}, repeat this step, but if it is something else,
 terminate this algorithm.
 
@@ -5415,8 +5416,8 @@ memoize the {\em const} value returned as the value of the
 \end{enumerate}
 
 Given all this, we define the algorithm that determines whether
-a particular {\em function-prototype} matches a particular
-{\em function-call}:
+a particular {\em function-call} matches a particular
+{\em function-prototype}:
 
 \bigskip
 
