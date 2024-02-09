@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 8, 2024
+February 9, 2024
 
 \bigskip
  
@@ -5308,8 +5308,8 @@ the type of {\tt a2}.  So one then searches for a prototype to
 match the call `{\tt y * z}' with target type {\tt int}.
 
 This top-down search can take exponential time unless we memoize the
-results.  What we must remember for each target type and 
-argument subexpression is:
+results.  Therefore for each target type and argument subexpression
+we remember one of the following:
 
 \begin{center}
 \begin{tabular}{lp{4.0in}}
@@ -5355,10 +5355,65 @@ value {\tt 4}, while in the second case this function announces a
 compile error because it cannot convert {\tt const} value {\tt 4.5}
 to an {\tt int} value.
 
-TBD
+When a parsed {\em function-call} is first processed, it must be
+checked to see if it is a call to a {\tt macro}, {\tt constant}, or
+{\tt inclusion} function.  This is referred to as the:
 
-In this context, \key{call-prototype matching} is done as follows:
+In addition to the above data memoized for each target type and
+argument expression, for each argument subexpression (ignoring
+target type) we remember one of the following:
 
+\begin{center}
+\begin{tabular}{lp{4.0in}}
+a {\em {\tt const}-value}
+			& the subexpression is a {\em function-call} that
+			  matches the {\em function-prototype} of a
+			  {\tt constant} function whose value is the
+			  given {\tt const}-value
+\\[1ex]
+\ttkey{*NON-SPECIAL*}	& the subexpression is \underline{not} a call to
+			  a {\tt macro} or {\tt constant} function
+\end{tabular}
+\end{center}
+
+The first time we encounter an argument subexpression, we run
+the following algorithm and memoize its results:
+
+\bigskip
+
+\centerline{\bf Call-Prototype First Encounter Algorithm}
+\begin{enumerate}
+\item Search for \underline{macro} {\em function-declarations}
+whose prototypes match the {\em function-call}.
+If there are 0, go to the next step in this algorithm.
+If there are more than 1, it is a compile error.
+
+Otherwise execute in the compiler the function defined by the
+{\em function-declaration}
+and replace the {\em function-call} by the result, which must be a {\em const}
+value representing a \underline{parsed} {\em expression}. Then if it is a
+{\em function-call}, repeat this step, but if it is something else,
+terminate this algorithm.
+
+\item Search for \underline{constant} {\em function-declarations}
+whose prototypes match the {\em function-call}.
+If there are 0, terminate this algorithm.
+If there are more than 1, it is a compile error.
+
+Otherwise execute in the compiler the function defined by the
+{\em function-declaration},
+memoize the {\em const} value returned as the value of the
+{\em function-call}, and terminate this algorithm.
+
+\end{enumerate}
+
+Given all this, we define the algorithm that determines whether
+a particular {\em function-prototype} matches a particular
+{\em function-call}:
+
+\bigskip
+
+\centerline{\bf Call-Prototype Matching Algorithm}
 \begin{enumerate}
 \item\label{CALL-PROTOTYPE-MODULE-ABBREVIATION}
 If the call begins with a {\em module-abbreviation}
