@@ -5282,88 +5282,54 @@ rules of this section are modified when matching
 {\em reference-calls}
 according to section \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}.
 
-The algorithm for finding a {\em function-declaration} whose prototype
-matches a {\em function-call} is as follows:
+In order for a {\em function-call} to be matched to a
+{\em function-prototype}, the call must have a target type.
+If the {\em function-call} is the top level call in a
+{\em call-assignment-statement} or {\em expression-assignment-statement},
+the {\em result-variable-declarations} provide the target type
+(or types if there are several {\em result-variable-declarations}
+in a {\em call-assignment-statement}).  Otherwise the {\em function-call}
+is an argument to some other function whose prototype specified the
+target type.
 
-\centerline{\bf Function Prototype Search Algorithm}
-\begin{enumerate}
-\item Search for \underline{macro} {\em function-declarations}
-whose prototypes match the {\em function-call}.
-If there are 0, go to the next step in this algorithm.
-If there are more than 1, it is a compile error.
+Consider the example:
+\begin{indpar}\begin{verbatim}
+int x = ...
+int y = ...
+int z = ...
+int w = x + ( y * z )
+\end{verbatim}\end{indpar}
 
-Otherwise execute in the compiler the function associated with the prototype
-and replace the {\em function-call} by the result, which must be a {\em const}
-value representing a \underline{parsed} {\em expression}. Then process this
-{\em expression}: e.g., if it is also a {\em function-call}, repeat this
-step for that {\em function-call}.
+In searching for a prototype to match the call `{\tt x + ( y * z )}'
+with target type {\tt int},
+one comes across the prototype `{\tt int r = (int a1) "+" (int a2)}'.
+This specifies that the target type of `{\tt y * z}' is {\tt int},
+the type of {\tt a2}.  So one then searches for a prototype to
+match the call `{\tt y * z}' with target type {\tt int}.
 
-\item Search for \underline{constant} {\em function-declarations}
-whose prototypes match the {\em function-call}.
-If there are 0, go to the next step in this algorithm.
-If there are more than 1, it is a compile error.
+This top-down search can take exponential time unless we memoize the
+results.  What we must remember for each target type and 
+argument subexpression is:
 
-Otherwise execute in the compiler the function associated with the prototype
-and replace the {\em function-call} by the result which must be a {\em const}
-value.  Then process this
-result: e.g., if the {\em function-call} is at the
-top level of a {\em call-assignment-statement}, store the {\em const}
-value in the first result variable.
-of the {\em call-assignment-statement}.
-
-In general, the situation is the same as if the word
-{\tt constant} in the prototype were replaced by {\tt const}
-and Step \ref{UNLABELED-MATCH} were executed.  What the word {\tt constant}
-does is promise that the inline function will not produce any run-time code
-when it is executed at compile-time.
-
-\item If the {\em function-call}
-is \underline{not} at the top level of a {\em call-assignment-statement},
-go to the next step in this algorithm.
-Otherwise search for \underline{inclusion} {\em function-declarations}
-whose prototypes match the {\em function-call}.
-If there are 0, go to the next step in this algorithm.
-If there are more than 1, it is a compile error.
-
-Otherwise execute in the compiler the function associated with the prototype
-and replace the {\em call-assignment-statement} by the result which must
-be a {\em const} value representing a sequence of \underline{parsed}
-{\em statements}.
-Then process these {\em statements}.
-
-\item\label{UNLABELED-MATCH}
-Search for {\em function-declarations} that are \underline{not}
-{\tt macro}, {\tt constant}, or {\tt inclusion} declarations and
-whose prototypes match the {\em function-call}.
-If there are 0 or 1, it is a compile error.
-Otherwise execute in the compiler the function associated with the prototype
-to optinally produce run-time code.
-\end{enumerate}
-
-TBD
-
-Conceptually, a \key{matching map} is built for each subexpression
-of the statement that is not in a subblock within the statement
-(i.e., not within a substatement of the statement).
-This maps target-types to one of:
 \begin{center}
 \begin{tabular}{lp{4.0in}}
-a function prototype	& the subexpression is a function call that
-			  matches the function prototype and only
-			  that prototype
+a {\em function-prototype}
+			& the subexpression is a {\em function-call} that
+			  matches the {\em function-prototype}, and only
+			  that prototype, given the target type
 \\[1ex]
-\ttkey{*FAIL*}		& the subexpression is a function call that
-                          matches zero or more than one function
-			  prototypes
+\ttkey{*FAIL*}		& the subexpression is a {\em function-call} that
+                          matches zero or more than one
+			  {\em function-prototypes}, given the target type
 \\[1ex]
-\ttkey{*EXACT*}		& the subexpression is a reference expression or
+\ttkey{*EXACT*}		& the subexpression is a {\em reference-expression} or
 			  {\tt const} value
-			  whose type is exactly the target-type
+			  whose type is exactly the target type
 \end{tabular}
 \end{center}
 
-If the subexpression is a {\em reference-expression}
-value $e$ whose type is not exactly the target-type,
+If the subexpression is a {\em reference-expression} or {\em const}
+value $e$ whose type is not exactly the target type,
 the compiler replaces $e$ by \\
 \centerline{\tt *IMPLICIT* *CONVERSION* ( $e$ )} \\[0.5ex]
 and attempts to find a function prototype for this revised expression.
@@ -5371,13 +5337,10 @@ and attempts to find a function prototype for this revised expression.
 The implications of this last are brought out by the following
 example:
 \begin{indpar}\begin{verbatim}
-int x = 5.5 - 1.5     // Sets x = 4
-int y = 5.5 - 1.0     // Fails trying to set y = 4.5
+int x = 4.0     // Sets x = 4
+int y = 4.5     // Fails trying to set y = 4.5
 \end{verbatim}\end{indpar}
-The right sides of these statements are {\em const-expressions} that
-evaluate to {\tt 4.0} and {\tt 4.5} respectively
-before the rules of this section are applied.  These {\tt const}
-values are reference expressions and therefore the statements become:
+These statements become:
 \begin{indpar}\begin{verbatim}
 int x = *IMPLICIT* *CONVERSION* ( 4.0 )  // No error.
 int y = *IMPLICIT* *CONVERSION* ( 4.5 )  // Compile error.
@@ -5392,33 +5355,7 @@ value {\tt 4}, while in the second case this function announces a
 compile error because it cannot convert {\tt const} value {\tt 4.5}
 to an {\tt int} value.
 
-Note that matching maps are \underline{not} used in the modified versions
-of this section's algorithm that are used for {\em const-expressions}
-and {\em reference-expressions}.
-
-The matching map for a particular subexpression in a statement does
-\underline{not} depend on the parts of the statement that contain
-the subexpression, but only depends on the subexpression.
-So matching maps could be built working bottom up in the
-statement, i.e., starting with innermost subexpressions.  But
-as most entries in a subexpression matching map will be unused, its entries
-are instead computed as needed, and memoized in the subexpression
-matching map to avoid recomputation.  Thus matching is a top down
-process, starting with the outermost function call and working
-downward through argument subexpressions, computing matching map
-entries as needed.
-
-The {\em function-call} to {\em function-prototype}
-matching algorithm therefore
-inputs just the {\em function-call} and its target type,
-without any argument subexpression details
-other than the matching maps of each of its arguments.
-For a function call
-that is the right side of the {\tt =}
-in a {\em call-assignment-statement} there may
-be zero, or more than one target type, but no matching map is
-required, as the target types are dictated by the
-{\em call-assignment-statement} left side.
+TBD
 
 In this context, \key{call-prototype matching} is done as follows:
 
