@@ -5282,14 +5282,18 @@ rules of this section are modified when matching
 {\em reference-calls}
 according to section \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}.
 
-In order for a {\em function-call} to be matched to a
+In this section {\tt macro}, {\tt constant}, and {\tt inclusion}
+functions will be called \key{special functions}.
+
+In order for a {\em function-call} to be matched to a non-special
 {\em function-prototype}, the call must have a target type.
 If the {\em function-call} is the top level call in a
 {\em call-assignment-statement} or {\em expression-assignment-statement},
-the {\em result-variable-declarations} provide the target type
+the {\em result-variable-declarations} of the {\em statement}
+provide the target type
 (or types if there are several {\em result-variable-declarations}
 in a {\em call-assignment-statement}).  Otherwise the {\em function-call}
-is an argument to some other function whose prototype specified the
+is an argument to some other function whose prototype specifies the
 target type.
 
 Consider the example:
@@ -5314,15 +5318,16 @@ we remember one of the following:
 \begin{center}
 \begin{tabular}{lp{4.0in}}
 a {\em function-prototype}
-			& the subexpression is a {\em function-call} that
+			& if the subexpression is a {\em function-call} that
 			  matches the {\em function-prototype}, and only
 			  that prototype, given the target type
 \\[1ex]
-\ttkey{*FAIL*}		& the subexpression is a {\em function-call} that
+\ttkey{*FAIL*}		& if the subexpression is a {\em function-call} that
                           matches zero or more than one
 			  {\em function-prototypes}, given the target type
 \\[1ex]
-\ttkey{*EXACT*}		& the subexpression is a {\em reference-expression} or
+\ttkey{*EXACT*}		& if the subexpression is a
+                          {\em reference-expression} or
 			  {\tt const} value
 			  whose type is exactly the target type
 \end{tabular}
@@ -5352,32 +5357,34 @@ int x = std *IMPLICIT* *CONVERSION* ( const y )
 is matched to its {\em function-call}, but in the first case
 this function compiles to run-time code that returns the {\tt int}
 value {\tt 4}, while in the second case this function announces a
-compile error because it cannot convert {\tt const} value {\tt 4.5}
+compile error because it cannot convert the {\tt const} value {\tt 4.5}
 to an {\tt int} value.
 
-When a parsed {\em function-call} is first processed, it must be
-checked to see if it is a call to a {\tt macro}, {\tt constant}, or
-{\tt inclusion} function.  This is referred to as the:
-
 In addition to the above data memoized for each target type and
-argument expression, for each argument subexpression (ignoring
-target type) we remember one of the following:
+argument expression, for each {\em function-call}
+when parsed it must be
+checked to see if it is a call to a {\tt macro}, {\tt constant}, or
+{\tt inclusion} function.  The result of this is the following:
+
+When a parsed {\em function-call} is first processed, it must be
+processed to see if it is a call to a {\tt macro}, {\tt constant}, or
+{\tt inclusion} function.  This processing in turn memoizes the following:
 
 \begin{center}
 \begin{tabular}{lp{4.0in}}
 a {\em {\tt const}-value}
-			& the subexpression is a {\em function-call} that
+			& if the subexpression is a {\em function-call} that
 			  matches the {\em function-prototype} of a
 			  {\tt constant} function whose value is the
 			  given {\tt const}-value
 \\[1ex]
-\ttkey{*NON-SPECIAL*}	& the subexpression is \underline{not} a call to
+\ttkey{*NON-SPECIAL*}	& if the subexpression is \underline{not} a call to
 			  a {\tt macro} or {\tt constant} function
 \end{tabular}
 \end{center}
 
-The first time we encounter an argument subexpression, we run
-the following algorithm and memoize its results:
+More specifically, when a parsed {\em function-call} is first processed,
+The following algorithm is applied:
 
 \bigskip
 
