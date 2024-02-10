@@ -5370,6 +5370,19 @@ that is the first returned result.
 
 \end{enumerate}
 
+The second step in processing a {\em statement} is to visit in top-down order
+all the {\em expressions} in the {\em statement}
+that are to be evaluated (as opposed to {\em expressions} on the left
+side of `\TT{=}' that are to receive values)
+and locate for each of these {\em expressions} that are {\em function-calls}
+and are not annotated with a {\tt const} value
+a matching {\em function-declaration}.  Or more specifically,
+a {\em function-declaration} whose {\em function-prototype} matches
+the {\em function-call}.  In this step all \underline{non-special}
+{\em function-declarations} are included in the search.
+
+TBD
+
 In order for a {\em function-call} to be matched to a non-special
 {\em function-prototype}, the call must have a target type.
 If the {\em function-call} is the top level call in a
