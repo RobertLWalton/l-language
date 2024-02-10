@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 9, 2024
+February 10, 2024
 
 \bigskip
  
@@ -5290,20 +5290,28 @@ rules of this section are modified when matching
 {\em reference-calls}
 according to section \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}.
 
-Recall that {\tt macro}, {\tt constant}, and {\tt inclusion}
-functions are \key{special functions}.  The first step in processing
-a {\em statement} is to visit all the {\em expressions} in the statement
-in bottom-up order and apply to each {\em expression}
+The first step in processing
+a {\em statement} is to visit in bottom-up order
+all the {\em expressions} in the {\em statement}
+that are to be evaluated (as opposed to {\em expressions} on the left
+side of `\TT{=}' that are to receive values)
+and apply to each of these {\em expressions}
 the following algorithm:
 
-\centerline{\bf Special Expression Algorithm}
+\bigskip
+
+\centerline{\bf Bottom-Up Expression Algorithm}
 \begin{enumerate}
 
 \item If the {\em expression} is a {\em constant}\pagnote{CONSTANTS}, evaluate
-the {\em expression} to a {\tt const} value $C$, and replace the
-{\em expression} by `{\tt *QUOTE* \{ $C$ \}}',
-where {\tt *QUOTE*} is a builtin function that
-just returns its operand as its value, and terminate this algorithm.
+the {\em expression} to a {\tt const} value $C$, annotate the
+{\em expression} with $C$, and terminate this algorithm.
+
+\item If the {\em expression} is a
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
+root is a {\tt constant} or is a {\tt const} type {\em variable},
+evaluate the {\em expression} to a {\tt const} value $C$, annotate the
+{\em expression} with $C$, and terminate this algorithm.
 
 \item If the {\em expression} is a {\em function-call},
 search for \underline{macro} {\em function-declarations}
@@ -5311,8 +5319,8 @@ whose prototypes match the {\em function-call}.
 If there are 0, go to the next step in this algorithm.
 If there are more than 1, it is a compile error; terminate this algorithm.
 
-Otherwise execute in the compiler the function defined by the
-{\em function-declaration}
+Otherwise execute in the compiler the function defined by the found
+{\em function-declara\-tion}
 and replace the {\em function-call} by the result, which must be a {\em const}
 value representing a \underline{parsed} {\em expression}. Then go back to the
 beginning of this algorithm to process the replacement.
@@ -5323,17 +5331,19 @@ whose prototypes match the {\em function-call}.
 If there are 0, go to the next algorithm step.
 If there are more than 1, it is a compile error; terminate this algorithm.
 
-Otherwise execute in the compiler the function defined by the
-{\em function-declaration}.
+Otherwise execute in the compiler the function defined by the found
+{\em function-declara\-tion}.
 
 If the {\em function-call} is the top level {\em function-call} in a
 {\em call-assignment-statement}, and if the {\em call-assignment-statement}
-has $N$ {\em assignment-results}, then the execution must return at
-least $N$ results.  Assign these in order to the {\em assignment-results}
+has $N$ {\em assignment-results} (all of which must be {\tt const} variables),
+then the execution must return at
+least $N$ results (all of which must be {\tt const} values).
+Assign these in order to the {\em assignment-results}
 (excess results are discarded), and terminate this algorithm.
 
-Otherwise replace the {\em function-call}
-by `{\tt *QUOTE* $C$}' and terminate this algorithm.
+Otherwise annotate the {\em expression} with the value returned by the
+evaluated function and terminate this algorithm.
 
 \item If the {\em expression} is a {\em function-call}
 that is the top level {\em function-call} in a
@@ -5343,10 +5353,20 @@ whose prototypes match the {\em func\-tion-call}.
 If there are 0, terminate this algorithm.
 If there are more than 1, it is a compile error; terminate this algorithm.
 
-Otherwise execute in the compiler the function defined by the
-{\em function-declaration} and replace the entire
+Otherwise execute in the compiler the function defined by the found
+{\em function-declara\-tion}.
+
+If the {\em call-assignment-statement}
+has $N$ {\em assignment-results} (all of which must be {\tt const} variables),
+then the execution must return at
+least $N+1$ results (all of which must be {\tt const} values).
+Assign all returned results
+but the first in order to the {\em assignment-results}
+(excess results are discarded).
+
+Then replace the entire
 {\em call-assignment-statement} by the list of {\em statements}
-returned by the execution.
+that is the first returned result.
 
 \end{enumerate}
 
