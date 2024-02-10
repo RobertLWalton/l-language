@@ -4854,9 +4854,9 @@ The syntax of a function declaration is:
 \hspace*{0.25in}
     \begin{tabular}[t]{@{}rl}
         & {\em prototype-result-list} \\
+    $|$ & \ttkey{macro} {\em variable-name} \\
     $|$ & \ttkey{constant} {\em variable-name}
           \{ \TT{,} {\em prototype-result-list} \}\QMARK{} \\
-    $|$ & \ttkey{macro} {\em variable-name} \\
     $|$ & \ttkey{inclusion} {\em variable-name}
           \{ \TT{,} {\em prototype-result-list} \}\QMARK{} \\
     \end{tabular}
@@ -5003,11 +5003,19 @@ other {\em qualifier-names} in the same
 {\em prototype-result-variable-declaration}
 or {\em prototype-argument-declaration}.
 \item
-A {\tt *DEFERRED*} {\em function-declaration} may \underline{not} have a
+A function with a
 `{\tt macro} {\em variable-name}',
 `{\tt constant} {\em variable-name}',
 or `{\tt inclusion} {\em variable-name}'
-{\em prototype-result}.
+{\em prototype-result} is called a \key{special function}.
+These functions are referred to as \skey{macro function}s,
+\skey{constant function}s, and \skey{inclusion function}s, respectively.
+\item
+If a special function has a {\em prototype-result-list}, all the
+{\em variable-declarations} in this list must have {\tt const} type.
+\item
+A {\tt *DEFERRED*} {\em function-declaration} may \underline{not} be
+a special function.
 
 \end{itemize}
 \end{indpar}
@@ -5282,8 +5290,65 @@ rules of this section are modified when matching
 {\em reference-calls}
 according to section \itemref{REFERENCE-CALL-PROTOTYPE-MATCHING}.
 
-In this section {\tt macro}, {\tt constant}, and {\tt inclusion}
-functions will be called \key{special functions}.
+Recall that {\tt macro}, {\tt constant}, and {\tt inclusion}
+functions are \key{special functions}.  The first step in processing
+a {\em statement} is to visit all the {\em expressions} in the statement
+in bottom-up order and apply to each {\em expression}
+the following algorithm:
+
+\centerline{\bf Special Expression Algorithm}
+\begin{enumerate}
+
+\item If the {\em expression} is a {\em constant}\pagnote{CONSTANTS}, evaluate
+the {\em expression} to a {\tt const} value $C$, and replace the
+{\em expression} by `{\tt *QUOTE* \{ $C$ \}}',
+where {\tt *QUOTE*} is a builtin function that
+just returns its operand as its value, and terminate this algorithm.
+
+\item If the {\em expression} is a {\em function-call},
+search for \underline{macro} {\em function-declarations}
+whose prototypes match the {\em function-call}.
+If there are 0, go to the next step in this algorithm.
+If there are more than 1, it is a compile error; terminate this algorithm.
+
+Otherwise execute in the compiler the function defined by the
+{\em function-declaration}
+and replace the {\em function-call} by the result, which must be a {\em const}
+value representing a \underline{parsed} {\em expression}. Then go back to the
+beginning of this algorithm to process the replacement.
+
+\item If the {\em expression} is a {\em function-call},
+search for \underline{constant} {\em function-declarations}
+whose prototypes match the {\em function-call}.
+If there are 0, go to the next algorithm step.
+If there are more than 1, it is a compile error; terminate this algorithm.
+
+Otherwise execute in the compiler the function defined by the
+{\em function-declaration}.
+
+If the {\em function-call} is the top level {\em function-call} in a
+{\em call-assignment-statement}, and if the {\em call-assignment-statement}
+has $N$ {\em assignment-results}, then the execution must return at
+least $N$ results.  Assign these in order to the {\em assignment-results}
+(excess results are discarded), and terminate this algorithm.
+
+Otherwise replace the {\em function-call}
+by `{\tt *QUOTE* $C$}' and terminate this algorithm.
+
+\item If the {\em expression} is a {\em function-call}
+that is the top level {\em function-call} in a
+{\em call-assignment-statement},
+search for \underline{inclusion} {\em function-declarations}
+whose prototypes match the {\em func\-tion-call}.
+If there are 0, terminate this algorithm.
+If there are more than 1, it is a compile error; terminate this algorithm.
+
+Otherwise execute in the compiler the function defined by the
+{\em function-declaration} and replace the entire
+{\em call-assignment-statement} by the list of {\em statements}
+returned by the execution.
+
+\end{enumerate}
 
 In order for a {\em function-call} to be matched to a non-special
 {\em function-prototype}, the call must have a target type.
