@@ -5379,11 +5379,11 @@ and are not annotated with a {\tt const} value,
 a matching {\em function-declaration}.  Or more specifically,
 a {\em function-declaration} whose {\em function-prototype} matches
 the {\em function-call}.  In this step all \underline{non-special}
-{\em function-declarations} are included in the search.
+{\em function-declarations} that are in scope are included in the search.
 
 Furthermore in this step each {\em expression} has a target type (or types),
-and {\em function-prototypes} the expression are required to
-have results of this type (or results of these types).
+and {\em function-prototypes} that match the expression are required to
+have a result of this type (or results of these types).
 
 In an {\em expression-assignment-statement}%
 \pagnote{EXPRESSION-ASSIGNMENT-STATEMENTS} each right-side {\em expression}
@@ -5391,17 +5391,17 @@ has a corresponding left-side {\em assignment-result} which specifies
 the {\em expression's} target type.
 
 In a {\em call-assignment-statement}%
-\pagnote{CALL-ASSIGNMENT-STATEMENTS} with a {\em function-call}
-{\em expression} on the right-side, the
+\pagnote{CALL-ASSIGNMENT-STATEMENTS} which has a {\em function-call}
+{\em expression} on its right-side, its
 left-side {\em assignment-results} specify a list of target types.
 
 For an {\em expression} that is a {\em function-call} argument,
 the prototype matched to the {\em function-call} specifies the
 target type of the {\em expression}.  For example, in
-`{\tt int z = x + 5}' {\tt int} is the target type of {\tt +},
+`{\tt int z = x + 5}' the target type of {\tt +} is {\tt int},
 the prototype matched to `{\tt x +  5}' (the only one with an {\tt int}
 result type) has {\tt int} result
-and argument types, so {\tt int} is the target type of `{\tt 5}'.
+and argument types, so {\tt int} is the target type of `{\tt x}' and `{\tt 5}'.
 
 As a special case, in a relational expression such as `{\tt x < y + 5}',
 one of the operands must be a {\em reference-expression} whose type can be
@@ -5411,13 +5411,43 @@ used as the target type of all the operands (in this case, the type of
 Consider the case of expression $c$ which is a {\em function-call}
 containing an argument {\em expression} $e$.  The various
 {\em function-declarations} that might match $c$ specify various
-target types of $e$.  Some of these target types may be the same,
+target types for $e$.  Some of these target types may be the same,
 so if we find matches for $e$ with a given target type, we should
 remember what we found so we do not re-compute the match for $e$ with
 that target type if it is needed again.  Therefore, when we find a
 {\em function-declaration} $d$ matching $e$ for target type $t$, we annotate
 $e$ with $t\mapsto d$.
 
+Given all this, when the second step visits an {\em expression} $e$ with
+target type $t$ and executes:
+
+
+\bigskip
+
+\centerline{\bf Top-Down Expression Algorithm}
+\begin{enumerate}
+
+\item If $e$ is annotated with a {\tt const} value
+(from the Bottom-Up Step),
+annotate the {\em expression} with $t\mapsto{*EXACT*}$.
+Then if $t$ does \underline{not} equal {\tt const},
+replace the $e$ with `{\tt *IMPLICIT* *CONVERSION* ( $e$ )}'.
+
+\item If $e$ is a
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} compute its
+type $T$ and
+annotate the $e$ with $T\mapsto{*EXACT*}$.
+Then if $t$ does \underline{not} equal $T$,
+replace the $e$ with `{\tt *IMPLICIT* *CONVERSION* ( $e$ )}'.
+
+\item If $e$ is a {\em function-call}, search for a {\em function-declaration}
+$d$ whose {\em function-prototype} result type is $t$.  When one is found, 
+use the prototype to specify the target types of the function arguments, and
+apply this algorithm recursively to each argument.  If there is success
+for each argument,
+annotate the $e$ with $t\mapsto d$.
+
+\end{enumerate}
 
 TBD
 
