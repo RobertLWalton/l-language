@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 11, 2024
+February 12, 2024
 
 \bigskip
  
@@ -5325,9 +5325,13 @@ evaluate the {\em expression} to a {\tt const} value $C$, annotate the
 
 \item If the {\em expression} is a {\em function-call},
 search for \underline{macro} {\em function-declarations}
-whose prototypes match the {\em function-call}.
+whose prototypes match the {\em function-call}
+(see Call-Prototype Matching Algorithm below).
 If there are 0, go to the next step in this algorithm.
-If there are more than 1, it is a compile error; terminate this algorithm.
+If there are more than 1, apply the Call-Prototype Rank Elimination
+Algorithm below.
+If there still are more than 1,
+it is a compile error; terminate this algorithm.
 
 Otherwise execute in the compiler the function defined by the found
 {\em function-declara\-tion}
@@ -5337,9 +5341,12 @@ beginning of this algorithm to process the replacement.
 
 \item If the {\em expression} is a {\em function-call},
 search for \underline{constant} {\em function-declarations}
-whose prototypes match the {\em function-call}.
+whose prototypes match the {\em function-call}
+(see Call-Prototype Matching Algorithm below).
 If there are 0, go to the next algorithm step.
-If there are more than 1, it is a compile error; terminate this algorithm.
+If there are more than 1, apply the Call-Prototype Rank Elimination
+Algorithm below.
+If there are still more than 1, it is a compile error; terminate this algorithm.
 
 Otherwise execute in the compiler the function defined by the found
 {\em function-declara\-tion}.
@@ -5347,7 +5354,7 @@ Otherwise execute in the compiler the function defined by the found
 If the {\em function-call} is the top level {\em function-call} in a
 {\em call-assignment-statement}, and if the {\em call-assignment-statement}
 has $N$ {\em assignment-results} (all of which must be {\tt const} variables),
-then the execution must return at
+then each {\em function-declaration} prototype must return at
 least $N$ results (all of which must be {\tt const} values).
 Assign these in order to the {\em assignment-results}
 (excess results are discarded), and terminate this algorithm.
@@ -5361,7 +5368,9 @@ that is the top level {\em function-call} in a
 search for \underline{inclusion} {\em function-declarations}
 whose prototypes match the {\em func\-tion-call}.
 If there are 0, terminate this algorithm.
-If there are more than 1, it is a compile error; terminate this algorithm.
+If there are more than 1, apply the Call-Prototype Rank Elimination
+Algorithm below.
+If there are still more than 1, it is a compile error; terminate this algorithm.
 
 Otherwise execute in the compiler the function defined by the found
 {\em function-declara\-tion}.
@@ -5462,16 +5471,23 @@ or if not found,
 annotate $e$ with $t\mapsto {\tt *FAIL*}$.
 
 \item If $e$ is a {\em function-call}, search for {\em function-declarations}
-$d$ whose {\em function-prototype} matches {\em function-call}
-$e$ (see Call-Prototype Matching Algorithm below)
+whose {\em function-prototype} matches {\em function-call} $e$
+(see Call-Prototype Matching Algorithm below)
 and has result type $t$.  When one is found, 
 use the prototype to specify the target types of the function arguments, and
 apply this algorithm recursively to each argument.  If there is success
-for each argument, annotate $e$ with $t\mapsto d$.
-It is possible for a second {\em function-declaration}
-to also be successful, in which case change the annotation to
-$t\mapsto {\tt *AMBIGUOUS*}$.  If no successful {\em function-declarations}
-are found, annotate $e$ with $t\mapsto{\tt *FAIL*}$.
+for each argument, the {\em function-declaration} is successful.
+
+If no successful {\em function-declarations} are found,
+annotate $e$ with $t\mapsto{\tt *FAIL*}$.
+
+If more than one is found,
+apply the Call-Prototype Rank Elimination Algorithm below.
+If there is still more than one,
+annotate $e$ with $t\mapsto{\tt *FAIL*}$.
+
+Otherwise if just one {\em function-declaration} $d$ remains,
+annotate $e$ with $t\mapsto d$.
 
 If $e$ is the top level {\em function-call}
 in a {\em call-assignment-statement}, and the latter has
