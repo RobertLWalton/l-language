@@ -4492,9 +4492,19 @@ There are builtin {\tt *IMPLICIT* *CON\-VER\-SION*} functions in
 which both types are builtin: see \itemref{BUILTIN-IMPLICIT-CONVERSIONS}.
 
 The set of {\tt *IMPLICIT* *CONVERSION*} functions defines
-a graph in which types are nodes and {\tt *IMPLICIT* *CONVERSION*}
-functions are directed edges.  This graph \underline{must} be
-acyclic.
+a graph, the \key{implicit conversion graph}\label{IMPLICIT-CONVERSION-GRAPH}
+in which types are nodes and {\tt *IMPLICIT* *CONVERSION*}
+functions are directed edges.
+A {\em function-declaration} $d$ of the form
+\begin{indpar} \tt
+function T2 r = {\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( T1 v )
+\end{indpar}
+creats an edge labeled $d$ in this graph from node {\tt T2} to node
+{\tt T1}.
+This graph \underline{must} be
+acyclic.  A path $d_1,d_2,\ldots,d_n$ in this graph denotes a chain
+of {\t *IMPLICIT* *CONVERSION*} {\em function-declarations} that together
+convert the result type of $d_1$ to the argument type of $d_n$.
 
 When defining an implicit conversion from type {\tt T1} to type
 {\tt T2}, each value of type {\tt T1} should be exactly representable
@@ -5427,25 +5437,50 @@ target type $t$ and executes:
 \centerline{\bf Top-Down Expression Algorithm}
 \begin{enumerate}
 
+\item If $e$ already has an annotation $t\mapsto d$, do nothing but
+declare success.
+
 \item If $e$ is annotated with a {\tt const} value
-(from the Bottom-Up Step),
-annotate the {\em expression} with $t\mapsto{*EXACT*}$.
-Then if $t$ does \underline{not} equal {\tt const},
-replace the $e$ with `{\tt *IMPLICIT* *CONVERSION* ( $e$ )}'.
+(from the Bottom-Up Step), then if $t$ equals {\tt const},
+annotate $e$ with $t\mapsto{*EXACT*}$.
+Otherwise search the implicit conversion
+graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
+for a path $d_1,d_2,\ldots,d_n$ from $t$ to {\tt const},
+and if found annotate $e$ with $t\mapsto d_1,d_2,\ldots,d_n$,
+or if not found,
+annotate $e$ with $t\mapsto {\tt *FAIL*}$.
 
 \item If $e$ is a
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} compute its
-type $T$ and
-annotate the $e$ with $T\mapsto{*EXACT*}$.
-Then if $t$ does \underline{not} equal $T$,
-replace the $e$ with `{\tt *IMPLICIT* *CONVERSION* ( $e$ )}'.
+type $T$. 
+Then if $t$ equals $T$ annotate $e$ with $t\mapsto{*EXACT*}$.
+Otherwise search the implicit conversion
+graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
+for a path $d_1,d_2,\ldots,d_n$ from $t$ to $T$,
+and if found annotate $e$ with $t\mapsto d_1,d_2,\ldots,d_n$,
+or if not found,
+annotate $e$ with $t\mapsto {\tt *FAIL*}$.
 
-\item If $e$ is a {\em function-call}, search for a {\em function-declaration}
-$d$ whose {\em function-prototype} result type is $t$.  When one is found, 
+\item If $e$ is a {\em function-call}, search for {\em function-declarations}
+$d$ whose {\em function-prototype} matches {\em function-call}
+$e$ (see Call-Prototype Matching Algorithm below)
+and has result type $t$.  When one is found, 
 use the prototype to specify the target types of the function arguments, and
 apply this algorithm recursively to each argument.  If there is success
-for each argument,
-annotate the $e$ with $t\mapsto d$.
+for each argument, annotate $e$ with $t\mapsto d$.
+It is possible for a second {\em function-declaration}
+to also be successful, in which case change the annotation to
+$t\mapsto {\tt *AMBIGUOUS*}$.  If no successful {\em function-declarations}
+are found, annotate $e$ with $t\mapsto{\tt *FAIL*}$.
+
+If $e$ is the top level {\em function-call}
+in a {\em call-assignment-statement}, and the latter has
+more than one {\em assignment-result}, then $t$ is replaced by a list
+$t_1,t_2,\ldots,t_m$ of target types (the types of the
+{\em assignment-results}), and the search for
+{\em function-declarations} is limited to those whose prototypes have
+at least $m$ results with the first $m$ of these being of types
+$t_1,t_2,\ldots,t_m$ respectively.
 
 \end{enumerate}
 
