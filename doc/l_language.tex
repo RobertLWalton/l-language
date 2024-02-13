@@ -5454,8 +5454,8 @@ declare success.
 annotate $e$ with $t\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
 graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
-for a path $d_1,d_2,\ldots,d_n$ from $t$ to {\tt const},
-and if found annotate $e$ with $t\mapsto d_1,d_2,\ldots,d_n$,
+for some shortest path $d_1,d_2,\ldots,d_n$ from $t$ to {\tt const},
+and if one is found annotate $e$ with $t\mapsto d_1,d_2,\ldots,d_n$,
 or if not found,
 annotate $e$ with $t\mapsto {\tt *FAIL*}$.
 
@@ -5465,26 +5465,29 @@ type $T$.
 Then if $t$ equals $T$ annotate $e$ with $t\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
 graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
-for a path $d_1,d_2,\ldots,d_n$ from $t$ to $T$,
-and if found annotate $e$ with $t\mapsto d_1,d_2,\ldots,d_n$,
+for some shortest path $d_1,d_2,\ldots,d_n$ from $t$ to $T$,
+and if one is found annotate $e$ with $t\mapsto d_1,d_2,\ldots,d_n$,
 or if not found,
 annotate $e$ with $t\mapsto {\tt *FAIL*}$.
 
 \item If $e$ is a {\em function-call}, search for {\em function-declarations}
-whose {\em function-prototype} matches {\em function-call} $e$
-(see Call-Prototype Matching Algorithm below)
-and has result type $t$.  When one is found, 
+that match {\em function-call} $e$
+(see Call-Declaration Matching Algorithm below)
+and whose prototype result type is $t$.  When one is found, 
 use the prototype to specify the target types of the function arguments, and
-apply this algorithm recursively to each argument.  If there is success
+apply this algorithm recursively to each argument.  An argument is successful
+if it has target type $t'$ and annotation $t'\mapsto{\tt *EXACT*}$
+or $t'\mapsto d'$ for some {\em function-declaration} $d'$.
+If there is success
 for each argument, the {\em function-declaration} is successful.
 
 If no successful {\em function-declarations} are found,
 annotate $e$ with $t\mapsto{\tt *FAIL*}$.
 
-If more than one is found,
-apply the Call-Prototype Rank Elimination Algorithm below.
+If more than one is found, discard all but the ones with highest
+rank (see below).
 If there is still more than one,
-annotate $e$ with $t\mapsto{\tt *FAIL*}$.
+annotate $e$ with $t\mapsto{\tt *AMBIGUOUS*}$.
 
 Otherwise if just one {\em function-declaration} $d$ remains,
 annotate $e$ with $t\mapsto d$.
