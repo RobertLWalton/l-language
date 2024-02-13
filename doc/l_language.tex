@@ -5561,21 +5561,26 @@ followed by that first
 {\em function-term-name}.  For example, the key of
 `{\tt (\ldots) "+" (\ldots)}' is `{\tt () "+"}'.
 
-When matching two {\em function-term-name} lexemes, if the one from
-the {\em prototype-pattern} is quoted (with {\tt "}), the
-one in the {\em function-call} may be quoted or not quoted.
-
 The {\em function-call} must begin with the key of the
 {\em function-declaration}, else the call-declaration match fails.
+
+This implies that argument lists before the first {\em call-term-name}
+in a {\em function-call} can\underline{not} be omitted and must be bracketed
+by actual or implied parentheses.
+
+When matching two {\em function-term-name} lexemes, if the one from
+the {\em prototype-pattern} is {\tt "} quoted, the
+one in the {\em function-call} may be quoted or not quoted.
 
 \item\label{CALL-PROTOTYPE-TERM-NAMES}
 The remainder of the {\em function-call} is scanned for {\em prototype-pattern}
 {\em function-term-names} other than the first one, and also for
 the words `{\tt no}' and `{\tt not}'.  At each point in the scan
-one of the following must be found: (1) a {\em function-term-name}, or
+one of the following must be found: (1) a {\em function-term-name} from
+the {\em prototype-pattern}, other than the first such, or
 (2) the word `{\tt no}', or (3) the word `{\tt not}', or
-(4) a bracketed argument list (with (~) or [~] brackets, or with
-implicit brackets).
+(4) a bracketed argument list (with {\tt (~)} or {\tt [~]} brackets, or with
+implicit {\tt (~)} brackets).
 If none of these is found at some point in the scan,
 the call-declaration match fails.  If a {\em function-term-name} is
 found more than once, the call-declaration match fails.
@@ -5584,29 +5589,26 @@ Every `{\tt no}' and `{\tt not}' must immediately preceed a
 
 If the scan succeeds, the {\em function-call} is divided into
 {\em call-terms}, each beginning with a {\em function-term-name}
-possibly preceeded by `{\tt no}' or `{\tt not}'.
+possibly preceeded by `{\tt no}' or `{\tt not}', and ending with
+argument lists (that may be omitted).
 If there are argument lists before the first {\em function-term-name}
 (in the key), the situation is treated as
 if both prototype and call began with identical virtual
 {\em function-term-names}.
 
-\item\label{CALL-PROTOTYPE-CALL-TERMS}
-The {\em function-term-names} found in the call are used to determine
-the extent of {\em call-terms} in the call.  For starters, each
-{\em call-term} consists of its {\em call-term-name} and everything
-following up to the next {\em call-term-name} or end of call.
-If the prototype begins
-with {\em pattern-argument-lists}, the situation is treated as
-if both prototype and call began with identical virtual
-{\em term-names}.
+If a {\em call-term} begins with `{\tt no}' or `{\tt not}', the {\em call-term}
+must \underline{not} have any argument lists,
+else the call-declaration match fails.
 
-Next if a {\em call-term-name} is matched to a {\em boolean-pattern-term}
-{\em function-term-name} and if its {\em call-term} has no
-{\em call-argument-lists}, then if the preceding {\em call-term}
-ends in `\TT{no}' or `\TT{not}', this last is removed from the
-preceding {\em call-term} and `{\tt (FALSE)}' is appended to the
-current {\em call-term}, while otherwise `{\tt (TRUE)}' is appended to the
-current {\em call-term}.
+Then each {\em call-term} in the {\em function-call} is matched to
+the {\em pattern-term} with the same name in the {\em function-declaration}.
+
+\item\label{BOOLEAN-CALL-TERMS}
+If a {\em call-term} begins with `{\tt no}' or `{\tt not}',
+the {\em call-term} must have no argument lists and be matched to a
+{\em boolean-pattern-term}\pagnote{BOOLEAN-PATTERN-TERM}.
+In this case the beginning `{\tt no}' or `{\tt not}' is removed and the
+argument list `{\tt ( FALSE )}' is appended to the {\em call-term}.
 
 \item\label{CALL-TERM-MATCHING}
 A {\em call-term}
