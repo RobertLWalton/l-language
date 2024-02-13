@@ -5606,9 +5606,19 @@ the {\em pattern-term} with the same name in the {\em function-declaration}.
 \item\label{BOOLEAN-CALL-TERMS}
 If a {\em call-term} begins with `{\tt no}' or `{\tt not}',
 the {\em call-term} must have no argument lists and be matched to a
-{\em boolean-pattern-term}\pagnote{BOOLEAN-PATTERN-TERM}.
+{\em boolean-pattern-term}\pagnote{BOOLEAN-PATTERN-TERM},
+else the call-declaration match fails.
 In this case the beginning `{\tt no}' or `{\tt not}' is removed and the
 argument list `{\tt ( FALSE )}' is appended to the {\em call-term}.
+
+If a {\em call-term} that does \underline{not}
+begin with `{\tt no}' or `{\tt not}'
+matches a {\em boolean-pattern-term}
+and has no argument lists, the
+argument list `{\tt ( TRUE )}' is appended to the {\em call-term}.
+
+(By the rules below, if a {\em boolean-pattern-term} is not matched to
+any {\em call-term}, it will be given its {\em default-value}.)
 
 \item\label{CALL-TERM-MATCHING}
 A {\em call-term}
