@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 13, 2024
+February 14, 2024
 
 \bigskip
  
@@ -5660,8 +5660,9 @@ arguments at the end of the {\em call-argument-list} have {\em default-values}
 in the {\em pattern-argument-list}, the {\em default-values} corresponding
 to the omitted arguments are added to
 the end of the {\em call-argument-list}.
-The {\em default-values} are compiled in the context of the prototype
-and not the context of the call: see \pagref{DEFAULT-CONTEXT}.
+The {\em default-values} are compiled in the context of the
+{\em function-declaration} and not the context of the {\em function-call}:
+see \pagref{DEFAULT-CONTEXT}.
 
 At this point the {\em pattern-argument-lists} in the prototype
 {\em pattern-term} must match in order all the {\em call-argument-lists}
@@ -5676,8 +5677,10 @@ Failure of any of these matches causes
 the call-declaration match to fail.
 
 \item\label{CALL-PROTOTYPE-RESULT-MATCHING}
-This section is skipped for macro functions (functions whose
-{\em prototype-result} has the form `{\tt macro} {\em variable-name}').
+This section is skipped for special functions (functions whose
+{\em prototype-result} has the form `{\tt macro} {\em variable-name}',
+`{\tt constant} {\em variable-name}', or
+`{\tt inclusion} {\em variable-name}').
 
 If the {\em function-call} is the right side (part after {\tt =})
 in a {\em call-assignment-statement},
@@ -5713,24 +5716,23 @@ an {\em actual-arguments} and processed left to right.
 
 If a {\em prototype-argument-declaration} $PAD$ is matched
 to an {\em actual-argument} $AA$ and $PAD$ has a wildcard,
-$AA$ must be {\em reference-expression}, else the
+$AA$ must be {\em reference-expression} or a {\em constant-expression}, else the
 call-declaration match fails.  The wildcard is assigned from
-information in the {\em reference-expression}'s type
-({\em reference-expression} types are computed bottom-up,
-ignoring the part of a {\em statement} containing the
-{\em reference-expression}:
-see \itemref{REFERENCE-CALL-DECLARATION-MATCHING}).
-Note that a constant that replaces a {\em const-expression}
-is itself a {\em reference-expression} of type {\tt const}.
+information in the {\em reference-expression}'s
+type \pagnote{REFERENCE-CALL-DECLARATION-MATCHING} or
+{\em constant-expression}'s type (which is {\tt const}).
 
 If different values are assigned to the same wildcard by this
-process (by different prototype-actual argument matches),
+process (by different prototype-actual argument matches, or by
+assignments made in Step~\ref{CALL-PROTOTYPE-RESULT-MATCHING})
 the call-declaration match fails.
 
 \item\label{CALL-PROTOTYPE-REQUIRED-VALUES}
 If a {\em prototype-argument-declaration} has a {\em required-value},
-its matching {\em actual-argument} must be a {\em const-expression} with
-a value equal to the {\em required-value}, after both are converted
+its matching {\em actual-argument} must be a {\em constant-expression} with
+a value equal to the {\em required-value} (which is itself the result
+of a {\em constant-expression} evaluated in the context of the
+{\em function-declaration}), after both are converted
 to the argument type specified by the {\em prototype-argument-declaration},
 else the call-prototype
 match fails.  Note that the argument type need not itself be {\tt const}.
@@ -5746,7 +5748,8 @@ are then checked, except for {\tt macro} arguments (that require
 no run-time typing).
 
 If any {\em prototype-argument-declaration} type is mapped to
-{\tt *FAIL*} by the corresponding {\em actual-argument} matching map,
+{\tt *FAIL*} or {\tt *AMBIGUOUS*}
+by the corresponding {\em actual-argument} annotation,
 the call-declaration match fails.
 
 If any is mapped to {\tt *EXACT*}, the call-prototype map is
@@ -5754,20 +5757,21 @@ marked as \key{conversion proficient}.  Note that only a single
 argument needs to be {\tt *EXACT*} in order for the entire
 call-declaration match to be marked conversion proficient.
 
-\end{enumerate}
-
-If after applying these rules each match is assigned a rank
-equal to the sum of:
+\item\label{CALL-DECLARATION-RANK-COMPUTATION}
+If the call-declaration match has been successful, it is assigned
+a \key{rank} that is the sum of:
 \begin{itemize}
 \item the number of required arguments the prototype has
 \item the negative of the number of {\tt T\$\ldots} wildcards
-the prototype has
+the prototype has; a wildcard name appearing more than once in
+the prototype is counted only once
 \item a very large number if the match is conversion proficient
 \item an even larger number if the match is module proficient
 \end{itemize}
-Then if there is a single match with maximum rank, that match
-is accepted, and otherwise all matches fail and there is
-a compile error.  Note that the rank can be negative.
+
+\end{enumerate}
+
+TBD
 
 The following are examples using the builtin prototypes
 \begin{indpar}
