@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 14, 2024
+February 16, 2024
 
 \bigskip
  
@@ -5004,6 +5004,19 @@ of a {\em prototype-pattern}, \underline{before} the first
 I.e., these {\em pattern-argument-lists} cannot be omitted from
 {\em function-calls}.
 \item
+If the first {\em function-term-name} in the {\em prototype-pattern}
+is a {\em type-name}, the {\em function-declaration} must have
+a {\em prototype-result} with exactly
+one {\em prototype-result-variable-declaration}
+that has for its type this same {\em type-name},
+and the {\em prototype-pattern} may not have any
+{\em parenthesized-pattern-argument-lists} before the first
+{\em function-term}.  The function
+declared is called a \key{explicit type conversion function}%
+\label{EXPLICIT-TYPE-CONVERSION-FUNCTION}, and behaves like a
+{\em reference-expression} in that its type is known when it
+is encountered by a top-down traverse of {\em expressions}.
+\item
 A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
 is treated in a {\em function-prototype} as a {\em type-name}.
 A wild-card name of the form {\tt P\$\ldots} is treated as a
@@ -5422,7 +5435,8 @@ result type) has {\tt int} result
 and argument types, so {\tt int} is the target type of `{\tt x}' and `{\tt 5}'.
 
 As a special case, in a relational expression such as `{\tt x < y + 5}',
-one of the operands must be a {\em reference-expression} whose type can be
+one of the operands must be a {\em reference-expression} or a
+{\em function-call} to an explicit type conversion function whose type can be
 used as the target type of all the operands (in this case, the type of
 `{\tt x}' becomes the target type of `{\tt y + 5}').
 
@@ -5459,8 +5473,10 @@ or if not found,
 annotate $e$ with $t\mapsto {\tt *FAIL*}$.
 
 \item If $e$ is a
-{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} compute its
-type $T$. 
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} or
+a {\em function-call} to an
+explicit type conversion func\-tion\pagnote{EXPLICIT-TYPE-CONVERSION-FUNCTION},
+compute its type $T$. 
 Then if $t$ equals $T$ annotate $e$ with $t\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
 graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
@@ -5784,21 +5800,24 @@ which exist for every builtin number type {\tt N}.
 int32 x = ...
 flt64 r1 = x + 5
     // Target type flt64 selects N = flt64 for "+".
+    // Implicit conversions flt64 <--- int32 and
+    // flt64 <--- const exist.
 bool b1 = ( x == 5 )
-    // Target type bool and *EXACT* argument x select
-    // N = int32 for "==".
+    // Target type is bool.  Type int32 of reference
+    // expression x works because implicit conversion
+    // int32 <--- const exists.
 flt64 y = 5.5
 bool b2 = ( x == y )
-    // Target type bool and *EXACT* argument y select
-    // N = flt64 for "==";  N = int32 version of "=="
-    // fails because int32 r = *IMPLICIT* *CONVERSION* (y)
-    // *FAIL*s.
+    // Target type bool.  Reference expression y
+    // selects N = flt64 for "==" which works because
+    // implicit conversion flt64 <--- int32 exists.
+    // Reference expression x selects N = int32 for "=="
+    // which fails because implicit conversion
+    // int32 <--- flt64 does NOT exist.
 bool b2 = ( flt64 ( x ) == 5 )
-    // All flt64 functions have flt64 result type,
-    // and as there is no implicit conversion of flt64
-    // function results, "==" must have N = flt64.
-    // The only flt64 function with *EXACT* argument
-    // is the one with N = int32.
+    // The explicit type conversion function flt64
+    // selects N = flt64 which works because
+    // flt64 <--- const exists.
 \end{verbatim}\end{indpar}
 
 \subsubsection{Macro Functions and Statements}
