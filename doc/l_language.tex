@@ -711,7 +711,7 @@ if integer + produces a value too large for its
 target, the result is undefined and may or may not cause program
 termination.
 
-There are explicit conversion functions from a floating
+There are conversion functions from a floating
 point type {\tt F} to any integer type {\tt I} with prototypes:
 \begin{center} \tt
 \begin{tabular}{l}
@@ -729,7 +729,7 @@ or nearest ({\tt round}).  If the value is too large to be stored
 in {\tt I}, the result is undefined and may or may not cause
 program termination.
 
-The {\tt ro} qualifier name can be used by itself as an explicit
+The {\tt ro} qualifier name can be used by itself as a
 conversion function name to convert
 {\tt co} or {\tt *READ-WRITE*} qualifiers to {\tt ro} qualifiers.
 This can handle cases where a function returns a {\tt *READ-WRITE*}
@@ -4551,7 +4551,7 @@ specified by a pointer type declaration.  The syntax is:
 {\em type-name} ::= see \pagref{TYPE-NAME}
 \end{indpar}
 An {\tt *UNCHECKED*} conversion is implicitly defined from the associated data
-type to the given pointer type, and an explicit conversion
+type to the given pointer type, and a conversion
 is implicitly defined in the other direction.
 
 It is important that there be a 1-1 correspondence between
