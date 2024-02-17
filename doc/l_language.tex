@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 16, 2024
+February 17, 2024
 
 \bigskip
  
@@ -694,16 +694,17 @@ bool b1 = ( x + 3 < 5 )
     // Illegal: any target type N to which int is implicitly
     // convertible can be used as the target type of "+", so
     // this is ambiguous.
-bool b2 = ( flt ( x ) + 3 < 5 )
-    // Legal: the type of flt ( x ) can only be flt, so that is the
-    // target type of "+", 3, and 5.  Note that the flt function
-    // forces implicit conversion of the value of the variable x
-    // from int to flt.
+bool b2 = ( flt ( x + 3 ) < 5 )
+    // Legal: the argument of flt must have type flt, so that
+    // becomes the target type of "+".  Because flt (...) is
+    // an explicit type conversion, flt is also the target
+    // type of 5.
 bool b3 = ( x + 3 < int ( 5 ) )
-    // Legal: type of int ( 5 ) can only be int, so that is the type
-    // of the arguments of "<" and therefore the target type of "+".
-    // Note that the int function forces implicit conversion of
-    // the const 5 to int.
+    // Legal: the argument of int must have type int, so that
+    // becomes the target type of "5".  Because int (...) is
+    // an explicit type conversion, int is also the target
+    // type of x + 5.
+    // 
 \end{verbatim}\end{indpar}
 
 Integer arithmetic ignores overflows (as in C and C++); for example,
@@ -5013,9 +5014,9 @@ and the {\em prototype-pattern} may not have any
 {\em parenthesized-pattern-argument-lists} before the first
 {\em function-term}.  The function
 declared is called a \key{explicit type conversion function}%
-\label{EXPLICIT-TYPE-CONVERSION-FUNCTION}, and behaves like a
-{\em reference-expression} in that its type is known when it
-is encountered by a top-down traverse of {\em expressions}.
+\label{EXPLICIT-TYPE-CONVERSION-FUNCTION}, and a \em{function-call}
+to the function is called an \key{explicit type conversion}%
+\label{EXPLICIT-TYPE-CONVERSION}.
 \item
 A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
 is treated in a {\em function-prototype} as a {\em type-name}.
@@ -5435,10 +5436,13 @@ result type) has {\tt int} result
 and argument types, so {\tt int} is the target type of `{\tt x}' and `{\tt 5}'.
 
 As a special case, in a relational expression such as `{\tt x < y + 5}',
-one of the operands must be a {\em reference-expression} or a
-{\em function-call} to an explicit type conversion function whose type can be
-used as the target type of all the operands (in this case, the type of
-`{\tt x}' becomes the target type of `{\tt y + 5}').
+one of the operands must be a {\em reference-expression}
+whose type can be used as the target type of all the operands
+(in this case, the type of `{\tt x}' becomes the target type of `{\tt y + 5}'),
+or one of the operands is
+an explicit type conversion\pagnote{EXPLICIT-TYPE-CONVERSION}
+whose type becomes the target type of all the operands
+(as in `{\tt x < flt ( y + 5 )}').
 
 Consider the case of expression $c$ which is a {\em function-call}
 containing an argument {\em expression} $e$.  The various
@@ -5473,9 +5477,7 @@ or if not found,
 annotate $e$ with $t\mapsto {\tt *FAIL*}$.
 
 \item If $e$ is a
-{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} or
-a {\em function-call} to an
-explicit type conversion func\-tion\pagnote{EXPLICIT-TYPE-CONVERSION-FUNCTION},
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
 compute its type $T$. 
 Then if $t$ equals $T$ annotate $e$ with $t\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
