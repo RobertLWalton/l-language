@@ -2537,16 +2537,16 @@ A map constant is computed by a {\em map-expression} whose syntax is:
 \emkey{dictionary-entry} ::=
     {\em dictionary-label} \TT{=>} {\em dictionary-value}
 \\[0.5ex]
-\emkey{list-element}\label{LIST-ELEMENT} ::= {\em pure-const-expression}
+\emkey{list-element}\label{LIST-ELEMENT} ::= {\em constant-expression}
 \\[0.5ex]
 \emkey{dictionary-label}\label{DICTIONARY-LABEL}
-    ::= {\em pure-const-expression} evaluating to a string
+    ::= {\em constant-expression} evaluating to a string
 \\[0.5ex]
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
-    ::= {\em pure-const-expression}
+    ::= {\em constant-expression}
 \\[0.5ex]
-{\em pure-const-expression} ::= an {\tt const} valued expression as
-    defined on \pagref{PURE-CONST-EXPRESSION}
+{\em constant-expression} ::= an {\tt const} valued expression as
+    defined on \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
@@ -3983,9 +3983,9 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*OFFSET*} {\em origin-label} \{ \{\TT{+}|\TT{-}\}
-                            {\em integer-pure-const-expression} \}\QMARK{} \\
+                            {\em integer-constant-expression} \}\QMARK{} \\
     $|$ &  \ttkey{*OFFSET*} \{\TT{+}|\TT{-}\}\QMARK{}
-                            {\em integer-pure-const-expression} \\
+                            {\em integer-constant-expression} \\
     $|$ &  \ttkey{*OFFSET* *SIZE*} \\
     $|$ &  \ttkey{***} \\
     $|$ &  \ttkey{*EXTERNAL*} \\
@@ -4040,10 +4040,10 @@ The syntax of a type declaration is:
 \emkey{basic-name} ::=  see \pagref{BASIC-NAME}
 \\[2ex]
 \emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
-\emkey{dimension-size} ::=  {\em pure-const-expression}
+\emkey{dimension-size} ::=  {\em constant-expression}
 			    with non-negative integer value \\
-{\em pure-const-expression} ::= a {\tt const} valued expression as
-    defined on \pagref{PURE-CONST-EXPRESSION}
+{\em constant-expression} ::= a {\tt const} valued expression as
+    defined on \pagref{CONSTANT-EXPRESSION}
 \\[2ex]
 \emkey{subfield-declaration}\label{SUBFIELD-DECLARATION} ::= \\
 \hspace*{0.5in}
@@ -4060,17 +4060,17 @@ The syntax of a type declaration is:
     $|$ &  \TT{[} {\em highlowbits} \TT{]} \\
     $|$ &  \TT{[} {\em highbit} \TT{-} {\em lowbit} \TT{]}
     \end{tabular} \\
-\emkey{onlybit} ::= {\tt pure-const-expression}
+\emkey{onlybit} ::= {\tt constant-expression}
 		    with non-negative integer value \\
 \emkey{highlowbits} :::= {\em dit}+ \TT{-} {\em dit}+
            ~~~~~ [this is a single lexeme] \\
-\emkey{highbit} ::= {\tt pure-const-expression}
+\emkey{highbit} ::= {\tt constant-expression}
 		    with non-negative integer value \\
-\emkey{lowbit} ::= {\tt pure-const-expression}
+\emkey{lowbit} ::= {\tt constant-expression}
 		   with non-negative integer value \\
 {\em dit} ::= see \pagref{DIT}
 \\[2ex]
-\emkey{alignment} ::= {\tt pure-const-expression}
+\emkey{alignment} ::= {\tt constant-expression}
 		      with power of 2 integer value
 \end{indpar}
 
@@ -4900,6 +4900,12 @@ The syntax of a function declaration is:
 \\[0.5ex]
 {\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
 \\[0.5ex]
+{\em variable-name} ::= see \pagref{VARIABLE-NAME}
+\\[0.5ex]
+{\em target-variable} ::= see \pagref{TARGET-VARIABLE}
+\\[0.5ex]
+{\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
+\\[0.5ex]
 \emkey{prototype-next-variable-declaration}%
     \label{PROTOTYPE-NEXT-VARIABLE-DECLARATION}
       ::= \ttkey{next} {\em variable-name}
@@ -4912,8 +4918,6 @@ The syntax of a function declaration is:
 \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
     ::= & {\em prototype-result-variable-declaration}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
-    $|$ & \TT{bool} {\em variable-name}
-          \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & \TT{macro} {\em variable-name}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & {\em prototype-result-variable-declaration}
@@ -4922,12 +4926,12 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
-\emkey{required-value} ::= {\em pure-const-expression}
+\emkey{required-value} ::= {\em constant-expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
-{\em pure-const-expression} ::= an {\tt const} valued expression as
-    defined on \pagref{PURE-CONST-EXPRESSION}
+{\em constant-expression} ::= an {\tt const} valued expression as
+    defined on \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
     ::= {\em parenthesized-pattern-argument-list}\STAR{}~
@@ -4985,7 +4989,8 @@ $v$ must be the {\em vari\-able-name} in a {\em prototype-argument-declaration}
 of the form `\dots{} {\em type-name} $v$', and
 any actual argument associated to the {\em prototype-argument-declaration}
 by some {\em function-call}
-must be a {\em reference-expression}.
+must be a {\em reference-expression} that is not a {\tt constant}
+and does not have the form `{\tt next} {\em variable-name}'.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must
@@ -5006,10 +5011,12 @@ I.e., these {\em pattern-argument-lists} cannot be omitted from
 {\em function-calls}.
 \item
 If the first {\em function-term-name} in the {\em prototype-pattern}
-is a {\em type-name}, the {\em function-declaration} must have
+is a {\em type-name} or {\em pointer-type-name},
+the {\em function-declaration} must have
 a {\em prototype-result} with exactly
 one {\em prototype-result-variable-declaration}
-that has for its type this same {\em type-name},
+that has for its type this same {\em type-name} or has for its pointer type
+this same {\em pointer-type-name},
 and the {\em prototype-pattern} may not have any
 {\em parenthesized-pattern-argument-lists} before the first
 {\em function-term}.  The function
@@ -5214,17 +5221,44 @@ A {\em prototype-argument-declaration} with the syntax:
 \end{indpar}
 causes the argument value in a call to be the \underline{parse}
 of the actual argument, which is a {\tt const} value.  If the
-{\em default-value} is used, it is evaluated as a {\em pure-const-expression}.
+{\em default-value} is used, it is evaluated as a {\em constant-expression}.
 
 A {\em prototype-result} of the form `{\tt macro} {\em variable-name}'
 makes the function a \key{macro function}.  When called, {\em variable-name}
 must be set to a {\tt const} value that is a parsed expression which replaces
-the {\em function-call}.
+the {\em function-call}.  For example:
+\begin{indpar}\begin{verbatim}
+function macro r = sum ( macro a1, macro a2 ):
+    r = { a1, "+", a2 };
+    
+int x = ...
+int y = sum ( x, 5 ) // Same as: int y = x "+" 5
+                     // Parsed equivalent:
+                     //     { "int" "y" } "=" { { x } "+" { 5 } }
+                     // a1 is { x }, a2 is { 5 }
+\end{verbatim}\end{indpar}
 
 A {\em prototype-result} of the form `{\tt constant} {\em variable-name}'
 makes the function a \key{constant function}.  When called, {\em variable-name}
 must be set to a {\tt const} value that replaces
-the {\em function-call}.
+the {\em function-call} if the {\tt const} value is not a map,
+and effectively replaces the {\em function-call} if the {\em const}
+value is a map.  Examples:
+\begin{indpar}\begin{verbatim}
+function constant r = sum ( const a1, const a2 ):
+    r = a1 + a2;
+
+const x = 10
+const y = sum ( x, 5 )  // Sets y to 15
+
+function constant r = list ( const a1, const a2 ):
+    r = { a1, a2 }
+
+const z = list ( 4, 5 )  // Sets z to { 4, 5 }
+    // list ( 4, 5 ) can be thought of as being replaced by:
+    // { { 4, 5 }, .initiator = "{", .terminator = "}" }[0]
+    // which evaluates to { 4, 5 }
+\end{verbatim}\end{indpar}
 
 A {\em prototype-result} of the form `{\tt inclusion} {\em variable-name}'
 makes the function a \key{inclusion function}.  This can only be matched to
@@ -5991,7 +6025,7 @@ outside the context of the function inlining.
 
 A {\em const-expression} that does not use the {\tt *INCLUSION*}
 variable (see below) is called a
-\emkey{pure-const-expression}\label{PURE-CONST-EXPRESSION}.
+\emkey{constant-expression}\label{CONSTANT-EXPRESSION}.
 
 \subsection{Reference Function Declarations}
 \label{REFERENCE-FUNCTION-DECLARATIONS}
