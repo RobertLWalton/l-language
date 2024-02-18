@@ -4513,6 +4513,12 @@ When defining an implicit conversion from type {\tt T1} to type
 by a value of type {\tt T2}.  This rule should be followed, but
 is not checked by the compiler.
 
+And there is one notable exception: conversions from {\tt const}
+which are done at compile-time may fail (the failure will be at
+compile-time and be a compiler error).  For example, conversions
+from {\tt const} to any integer type will fail if the {\tt const}
+value cannot be encoded exactly in the integer type.
+
 For types {\tt T1} and {\tt T2} you
 can also define an explicit conversion:
 \begin{indpar} \tt
@@ -5228,7 +5234,7 @@ makes the function a \key{macro function}.  When called, {\em variable-name}
 must be set to a {\tt const} value that is a parsed expression which replaces
 the {\em function-call}.  For example:
 \begin{indpar}\begin{verbatim}
-function macro r = sum ( macro a1, macro a2 ):
+function macro r = sum ( macro a1, macro a2 ?= { 1 } ):
     r = { a1, "+", a2 };
     
 int x = ...
@@ -5236,6 +5242,15 @@ int y = sum ( x, 5 ) // Same as: int y = x "+" 5
                      // Parsed equivalent:
                      //     { "int" "y" } "=" { { x } "+" { 5 } }
                      // a1 is { x }, a2 is { 5 }
+int y = sum ( x )    // Same as: int y = x "+" 1
+                     // Parsed equivalent:
+                     //     { "int" "y" } "="
+                     //         { { x, .initiator = "(",
+                     //                .terminator = ")" }
+                     //           "+" { 1 } }
+                     // a1 is { x, .initiator = "(",
+                     //            .terminator = ")" },
+                     // a2 is { 1 }
 \end{verbatim}\end{indpar}
 
 A {\em prototype-result} of the form `{\tt constant} {\em variable-name}'
@@ -5522,8 +5537,8 @@ target type $t$ the second step executes:
 \centerline{\bf Top-Down Expression Algorithm}
 \begin{enumerate}
 
-\item If $e$ already has an annotation $t\mapsto d$, do nothing but
-declare success.
+\item If $e$ already has an annotation $t\mapsto d_1,d_2,\ldots,d_n$,
+do nothing but declare success.
 
 \item If $e$ is annotated with a {\tt const} value
 (from the Bottom-Up Step), then if $t$ equals {\tt const},
@@ -5554,7 +5569,7 @@ and whose prototype result type is $t$.  When one is found,
 use the prototype to specify the target types of the function arguments, and
 apply this algorithm recursively to each argument.  An argument is successful
 if it has target type $t'$ and annotation $t'\mapsto{\tt *EXACT*}$
-or $t'\mapsto d'$ for some {\em function-declaration} $d'$.
+or $t'\mapsto d'_1,d'_2,\ldots,d'_n$.
 If there is success
 for each argument, the {\em function-declaration} is successful.
 
@@ -5580,32 +5595,9 @@ $t_1,t_2,\ldots,t_m$ respectively.
 
 \end{enumerate}
 
-TBD
-
-The implications of this last are brought out by the following
-example:
-\begin{indpar}\begin{verbatim}
-int x = 4.0     // Sets x = 4
-int y = 4.5     // Fails trying to set y = 4.5
-\end{verbatim}\end{indpar}
-These statements become:
-\begin{indpar}\begin{verbatim}
-int x = *IMPLICIT* *CONVERSION* ( 4.0 )  // No error.
-int y = *IMPLICIT* *CONVERSION* ( 4.5 )  // Compile error.
-\end{verbatim}\end{indpar}
-In both cases the builtin function:
-\begin{indpar}\begin{verbatim}
-int x = std *IMPLICIT* *CONVERSION* ( const y )
-\end{verbatim}\end{indpar}
-is matched to its {\em function-call}, but in the first case
-this function compiles to run-time code that returns the {\tt int}
-value {\tt 4}, while in the second case this function announces a
-compile error because it cannot convert the {\tt const} value {\tt 4.5}
-to an {\tt int} value.
-
 Given all this, we define the algorithm that determines whether
 a particular {\em function-call} matches a particular
-{\em function-prototype}:
+{\em function-declaration}:
 
 \bigskip
 
@@ -5673,10 +5665,6 @@ If there are argument lists before the first {\em function-term-name}
 if both prototype and call began with identical virtual
 {\em function-term-names}.
 
-If a {\em call-term} begins with `{\tt no}' or `{\tt not}', the {\em call-term}
-must \underline{not} have any argument lists,
-else the call-declaration match fails.
-
 Then each {\em call-term} in the {\em function-call} is matched to
 the {\em pattern-term} with the same name in the {\em function-declaration}.
 
@@ -5726,7 +5714,7 @@ If in a left-to-right scan of a {\em call-term},
 a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
 is found, and instead a {\em call-argument-list} with {\tt [~]}
 or the end of the {\em call-term} is found,
-the empty list {\tt ()} is inserted.
+an empty list {\tt ()} is inserted.
 
 Note that {\em argument-lists} with {\tt [~]} brackets can\underline{not}
 be omitted or have their {\tt [~]} brackets omitted.
@@ -5749,7 +5737,7 @@ of arguments, else the call-declaration match fails.
 
 \item If all the above is successful, then {\em actual-arguments}
 in the call are matched to corresponding {\em prototype-argument-declarations}
-in the prototype according to the rules that follow.
+in the {\em function-declaration} according to the rules that follow.
 Failure of any of these matches causes
 the call-declaration match to fail.
 
@@ -5812,7 +5800,8 @@ of a {\em constant-expression} evaluated in the context of the
 {\em function-declaration}), after both are converted
 to the argument type specified by the {\em prototype-argument-declaration},
 else the call-prototype
-match fails.  Note that the argument type need not itself be {\tt const}.
+match fails.  Note that the argument type \underline{need not} itself
+be {\tt const}.
 
 If the argument type is {\tt const} and the values being compared are
 maps, the maps must be identical (they are compared as pointers and
@@ -5848,8 +5837,6 @@ the prototype is counted only once
 
 \end{enumerate}
 
-TBD
-
 The following are examples using the builtin prototypes
 \begin{indpar}
 {\tt function N r = std (N v1) "+" ( N v2 )} \\
@@ -5864,21 +5851,23 @@ flt64 r1 = x + 5
     // Implicit conversions flt64 <--- int32 and
     // flt64 <--- const exist.
 bool b1 = ( x == 5 )
-    // Target type is bool.  Type int32 of reference
-    // expression x works because implicit conversion
-    // int32 <--- const exists.
+    // Target type of "==" is bool.  Reference expression x selects
+    // N = int32 as target type for "==" operands, which works
+    // because implicit conversion int32 <--- const exists.
+bool b2 = ( x == 5.5 )
+    // Ditto, but when evaluated in the compiler with target type int32,
+    // std *IMPLICIT* *CONVERSION* ( 5.5 ) fails and gives a
+    // compile error, as 5.5 cannot be represented as an int32.
 flt64 y = 5.5
-bool b2 = ( x == y )
-    // Target type bool.  Reference expression y
-    // selects N = flt64 for "==" which works because
-    // implicit conversion flt64 <--- int32 exists.
-    // Reference expression x selects N = int32 for "=="
-    // which fails because implicit conversion
+bool b3 = ( x == y )
+    // Reference expression y selects N = flt64 as target type
+    // for "==" operands, which works because implicit conversion
+    // flt64 <--- int32 exists.  Reference expression x selects
+    // N = int32, which fails because implicit conversion
     // int32 <--- flt64 does NOT exist.
-bool b2 = ( flt64 ( x ) == 5 )
-    // The explicit type conversion function flt64
-    // selects N = flt64 which works because
-    // flt64 <--- const exists.
+bool b4 = ( flt64 ( x ) == 5 )
+    // The explicit type conversion function flt64 selects
+    // N = flt64 which works because flt64 <--- const exists.
 \end{verbatim}\end{indpar}
 
 \subsubsection{Macro Functions and Statements}
