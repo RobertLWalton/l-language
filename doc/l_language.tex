@@ -2634,7 +2634,8 @@ with {\em expression-constants} are:
 \end{center}
 
 Map constants containing parsed code can be computed
-by {\em include-statements}: see \itemref{INCLUDE-STATEMENT}.
+by {\em include-assignment-statements}:
+see \pagref{INCLUDE-ASSIGNMENT-STATEMENT}.
 
 {\em Type-names} and {\em pointer-type-names} can be used at
 compile-time as if they were variables of type {\tt const}
@@ -5877,11 +5878,21 @@ An example of an inclusion is:
 \begin{indpar}[1em]\begin{verbatim}
 // Create int V and iterate for V = 0, 1, 2, ..., LIMIT-1.
 //
+//     for ( V, LIMIT ):
+//         STATEMENTS*
+//
+// is equivalent to:
+//
+//     int V = 0
+//     while V < LIMIT:
+//         STATEMENTS*
+//         V += 1
+//
 function inclusion r = for ( macro V, macro LIMIT ):
     r = { { { "int" } + V, "=", { 0 } },
           { { "while", { V, "<", LIMIT } },
-	    com *SUBBLOCK* +
-	        { { "next" } + V, "+=", { 1 } } } }
+            com *SUBBLOCK* +
+                { { "next" } + V, "+=", { 1 } } } }
 
 // Compute sum = 1 + 2 + ... + 15
 //
@@ -5898,8 +5909,9 @@ for ( x, 15 ):
     
 \end{verbatim}\end{indpar}
 
-TBD
-
+Although the value of an inclusion is to be a sequence of
+\underline{parsed} {\em statements}, it is not necessary to
+include some of the annotations in these.
 Specifically, it is \underline{not} necessary to
 include the {\tt .position} or
 the following {\tt .initiator}s or {\tt .terminator}s:
@@ -5936,25 +5948,28 @@ However, any {\tt .separator} and the following must be included:
 \end{tabular}
 \end{center}
 
+In the above example, {\tt com *SUBBLOCK*} evaluates to the
+subblock in the `{\tt for \ldots}' statement, and this subblock
+has {\tt .initiator = ":"} and {\tt .terminator = *INDENTED-PARA\-GRAPH*},
+which are the necessary annotations that are carried over into
+the concatenation
+{\tt com *SUBBLOCK* + \{\ldots\}}.
 
-The {\em include-statement} can be used to parse statements
-and append them to the end of the list which is the value of
-a {\tt const} variable:
+The {\em include-assignment-statement} can be used to return a list
+of parsed {\em statements}:
 
 \begin{indpar}
-\emkey{include-statement}\label{INCLUDE-STATEMENT} ::= \\
+\emkey{include-assignment-statement}\label{INCLUDE-ASSIGNMENT-STATEMENT} ::= \\
 \hspace*{0.3in}
-    \begin{tabular}[t]{l}
-    \TT{*INCLUDE*} {\em include-variable}\QMARK{}
+    \begin{tabular}[t]{rl}
+    & \TT{const} {\em target-variable} \TT{=} \TT{*INCLUDE*}
     	{\em include-argument-list}\QMARK{} \TT{:} \\
-    \TT{~~~~}{\em statement}\STAR{} \\
-    \TT{*INCLUDE*}  {\em include-variable}\QMARK{}
+    & \TT{~~~~}{\em statement}\STAR{} \\
+    $|$ & \TT{const} {\em target-variable} \TT{=} \\
+    & ~~~~~~~~\TT{*INCLUDE*}
     	{\em include-argument-list}\QMARK{} \TT{:}
-	{\em statement} \\
+	{\em restricted-statement} \\
     \end{tabular}
-\\[0.5ex]
-\emkey{include-variable} ::= {\em target-variable}
-	~~~~~ [see \pagref{TARGET-VARIABLE}]
 \\[0.5ex]
 \emkey{include-argument-list} ::= \TT{( )} $|$
 	\TT{(} {\em include-argument}
@@ -5966,9 +5981,7 @@ a {\tt const} variable:
 
 An {\em include-statement} is executed at compile time;
 its {\em statements} are parsed and the parser output is
-appended to the list designated by the {\em include-variable},
-which must be a {\tt const} variable.  The {\em include-variable}
-defaults to {\tt *INCLUSION*}.
+returned.
 
 Each {\em include-argument} must be a {\tt const} variable assigned
 a value before the {\em include-state\-ment} compiles.
@@ -6010,6 +6023,17 @@ Thus if {\tt X = "A"} then \\
 "Y", "=", \{ "X", "*", 2 \} {\rm becomes} "Y", "=", \{ "A", "*", 2 \}
 }
 \end{itemize}
+
+So the above example {\tt for} inclusion could have written as:
+\begin{indpar}[1em]\begin{verbatim}
+function inclusion r = for ( macro V, macro LIMIT ):
+    const P = com *SUBBLOCK*
+    r = *INCLUDE* ( V, LIMIT, P ):
+        int V = 0
+        while V < LIMIT:
+            P
+            next V += 1
+\end{verbatim}\end{indpar}
 
 \subsubsection{Macro Functions and Statements}
 \label{MACRO-FUNCTIONS-AND-STATEMENTS}
