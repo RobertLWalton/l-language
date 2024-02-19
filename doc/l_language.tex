@@ -5873,26 +5873,32 @@ bool b4 = ( flt64 ( x ) == 5 )
 \subsection{Inclusions}
 \label{INCLUSIONS}
 
-Each {\em statement} $S$ has its own \ttkey{*INCLUSION*} {\tt const} variable
-that contains a list of {\em statements} that is prepended
-immediately after the compilation of $S$ is finished
-to the current list of {\em statements} to be compiled. 
-Before $S$ is compiled its {\tt *INCLUSION*} variable is initialized
-to the empty list.  Inline functions compiled during the compilation of $S$
-can read and write the {\tt *INCLUSION*} variable of $S$.
+An example of an inclusion is:
+\begin{indpar}[1em]\begin{verbatim}
+// Create int V and iterate for V = 0, 1, 2, ..., LIMIT-1.
+//
+function inclusion r = for ( macro V, macro LIMIT ):
+    r = { { { "int" } + V, "=", { 0 } },
+          { { "while", { V, "<", LIMIT } },
+	    com *SUBBLOCK* +
+	        { { "next" } + V, "+=", { 1 } } } }
 
-Since {\em statements} can be nested, compilation of {\em statements}
-can be nested, and at any given time the innermost {\tt *INCLUSION*}
-variable hides outer {\tt *INCLUSION*} variables.  Thus at any time
-during compilation there is a current {\tt *INCLUSION*} variable.
+// Compute sum = 1 + 2 + ... + 15
+//
+int sum = 0
+for ( x, 15 ):
+    next sum += x + 1
 
-If one statement is contained in another, the statements in
-the inner {\tt *INCLUSION*} are appended to the outer {\tt *INCLUSION*}
-when the inner statement finishes compiling.
+// The above for ... statement is expanded to:
+//
+//     int x = 0
+//     while x < 15:
+//         next sum += x + 1
+//         next x += 1
+    
+\end{verbatim}\end{indpar}
 
-It is not necessary to include certain annotations
-in statements or expressions added to the {\tt *INCLUSION*}
-variable value.
+TBD
 
 Specifically, it is \underline{not} necessary to
 include the {\tt .position} or
@@ -5904,8 +5910,8 @@ the following {\tt .initiator}s or {\tt .terminator}s:
 \begin{tabular}{l@{~~~~~~~~~~}l}
 \underline{.initiator} & \underline{.terminator}
 \\[1ex]
-*LOGICAL-LINE* & "<LF>" \\
-"(" & ")" \\
+\tt *LOGICAL-LINE* & \tt "<LF>" \\
+\tt "(" & \tt ")" \\
 \end{tabular}
 \end{center}
 
@@ -5924,8 +5930,9 @@ However, any {\tt .separator} and the following must be included:
 \begin{tabular}{l@{~~~~~~~~~~}l}
 \underline{.initiator} & \underline{.terminator}
 \\[1ex]
-":" & *INDENTED-PARAGRAPH* \\
-"[" & "]" \\
+\tt ":" & \tt *INDENTED-PARAGRAPH* \\
+\tt "[" & \tt "]" \\
+\tt "\{" & \tt "\}" \\
 \end{tabular}
 \end{center}
 
