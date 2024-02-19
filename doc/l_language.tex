@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 18, 2024
+February 19, 2024
 
 \bigskip
  
@@ -5870,6 +5870,140 @@ bool b4 = ( flt64 ( x ) == 5 )
     // N = flt64 which works because flt64 <--- const exists.
 \end{verbatim}\end{indpar}
 
+\subsection{Inclusions}
+\label{INCLUSIONS}
+
+Each {\em statement} $S$ has its own \ttkey{*INCLUSION*} {\tt const} variable
+that contains a list of {\em statements} that is prepended
+immediately after the compilation of $S$ is finished
+to the current list of {\em statements} to be compiled. 
+Before $S$ is compiled its {\tt *INCLUSION*} variable is initialized
+to the empty list.  Inline functions compiled during the compilation of $S$
+can read and write the {\tt *INCLUSION*} variable of $S$.
+
+Since {\em statements} can be nested, compilation of {\em statements}
+can be nested, and at any given time the innermost {\tt *INCLUSION*}
+variable hides outer {\tt *INCLUSION*} variables.  Thus at any time
+during compilation there is a current {\tt *INCLUSION*} variable.
+
+If one statement is contained in another, the statements in
+the inner {\tt *INCLUSION*} are appended to the outer {\tt *INCLUSION*}
+when the inner statement finishes compiling.
+
+It is not necessary to include certain annotations
+in statements or expressions added to the {\tt *INCLUSION*}
+variable value.
+
+Specifically, it is \underline{not} necessary to
+include the {\tt .position} or
+the following {\tt .initiator}s or {\tt .terminator}s:
+
+\begin{center} \tt
+{\rm \bf Unnecessary Annotations}\label{UNNECESSARY-ANNOTATIONS}
+\\[1ex]
+\begin{tabular}{l@{~~~~~~~~~~}l}
+\underline{.initiator} & \underline{.terminator}
+\\[1ex]
+*LOGICAL-LINE* & "<LF>" \\
+"(" & ")" \\
+\end{tabular}
+\end{center}
+
+because the {\tt .position} of the function call will be added
+if no {\tt .position} is given,
+logical lines can be identified from context, and
+{\tt ()} bracketed subexpressions are equivalent to
+subexpressions with implied brackets (i.e., with no
+{\tt .initiator} or {\tt .terminator}).
+
+However, any {\tt .separator} and the following must be included:
+
+\begin{center} \tt
+{\rm \bf Necessary Annotations}
+\\[1ex]
+\begin{tabular}{l@{~~~~~~~~~~}l}
+\underline{.initiator} & \underline{.terminator}
+\\[1ex]
+":" & *INDENTED-PARAGRAPH* \\
+"[" & "]" \\
+\end{tabular}
+\end{center}
+
+
+The {\em include-statement} can be used to parse statements
+and append them to the end of the list which is the value of
+a {\tt const} variable:
+
+\begin{indpar}
+\emkey{include-statement}\label{INCLUDE-STATEMENT} ::= \\
+\hspace*{0.3in}
+    \begin{tabular}[t]{l}
+    \TT{*INCLUDE*} {\em include-variable}\QMARK{}
+    	{\em include-argument-list}\QMARK{} \TT{:} \\
+    \TT{~~~~}{\em statement}\STAR{} \\
+    \TT{*INCLUDE*}  {\em include-variable}\QMARK{}
+    	{\em include-argument-list}\QMARK{} \TT{:}
+	{\em statement} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{include-variable} ::= {\em target-variable}
+	~~~~~ [see \pagref{TARGET-VARIABLE}]
+\\[0.5ex]
+\emkey{include-argument-list} ::= \TT{( )} $|$
+	\TT{(} {\em include-argument}
+	\{ \TT{,} {\em include-argument} \}\STAR{} \TT{)}
+\\[0.5ex]
+\emkey{include-argument} ::= {\em word} beginning with a capital {\em letter}
+
+\end{indpar}
+
+An {\em include-statement} is executed at compile time;
+its {\em statements} are parsed and the parser output is
+appended to the list designated by the {\em include-variable},
+which must be a {\tt const} variable.  The {\em include-variable}
+defaults to {\tt *INCLUSION*}.
+
+Each {\em include-argument} must be a {\tt const} variable assigned
+a value before the {\em include-state\-ment} compiles.
+Everywhere this variable
+appears in the parsed {\em statements} of the {\em include-statement},
+the value of the variable is substituted for the variable name.
+
+Substitution for {\em include-arguments} obeys the following rules:
+\begin{itemize}
+\item \label{INCLUDE-SPLICING} If the {\em include-argument}
+value is a list, and if the
+instance being substituted is an element of a list,
+the {\em include-argument} list is spliced into the instance containing
+list.
+\\[0.5ex]
+Thus if {\tt X = \{"A", "B"\}} then \\
+\hspace*{2em}{ \tt
+"Y", "=", \{ "X" \} {\rm becomes} "Y", "=", \{ "A", "B" \}
+} \\
+The {\em include-argument} value list may be empty.
+If {\tt X = \{\}} then \\
+\hspace*{2em}{ \tt
+"Y", "=", \{ "foo", "X" \} {\rm becomes} "Y", "=", \{ "foo" \}
+} \\
+If you do not want a list valued {\em include-argument} to be spliced in,
+use {\tt (~)} parentheses around the instance being substituted.
+Thus if {\tt X = \{"A", "*",  "B"\}} then \\
+\hspace*{2em}%
+     \begin{tabular}{l}
+     \tt "Y", "=", \{ ("X"), "+", 1 \} \\
+     becomes \\
+     \tt "Y", "=", \{ ("A", "*", "B"), "+", 1 \}
+     \end{tabular}
+
+\item Otherwise the non-list value of the {\em include-argument} replaces the
+instance in the parsed {\em statement}.
+Thus if {\tt X = "A"} then \\
+\hspace*{2em}{\tt
+"Y", "=", \{ "X", "*", 2 \} {\rm becomes} "Y", "=", \{ "A", "*", 2 \}
+}
+\end{itemize}
+
 \subsubsection{Macro Functions and Statements}
 \label{MACRO-FUNCTIONS-AND-STATEMENTS}
 
@@ -6644,140 +6778,6 @@ and whose arrows connect each module or body to the modules and
 bodies it must be initialized after is called
 the `\key{initialization graph}'\label{INITIALIZATION-GRAPH}
 and \underline{must be acyclic}.
-
-\section{Inclusions}
-\label{INCLUSIONS}
-
-Each {\em statement} $S$ has its own \ttkey{*INCLUSION*} {\tt const} variable
-that contains a list of {\em statements} that is prepended
-immediately after the compilation of $S$ is finished
-to the current list of {\em statements} to be compiled. 
-Before $S$ is compiled its {\tt *INCLUSION*} variable is initialized
-to the empty list.  Inline functions compiled during the compilation of $S$
-can read and write the {\tt *INCLUSION*} variable of $S$.
-
-Since {\em statements} can be nested, compilation of {\em statements}
-can be nested, and at any given time the innermost {\tt *INCLUSION*}
-variable hides outer {\tt *INCLUSION*} variables.  Thus at any time
-during compilation there is a current {\tt *INCLUSION*} variable.
-
-If one statement is contained in another, the statements in
-the inner {\tt *INCLUSION*} are appended to the outer {\tt *INCLUSION*}
-when the inner statement finishes compiling.
-
-It is not necessary to include certain annotations
-in statements or expressions added to the {\tt *INCLUSION*}
-variable value.
-
-Specifically, it is \underline{not} necessary to
-include the {\tt .position} or
-the following {\tt .initiator}s or {\tt .terminator}s:
-
-\begin{center} \tt
-{\rm \bf Unnecessary Annotations}\label{UNNECESSARY-ANNOTATIONS}
-\\[1ex]
-\begin{tabular}{l@{~~~~~~~~~~}l}
-\underline{.initiator} & \underline{.terminator}
-\\[1ex]
-*LOGICAL-LINE* & "<LF>" \\
-"(" & ")" \\
-\end{tabular}
-\end{center}
-
-because the {\tt .position} of the function call will be added
-if no {\tt .position} is given,
-logical lines can be identified from context, and
-{\tt ()} bracketed subexpressions are equivalent to
-subexpressions with implied brackets (i.e., with no
-{\tt .initiator} or {\tt .terminator}).
-
-However, any {\tt .separator} and the following must be included:
-
-\begin{center} \tt
-{\rm \bf Necessary Annotations}
-\\[1ex]
-\begin{tabular}{l@{~~~~~~~~~~}l}
-\underline{.initiator} & \underline{.terminator}
-\\[1ex]
-":" & *INDENTED-PARAGRAPH* \\
-"[" & "]" \\
-\end{tabular}
-\end{center}
-
-
-The {\em include-statement} can be used to parse statements
-and append them to the end of the list which is the value of
-a {\tt const} variable:
-
-\begin{indpar}
-\emkey{include-statement}\label{INCLUDE-STATEMENT} ::= \\
-\hspace*{0.3in}
-    \begin{tabular}[t]{l}
-    \TT{*INCLUDE*} {\em include-variable}\QMARK{}
-    	{\em include-argument-list}\QMARK{} \TT{:} \\
-    \TT{~~~~}{\em statement}\STAR{} \\
-    \TT{*INCLUDE*}  {\em include-variable}\QMARK{}
-    	{\em include-argument-list}\QMARK{} \TT{:}
-	{\em statement} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{include-variable} ::= {\em target-variable}
-	~~~~~ [see \pagref{TARGET-VARIABLE}]
-\\[0.5ex]
-\emkey{include-argument-list} ::= \TT{( )} $|$
-	\TT{(} {\em include-argument}
-	\{ \TT{,} {\em include-argument} \}\STAR{} \TT{)}
-\\[0.5ex]
-\emkey{include-argument} ::= {\em word} beginning with a capital {\em letter}
-
-\end{indpar}
-
-An {\em include-statement} is executed at compile time;
-its {\em statements} are parsed and the parser output is
-appended to the list designated by the {\em include-variable},
-which must be a {\tt const} variable.  The {\em include-variable}
-defaults to {\tt *INCLUSION*}.
-
-Each {\em include-argument} must be a {\tt const} variable assigned
-a value before the {\em include-state\-ment} compiles.
-Everywhere this variable
-appears in the parsed {\em statements} of the {\em include-statement},
-the value of the variable is substituted for the variable name.
-
-Substitution for {\em include-arguments} obeys the following rules:
-\begin{itemize}
-\item \label{INCLUDE-SPLICING} If the {\em include-argument}
-value is a list, and if the
-instance being substituted is an element of a list,
-the {\em include-argument} list is spliced into the instance containing
-list.
-\\[0.5ex]
-Thus if {\tt X = \{"A", "B"\}} then \\
-\hspace*{2em}{ \tt
-"Y", "=", \{ "X" \} {\rm becomes} "Y", "=", \{ "A", "B" \}
-} \\
-The {\em include-argument} value list may be empty.
-If {\tt X = \{\}} then \\
-\hspace*{2em}{ \tt
-"Y", "=", \{ "foo", "X" \} {\rm becomes} "Y", "=", \{ "foo" \}
-} \\
-If you do not want a list valued {\em include-argument} to be spliced in,
-use {\tt (~)} parentheses around the instance being substituted.
-Thus if {\tt X = \{"A", "*",  "B"\}} then \\
-\hspace*{2em}%
-     \begin{tabular}{l}
-     \tt "Y", "=", \{ ("X"), "+", 1 \} \\
-     becomes \\
-     \tt "Y", "=", \{ ("A", "*", "B"), "+", 1 \}
-     \end{tabular}
-
-\item Otherwise the non-list value of the {\em include-argument} replaces the
-instance in the parsed {\em statement}.
-Thus if {\tt X = "A"} then \\
-\hspace*{2em}{\tt
-"Y", "=", \{ "X", "*", 2 \} {\rm becomes} "Y", "=", \{ "A", "*", 2 \}
-}
-\end{itemize}
 
 \section{Parser Output}
 \label{PARSER-OUTPUT}
