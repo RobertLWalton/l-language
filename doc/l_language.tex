@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 19, 2024
+February 20, 2024
 
 \bigskip
  
@@ -2545,7 +2545,7 @@ A map constant is computed by a {\em map-expression} whose syntax is:
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
     ::= {\em constant-expression}
 \\[0.5ex]
-{\em constant-expression} ::= an {\tt const} valued expression as
+{\em constant-expression} ::= a {\tt const} valued expression as
     defined on \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
@@ -3331,7 +3331,7 @@ and the types of the prototype arguments become the target types
 of the {\em actual-argument} sub-expressions.
 
 If an {\em expression} is a {\em reference-expression}
-or a {\em const-expression}
+or a {\em constant-expression}
 (which is replaced by a constant),
 it will be implicitly
 converted to its target type if possible.
@@ -3852,12 +3852,19 @@ or block of {\em statements} according to what a
 	& ~~~~~ {\em statement}\STAR{} \\
     $|$ & \ttkey{else} \TT{:} \\
 	& ~~~~~ {\em statement}\STAR{} \\
-    $|$ & \ttkey{if} {\em bool-expression} \TT{:} {\em statement} \\
-    $|$ & \ttkey{else if} {\em bool-expression} \TT{:} {\em statement} \\
-    $|$ & \ttkey{else} \TT{:} {\em statement} \\
+    $|$ & \ttkey{if} {\em bool-expression} \TT{:} {\em restricted-statement} \\
+    $|$ & \ttkey{else if} {\em bool-expression} \TT{:}
+    		{\em restricted-statement} \\
+    $|$ & \ttkey{else} \TT{:} {\em restricted-statement} \\
 	\end{tabular}
 \\[0.5ex]
 {\em bool-expression} ::= see \pagref{BOOL-EXPRESSION}
+\\[0.5ex]
+{\em restricted-statement}\label{RESTRICTED-STATEMENT} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{@{}l}
+   {\em expression} with no operator of precedence equal to or less than 0 \\
+   (the precedence of the `\TT{:}' operator) \\
+   \end{tabular}
 \\[1ex]
 where
 \begin{itemize}
@@ -5245,13 +5252,8 @@ int y = sum ( x, 5 ) // Same as: int y = x "+" 5
                      // a1 is { x }, a2 is { 5 }
 int y = sum ( x )    // Same as: int y = x "+" 1
                      // Parsed equivalent:
-                     //     { "int" "y" } "="
-                     //         { { x, .initiator = "(",
-                     //                .terminator = ")" }
-                     //           "+" { 1 } }
-                     // a1 is { x, .initiator = "(",
-                     //            .terminator = ")" },
-                     // a2 is { 1 }
+                     //     { "int" "y" } "=" { { x } "+" { 1 } }
+                     // a1 is { x }, a2 is { 1 }
 \end{verbatim}\end{indpar}
 
 A {\em prototype-result} of the form `{\tt constant} {\em variable-name}'
@@ -5288,6 +5290,10 @@ is that a {\em function-call} to a {\tt constant} function can be evaluated
 and replaced by the {\tt const} result of the evaluation
 without there being any side-effects.
 
+A \emkey{constant-expression}\label{CONSTANT-EXPRESSION}
+is an {\em expression} that is either
+a {\em constant} or a {\em function-call} to a {\tt constant} function.
+
 A {\em prototype-result} of the form `{\tt inclusion} {\em variable-name}'
 makes the function a \key{inclusion function}.  This can only be matched to
 a {\em function-call} at statement level in a {\em call-assign\-ment-statement}.
@@ -5295,6 +5301,12 @@ When called, {\em variable-name}
 must be set to a {\tt const} value that is a parsed list of {\em statements}
 that replaces the {\em call-assignment-statement}.
 See Section~\itemref{INCLUSIONS} for examples.
+
+Arguments to special functions \underline{need not} have the {\tt const}
+type.  The values of the arguments cannot be accessed by the functions,
+but their types can be.
+
+TBD
 
 A `{\tt *DEFERRED*}' {\em function-declaration} permits
 inline functions defined between it and a later
@@ -5976,6 +5988,8 @@ of parsed {\em statements}:
 	\{ \TT{,} {\em include-argument} \}\STAR{} \TT{)}
 \\[0.5ex]
 \emkey{include-argument} ::= {\em word} beginning with a capital {\em letter}
+\\[0.5ex]
+\emkey{restricted-statement} ::= see \pagref{RESTRICTED-STATEMENT}
 
 \end{indpar}
 
@@ -6177,34 +6191,6 @@ for ( x, 15 ):
     
 \end{verbatim}\end{indpar}
 
-
-
-\subsection{{\tt Const}-Expressions}
-\label{CONST-EXPRESSIONS}
-
-A \emkey{const-expression} is an {\em expression}
-that evaluates at compile time to a {\tt const} value.
-
-More specifically, {\em const-expressions} are discovered by
-a bottom up transversal of a statement, and when discovered
-are replaced by their {\tt const} values.
-
-During this bottom up transversal, an {\em expression} is
-deemed to be a {\em const-expression} if and only if it
-is a {\tt const} constant, a {\em reference-expression}
-evaluating to a {\em const} value,
-or a {\em function-call} which when inlined
-does not produce any run-time code (it may have run-time
-arguments whose types are queried but whose values are not used).
-
-The {\em const-expression} {\em function-call} may,
-however, use the {\tt *INCLUSION*} variable (see \itemref{INCLUSIONS})
-to generate run-time code that will be compiled
-outside the context of the function inlining.
-
-A {\em const-expression} that does not use the {\tt *INCLUSION*}
-variable (see below) is called a
-\emkey{constant-expression}\label{CONSTANT-EXPRESSION}.
 
 \subsection{Reference Function Declarations}
 \label{REFERENCE-FUNCTION-DECLARATIONS}
