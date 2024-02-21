@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 20, 2024
+February 21, 2024
 
 \bigskip
  
@@ -2700,7 +2700,6 @@ The syntax of {\em reference-expressions} is:
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
     $|$ & \TT{next}~ {\em variable-name} \\
-    $|$ & {\em constant} \\
     $|$ & {\em reference-expression} \TT{[} {\em index-list} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     $|$ & {\em reference-call} \\
@@ -5003,8 +5002,8 @@ $v$ must be the {\em vari\-able-name} in a {\em prototype-argument-declaration}
 of the form `\dots{} {\em type-name} $v$', and
 any actual argument associated to the {\em prototype-argument-declaration}
 by some {\em function-call}
-must be a {\em reference-expression} that is not a {\tt constant}
-and does not have the form `{\tt next} {\em variable-name}'.
+must be a {\em reference-expression} that
+does not have the form `{\tt next} {\em variable-name}'.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must
@@ -5184,7 +5183,7 @@ F ( 5 ) no OPTION  // Equivalent to F ( 5 ) OPTION ( FALSE )
 A function prototype result may be named `\TT{next} $v$' if
 the prototype has an argument named $v$, in which case a {\em function-call}
 matching the prototype must match the prototype argument $v$ to a
-{\em reference-expression} $e$ that is not a constant and
+{\em reference-expression} $e$ that
 does not have the form `\TT{next} {\em variable-name}'.
 Then the {\em assignment-result}
 corresponding to the prototype `\TT{next} $v$' may be omitted, and will
@@ -5410,7 +5409,7 @@ the {\em expression} to a {\tt const} value $C$, annotate the
 \item\label{CONSTANT-REFERENCE-STEP}
 If the {\em expression} is a
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
-root is a {\tt constant} or is a {\tt const} type {\em variable},
+root is a {\tt const} type {\em variable},
 evaluate the {\em expression} to a {\tt const} value $C$, annotate the
 {\em expression} with $C$, and terminate this algorithm.
 
@@ -6577,9 +6576,12 @@ out-of-line function must be called with a:
 	\ttkey{call} {\em function-expression}
 	     {\em call-argument-list}\QMARK{}
 \\[0.5ex]
-\emkey{function-expression} ::= {\em reference-expression}
+\emkey{function-expression} ::= {\em reference-expression} $|$
+                                {\em constant-expression}
 \\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
+\\[0.5ex]
+{\em constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
 {\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \\[2ex]
