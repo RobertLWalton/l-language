@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 21, 2024
+February 22, 2024
 
 \bigskip
  
@@ -4872,7 +4872,7 @@ The syntax of a function declaration is:
                            {\em prototype-pattern} \\
     $|$ & \ttkey{function}~ {\em module-abbreviation}\QMARK{}~
                            {\em prototype-pattern}~ \TT{=}~
-                           {\em input-variable-list} \\
+                           {\em input-argument-list} \\
     \end{tabular}
 \\[2ex]
 \emkey{prototype-result} ::= \\
@@ -4923,9 +4923,9 @@ The syntax of a function declaration is:
     \label{PROTOTYPE-NEXT-VARIABLE-DECLARATION}
       ::= \ttkey{next} {\em variable-name}
 \\[0.5ex]
-\emkey{input-variable-list}\label{INPUT-VARIABLE-LIST} ::= \\
-\hspace*{0.5in}{\em prototype-argument-declaration}
-                 \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{}
+\emkey{input-argument-list}\label{INPUT-ARGUMENT-LIST} ::= \\
+\hspace*{0.5in}{\em prototype-result-variable-declaration}
+                 \{ \TT{,} {\em input-argument-declaration} \}\STAR{}
 \\[0.5ex]
 \emkey{prototype-argument-declaration}\label{PROTOTYPE-ARGUMENT-DECLARATION} \\
 \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
@@ -4936,6 +4936,10 @@ The syntax of a function declaration is:
     $|$ & {\em prototype-result-variable-declaration}
           \TT{!=} {\em required-value} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{input-argument-declaration}\label{INPUT-ARGUMENT-DECLARATION} ::= \\
+\hspace*{0.5in}{\em prototype-result-variable-declaration}
+          \{ \TT{?=} {\em default-value} \}\QMARK{}
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
@@ -5009,10 +5013,13 @@ Result and argument {\em variable-names}
 in a {\em function-prototype} must
 be distinct, with an exception for the previous note.
 \item
-The first {\em prototype-argument-declaration} in an {\em input-variable-list}
+An {\em input-argument-list} cannot contain {\tt macro} or required
+arguments.
+\item
+The first {\em prototype-argument-declaration} in an {\em input-argument-list}
 must not have a {\em default-value}.
 \item
-In a {\em pattern-argument-list} or {\em input-variable-list}
+In a {\em pattern-argument-list} or {\em input-argument-list}
 a {\em prototype-argument-declaration} with no {\em de\-fault-value} cannot
 follow a {\em prototype-argument-declaration} with a {\em default-value}.
 \item
@@ -5085,7 +5092,7 @@ the {\em pattern-term} with its
 Similarly with an {\em argument-list} that is omitted
 (here {\tt ( 5 )} is inserted).
 
-An example containing an {\em input-variable-list} is:
+An example containing an {\em input-argument-list} is:
 \begin{indpar}\begin{verbatim}
 function F [ int x ] = int y,  int z ?= 5:
     . . . . . . . . . .
@@ -6297,7 +6304,7 @@ The syntax of a {\em reference-function-declaration} is:
         $|$ & \ttkey{reference function} \\
             & \TT{~~~~}{\em module-abbreviation}\QMARK{}~
 	      {\em reference-prototype-pattern}~ \TT{=}~ \\
-	    & \TT{~~~~~~~~}{\em reference-input-variable-list}
+	    & \TT{~~~~~~~~}{\em input-argument-list}
     \end{tabular}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
@@ -6305,11 +6312,7 @@ The syntax of a {\em reference-function-declaration} is:
 {\em prototype-result-variable-declaration} ::=
     see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
 \\[0.5ex]
-{\em reference-input-variable-list} ::=
-    \begin{tabular}[t]{@{}l}
-    {\em prototype-result-variable-declaration} \\
-    \{ \TT{,} {\em prototype-result-variable-declaration} \}\STAR{}
-    \end{tabular}
+{\em input-argument-list} ::= see \pagref{INPUT-ARGUMENT-LIST}
 \\[0.5ex]
 \emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN} \\
 \hspace*{2em}\begin{tabular}[t]{rl}
@@ -6326,19 +6329,15 @@ The syntax of a {\em reference-function-declaration} is:
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
+{\em member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
 \emkey{reference-pattern-argument} ::=
     \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
-\\[0.5ex]
-{\em pattern-term} ::= see \pagref{PATTERN-TERM}
 \\[0.5ex]
 \emkey{parenthesized-pattern-term} ::=
     {\em pattern-term} with\underline{out} \TT{[~]} brackets
 \\[0.5ex]
-{\em function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
-\\[0.5ex]
-{\em member-name} ::= see \pagref{MEMBER-NAME}
-\\[0.5ex]
-{\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
+{\em pattern-term} ::= see \pagref{PATTERN-TERM}
 \\[0.5ex]
 \emkey{parenthesized-pattern-argument-list} ::= \\
 \hspace*{0.5in}
@@ -6348,6 +6347,8 @@ The syntax of a {\em reference-function-declaration} is:
 \hspace*{0.5in}
     {\em pattern-argument-list} with square brackets \TT{[~]}
     (and \underline{not} parentheses \TT{(~)})
+\\[0.5ex]
+{\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
 \begin{itemize}
 \item
 The rules for a {\em function-declaration}
@@ -6361,18 +6362,17 @@ a {\em member-name}\pagnote{MEMBER-NAME} or square-bracketed
 {\em pattern-argument-lists}.
 \item
 The first actual argument in a {\em reference-call} is a
-smaller {\em reference-expression} that has already been deliminated
-and which is surrounded in the {\em reference-call} by
-parentheses {\tt (~)} that may be \underline{implied} and not explicit,
-unless the {\em reference-call} starts with a {\em module-abbreviation}.
+smaller {\em reference-expression} that has already been deliminated.
+It is surrounded by parentheses {\tt (~)} if and only if it is preceeded by
+the {\em module-abbreviation} of the {\em reference-call}
 \item
 The {\em reference-pattern-argument} in the prototype cannot
 contain default or required values or be a {\tt macro} argument.
 \item
 A {\em member-name} cannot be followed immediately by a {\em pattern-term};
-a \TT{()} must be placed immediately after the {\em member-name}
+in this case a \TT{()} must be placed immediately after the {\em member-name}
 to indicate the boundary between it and the following {\em pattern-term}.
-This is the \underline{only} situation in which \TT{()} should be used.
+This is the \underline{only} situation in which \TT{()} may be used.
 \item
 {\em Pattern-argument-lists} with square brackets are restricted to
 appearing just after the {\em reference-pattern-argument}.
