@@ -5641,7 +5641,7 @@ In what follows, any {\em module-abbreviation} beginning the
 {\em function-call} is ignored, and the remainder of the {\em function-call}
 is matched to the {\em function-declaration}'s prototype.
 
-\item\label{CALL-PROTOTYPE-BEGINNING}
+\item\label{CALL-PROTOTYPE-KEY}
 The \key{key} of a {\em function-declaration}
 is the number of argument lists before
 the first {\em function-term-name} in its {\em prototype-pattern}
@@ -5660,8 +5660,14 @@ When matching two {\em function-term-name} lexemes, if the one from
 the {\em prototype-pattern} is {\tt "} quoted, the
 one in the {\em function-call} may be quoted or not quoted.
 
+The first {\em function-term-name} in the call may be followed by
+{\em call-argument-lists}.
+
+
 \item\label{CALL-PROTOTYPE-TERM-NAMES}
-The remainder of the {\em function-call} is scanned for {\em prototype-pattern}
+The remainder of the {\em function-call}, the part after any
+{\em call-argument-lists} following the first {\em function-term-name},
+is scanned for {\em prototype-pattern}
 {\em function-term-names} other than the first one, and also for
 the words `{\tt no}' and `{\tt not}'.  At each point in the scan
 one of the following must be found: (1) a {\em function-term-name} from
@@ -6389,7 +6395,7 @@ qualifiers as field qualifiers.
 \subsubsection{Reference Call-Declaration Matching}
 \label{REFERENCE-CALL-DECLARATION-MATCHING}
 
-Two major differences between {\em refer\-ence-call}-prototype
+Three major differences between {\em refer\-ence-call}-prototype
 matching and inline {\em function-call}-declaration matching are:
 \begin{itemize}
 \item
@@ -6400,8 +6406,13 @@ end of a {\em function-call} is the end of its containing
 {\em expression}.
 \item
 There is no target type for a {\em reference-call}, and
-implicit conversion cannot be applied to its first argument
-{\em reference-expression}.
+implicit conversion cannot be applied to its
+{\em reference-call-base}.
+\item
+The \key{key} to a {\em reference-function-declaration} is
+the type of its {\em reference-pattern-argument} (that is
+matched to the {\em reference-call-base}) followed by the
+declaration's {\em member-name} or by \TT{[]}.
 \end{itemize}
 
 With this in mind, the steps of the inline call-declaration matching algorithm
@@ -6415,7 +6426,15 @@ as follows:
            \pagnote{CALL-PROTOTYPE-MODULE-ABBREVIATION}]
 If a {\em reference-expression} begins with a {\em module-abbreviation},
 the {\em module-abbrevi\-ation} must immediately precede a
-\underline{parenthesized} {\em reference-expes\-sion}.
+\underline{parenthesized} {\em reference-expes\-sion} (which is
+the {\em reference-call-base}).
+
+\item[Step \ref{CALL-PROTOTYPE-KEY}%
+           \pagnote{CALL-PROTOTYPE-KEY}]
+The \key{key} to a {\em reference-function-declaration} is
+the type of its {\em reference-pattern-argument} (that is
+matched to the {\em reference-call-base}) followed by the
+declaration's {\em member-name} or by \TT{[]}.
 
 \item[Step \ref{CALL-PROTOTYPE-TERM-NAMES}%
            \pagnote{CALL-PROTOTYPE-TERM-NAMES}]
@@ -6438,6 +6457,11 @@ or at the end of the containing {\em expression}.
 If there are fewer {\em square-bracketed-call-argument-lists}
 than {\em square-bracketed-pattern-argument-lists},
 the entire call-declaration match fails.
+
+The remainder of the function call that is scanned is
+the part after any {\em call-argument-lists} following
+either the {\em member-name} or the \TT{[~]} bracketed
+{\em call-argument-list} following the {\em reference-call-base}.
 
 \item[Step \ref{CALL-PROTOTYPE-RESULT-MATCHING}%
            \pagnote{CALL-PROTOTYPE-RESULT-MATCHING}]
