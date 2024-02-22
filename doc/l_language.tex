@@ -4923,7 +4923,7 @@ The syntax of a function declaration is:
     \label{PROTOTYPE-NEXT-VARIABLE-DECLARATION}
       ::= \ttkey{next} {\em variable-name}
 \\[0.5ex]
-\emkey{input-variable-list} ::= \\
+\emkey{input-variable-list}\label{INPUT-VARIABLE-LIST} ::= \\
 \hspace*{0.5in}{\em prototype-argument-declaration}
                  \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{}
 \\[0.5ex]
@@ -6211,7 +6211,8 @@ A {\em reference-call} is built by extending its base
 with either a {\tt [~]} bracketed {\em index}
 or a {\em member-name} optionally followed by other
 arguments and call terms.  The base may be parenthesized, and
-if it is, may be preceded by a {\em module-abbreviation}.
+if it is, must be preceded by a {\em module-abbreviation} that
+specifies the module of the corresponding {\em reference-function-declaration}.
 
 {\em Reference-calls} are similar to (non-reference) {\em function-calls},
 {\em reference-function-declarations} are similar to
@@ -6224,13 +6225,13 @@ The syntax of a {\em reference-call} is:
 \begin{indpar}
 \emkey{reference-call}\label{REFERENCE-CALL} ::= \\
 \hspace*{1em}\begin{tabular}[t]{rl}
-        & {\em reference-call-base}
+        & {\em reference-call-base} ~
 	  \begin{tabular}[t]{@{}l@{}}
  	  {\em member-name} \\
           {\em parenthesized-call-argument-list}\STAR{} \\
           {\em parenthesized-call-term}\STAR{} \\
 	  \end{tabular} \\
-        & {\em reference-call-base}
+        & {\em reference-call-base} ~
 	  \begin{tabular}[t]{@{}l@{}}
 	  {\em square-bracketed-call-argument-list}\PLUS{} \\
           {\em parenthesized-call-term}\STAR{} \\
@@ -6238,18 +6239,18 @@ The syntax of a {\em reference-call} is:
     \end{tabular}
 \\[0.5ex]
 {\em reference-call-base}\begin{tabular}[t]{rl}
-	::= & {\em ma}\QMARK{} {\em reference-expression} \\
+	::= & {\em reference-expression} \\
 	$|$ & {\em ma} \TT{(} {\em reference-expression} \TT{)} \\
 	\end{tabular}
 \\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
 \\[0.5ex]
-{\em call-term} ::= see \pagref{CALL-TERM}
+{\em ma} ::= {\em module-abbreviation} ~~~~~ [see \pagref{MODULE-ABBREVIATION}]
 \\[0.5ex]
 \emkey{parenthesized-call-term} ::=
     {\em call-term} with\underline{out} \TT{[~]} brackets
 \\[0.5ex]
-{\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
+{\em call-term} ::= see \pagref{CALL-TERM}
 \\[0.5ex]
 \emkey{parenthesized-call-argument-list} ::=
     {\em call-argument-list} with \TT{(~)} parentheses
@@ -6257,16 +6258,17 @@ The syntax of a {\em reference-call} is:
 \emkey{square-bracketed-call-argument-list} ::=
     {\em call-argument-list} with \TT{[~]} brackets
 \\[0.5ex]
-{\em ma} ::= {\em module-abbreviation} ~~~~~ [see \pagref{MODULE-ABBREVIATION}]
+{\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \begin{itemize}
 \item
 If the {\em reference-call} begins with a {\em module-abbreviation} ({\em ma}),
 the {\em reference-expres\-sion} must be parenthesized.  Otherwise
 the {\em module-abbreviation} will be parsed as part of the
-{\em reference-expression}.
+{\em reference-expression} (e.g., as part of the {\em variable-name}
+that is the root of the {\em reference-expression}).
 \item
 {\em Call-argument-lists} with square brackets are restricted to
-appearing just after the {\em reference-expression}.
+appearing just after the {\em reference-call-base}.
 \item
 The {\em member-name} in a {\em reference-call}
 may \underline{not} be abbreviated.
@@ -6295,13 +6297,19 @@ The syntax of a {\em reference-function-declaration} is:
         $|$ & \ttkey{reference function} \\
             & \TT{~~~~}{\em module-abbreviation}\QMARK{}~
 	      {\em reference-prototype-pattern}~ \TT{=}~ \\
-	    & \TT{~~~~~~~~}{\em input-variable-list}
+	    & \TT{~~~~~~~~}{\em reference-input-variable-list}
     \end{tabular}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
 {\em prototype-result-variable-declaration} ::=
     see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
+\\[0.5ex]
+{\em reference-input-variable-list} ::=
+    \begin{tabular}[t]{@{}l}
+    {\em prototype-result-variable-declaration} \\
+    \{ \TT{,} {\em prototype-result-variable-declaration} \}\STAR{}
+    \end{tabular}
 \\[0.5ex]
 \emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN} \\
 \hspace*{2em}\begin{tabular}[t]{rl}
