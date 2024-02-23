@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 22, 2024
+February 23, 2024
 
 \bigskip
  
@@ -6566,7 +6566,8 @@ The syntax of an out-of-line function declaration is:
     {\em module-abbreviation}\QMARK{} {\em basic-name}
     $|$ {\em foreign-function-name}
 \\[0.5ex]
-\emkey{foreign-function-name} ::= {\em quoted-string}
+\emkey{foreign-function-name}\label{FOREIGN-FUNCTION-NAME}
+	::= {\em quoted-string}
 \\[0.5ex]
 {\em prototype-result-list} ::= see \pagref{PROTOTYPE-RESULT-LIST}
 \\[0.5ex]
@@ -6663,7 +6664,7 @@ functions may be declared by:
 	\label{FUNCTION-TYPE-PROTOTYPE} ::= \\
 \hspace*{0.25in} \ttkey{function}~
         \{ {\em prototype-result-list}~ \TT{=} \}\QMARK{}~
-	\TT{()}~ {\em pattern-argument-list}\QMARK{}
+	\TT{()}~ {\em parenthesized-pattern-argument-list}\QMARK{}
 \end{indpar}
 
 Here the {\em function-type-prototype} is just like an
@@ -6686,22 +6687,38 @@ A function constant can be declared by:
     \begin{tabular}[t]{rl}
         &  {\em function-type-name} {\em function-constant-name} \TT{:} \\
 	& \TT{~~~~~}{\em statement}\PLUS{} \\
+    $|$ &  {\em function-type-name} \\
+        &  \TT{~~~~~}{\em function-constant-name} \TT{:}
+    	   \TT{*DEFERRED*} {\em foreign-function-name} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{function-constant-name} ::= {\em target-variable}
 \\[0.5ex]
 {\em target-variable} ::= see \pagref{TARGET-VARIABLE}
+\\[0.5ex]
+{\em foreign-function-name} ::= see \pagref{FOREIGN-FUNCTION-NAME}
 \end{indpar}
 
-Here the first line behaves like an {\em out-of-line-function-prototype}
-made by taking the {\em function-type-prototype} specified by the
-{\em function-type-name} and replacing the {\tt ()}
-{\em out-of-line-function-name} by the {\em function-constant-name}
-while adding `{\tt out-of-line}' to its beginning.  In addition
-the {\em function-constant-name} is declared as a run-time {\tt co}
+Here the first line behaves like an {\em out-of-line-function-declaration}
+first line made by replacing
+`{\em function-type-name} {\em function-constant-name}'
+by the {\em function-type-prototype} specified by the
+{\em function-type-name} and:
+\begin{enumerate}
+\item adding `{\tt out-of-line}' to the beginning
+\item
+replacing the {\tt ()} by the {\em function-constant-name}
+\item
+deleting any {\em foreign-function-name} after a \TT{*DEFERRED*}
+\end{enumerate}
+
+
+The {\em function-constant-name} is declared as a run-time {\tt co}
 variable whose
 value has the type named by the {\em function-type-name}.
 Internally, this value is a run-time pointer to the out-of-line function.
+In the \TT{*DEFERRED*} case this value is a pointer to the named
+foreign function.
 
 
 
