@@ -2362,7 +2362,8 @@ with {\tt uns8}, {\tt uns16}, or {\tt uns32} type elements.
 UTF-8, UTF-16, or UTF-32 encodings are used according to element
 size.
 
-A \emkey{number-constant} is an {\em natural}, {\em number},
+A \emkey{number-constant}\label{NUMBER-CONSTANT}
+is an {\em natural}, {\em number},
 or {\em numeric-word} lexeme converted to an IEEE 64-bit floating
 point number.
 
@@ -5265,7 +5266,8 @@ int y = sum ( x )    // Same as: int y = x "+" 1
 \end{verbatim}\end{indpar}
 
 A {\em prototype-result} of the form `{\tt constant} {\em variable-name}'
-makes the function a \key{constant function}.  When called, {\em variable-name}
+makes the function a \key{constant function}.\label{CONSTANT-FUNCTION}
+When called, {\em variable-name}
 must be set to a {\tt const} value that replaces
 the {\em function-call} if the {\tt const} value is not a map,
 and effectively replaces the {\em function-call} if the {\em const}
@@ -7969,18 +7971,18 @@ fv		& \ABV & std fv \\
 \end{tabular}
 \end{center}
 
-\section{Compile Time Functions and Compiler Constants}
+\section{Constant Functions and Compiler Constants}
 
-Inline functions that have {\tt const} results and arguments
-and do not produce run-time code are called \key{compile-time}
-functions.  The functions described in the
-following sections are builtin compile-time functions.
+Constant functions have {\tt const} results
+and do not produce run-time code.\pagnote{CONSTANT-FUNCTION}
+The functions described in the
+following sections are builtin constant functions.
 
 Some compilation related functions and
 constants are in the `{\tt compiler}' module,
 which is abbreviated here as `{\tt com}'.
 
-Unless stated otherwise, builtin compile-time functions
+Unless stated otherwise, builtin constant functions
 obey the following rules:
 \begin{enumerate}
 \item
@@ -7997,13 +7999,16 @@ If a result or argument is said to be an integer, it may
 be either a {\tt number} with an integral value, or a
 {\tt rational} with denominator {\tt 1}.
 \item
+A \ttkey{number} is a {\tt const} value representable by a
+{\em number-constant}.\pagnote{NUMBER-CONSTANT}.
+
 A function (e.g., {\tt "+"} or {\tt "=="})
 with at least one {\tt number} argument will
 convert all {\tt rational} arguments to {\tt numbers}
 before using them, will do all internal calculations with
 {\tt numbers} and not {\tt rationals},
 and will return any numeric results as {\tt numbers}.
-\item
+
 {\tt Number} values too positive or negative to store
 are converted to {\tt +Inf} or {\tt -Inf}.
 {\tt Number} values too small to store
@@ -8013,8 +8018,8 @@ sign of the value.
 
 \subsection{Compile Time General Functions}
 
-{\tt function const r = std (const v1) \ttkey{"=="} ( const v2 )} \\
-{\tt function const r = std (const v1) \ttkey{"!="} ( const v2 )}
+{\tt function constant r = std (const v1) \ttkey{"=="} ( const v2 )} \\
+{\tt function constant r = std (const v1) \ttkey{"!="} ( const v2 )}
 \begin{indpar}
 If any argument is a number and the other is rational,
 the rational is converted to a number before the comparison.
@@ -8022,7 +8027,7 @@ Otherwise comparisons of {\tt const} values of different types treat
 the values as unequal.
 \end{indpar}
 
-{\tt function const r = std \ttkey{type} ( const v1 )}
+{\tt function constant r = std \ttkey{type} ( const v1 )}
 \begin{indpar}
 Returns the type of {\tt v1} as one of the strings: \\
 \hspace*{0.5in}{\tt
@@ -8037,20 +8042,19 @@ if one argument is a number and the others are rational,
 the rational arguments are converted to numbers before
 the function executes.
 
-{\tt function const r = std \ttkey{number} ( const v1 )} \\
-{\tt function const r = std \ttkey{rational} ( const v1 )}
+{\tt function constant r = std \ttkey{number} ( const v1 )} \\
+{\tt function constant r = std \ttkey{rational} ( const v1 )}
 \begin{indpar}
 These convert their argument to a number or rational.  If
-a single argument is a string, it must have the format of
+the argument is a string, it must have the format of
 a number or rational constant (rational operator followed
 by quoted string).
-If the argument is a map, it may have the format of
-a number or rational constant in \TT{`~'} quotes,
-or it may be a list of two strings, the first element
-being a rational operator and the second
-the string it operates on.  E.g., 
+If the argument is a map, the map must have two elements
+that are strings, with the first being a rational operator
+and the second being the quoted string it operates on.
+Map annotations are ignored, so the map may be
+\TT{`~'} quoted.  E.g.,
 \begin{indpar}\begin{verbatim}
-`5.5'         { "5.5" }
 `B# "1.1"'    { "B#", "1.1" }
 \end{verbatim}\end{indpar}
 
@@ -8062,12 +8066,12 @@ and rationals can always be converted to numbers, though these
 may be {\tt +Inf} or {\tt -Inf}.
 \end{indpar}
 
-{\tt function const r = std \ttkey{"+"} ( const n1 )} \\
-{\tt function const r = std \ttkey{"-"} ( const n1 )} \\
-{\tt function const r = std (const n1) \ttkey{"+"} ( const n2 )} \\
-{\tt function const r = std (const n1) \ttkey{"-"} ( const n2 )} \\
-{\tt function const r = std (const n1) \ttkey{"*"} ( const n2 )} \\
-{\tt function const r = std (const n1) \ttkey{"/"} ( const n2 )}
+{\tt function constant r = std \ttkey{"+"} ( const n1 )} \\
+{\tt function constant r = std \ttkey{"-"} ( const n1 )} \\
+{\tt function constant r = std (const n1) \ttkey{"+"} ( const n2 )} \\
+{\tt function constant r = std (const n1) \ttkey{"-"} ( const n2 )} \\
+{\tt function constant r = std (const n1) \ttkey{"*"} ( const n2 )} \\
+{\tt function constant r = std (const n1) \ttkey{"/"} ( const n2 )}
 \begin{indpar}
 Standard arithmetic operators on numbers or rationals {\tt n1} and {\tt n2},
 done using IEEE number or rational arithmetic.
@@ -8078,26 +8082,27 @@ For rationals, dividing by {\tt 0} returns {\tt UNDEF} and outputs a
 compiler error message.
 \end{indpar}
 
-{\tt function const r = std (const i1) \ttkey{"\&"} ( const i2 )} \\
-{\tt function const r = std (const i1) \ttkey{"|"} ( const i2 )} \\
-{\tt function const r = std (const i1) \ttkey{"\textasciicircum"}
+{\tt function constant r = std (const i1) \ttkey{"\&"} ( const i2 )} \\
+{\tt function constant r = std (const i1) \ttkey{"|"} ( const i2 )} \\
+{\tt function constant r = std (const i1) \ttkey{"\textasciicircum"}
                             ( const i2 )} \\
-{\tt function const r = std (const i1) \ttkey{"<{}<"} ( const i2 )} \\
-{\tt function const r = std (const i1) \ttkey{">{}>"} ( const i2 )}
+{\tt function constant r = std (const i1) \ttkey{"<{}<"} ( const i2 )} \\
+{\tt function constant r = std (const i1) \ttkey{">{}>"} ( const i2 )}
 \begin{indpar}
 Standard bitwise operators on integers {\tt i1} and {\tt i2}
 that are treated as two's complement.  For the shift operators
 {\tt "<{}<}" and {\tt ">{}>"}, {\tt i2}, the amount of the shift,
 must not be negative.  Overflows for number {\tt <{}<} shift
-produce an {\tt UNDEF} result and a compiler error message.
+produce an {\tt UNDEF} result and a compiler error message,
+as do non-integer arguments.
 \end{indpar}
 
-{\tt function const r = std (const n1) \ttkey{"=="} ( const n2 )} \\
-{\tt function const r = std (const n1) \ttkey{"!="} ( const n2 )} \\
-{\tt function const r = std (const n1) \ttkey{"<"} ( const n2 )} \\
-{\tt function const r = std (const n1) \ttkey{"<="} ( const n2 )} \\
-{\tt function const r = std (const n1) \ttkey{">"} ( const n2 )} \\
-{\tt function const r = std (const n1) \ttkey{">="} ( const n2 )}
+{\tt function constant r = std (const n1) \ttkey{"=="} ( const n2 )} \\
+{\tt function constant r = std (const n1) \ttkey{"!="} ( const n2 )} \\
+{\tt function constant r = std (const n1) \ttkey{"<"} ( const n2 )} \\
+{\tt function constant r = std (const n1) \ttkey{"<="} ( const n2 )} \\
+{\tt function constant r = std (const n1) \ttkey{">"} ( const n2 )} \\
+{\tt function constant r = std (const n1) \ttkey{">="} ( const n2 )}
 \begin{indpar}
 Standard comparison operators on numbers or rationals {\tt n1} and {\tt n2}.
 Infinities are treated as actual numbers with absolute value
@@ -8105,16 +8110,17 @@ larger than any real number: e.g., if {\tt x} is not a {\tt NaN},
 `{\tt x <= +Inf}' is always
 {\tt TRUE} and `{\tt x == +Inf}' is {\tt TRUE} iff {\tt x} is {\tt +Inf}.
 If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
-except {\tt !=} which returns {\tt TRUE}.
+except {\tt !=} which returns {\tt TRUE}, but there is \underline{no} compiler
+error message.
 \end{indpar}
 
-{\tt function const r1, const r2 =
+{\tt function constant r1, const r2 =
     std \ttkey{floor} (const n1, const n2 ?=~1 )} \\
-{\tt function const r1, const r2 =
+{\tt function constant r1, const r2 =
     std \ttkey{ceiling} (const n1, const n2 ?=~1 )} \\
-{\tt function const r1, const r2 =
+{\tt function constant r1, const r2 =
     std \ttkey{truncate} (const n1, const n2 ?=~1 )} \\
-{\tt function const r1, const r2 =
+{\tt function constant r1, const r2 =
     std \ttkey{round} (const n1, const n2 ?=~1 )}
 \begin{indpar}
 These divide {\tt n1} by {\tt n2} and return {\tt r1} as the
@@ -8125,32 +8131,34 @@ zero, and {\tt round} rounds to the nearest integer, or to the
 even integer if there are two nearest integers.
 
 If an argument is a number, return {\tt NaN}s if the divisor is
-zero, an argument is a {\tt NaN}, or both arguments are infinities, but
+zero, an argument is a {\tt NaN}, or {\tt n1} is an infinity, but
 do \underline{not} output a compiler error message.  If both
 arguments are rationals and the divisor is zero, return
 {\tt UNDEF} and output a compiler error message.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{numerator} {\tt ( const r1 )} \\
-{\tt function const r = std} \ttkey{denominator} {\tt ( const r1 )}
+{\tt function constant r = std} \ttkey{numerator} {\tt ( const r1 )} \\
+{\tt function constant r = std} \ttkey{denominator} {\tt ( const r1 )}
 \begin{indpar}
-These functions return the numerator and denominator of a rational.
+These functions return the numerator and denominator of {\tt r1},
+which must be a rational.
 Both numerator and denominator are integer {\tt rationals}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{is nan} {\tt ( const v1 )} \\
-{\tt function const r = std} \ttkey{is infinite} {\tt ( const v1 )} \\
-{\tt function const r = std} \ttkey{is finite} {\tt ( const v1 )}
+{\tt function constant r = std} \ttkey{is nan} {\tt ( const v1 )} \\
+{\tt function constant r = std} \ttkey{is infinite} {\tt ( const v1 )} \\
+{\tt function constant r = std} \ttkey{is finite} {\tt ( const v1 )}
 \begin{indpar}
 Return {\tt TRUE} if {\tt v1} is a NaN number ({\tt is nan}),
 is {\tt +Inf} or {\tt -Inf} ({\tt is infinite}), or
 is a number that is neither of these ({\tt is finite}), and {\tt FALSE}
-otherwise.
+otherwise.  {\tt v1} must be a number or a rational;
+if it is a rational, it is converted to a number before it is tested.
 \end{indpar}
 
 \subsection{Compile Time String Functions}
 
-{\tt function const r = std} \ttkey{"\#"} {\tt ( const s )}
+{\tt function constant r = std} \ttkey{"\#"} {\tt ( const s )}
 \begin{indpar}
 Returns the length of string {\tt s} as a non-negative integer
 {\tt number}.\footnote{The length of a {\tt string} cannot
@@ -8159,13 +8167,13 @@ be above $2^{48}$ while
 Note that {\tt \#} is a prefix operator.
 \end{indpar}
 
-{\tt function const r = std} (const s1) \ttkey{"+"} {\tt ( const s2 )}
+{\tt function constant r = std} (const s1) \ttkey{"+"} {\tt ( const s2 )}
 \begin{indpar}
 Returns the concatenation of string {\tt s1}
 and string {\tt s2}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{sprintf}
+{\tt function constant r = std} \ttkey{sprintf}
     {\tt ( \begin{tabular}[t]{@{}l}
             const format, const a1 = "", \\
 	    const a2 = "", const a3 = "", \\
@@ -8182,12 +8190,12 @@ Rational data arguments are converted to numbers first.  Map data arguments
 are not allowed.
 \end{indpar}
 
-{\tt function const r = std (const s1) \ttkey{"=="} ( const s2 )} \\
-{\tt function const r = std (const s1) \ttkey{"!="} ( const s2 )} \\
-{\tt function const r = std (const s1) \ttkey{"<"} ( const s2 )} \\
-{\tt function const r = std (const s1) \ttkey{"<="} ( const s2 )} \\
-{\tt function const r = std (const s1) \ttkey{">"} ( const s2 )} \\
-{\tt function const r = std (const s1) \ttkey{">="} ( const s2 )}
+{\tt function constant r = std (const s1) \ttkey{"=="} ( const s2 )} \\
+{\tt function constant r = std (const s1) \ttkey{"!="} ( const s2 )} \\
+{\tt function constant r = std (const s1) \ttkey{"<"} ( const s2 )} \\
+{\tt function constant r = std (const s1) \ttkey{"<="} ( const s2 )} \\
+{\tt function constant r = std (const s1) \ttkey{">"} ( const s2 )} \\
+{\tt function constant r = std (const s1) \ttkey{">="} ( const s2 )}
 \begin{indpar}
 Standard lexigraphic comparison operators on strings {\tt s1} and {\tt s2}.
 Characters are compared by comparing their {\tt UTF-8} representations
@@ -8201,13 +8209,13 @@ this is equivalent to comparing the characters
 by comparing their UNICODE codes as unsigned 32-bit integers.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{explode} {\tt ( const s )}
+{\tt function constant r = std} \ttkey{explode} {\tt ( const s )}
 \begin{indpar}
 Returns a map that is a vector whose elements are unsigned integer {\tt numbers}
 equal to the UNICODE codes of the characters of string {\tt s}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{implode} {\tt ( const m )}
+{\tt function constant r = std} \ttkey{implode} {\tt ( const m )}
 \begin{indpar}
 Given a map {\tt m} that is a vector whose elements are unsigned integer
 {\tt numbers}
@@ -8215,7 +8223,7 @@ that are UNICODE codes of characters, return the string whose characters
 are those specified by the map elements in the order specified by the map.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{compile re} ( const s )
+{\tt function constant r = std} \ttkey{compile re} ( const s )
 \begin{indpar}
 Compile the regular expression represented by the string {\tt s}
 and return an integer that references the compiled expression.
@@ -8237,7 +8245,7 @@ referenced by the integer {\tt i}.  Does nothing if {\tt i}
 does not reference a compiled regular expression.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{match re} ( const i, const s  )
+{\tt function constant r = std} \ttkey{match re} ( const i, const s  )
 \begin{indpar}
 Matches the string {\tt s} to the compiled regular expression
 referenced by the integer {\tt i}.
@@ -8252,7 +8260,7 @@ unsigned 32-bit unicode values.  Substrings matched are
 subvectors which are imploded to make {\tt const} string values.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{scan} ( const s  )
+{\tt function constant r = std} \ttkey{scan} ( const s  )
 \begin{indpar}
 Scan the string {\tt s} and return a map that is a vector
 containing the list of lexemes in {\tt s}.  Brackets and
@@ -8266,7 +8274,7 @@ Syntax errors produce compiler error messages and
 return {\tt UNDEF}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{parse brackets} ( const s  )
+{\tt function constant r = std} \ttkey{parse brackets} ( const s  )
 \begin{indpar}
 Equivalent to {\tt `{\rm \em value of} s'}.
 See {\em phrase-constants}: \pagref{PHRASE-CONSTANT}.
@@ -8277,7 +8285,7 @@ Syntax errors produce compiler error messages and
 return {\tt UNDEF}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{unparse brackets}
+{\tt function constant r = std} \ttkey{unparse brackets}
 	( const v, const f ?= "\%0.16g"  )
 \begin{indpar}
 Inverse of {\tt parse brackets}.  Return a string $S$ such
@@ -8285,7 +8293,7 @@ that {\tt ` "$S$" '} equals {\tt v} with numeric rounding differences.
 Numbers are printed in $S$ using {\tt f} as a printf format.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{parse} ( const s  )
+{\tt function constant r = std} \ttkey{parse} ( const s  )
 \begin{indpar}
 Equivalent to {\tt \{* {\rm \em value of} s *\}}.
 See {\em expression-constants}: \pagref{EXPRESSION-CONSTANT}.
@@ -8295,7 +8303,7 @@ Syntax errors produce compiler error messages and
 return {\tt UNDEF}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{unparse}
+{\tt function constant r = std} \ttkey{unparse}
 	( const v, const f ?= "\%0.16g"  )
 \begin{indpar}
 Inverse of {\tt parse}.  Return a string $S$ such
@@ -8316,8 +8324,8 @@ be modified.  Each {\em map-constant} makes a separate read-only
 map that can be made read-write permanently or temporarily by
 the following:
 
-{\tt function const r = std} \ttkey{read-write} {\tt ( const m )} \\
-{\tt function const r = std} \ttkey{read-only} {\tt ( const m )}
+{\tt function constant r = std} \ttkey{read-write} {\tt ( const m )} \\
+{\tt function constant r = std} \ttkey{read-only} {\tt ( const m )}
 \begin{indpar}
 Makes the map {\tt m} read-write or read-only and returns {\tt m}.
 
@@ -8328,8 +8336,8 @@ Each map {\em dictionary-entry} can be separately made read-write or
 read-only.  When created, the entry is read-write.  This can be
 changed by the following:
 
-{\tt function const r = std} \ttkey{read-write} {\tt ( const m, const s )} \\
-{\tt function const r = std} \ttkey{read-only} {\tt ( const m, const s )} %
+{\tt function constant r = std} \ttkey{read-write} {\tt ( const m, const s )} \\
+{\tt function constant r = std} \ttkey{read-only} {\tt ( const m, const s )} %
 \label{READ-ONLY-DICTIONARY-FUNCTION}
 \begin{indpar}
 Makes the map label {\tt s} (a string) of the map {\tt m}
@@ -8345,7 +8353,7 @@ permanently read-only or may be written only by the compiler
 during compilation.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{"\#"} {\tt ( const m )}
+{\tt function constant r = std} \ttkey{"\#"} {\tt ( const m )}
 \begin{indpar}
 Returns the length of the vector part of the map {\tt m}
 as a non-negative integer
@@ -8355,7 +8363,7 @@ be above $2^{48}$ while
 Note that {\tt \#} is a prefix operator.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{labels} {\tt ( const m )}
+{\tt function constant r = std} \ttkey{labels} {\tt ( const m )}
 \begin{indpar}
 Returns a list of the {\em dictionary-labels}
 (see \pagref{DICTIONARY-LABEL}) of map {\tt m}.
@@ -8363,7 +8371,8 @@ The {\em dictionary-labels} are strings.  The list may be empty.
 \end{indpar}
 
 
-{\tt reference function const r = std} {\tt ( const m ) [ const s ?=~NONE ]} \\
+{\tt reference function constant r = std}
+    {\tt ( const m ) [ const s ?=~NONE ]} \\
 {\tt reference function std} {\tt ( const m ) [ const s ?=~NONE ] = const v}
 \begin{indpar}
 Here {\tt m} is map and {\tt m[s]} is used to reference a
@@ -8402,8 +8411,8 @@ a compile-error results.
 \end{enumerate}
 \end{indpar}
 
-{\tt function const r = std} \ttkey{copy} {\tt ( const m )} \\
-{\tt function const r = std} \ttkey{copy top} {\tt ( const m )} %
+{\tt function constant r = std} \ttkey{copy} {\tt ( const m )} \\
+{\tt function constant r = std} \ttkey{copy top} {\tt ( const m )} %
 \label{MAP-COPY}
 \begin{indpar}
 Returns a new map whose contents is a copy of the contents of
@@ -8423,14 +8432,15 @@ modifying these element values will change the elements of {\tt m}.
 
 \end{indpar}
 
-{\tt function const r = std} \ttkey{duplicate} {\tt ( const m )} \\
-{\tt function const r = std} \ttkey{duplicate top} {\tt ( const m )}
+{\tt function constant r = std} \ttkey{duplicate} {\tt ( const m )} \\
+{\tt function constant r = std} \ttkey{duplicate top} {\tt ( const m )}
 \begin{indpar}
 Ditto, but if any read-only map is to be copied, the pointer
 to the map is copied and no new map is made.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{slice} {\tt ( const m, const i, const n )}
+{\tt function constant r = std} \ttkey{slice}
+    {\tt ( const m, const i, const n )}
 \begin{indpar}
 If {\tt i >= 0}, returns a new map consisting of just a vector of the
 elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.  
@@ -8443,7 +8453,7 @@ If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
 {\tt \# m + i == 0}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{splice}
+{\tt function constant r = std} \ttkey{splice}
     {\tt ( const m, const i, const n, const v )}
 \begin{indpar}
 If {\tt i >= 0} and {\tt n > 0} (these must be integers),
@@ -8467,7 +8477,7 @@ The edited map {\tt m} is returned.
 
 \end{indpar}
 
-{\tt function const r = std} \ttkey{truncate} {\tt ( const m, const i )}
+{\tt function constant r = std} \ttkey{truncate} {\tt ( const m, const i )}
 \begin{indpar}
 An optimized version of {\tt splice} that removes the elements
 {\tt m[i]}, {\tt m[i+1]}, \ldots, from the end of the vector of {\tt v}.
@@ -8478,30 +8488,30 @@ If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
 all elements of the vector are removed.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{push} {\tt ( const m, const v )}
+{\tt function constant r = std} \ttkey{push} {\tt ( const m, const v )}
 \begin{indpar}
 Appends {\tt v} to the vector of {\tt m} and returns {\tt m}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{push} {\tt ( const m, const v, const i )}
+{\tt function constant r = std} \ttkey{push} {\tt ( const m, const v, const i )}
 \begin{indpar}
 Executes {\tt push(m,v)} {\tt i} times.  It is an error if {\em i}
 is a negative integer.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{append} {\tt ( const m1, const m2 )}
+{\tt function constant r = std} \ttkey{append} {\tt ( const m1, const m2 )}
 \begin{indpar}
 Appends the vector elements of the map {\tt m2} to the vector of {\tt m1}
 and returns {\tt m1}.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{pop} {\tt ( const m )}
+{\tt function constant r = std} \ttkey{pop} {\tt ( const m )}
 \begin{indpar}
 Deletes the last vector element of {\tt m} and returns it.
 Returns {\tt NONE} if {\tt m} is empty.
 \end{indpar}
 
-{\tt function const r = std} \ttkey{pop} {\tt ( const m, const i )}
+{\tt function constant r = std} \ttkey{pop} {\tt ( const m, const i )}
 \begin{indpar}
 Deletes the last {\tt i} vector elements of {\tt m} and returns a map
 containing them in the same order.
@@ -8753,14 +8763,14 @@ The {\tt std} module defines the following {\tt const} maps and functions:
 {\tt const std exception ID map = \{ "NONE" \} } \\
 {\tt const std trace ID map = \{ \}}
 
-{\tt function const r = std new exception ID ( const name ) }%
+{\tt function constant r = std new exception ID ( const name ) }%
 \label{NEW-EXCEPTION-ID}
 \begin{indpar}
 A call to this function pushes {\tt name} to the end of
 {\tt std exception ID map} and returns the new length of the map minus 1.
 \end{indpar}
 
-{\tt function const r = std new trace ID ( const name ) }%
+{\tt function constant r = std new trace ID ( const name ) }%
 \label{NEW-TRACE-ID}
 \begin{indpar}
 A call to this function pushes {\tt name} to the end of
