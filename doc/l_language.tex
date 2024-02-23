@@ -8256,7 +8256,7 @@ subpattern matches, {\tt r[i]} is the string matched by the
 {\tt i}'th subpattern.
 
 During matching {\tt s} is stored as an exploded vector of
-unsigned 32-bit unicode values.  Substrings matched are
+unsigned 32-bit unicode values.  Matched strings are
 subvectors which are imploded to make {\tt const} string values.
 \end{indpar}
 
@@ -8276,7 +8276,7 @@ return {\tt UNDEF}.
 
 {\tt function constant r = std} \ttkey{parse brackets} ( const s  )
 \begin{indpar}
-Equivalent to {\tt `{\rm \em value of} s'}.
+Equivalent to {\tt `{\rm \em value-of-}s'}.
 See {\em phrase-constants}: \pagref{PHRASE-CONSTANT}.
 
 Specifically, parse the string {\tt s} recognizing brackets
@@ -8295,7 +8295,7 @@ Numbers are printed in $S$ using {\tt f} as a printf format.
 
 {\tt function constant r = std} \ttkey{parse} ( const s  )
 \begin{indpar}
-Equivalent to {\tt \{* {\rm \em value of} s *\}}.
+Equivalent to {\tt \{* {\rm \em value-of-}s *\}}.
 See {\em expression-constants}: \pagref{EXPRESSION-CONSTANT}.
 
 Specifically, parse the string {\tt s} and return a map.
