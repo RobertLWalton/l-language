@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 23, 2024
+February 24, 2024
 
 \bigskip
  
@@ -8321,8 +8321,9 @@ changed by the following:
 \label{READ-ONLY-DICTIONARY-FUNCTION}
 \begin{indpar}
 Makes the map label {\tt s} (a string) of the map {\tt m}
-read-write or read-only, and returns {\tt m}.  The map
-itself may be read-only or read-write.
+read-write or read-only, and returns {\tt m}.  The dictionary entry
+labelled {\tt s} in the map {\tt m} can be written if it is
+read-write and the whole map is separately read-write.
 
 When a value is first written at a label, the label is created
 for the map and set to read-write.
@@ -8359,8 +8360,7 @@ The {\em dictionary-labels} are strings.  The list may be empty.
 Here {\tt m} is map and {\tt m[s]} is used to reference a
 vector element or dictionary entry of {\tt m} as follows:
 \begin{enumerate}
-\item If the value of {\tt s} is a non-negative integer number
-(and \underline{not} a rational),
+\item If the value of {\tt s} is a non-negative non-rational integer number,
 the {\tt s}+1'st element
 of the vector of {\tt m} is referenced.  If this is being read and
 it does not exist, {\tt NONE} is returned and there is no compile
@@ -8368,7 +8368,7 @@ error.
 If the element is being written but does not exist, or the map
 is read-only, a compile error results; otherwise the element
 value is changed.
-\item If the value of {\tt s} is a negative integer,
+\item If the value of {\tt s} is a negative non-rational integer,
 {\tt s} is replaced by {\tt \# m + s}, and things
 are as in the last paragraph (note {\tt \# m + s < \# m}).  The element
 does not exist if {\tt \# m + s < 0}.
@@ -8387,7 +8387,7 @@ of {\tt m} and returns the value popped (as in `{\tt v = m[]}'),
 or just returns {\tt NONE} if the vector is empty,
 and writing pushes the value written to the end of the vector of {\tt m}
 (as in `{\tt m[] = v}').
-\item Otherwise if {\tt s} is neither an integer or a string,
+\item Otherwise if {\tt s} is neither a non-rational integer or a string,
 a compile-error results.
 \end{enumerate}
 \end{indpar}
@@ -8423,36 +8423,54 @@ to the map is copied and no new map is made.
 {\tt constant function const r = std} \ttkey{slice}
     {\tt ( const m, const i, const n )}
 \begin{indpar}
-If {\tt i >= 0}, returns a new map consisting of just a vector of the
+{\tt i} and {\tt n} must be non-rational integers.
+
+If {\tt i < 0} then {\tt i} is replaced by {\tt \# m + i} before the
+following is done.
+
+Then if {\tt n > 0}, returns a new map consisting of just a vector of the
 elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.  
 If any of these elements do not exist, they are omitted (e.g.,
-if {\tt i >= \# m} or {\tt i + n <= 0} or {\tt n <= 0}
-the empty map is returned).
+if {\tt i >= \# m} or {\tt i + n <= 0} the empty map is returned).
 
-If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
-{\tt i} is incremented by 1 and {\tt n} decremented by 1 until 
-{\tt \# m + i == 0}.
+If {\tt n == 0 } the empty map is returned.
+
+If {\tt n < 0} the elements returned are
+{\tt m[i+n]}, {\tt m[i+n+1]}, \ldots, {\tt m[i-1]}.
+
 \end{indpar}
 
 {\tt constant function const r = std} \ttkey{splice}
     {\tt ( const m, const i, const n, const v )}
 \begin{indpar}
-If {\tt i >= 0} and {\tt n > 0} (these must be integers),
+{\tt i} and {\tt n} must be non-rational integers.
+
+If {\tt i < 0} then {\tt i} is replaced by {\tt \# m + i} before the
+following is done.
+
+Then if {\tt n > 0},
 edits {\tt m} by replacing the vector element sequence
 {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]} by the
 vector elements of {\tt v}.  Dictionary elements of {\tt v} are ignored;
 dictionary elements of {\tt m} are unchanged.
 
-If {\tt i >= \# m} the elements of {\tt v} are pushed to the end of {\tt m}.
+If {\tt n == 0}
+the elements of {\tt v} are pushed into {\tt m}
+just after {\tt m[i]}.
 
-Else if {\tt n <= 0}, the elements of {\tt v} are inserted before {\tt m[i]}.
+If {\tt n < 0} the elements replaced are 
+{\tt m[i+n]}, {\tt m[i+n+1]}, \ldots, {\tt m[i-1]}.
 
-Else if {\tt i + n > \# m}, {\tt n} is decreased until {\tt i + n == \# m}.
+The elements being replaced need not (all) exist.  {\tt m} is thought
+of as an infinite sequence of existing and non-existing elements indexed
+by integers, including negative integers.  The members of
+{\tt m} to be removed are made non-existant,
+then the elements of {\tt v} are pushed
+into the sequence, and then non-existant elements are deleted.
 
-If {\tt i} < 0 it is replaced by {\tt \# m + i}.  If {\tt \# m + i < 0},
-{\tt i} is incremented by 1 and {\tt n} decremented by 1 until 
-{\tt \# m + i == 0}, and then if {\tt n <= 0} the vector elements are
-inserted at the beginning of the vector.
+So if {\tt i >= \# m} and {\tt n >= 0} then the elements of {\tt v}
+are appended to {\tt m}, and if {\tt i = -1} and {\tt n <= 0}, the
+elements of {\tt v} are prepended to {\tt m}.
 
 The edited map {\tt m} is returned.
 
@@ -8478,8 +8496,8 @@ Appends {\tt v} to the vector of {\tt m} and returns {\tt m}.
 {\tt constant function const r = std} \ttkey{push}
     {\tt ( const m, const v, const i )}
 \begin{indpar}
-Executes {\tt push(m,v)} {\tt i} times.  It is an error if {\em i}
-is a negative integer.
+Executes {\tt push(m,v)} {\tt i} times.  {\tt i} must be a
+non-rational, non-negative integer.
 \end{indpar}
 
 {\tt constant function const r = std} \ttkey{append}
@@ -8501,6 +8519,7 @@ Deletes the last {\tt i} vector elements of {\tt m} and returns a map
 containing them in the same order.
 If there are fewer than {\tt i} vector elements
 in {\tt m}, the returned vector will have only {\tt \# m} elements.
+{\tt i} must be a non-rational, non-negative integer.
 \end{indpar}
 
 \subsection{Type, Field, Subfield, and Pointer Type Maps}
