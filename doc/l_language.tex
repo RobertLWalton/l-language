@@ -8710,6 +8710,47 @@ of the dictionary entries are the names of the subfields.
 Empty if there are no subfields.
 \end{indpar}
 
+Example:
+\begin{indpar}\begin{verbatim}
+type my type:
+    int32 X[4,3]
+    av *READ-WRITE* flt @Y
+
+// The value of the global const variable `my type' is:
+{ .type => "type",
+  .name => "my type",
+  .size => 128,
+  .alignment => 64,
+  .expandable => FALSE,
+  .external => FALSE,
+  .fields => {
+      { .type => "field",
+        .name => "X",
+        .parent => my type, // Note absence of quotes
+        .offset => 0,
+        .pointer-type => NONE,
+        .pointer-qualifiers => {},
+        .field type => int32, // Note absence of quotes
+        .qualifiers => {},
+        .dimensions => {4, 3},
+        .subfields => {}
+      },
+      { .type => "field",
+        .name => "@Y",
+        .parent => my type,  // Note absence of quotes
+        .offset => 384,      // 12 * 32
+        .pointer-type => av, // Note absence of quotes
+        .pointer-qualifiers => {},
+        .field type => flt, // Note absence of quotes
+        .qualifiers => { "*READ-WRITE*" },
+        .dimensions => {},
+        .subfields => {}
+      }
+  }
+}
+
+\end{verbatim}\end{indpar}
+
 \subsubsection{Subfield Maps}
 \label{SUBFIELD-MAPS}
 
