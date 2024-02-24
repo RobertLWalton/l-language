@@ -8561,10 +8561,14 @@ module or body a definition appears in.
 
 {\tt com module dictionary}
 \begin{indpar}
-A dictionary mapping compiler module abbreviations
-to strings that are {\em module-names}.  For example,
-\\
-\hspace*{1.5in}{\tt com module dictionary["M\$0"] == "standard"}
+A dictionary mapping compiler module abbreviation numbers
+to strings that are {\em mod\-ule-names}.  Specifically:
+{\tt com module dictionary[$n$] == "$N$"}
+means {\tt M\$$n$ \rm{maps to} $N$}.
+For example,
+\\[0.5ex]
+\hspace*{1.5in}{\tt com module dictionary[0] == "standard"}
+
 \end{indpar}
 
 \subsubsection{Type Maps}
@@ -8626,6 +8630,17 @@ Will be empty if a type has no fields, or if the type is
 currently {\tt *DEFERRED*} and not yet defined by the
 compilation.
 \end{indpar}
+
+Example:
+\begin{indpar}\begin{verbatim}
+int64 = { .type => "type",
+          .name => "int",
+          .size => 64,
+          .alignment => 64,
+          .expandable => FALSE,
+          .external => FALSE,
+          .fields => {} }
+\end{verbatim}\end{indpar}
 
 \subsubsection{Field Maps}
 \label{FIELD-MAPS}
