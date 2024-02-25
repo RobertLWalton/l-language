@@ -2720,23 +2720,19 @@ The syntax of {\em reference-expressions} is:
 \\[0.5ex]
 {\em reference-call} ::= see \pagref{REFERENCE-CALL}
 \begin{itemize}
-\item The parenthese surrounding a {\em reference-expression}
+\item The parentheses surrounding a {\em reference-expression}
 may be implied.
-\item An {\em expression} that does \underline{not} begin with
-an explicitly or implicitly parenthesized subexpression or a
-{\em module-abbreviation} followed by such a subexpression is
-either a {\em reference-expression}
-beginning with a {\em variable-name}\pagnote{VARIABLE-NAME}
-or `\TT{next} {\em variable-name}'
-or a {\em function-call}\pagnote{FUNCTION-CALL}
-beginning with a {\em function-term-name} possibly
-preceeded by a {\em module-abbreviation}.
 \item
-An {\em expression} that begins with a {\em variable-name}
+An {\em expression} with no operators that begins with a {\em variable-name}
 or `\TT{next} {\em variable-name}'
-or an explicitly or implicitly parenthesized {\em reference-expression}
+or an explicitly or implicitly parenthesized {\em expression}
+followed by a `\TT{[}' or a {\em member-name} and
 possibly preceeded by a {\em module-abbreviation}
 is a {\em reference-expression}.
+
+Otherwise an {\em expression} with no operators is a
+(non-reference) {\em function-call}, unless it has a single element
+that is an explicitly or implicitly parenthesized subexpression.
 \end{itemize}
 \end{indpar}
 
