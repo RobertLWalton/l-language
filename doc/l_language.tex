@@ -2666,7 +2666,7 @@ a \key{base} that is a smaller {\em reference-expression},
 and an \key{offset} that follows the base with
 a \TT{[} or {\em member-name}.  If the {\em reference-expression}
 is a {\em reference-call} (see below), the base may be parenthesized
-and preceeded by a {\em module-abbreviation}.
+and preceded by a {\em module-abbreviation}.
 
 So a {\em reference-expression} begins with a {\em variable-name} or
 `\TT{next} {\em variable-name}' that may only
@@ -2724,15 +2724,16 @@ The syntax of {\em reference-expressions} is:
 may be implied.
 \item
 An {\em expression} with no operators that begins with a {\em variable-name}
-or `\TT{next} {\em variable-name}'
+or `\TT{next} {\em vari\-able-name}'
 or an explicitly or implicitly parenthesized {\em expression}
 followed by a `\TT{[}' or a {\em member-name} and
-possibly preceeded by a {\em module-abbreviation}
+possibly preceded by a {\em module-abbreviation}
 is a {\em reference-expression}.
 
 Otherwise an {\em expression} with no operators is a
-(non-reference) {\em function-call}, unless it has a single element
-that is an explicitly or implicitly parenthesized subexpression.
+(non-reference) {\em function-call}, unless it consists of just
+an explicitly or implicitly parenthesized subexpression optionally
+preceded by a {\em module-abbreviation}.
 \end{itemize}
 \end{indpar}
 
@@ -3224,7 +3225,7 @@ A {\em loop-assignment-statement} is similar to a
 by {\em next-variable-declarations} are reallocated for each iteration
 of the loop, and the value given by the previous iteration can be
 read by the current iteration using the {\em variable-name}
-(without a preceeding `{\tt next}').
+(without a preceding `{\tt next}').
 Non-{\tt next} variables are allocated only at the start of the
 {\em loop-assignment-statement}, and are {\tt *INIT*} (and not readable)
 throughout all iterations.
@@ -3533,7 +3534,7 @@ a \underline{subsequent} {\em exit-subblock} or exit any of its containing
 {\em block-assignment-statements} by using that block's {\em block-label}.
 
 An {\em exception-subblock} is entered if any
-preceeding {\em statement} in the {\em block-assignment-state\-ment}
+preceding {\em statement} in the {\em block-assignment-state\-ment}
 executes a:
 \begin{indpar}
 \emkey{throw-statement}\label{THROW-STATEMENT} ::=
@@ -5623,15 +5624,15 @@ a particular {\em function-call} matches a particular
 \item\label{CALL-PROTOTYPE-MODULE-ABBREVIATION}
 If the call begins with a {\em module-abbreviation}
 and the {\em prototype-pattern} in the {\em function-declaration}
-either does not have a preceeding {\em module-abbreviation},
-or is preceeded by one that names a different module from that of the call,
+either does not have a preceding {\em module-abbreviation},
+or is preceded by one that names a different module from that of the call,
 the call-declaration match fails.
 
 If the {\em function-call} begins with a {\em module-abbreviation}
-and {\em prototype-pattern} is preceeded by a {\em module-abbreviation}
+and {\em prototype-pattern} is preceded by a {\em module-abbreviation}
 identifying the same module, or
 if the {\em function-call} does not begin with a {\em module-abbreviation}
-and {\em prototype-pattern} is not preceeded by a {\em module-abbreviation}
+and {\em prototype-pattern} is not preceded by a {\em module-abbreviation}
 (both are non-external),
 the match is marked as \key{module proficient}\label{MODULE-PROFICIENT}.
 
@@ -5676,12 +5677,12 @@ implicit {\tt (~)} brackets).
 If none of these is found at some point in the scan,
 the call-declaration match fails.  If a {\em function-term-name} is
 found more than once, the call-declaration match fails.
-Every `{\tt no}' and `{\tt not}' must immediately preceed a
+Every `{\tt no}' and `{\tt not}' must immediately preced a
 {\em function-term-name}, else the call-declaration match fails.
 
 If the scan succeeds, the {\em function-call} is divided into
 {\em call-terms}, each beginning with a {\em function-term-name}
-possibly preceeded by `{\tt no}' or `{\tt not}', and ending with
+possibly preceded by `{\tt no}' or `{\tt not}', and ending with
 argument lists (that may be omitted).
 If there are argument lists before the first {\em function-term-name}
 (in the key), the situation is treated as
@@ -6222,7 +6223,7 @@ A {\em reference-call} is built by extending its base
 with either a {\tt [~]} bracketed {\em index}
 or a {\em member-name} optionally followed by other
 arguments and call terms.  The base may be parenthesized, and
-if it is, must be preceded by a {\em module-abbreviation} that
+if it is, may be preceded by a {\em module-abbreviation} that
 specifies the module of the corresponding {\em reference-function-declaration}.
 
 {\em Reference-calls} are similar to (non-reference) {\em function-calls},
@@ -6367,7 +6368,7 @@ a {\em member-name}\pagnote{MEMBER-NAME} or square-bracketed
 \item
 The first actual argument in a {\em reference-call} is a
 smaller {\em reference-expression} that has already been deliminated.
-It is surrounded by parentheses {\tt (~)} if and only if it is preceeded by
+It is surrounded by parentheses {\tt (~)} if and only if it is preceded by
 the {\em module-abbreviation} of the {\em reference-call}
 \item
 The {\em reference-pattern-argument} in the prototype cannot
