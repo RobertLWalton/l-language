@@ -4894,7 +4894,7 @@ The syntax of a function declaration is:
 	& \TT{~~~~~} {\em input-argument-list} \\
     \end{tabular}
 \\[2ex]
-\emkey{function-specializer} ::=
+\emkey{function-specializer}\label{FUNCTION-SPECIALIZER} ::=
 	\TT{macro} $|$ \TT{constant} $|$ \TT{inclusion}
 \\[2ex]
 \emkey{prototype-result-list}\label{PROTOTYPE-RESULT-LIST} ::= \\
@@ -6302,15 +6302,17 @@ The syntax of a {\em reference-function-declaration} is:
 \emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} \\
 \hspace*{0.25in}
     \begin{tabular}[t]{rl}
-        ::= & \ttkey{reference function} \\
+        ::= & {\em function-specializer} \ttkey{reference function} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~ \\
             & \TT{~~~~~~~~}{\em module-abbreviation}\QMARK{}~
 	      {\em reference-prototype-pattern} \\
-        $|$ & \ttkey{reference function} \\
+        $|$ & {\em function-specializer} \ttkey{reference function} \\
             & \TT{~~~~}{\em module-abbreviation}\QMARK{}~
 	      {\em reference-prototype-pattern}~ \TT{=}~ \\
 	    & \TT{~~~~~~~~}{\em input-argument-list}
     \end{tabular}
+\\[0.5ex]
+{\em function-specializer} ::= see \pagref{FUNCTION-SPECIALIZER}
 \\[0.5ex]
 {\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
@@ -6360,6 +6362,8 @@ The rules for a {\em function-declaration}
 (\pagref{FUNCTION-DECLARATION-RULES})
 apply where applicable to a {\em reference-function-declaration},
 with exceptions as indicated here.
+\item Only the {\tt macro} and {\tt constant} {\em function-specializers}
+are allowed ({\tt inclusion} is not allowed).
 \item
 The {\em reference-pattern-argument} must be
 followed by
