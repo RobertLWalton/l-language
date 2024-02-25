@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 24, 2024
+February 25, 2024
 
 \bigskip
  
@@ -2704,6 +2704,7 @@ The syntax of {\em reference-expressions} is:
     $|$ & {\em reference-expression} \TT{[} {\em index-list} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     $|$ & {\em reference-call} \\
+    $|$ & \TT{(} {\em reference-expression} \TT{)} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{index-list} ::= {\em index} \{ \TT{,} {\em index} \}\STAR{}
@@ -2718,6 +2719,25 @@ The syntax of {\em reference-expressions} is:
 {\em member-name} ::= see \pagref{MEMBER-NAME}
 \\[0.5ex]
 {\em reference-call} ::= see \pagref{REFERENCE-CALL}
+\begin{itemize}
+\item The parenthese surrounding a {\em reference-expression}
+may be implied.
+\item An {\em expression} that does \underline{not} begin with
+an explicitly or implicitly parenthesized subexpression or a
+{\em module-abbreviation} followed by such a subexpression is
+either a {\em reference-expression}
+beginning with a {\em variable-name}\pagnote{VARIABLE-NAME}
+or `\TT{next} {\em variable-name}'
+or a {\em function-call}\pagnote{FUNCTION-CALL}
+beginning with a {\em function-term-name} possibly
+preceeded by a {\em module-abbreviation}.
+\item
+An {\em expression} that begins with a {\em variable-name}
+or `\TT{next} {\em variable-name}'
+or an explicitly or implicitly parenthesized {\em reference-expression}
+possibly preceeded by a {\em module-abbreviation}
+is a {\em reference-expression}.
+\end{itemize}
 \end{indpar}
 
 A {\em reference-call} is a call to a reference function.
