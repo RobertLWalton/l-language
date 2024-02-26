@@ -2664,14 +2664,15 @@ More complex {\em reference-expressions}
 are called \key{compound} and consists of two parts:
 a \key{base} that is a smaller {\em reference-expression},
 and an \key{offset} that follows the base with
-a \TT{[} or {\em member-name}.  If the {\em reference-expression}
-is a {\em reference-call} (see below), the base may be parenthesized
-and preceded by a {\em module-abbreviation}.
+a \TT{[} or {\em member-name}.  The base may be parenthesized, and
+if parenthesized, may be
+preceded by a {\em module-abbreviation} that is part of a
+{\em reference-call}.
 
 So a {\em reference-expression} begins with a {\em variable-name} or
 `\TT{next} {\em variable-name}' that may only
-be preceded (and only in the case of a {\em reference-call})
-by left parentheses and {\em module-abbreviations}.
+be preceded
+by explicit or implicit left parentheses and {\em module-abbreviations}.
 The {\em variable-name} or `\TT{next} {\em variable-name}'
 is called the \key{root} of the {\em reference-expression}.
 
@@ -2731,9 +2732,12 @@ possibly preceded by a {\em module-abbreviation}
 is a {\em reference-expression}.
 
 Otherwise an {\em expression} with no operators is a
-(non-reference) {\em function-call}, unless it consists of just
+(non-reference) {\em function-call}\pagnote{FUNCTION-CALL}
+or {\em constant}\pagnote{CONSTANT},
+unless it consists of just
 an explicitly or implicitly parenthesized subexpression optionally
-preceded by a {\em module-abbreviation}.
+preceded by a {\em module-abbreviation}
+(see \pagref{MA-SYNTACTIC-SUGAR} for more information about this case).
 \end{itemize}
 \end{indpar}
 
@@ -2807,6 +2811,7 @@ are computed from the base and field qualifiers as per the
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}%
 
 \begin{boxedfigure}[!t]
+\newcommand{\tts}{\tt \small}
 \begin{center}
 Reference Expression Result \\
 Pointer Target or Value Qualifiers \\
@@ -2817,19 +2822,20 @@ Given Base and Field Qualifiers
 \multicolumn{1}{l}{Access}	& \multicolumn{5}{c}{Field Access Qualifier}
 \\\cline{2-6}
 \multicolumn{1}{l|}{Qualifier}
-	& (none) & \tt co & \tt ro & \tt *READ-WRITE* & \tt *WRITE-ONLY*
+       & (none) & \tt co & \tt ro & \tts *READ-WRITE* & \tts *WRITE-ONLY*
 \\\hline
 \tt co & \tt co & \tt co & \tt co & \tt co & (illegal)
 \\\hline
-\tt ro & \tt co & \tt co & \tt ro & \tt ro & (illegal)
+\tt ro & \tt ro & \tt co & \tt ro & \tt ro & (illegal)
 \\\hline
-\tt *READ-WRITE* & \tt co & \tt co & \tt ro & \tt *READ-WRITE*
-						      & \tt *WRITE-ONLY*
+\tts *READ-WRITE* & \tts *READ-WRITE* & \tt co & \tt ro & \tts *READ-WRITE*
+		  & \tts *WRITE-ONLY*
 \\\hline
-\tt *WRITE-ONLY* & (illegal) & (illegal) & (illegal) & \tt *WRITE-ONLY*
-						      & \tt *WRITE-ONLY*
+\tts *WRITE-ONLY* & \tts *WRITE-ONLY* & (illegal) & (illegal)
+                 & \tts *WRITE-ONLY* & \tts *WRITE-ONLY*
 \\\hline
-\tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT* & \tt *INIT*
+\tts *INIT* & \tts *INIT* & \tts *INIT* & \tts *INIT* & \tts *INIT*
+            & \tts *INIT*
 \\\hline
 \end{tabular}
 \\[1ex]
@@ -2920,6 +2926,9 @@ The syntax of function calls is:
 \item {\em Call-term-names} cannot be abbreviated.
 \item {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
 equivalent to `{\tt x(FALSE)}'.
+\item {\em Call-argument-lists} are explicitly or implicitly
+\TT{(~)} parenthesized,
+as opposed to {\em reference-call-argument-lists}\pagnote{REFERENCE-CALL-ARGUMENT-LIST} that are \TT{[~]} square bracketed.
 \end{itemize}
 \end{indpar}
 
