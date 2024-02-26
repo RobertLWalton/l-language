@@ -5401,16 +5401,20 @@ bases `{\tt x}' and `{\tt x[3,4]}').
 \centerline{\bf Bottom-Up Expression Algorithm}
 \begin{enumerate}
 
+\item This algorithm is applied to an {\em expression} $E$ found by
+bottom-to-top left-to-right transversal of the {\em expressions} of the
+current statement.
+
 \item\label{CONSTANT-STEP}
-If the {\em expression} is a {\em constant}\pagnote{CONSTANTS} other than
-a {\em rational-constant}, evaluate
-the {\em expression} to a {\tt const} value $C$, annotate the
+If $E$ is a {\em constant}\pagnote{CONSTANTS} other than
+a {\em rational-constant}, evaluate $E$
+to a {\tt const} value $C$, annotate the
 {\em expression} with $C$, and terminate this algorithm.
 ({\em Rational-constants} are evaluated as {\em function-calls} to
 a {\tt constant} function in Step~\ref{CONSTANT-FUNCTION-STEP} below.)
 
 \item\label{MODULE-PROPAGATION-STEP}
-If the {\em expression} has the form: \\
+If $E$ has the form: \\
 \hspace*{2in}{\em module-abbreviation} \TT{(} {\em subexpression} \TT{)} \\
 where the parentheses may \underline{not}
 be implied, move the {\em module-abbreviation}
@@ -5418,78 +5422,61 @@ to the beginning of the \underline{parsed} {\em subexpression}, and
 go to the next step.
 See \pagref{MA-SYNTACTIC-SUGAR} for an example.
 
-\item\label{CONSTANT-REFERENCE-STEP}
-If the {\em expression} is a
+\item\label{MACRO-REFERENCE-FUNCTION-STEP}
+If $E$ is a \underline{compound}
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
-root is a {\tt const} type {\em variable},
-evaluate the {\em expression} to a {\tt const} value $C$, annotate the
-{\em expression} with $C$, and terminate this algorithm.
+base is annotated with a {\tt const} value, search for {\tt macro}
+{\em reference-function-declarations} matching $E$.  If one is found,
+evaluate the declaration's function to get a {\tt const} value $R$,
+replace $E$ by $R$, and go to Step 1.
 
-\item If the {\em expression} is a {\em function-call},
-search for \underline{macro} {\em function-declarations}
-that match the {\em function-call}
-(see Call-Declaraton Matching Algorithm below).
-If there are 0, go to the next step in this algorithm.
-If there are more than 1, discard all but those of the highest rank.
-If there still are more than 1,
-it is a compile error; terminate this algorithm.
+\item\label{CONSTANT-REFERENCE-FUNCTION-STEP}
+If $E$ is a \underline{compound}
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
+base is annotated with a {\tt const} value, search for {\tt constant}
+{\em reference-function-declarations} matching $E$.  If one is found,
+evaluate the declaration's function to get a {\tt const} value $C$,
+annotate $E$ with $C$, and terminate this algorithm.
 
-Otherwise execute in the compiler the function defined by the found
-{\em function-declara\-tion}
-and replace the {\em function-call} by the result, which must be a {\em const}
-value representing a \underline{parsed} {\em expression}. Then go back to the
-beginning of this algorithm to process the replacement.
+\item\label{CONSTANT-REFERENCE-STEP}
+If $E$ is a (simple or compound)
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
+base is annotated with a {\tt const} type {\em variable},
+evaluate $E$ to a {\tt const} value $C$, annotate $E$
+with $C$, and terminate this algorithm.
+
+\item From this point on in this algorithm, the {\em expression} $E$
+is by necessity a {\em function-call}.
+
+\item\label{MACRO-FUNCTION-STEP}
+Search for \underline{macro} {\em function-declarations}
+matching $E$.  If one is found,
+evaluate the declaration's function to get a {\tt const} value $R$,
+replace $E$ by $R$, and go to Step 1.
 
 \item\label{CONSTANT-FUNCTION-STEP}
-If the {\em expression} is a {\em function-call},
-search for \underline{constant} {\em function-declarations}
-that match the {\em function-call}
-(see Call-Declaration Matching Algorithm below).
-If there are 0, go to the next algorithm step.
-If there are more than 1, discard all but those of the highest rank.
-If there are still more than 1, it is a compile error; terminate this algorithm.
+Search for \underline{constant} {\em function-declarations}
+matching $E$.  If one is found,
+evaluate the declaration's function to get a {\tt const} value $C$,
+annotate $E$ with $C$, and terminate this algorithm.
 
-Otherwise execute in the compiler the function defined by the found
-{\em function-declara\-tion}.
-
-If the {\em function-call} is the top level {\em function-call} in a
-{\em call-assignment-statement}, and if the {\em call-assignment-statement}
-has $N$ {\em assignment-results} (all of which must be {\tt const} variables),
-then each {\em function-declaration} prototype must return at
-least $N$ results (all of which must be {\tt const} values).
-Assign these in order to the {\em assignment-results}
-(excess results are discarded), and terminate this algorithm.
-
-Otherwise annotate the {\em expression} with the first {\tt const} value
-returned by the evaluated function
-(as in Steps \ref{CONSTANT-STEP} and \ref{CONSTANT-REFERENCE-STEP})
-and terminate this algorithm.
-
-\item If the {\em expression} is a {\em function-call}
-that is the top level {\em function-call} in a
-{\em call-assignment-statement},
+\item\label{INCLUSION-FUNCTION-STEP}
+If $E$ is a {\em function-call}
+that is top level in a {\em call-assignment-statement} $S$,
 search for \underline{inclusion} {\em function-declarations}
-that match the {\em func\-tion-call}
-(see Call-Declaration Matching Algorithm below).
-If there are 0, terminate this algorithm.
-If there are more than 1, discard all but those of the highest rank.
-If there are still more than 1, it is a compile error; terminate this algorithm.
+matching $E$.  If \underline{none} is found, terminate this algorithm.
 
-Otherwise execute in the compiler the function defined by the found
-{\em function-declara\-tion}.
+Otherwise evaluate the declaration's function to {\tt const} return values.
+The first return value replaces $S$ (not $E$).
 
-If the {\em call-assignment-statement}
+Subsequent return values are assigned to $S$'s {\em assignment-results}
+in left-to-right order.
+Thus if $S$
 has $N$ {\em assignment-results} (all of which must be {\tt const} variables),
 then the execution must return at
 least $N+1$ results (all of which must be {\tt const} values).
-Assign all returned results
-but the first in order to the {\em assignment-results}
-(excess results are discarded).
-
-Then replace the entire
-{\em call-assignment-statement} by the list of parsed {\em statements}
-(see Section~\itemref{INCLUSIONS})
-that is the first returned result.
+If there are excess results, discard them.  If there are too few,
+it is a compile error.
 
 \end{enumerate}
 
