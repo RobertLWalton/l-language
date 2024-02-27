@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 26, 2024
+February 27, 2024
 
 \bigskip
  
@@ -5391,18 +5391,21 @@ according to section \itemref{REFERENCE-CALL-DECLARATION-MATCHING}.
 The first step in processing
 a {\em statement} is to visit in bottom-to-top left-to-right order
 all the {\em expressions} in the {\em statement} and apply the following
-algorithm.  Here {\em expressions} include those discovered using operators
-and {\em reference-expressions}, including those that are bases for
+algorithm which only executes functions that generate \underline{no}
+run-time code.  Here {\em expressions} include those discovered using operators
+plus {\em reference-expressions} that are bases for
 larger {\em reference-expressions} (e.g., `{\tt x[3,4].weight}' has
-bases `{\tt x}' and `{\tt x[3,4]}').  {\em Reference-expressions} are
+bases `{\tt x}' and `{\tt x[3,4]}').
+
+{\em Reference-expressions} are
 further divided into \key{left} (of \TT{=}) and \key{right} (of \TT{=}).
 Right {\em reference-expressions} are evaluated to produce a value.
-Left {\em reference-expressions} are evaluated to produce a storage location
-into which a value may be stored.  Note that the basis of a compound left
-{\em reference-expression} is itself a right {\em reference-expression}.
-As the first step concerns only {\tt const} values, the only locations
-are variables in the compiler function execution stack and map-index
-pairs.
+Left {\em reference-expressions} are \underline{not} evaluated by this
+first step, but may be used to store {\tt const} values during and after this
+first step.  Note that the basis of a compound left
+{\em reference-expression} is itself a right {\em reference-expression},
+so after the first step left {\em reference-expressions} will either
+be variable names or compound with a known map as base and known indices.
 
 \bigskip
 
@@ -5439,7 +5442,7 @@ evaluate the declaration's function to get a {\tt const} value $R$,
 replace $E$ by $R$, and go to Step 1.
 
 \item\label{CONSTANT-REFERENCE-FUNCTION-STEP}
-If $E$ is a \underline{compound}
+If $E$ is a \underline{right} \underline{compound}
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
 base is annotated with a {\tt const} value, search for {\tt constant}
 {\em reference-function-declarations} matching $E$.  If one is found,
@@ -5448,8 +5451,8 @@ annotate $E$ with $C$, and terminate this algorithm.
 
 \item\label{CONSTANT-REFERENCE-STEP}
 If $E$ is a (simple or compound)
-{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
-base is annotated with a {\tt const} type {\em variable},
+\underline{right} {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS}
+whose base is annotated with a {\tt const} type {\em variable},
 evaluate $E$ to a {\tt const} value $C$, annotate $E$
 with $C$, and terminate this algorithm.
 
