@@ -5391,8 +5391,10 @@ according to section \itemref{REFERENCE-CALL-DECLARATION-MATCHING}.
 The first step in processing
 a {\em statement} is to visit in bottom-to-top left-to-right order
 all the {\em expressions} in the {\em statement} and apply the following
-algorithm which only executes functions that generate \underline{no}
-run-time code.  Here {\em expressions} include those discovered using operators
+{\em expression} evaluation algorithm
+which only executes functions that generate \underline{no}
+run-time code and necessarily return {\tt cons} results.
+Here {\em expressions} include those discovered using operators
 plus {\em reference-expressions} that are bases for
 larger {\em reference-expressions} (e.g., `{\tt x[3,4].weight}' has
 bases `{\tt x}' and `{\tt x[3,4]}').
@@ -5401,10 +5403,11 @@ bases `{\tt x}' and `{\tt x[3,4]}').
 further divided into \key{left} (of \TT{=}) and \key{right} (of \TT{=}).
 Right {\em reference-expressions} are evaluated to produce a value.
 Left {\em reference-expressions} are \underline{not} evaluated by this
-first step, but may be used to store {\tt const} values during and after this
+first step, but may be used to store {\tt const} values after this
 first step.  Note that the basis of a compound left
 {\em reference-expression} is itself a right {\em reference-expression},
-so after the first step left {\em reference-expressions} will either
+so after the first step left {\em reference-expressions} storing {\tt const}
+values will either
 be variable names or compound with a known map as base and known indices.
 
 \bigskip
@@ -5450,9 +5453,11 @@ evaluate the declaration's function to get a {\tt const} value $C$,
 annotate $E$ with $C$, and terminate this algorithm.
 
 \item\label{CONSTANT-REFERENCE-STEP}
-If $E$ is a (simple or compound)
-\underline{right} {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS}
-whose base is annotated with a {\tt const} type {\em variable},
+If $E$ is a simple \underline{right}
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
+or a compound \underline{right}
+{\em reference-expression} whose base has been annotated with a {\tt const}
+value,
 evaluate $E$ to a {\tt const} value $C$, annotate $E$
 with $C$, and terminate this algorithm.
 
