@@ -5389,12 +5389,20 @@ rules of this section are modified when matching
 according to section \itemref{REFERENCE-CALL-DECLARATION-MATCHING}.
 
 The first step in processing
-a {\em statement} is to visit in bottom-up order
+a {\em statement} is to visit in bottom-to-top left-to-right order
 all the {\em expressions} in the {\em statement} and apply the following
 algorithm.  Here {\em expressions} include those discovered using operators
-and {\em reference-expressions} inclusing those that are bases for
+and {\em reference-expressions}, including those that are bases for
 larger {\em reference-expressions} (e.g., `{\tt x[3,4].weight}' has
-bases `{\tt x}' and `{\tt x[3,4]}').
+bases `{\tt x}' and `{\tt x[3,4]}').  {\em Reference-expressions} are
+further divided into \key{left} (of \TT{=}) and \key{right} (of \TT{=}).
+Right {\em reference-expressions} are evaluated to produce a value.
+Left {\em reference-expressions} are evaluated to produce a storage location
+into which a value may be stored.  Note that the basis of a compound left
+{\em reference-expression} is itself a right {\em reference-expression}.
+As the first step concerns only {\tt const} values, the only locations
+are variables in the compiler function execution stack and map-index
+pairs.
 
 \bigskip
 
