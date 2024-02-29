@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 27, 2024
+February 29, 2024
 
 \bigskip
  
@@ -5417,13 +5417,16 @@ be variable names or compound with a known map as base and known indices.
 
 \item This algorithm is applied to an {\em expression} $E$ found by
 bottom-to-top left-to-right transversal of the {\em expressions} of the
-current statement.
+current statement.  It applies special functions, replaces
+{\em expressions} that evaulate to {\tt const} value by their values
+when possible, and processes {\em reference-expressions}.
 
 \item\label{CONSTANT-STEP}
 If $E$ is a {\em constant}\pagnote{CONSTANTS} other than
 a {\em rational-constant}, evaluate $E$
 to a {\tt const} value $C$, annotate the
-{\em expression} with $C$, and terminate this algorithm.
+{\em expression} with $C$ and with the type {\tt const},
+and terminate this algorithm.
 ({\em Rational-constants} are evaluated as {\em function-calls} to
 a {\tt constant} function in Step~\ref{CONSTANT-FUNCTION-STEP} below.)
 
@@ -5436,13 +5439,30 @@ to the beginning of the \underline{parsed} {\em subexpression}, and
 go to the next step.
 See \pagref{MA-SYNTACTIC-SUGAR} for an example.
 
+\item\label{SIMPLE-REFERENCE-STEP}
+If $E$ is a simple
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
+annotate $E$ with the type of the variable named by $E$.  If
+this type is {\tt const} and $E$ is a right {\em reference-expression},
+also annotate $E$ with the value of the variable.  Then
+terminate this algorithm.
+
+Note that is $E$ is a left {\em reference-expression} naming a
+variable that cannot be read (e.g., an {\tt *INIT*} variable),
+or $E$ is a right {\em reference-expression} naming a variable
+that cannot be written (e.g., is {\tt co}),
+a compile error will be detected at this point.
+
 \item\label{MACRO-REFERENCE-FUNCTION-STEP}
 If $E$ is a \underline{compound}
-{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
-base is annotated with a {\tt const} value, search for {\tt macro}
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} (whose
+base will be annotated with a type by this point),
+search for {\tt macro}
 {\em reference-function-declarations} matching $E$.  If one is found,
 evaluate the declaration's function to get a {\tt const} value $R$,
 replace $E$ by $R$, and go to Step 1.
+See Macro Reference Expressions\pagnote{MACRO-REFERENCE-EXPRESSIONS}
+for more detail.
 
 \item\label{CONSTANT-REFERENCE-FUNCTION-STEP}
 If $E$ is a \underline{right} \underline{compound}
@@ -5450,16 +5470,36 @@ If $E$ is a \underline{right} \underline{compound}
 base is annotated with a {\tt const} value, search for {\tt constant}
 {\em reference-function-declarations} matching $E$.  If one is found,
 evaluate the declaration's function to get a {\tt const} value $C$,
-annotate $E$ with $C$, and terminate this algorithm.
+annotate $E$ with the {\tt const} type and with $C$,
+and terminate this algorithm.
 
 \item\label{CONSTANT-REFERENCE-STEP}
-If $E$ is a simple \underline{right}
-{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
-or a compound \underline{right}
+If $E$ is
+a compound \underline{right}
 {\em reference-expression} whose base has been annotated with a {\tt const}
 value,
 evaluate $E$ to a {\tt const} value $C$, annotate $E$
-with $C$, and terminate this algorithm.
+with $C$ and the type {\tt const}, and terminate this algorithm.
+
+If the evaluation cannot be done (e.g, an index has not been annotated
+with a {\tt const} value), it is a compile error.
+
+\item\label{REFERENCE-FUNCTION-STEP}
+If $E$ is
+a compound {\em reference-expression}
+(whose base will be annotated with a type by this point),
+search for non-special
+{\em reference-function-declarations} matching $E$.  If a declaraton $D$
+is found,
+annotate $E$ with $E$ and the result type of $D$ and terminate
+this algorithm.
+
+\item\label{REFERENCE-STEP}
+If $E$ is
+a compound {\em reference-expression}
+(whose base will be annotated with a type by this point),
+evalute the type $E$, annotate $E$ with this type, and
+terminate this algorithm.
 
 \item From this point on in this algorithm, the {\em expression} $E$
 is by necessity a {\em function-call}.
