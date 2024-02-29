@@ -5440,16 +5440,16 @@ go to the next step.
 See \pagref{MA-SYNTACTIC-SUGAR} for an example.
 
 \item\label{SIMPLE-REFERENCE-STEP}
-If $E$ is a simple
+If $E$ is a \underline{simple}
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
 annotate $E$ with the type of the variable named by $E$.  If
 this type is {\tt const} and $E$ is a right {\em reference-expression},
-also annotate $E$ with the value of the variable.  Then
+also annotate $E$ with the value $C$ of the variable.  Then
 terminate this algorithm.
 
-Note that is $E$ is a left {\em reference-expression} naming a
+Note that if $E$ is a right {\em reference-expression} naming a
 variable that cannot be read (e.g., an {\tt *INIT*} variable),
-or $E$ is a right {\em reference-expression} naming a variable
+or $E$ is a left {\em reference-expression} naming a variable
 that cannot be written (e.g., is {\tt co}),
 a compile error will be detected at this point.
 
@@ -5475,7 +5475,7 @@ and terminate this algorithm.
 
 \item\label{CONSTANT-REFERENCE-STEP}
 If $E$ is
-a compound \underline{right}
+a \underline{right} \underline{compound}
 {\em reference-expression} whose base has been annotated with a {\tt const}
 value,
 evaluate $E$ to a {\tt const} value $C$, annotate $E$
@@ -5485,13 +5485,12 @@ If the evaluation cannot be done (e.g, an index has not been annotated
 with a {\tt const} value), it is a compile error.
 
 \item\label{REFERENCE-FUNCTION-STEP}
-If $E$ is
-a compound {\em reference-expression}
+If $E$ is a left (right) \underline{compound} {\em reference-expression}
 (whose base will be annotated with a type by this point),
-search for non-special
-{\em reference-function-declarations} matching $E$.  If a declaraton $D$
+search for non-special left (right)
+{\em reference-function-declarations} matching $E$.  If a declaration $D$
 is found,
-annotate $E$ with $E$ and the result type of $D$ and terminate
+annotate $E$ with $D$ and the input (result) type of $D$ and terminate
 this algorithm.
 
 \item\label{REFERENCE-STEP}
