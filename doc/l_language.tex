@@ -5454,10 +5454,10 @@ that cannot be written (e.g., is {\tt co}),
 a compile error will be detected at this point.
 
 \item\label{MACRO-REFERENCE-FUNCTION-STEP}
-If $E$ is a \underline{compound}
+If $E$ is a left (right) \underline{compound}
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} (whose
 base will be annotated with a type by this point),
-search for {\tt macro}
+search for left (right) {\tt macro}
 {\em reference-function-declarations} matching $E$.  If one is found,
 evaluate the declaration's function to get a {\tt const} value $R$,
 replace $E$ by $R$, and go to Step 1.
@@ -5482,7 +5482,8 @@ evaluate $E$ to a {\tt const} value $C$, annotate $E$
 with $C$ and the type {\tt const}, and terminate this algorithm.
 
 If the evaluation cannot be done (e.g, an index has not been annotated
-with a {\tt const} value), it is a compile error.
+with a {\tt const} value, or an indexed map element does not exist),
+it is a compile error.
 
 \item\label{REFERENCE-FUNCTION-STEP}
 If $E$ is a left (right) \underline{compound} {\em reference-expression}
@@ -5497,7 +5498,7 @@ this algorithm.
 If $E$ is
 a compound {\em reference-expression}
 (whose base will be annotated with a type by this point),
-evalute the type $E$, annotate $E$ with this type, and
+evaluate the type of $E$, annotate $E$ with this type, and
 terminate this algorithm.
 
 \item From this point on in this algorithm, the {\em expression} $E$
