@@ -5673,7 +5673,7 @@ a particular {\em function-call} matches a particular
 
 \centerline{\bf Call-Declaration Matching Algorithm}
 \begin{enumerate}
-\item\label{CALL-PROTOTYPE-MODULE-ABBREVIATION}
+\item\label{CALL-DECLARATION-MODULE-ABBREVIATION}
 If the call begins with a {\em module-abbreviation}
 and the {\em prototype-pattern} in the {\em function-declaration}
 either does not have a preceding {\em module-abbreviation},
@@ -5692,7 +5692,7 @@ In what follows, any {\em module-abbreviation} beginning the
 {\em function-call} is ignored, and the remainder of the {\em function-call}
 is matched to the {\em function-declaration}'s prototype.
 
-\item\label{CALL-PROTOTYPE-KEY}
+\item\label{CALL-DECLARATION-KEY}
 The \key{key} of a {\em function-declaration}
 is the number of argument lists before
 the first {\em function-term-name} in its {\em prototype-pattern}
@@ -5715,7 +5715,7 @@ The first {\em function-term-name} in the call may or may not be followed by
 {\em call-argument-lists}.
 
 
-\item\label{CALL-PROTOTYPE-TERM-NAMES}
+\item\label{CALL-DECLARATION-TERM-NAMES}
 The remainder of the {\em function-call}, the part after any
 {\em call-argument-lists} following the first {\em function-term-name},
 is scanned for {\em prototype-pattern}
@@ -5767,7 +5767,7 @@ must match its corresponding prototype {\em pattern-term} according
 the rules that follow.  Failure of any call-prototype term match
 causes the prototype-call match to fail.
 
-\item\label{CALL-PROTOTYPE-CALL-TERM-ADJUSTMENT}
+\item\label{CALL-DECLARATION-CALL-TERM-ADJUSTMENT}
 For a {\em call-term} to match its corresponding {\em pattern-term},
 both must have the same number of {\em argument-lists}, the same brackets,
 and the same number of
@@ -5811,33 +5811,18 @@ in the {\em function-declaration} according to the rules that follow.
 Failure of any of these matches causes
 the call-declaration match to fail.
 
-\item\label{CALL-PROTOTYPE-RESULT-MATCHING}
+\item\label{CALL-DECLARATION-TARGET-MATCHING}
 This section is skipped for special functions (functions whose
 {\em prototype-result} has the form `{\tt macro} {\em variable-name}',
 `{\tt constant} {\em variable-name}', or
 `{\tt inclusion} {\em variable-name}').
 
-If the {\em function-call} is the right side (part after {\tt =})
-in a {\em call-assignment-statement},
-the number of {\em assignment-results} in the {\em call-assignment-statement}
-must not be greater than the number of
-{\em prototype-result-variable-declarations}, else the call-prototype
-match fails.
-
-If the {\em function-call} is \underline{not} the right side in a
-{\em call-assignment-statement}, the situation is treated as if
-it were the right side of a {\em call-assignment-statement}
-whose left side consists of the call's target type
-followed by a virtual {\em variable-name}.
-
-The {\em assignment-results} are matched to the
-{\em prototype-result-declarations} going from left to right.
-The type of each {\em prototype-result-declaration} is then
-matched to the type of its matching {\em assignment-result}.
-
-Any wildcards\pagnote{WILD-CARD}
-in a prototype result type are filled in from the information
-in the corresponding assignment target type.  If a wildcard gets more
+The types in the {\em protocol-result-variable-declarations} are
+matched left-to-right to the target types for these results.
+Any wildcards\pagnote{WILD-CARD} in a
+{\em protocol-result-variable-declaration}
+are filled in from the corresponding target type, left-to-right.
+If a wildcard gets more
 than one value from this process, the call-declaration match fails.
 
 Then if any prototype result type is not identical to its corresponding
@@ -5845,13 +5830,14 @@ assignment target type, the call-declaration match fails
 (i.e., there is \underline{no} implicit conversion of function result
 types).
 
-\item\label{CALL-PROTOTYPE-ARGUMENT-MATCHING}
+\item\label{CALL-DECLARATION-ARGUMENT-MATCHING}
 {\em Prototype-argument-declarations} are matched to
 an {\em actual-arguments} and processed left to right.
 
 If a {\em prototype-argument-declaration} $PAD$ is matched
 to an {\em actual-argument} $AA$ and $PAD$ has a wildcard,
-$AA$ must be {\em reference-expression} or a {\em constant-expression}, else the
+$AA$ must be {\em reference-expression} or a {\em constant-expression},
+else the
 call-declaration match fails.  The wildcard is assigned from
 information in the {\em reference-expression}'s
 type \pagnote{REFERENCE-CALL-DECLARATION-MATCHING} or
@@ -5859,10 +5845,15 @@ type \pagnote{REFERENCE-CALL-DECLARATION-MATCHING} or
 
 If different values are assigned to the same wildcard by this
 process (by different prototype-actual argument matches, or by
-assignments made in Step~\ref{CALL-PROTOTYPE-RESULT-MATCHING})
+assignments made in Step~\ref{CALL-DECLARATION-TARGET-MATCHING})
 the call-declaration match fails.
 
-\item\label{CALL-PROTOTYPE-REQUIRED-VALUES}
+\item\label{CALL-DECLARATION-UNASSIGNED-WILDCARDS}
+If any {\em prototype-argument-declaration} wildcards are unassigned
+at this point,
+the call-declaration match fails.
+
+\item\label{CALL-DECLARATION-REQUIRED-VALUES}
 If a {\em prototype-argument-declaration} has a {\em required-value},
 its matching {\em actual-argument} must be a {\em constant-expression} with
 a value equal to the {\em required-value} (which is itself the result
@@ -5877,7 +5868,9 @@ If the argument type is {\tt const} and the values being compared are
 maps, the maps must be identical (they are compared as pointers and
 not as lists of elements).
 
-\item\label{CALL-PROTOTYPE-ARGUMENT-TYPING}
+\item\label{CALL-DECLARATION-ARGUMENT-TYPING}
+This section is skipped for special functions.
+
 Matches between {\em prototype-argument-declaration} types
 and acceptable {\em actual-argu\-ments} subexpression target types
 are then checked, except for {\tt macro} arguments (that require
@@ -5885,7 +5878,7 @@ no run-time typing).
 
 If any {\em prototype-argument-declaration} type is mapped to
 {\tt *FAIL*} or {\tt *AMBIGUOUS*}
-by the corresponding {\em actual-argument} annotation,
+by the corresponding {\em actual-argument} {\em expression} annotation,
 the call-declaration match fails.
 
 If any is mapped to {\tt *EXACT*}, the call-prototype map is
@@ -6465,22 +6458,22 @@ as follows:
 \begin{indpar}[3em] % Allows item names to be longer.
 \begin{itemize}
 
-\item[Step \ref{CALL-PROTOTYPE-MODULE-ABBREVIATION}%
-           \pagnote{CALL-PROTOTYPE-MODULE-ABBREVIATION}]
+\item[Step \ref{CALL-DECLARATION-MODULE-ABBREVIATION}%
+           \pagnote{CALL-DECLARATION-MODULE-ABBREVIATION}]
 If a {\em reference-expression} begins with a {\em module-abbreviation},
 the {\em module-abbrevi\-ation} must immediately precede a
 \underline{parenthesized} {\em reference-expes\-sion} (which is
 the {\em reference-call-base}).
 
-\item[Step \ref{CALL-PROTOTYPE-KEY}%
-           \pagnote{CALL-PROTOTYPE-KEY}]
+\item[Step \ref{CALL-DECLARATION-KEY}%
+           \pagnote{CALL-DECLARATION-KEY}]
 The \key{key} to a {\em reference-function-declaration} is
 the type of its {\em reference-pattern-argument} (that is
 matched to the {\em reference-call-base}) followed by the
 declaration's {\em member-name} or by \TT{[]}.
 
-\item[Step \ref{CALL-PROTOTYPE-TERM-NAMES}%
-           \pagnote{CALL-PROTOTYPE-TERM-NAMES}]
+\item[Step \ref{CALL-DECLARATION-TERM-NAMES}%
+           \pagnote{CALL-DECLARATION-TERM-NAMES}]
 The end of the {\em reference-call} is determined before proceeding
 with this step.
 \\[1ex]
@@ -6502,14 +6495,14 @@ If there are fewer {\em reference-call-argument-lists}
 than {\em reference-pattern-argument-lists},
 the entire call-declaration match fails.
 
-\item[Step \ref{CALL-PROTOTYPE-RESULT-MATCHING}%
-           \pagnote{CALL-PROTOTYPE-RESULT-MATCHING}]
+\item[Step \ref{CALL-DECLARATION-TARGET-MATCHING}%
+           \pagnote{CALL-DECLARATION-TARGET-MATCHING}]
 This step is skipped completely.  The result of a
 {\em reference-call} is the prototype result after
 wildcards have been assigned by arguments.
 
-\item[Step \ref{CALL-PROTOTYPE-ARGUMENT-TYPING}%
-           \pagnote{CALL-PROTOTYPE-ARGUMENT-TYPING}]
+\item[Step \ref{CALL-DECLARATION-ARGUMENT-TYPING}%
+           \pagnote{CALL-DECLARATION-ARGUMENT-TYPING}]
 
 Implicit conversion of the {\em reference-expression}
 that is the first argument is \underline{not} permitted.
