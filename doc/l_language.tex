@@ -5632,24 +5632,12 @@ annotate $E$ with $T\mapsto {\tt *FAIL*}$.
 
 \item If $E$ is a {\em function-call}, search for \underline{non-special}
 {\em function-declarations}
-that match $E$
-and whose prototype result type is $T$.  If one is found, 
-use the prototype to specify the target types of the function arguments, and
-apply this algorithm recursively to each argument.  An argument is successful
-if it has target type $T'$ and annotation $T'\mapsto{\tt *EXACT*}$
-or $T'\mapsto D'_1,D'_2,\ldots,D'_n$.
-If there is success
-for each argument, the {\em function-declaration} is successful.
-
-If no successful {\em function-declarations} are found,
+that match $E$.
+If none are found,
 annotate $E$ with $T\mapsto{\tt *FAIL*}$.
-
-If more than one is found, discard all but the ones with highest
-rank (see below).
-If there is still more than one,
+If more than one is found (of highest rank),
 annotate $E$ with $T\mapsto{\tt *AMBIGUOUS*}$.
-
-Otherwise if just one {\em function-declaration} $D$ remains,
+Otherwise if just one {\em function-declaration} $D$ was found,
 annotate $E$ with $T\mapsto D$.
 
 If $E$ is the top level {\em function-call}
