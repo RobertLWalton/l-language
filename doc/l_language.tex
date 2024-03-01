@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-February 29, 2024
+March 1, 2024
 
 \bigskip
  
@@ -5630,9 +5630,9 @@ and if one is found annotate $E$ with $T\mapsto D_1,D_2,\ldots,D_n$,
 or if not found,
 annotate $E$ with $T\mapsto {\tt *FAIL*}$.
 
-\item If $E$ is a {\em function-call}, search for non-special
+\item If $E$ is a {\em function-call}, search for \underline{non-special}
 {\em function-declarations}
-that match {\em function-call} $E$
+that match $E$
 and whose prototype result type is $T$.  If one is found, 
 use the prototype to specify the target types of the function arguments, and
 apply this algorithm recursively to each argument.  An argument is successful
@@ -5707,11 +5707,11 @@ This implies that argument lists before the first {\em call-term-name}
 in a {\em function-call} can\underline{not} be omitted and must be bracketed
 by actual or implied parentheses.
 
-When matching two {\em function-term-name} lexemes, if the one from
+When matching two {\em function-term-name} \underline{lexemes}, if the one from
 the {\em prototype-pattern} is {\tt "} quoted, the
 one in the {\em function-call} may be quoted or not quoted.
 
-The first {\em function-term-name} in the call may be followed by
+The first {\em function-term-name} in the call may or may not be followed by
 {\em call-argument-lists}.
 
 
@@ -5724,7 +5724,7 @@ the words `{\tt no}' and `{\tt not}'.  At each point in the scan
 one of the following must be found: (1) a {\em function-term-name} from
 the {\em prototype-pattern}, other than the first such, or
 (2) the word `{\tt no}', or (3) the word `{\tt not}', or
-(4) a bracketed argument list (with {\tt (~)} or
+(4) a bracketed argument list (with explicit or
 implicit {\tt (~)} brackets).
 If none of these is found at some point in the scan,
 the call-declaration match fails.  If a {\em function-term-name} is
@@ -5769,9 +5769,8 @@ causes the prototype-call match to fail.
 
 \item\label{CALL-PROTOTYPE-CALL-TERM-ADJUSTMENT}
 For a {\em call-term} to match its corresponding {\em pattern-term},
-both must have the same number of {\em argument-lists}, the same
-brackets (either {\tt (~)} or {\tt [~]}) for corresponding
-{\em argument-lists}, and the same number of
+both must have the same number of {\em argument-lists}, the same brackets,
+and the same number of
 arguments in corresponding {\em argument-lists}, \underline{after}
 the {\em call-term} has been \key{adjusted}.  The following are
 permitted adjustments.
@@ -5787,10 +5786,9 @@ A {\em call-term} {\em argument-list} with implied parentheses
 is treated as if it had {\tt (~)} parentheses.
 
 If in a left-to-right scan of a {\em call-term},
-a {\em call-argument-list} with {\tt (~)} is expected but no {\tt (}
-is found, and instead
+a {\em call-argument-list} with {\tt (~)} is expected but instead
 the end of the {\em call-term} is found,
-an empty list {\tt ()} is inserted.
+an empty list {\tt ()} is appended to the {\em call-term}.
 
 If a {\em call-argument-list} is shorter than the
 corresponding {\em pattern-argument-list}, and all omitted
