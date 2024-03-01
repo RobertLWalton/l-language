@@ -5874,11 +5874,12 @@ This section is skipped for special functions.
 Matches between {\em prototype-argument-declaration} types
 and acceptable {\em actual-argu\-ments} subexpression target types
 are then checked, except for {\tt macro} arguments (that require
-no run-time typing).
+no run-time typing).  Specifically, if a {\em prototype-argument-declaration}
+specifies a target type $T'$ for an {\em actual-argument} {\em expression} $E'$,
+this algorithm is applied recursively to $E'$ with target type $T'$ to get
+an annotation $T'\mapsto\ldots$ on $E'$.
 
-If any {\em prototype-argument-declaration} type is mapped to
-{\tt *FAIL*} or {\tt *AMBIGUOUS*}
-by the corresponding {\em actual-argument} {\em expression} annotation,
+Then if any argument $T'$ is mapped to {\tt *FAIL*} or {\tt *AMBIGUOUS*}
 the call-declaration match fails.
 
 If any is mapped to {\tt *EXACT*}, the call-prototype map is
