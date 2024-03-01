@@ -5537,29 +5537,29 @@ it is a compile error.
 \end{enumerate}
 
 The second step in processing a {\em statement} is to visit in top-down order
-all the {\em expressions} in the {\em statement}
-that are to be evaluated (as opposed to {\em reference-expressions} on the left
-side of `\TT{=}' that are to receive values)
-and locate for each of these {\em expressions} that are {\em function-calls},
-and are not annotated with a {\tt const} value,
+all the {\em expressions} $E$ in the {\em statement}
+and locate for each $E$ that are {\em function-calls}
+(and not annotated with a {\tt const} value and not {\em reference-expressions})
 a matching {\em function-declaration}.  Or more specifically,
 a {\em function-declaration} whose {\em function-prototype} matches
 the {\em function-call}.  In this step all \underline{non-special}
 {\em function-declarations} that are in scope are included in the search.
 
-Furthermore in this step each {\em expression} has a target type (or types),
+Furthermore in this step each $E$ has a target type (or types),
 and {\em function-prototypes} that match the expression are required to
 have a result of this type (or results of these types).
 
 In an {\em expression-assignment-statement}%
 \pagnote{EXPRESSION-ASSIGNMENT-STATEMENTS} each right-side {\em expression}
-has a corresponding left-side {\em assignment-result} which specifies
+has a corresponding left-side {\em assignment-result} which is a
+{\em reference-expression} that specifies
 the {\em expression's} target type.
 
 In a {\em call-assignment-statement}%
-\pagnote{CALL-ASSIGNMENT-STATEMENTS} which has a {\em function-call}
-{\em expression} on its right-side, its
-left-side {\em assignment-results} specify a list of target types.
+\pagnote{CALL-ASSIGNMENT-STATEMENTS} in which $E$ is the {\em function-call}
+on the statement's right-side, the statement's
+left-side {\em assignment-results} are {\em reference-expressions} that
+together specify a list of target types.
 
 For an {\em expression} that is a {\em function-call} argument,
 the declaration matched to the {\em function-call} specifies the
@@ -5586,18 +5586,18 @@ If several operands are {\em reference-expressions}, this succeeds if
 one of these has a type into which the types of the others can be
 implicitly converted.
 
-Consider the case of {\em expression} $c$ which is a {\em function-call}
-containing an argument {\em expression} $e$.  The various
-{\em function-declarations} that might match $c$ specify various
-target types for $e$.  Some of these target types may be the same,
-so if we find matches for $e$ with a given target type, we should
-remember what we found so we do not re-compute the match for $e$ with
+Consider the case of {\em expression} $C$ which is a {\em function-call}
+containing an argument {\em expression} $E$.  The various
+{\em function-declarations} that might match $C$ specify various
+target types for $E$.  Some of these target types may be the same,
+so if we find matches for $E$ with a given target type, we should
+remember what we found so we do not re-compute the match for $~$ with
 that target type if it is needed again.  Therefore, when we find a
-{\em function-declaration} $d$ matching $e$ for target type $t$, we annotate
-$e$ with $t\mapsto d$.
+{\em function-declaration} $D$ matching $E$ for target type $T$, we annotate
+$E$ with $T\mapsto D$.
 
-Given all this, when the second step visits an {\em expression} $e$ with
-target type $t$ the second step executes:
+Given all this, when the second step visits an {\em expression} $E$ with
+target type $T$ the second step executes:
 
 
 \bigskip
@@ -5605,63 +5605,65 @@ target type $t$ the second step executes:
 \centerline{\bf Top-Down Expression Algorithm}
 \begin{enumerate}
 
-\item If $e$ already has an annotation $t\mapsto d_1,d_2,\ldots,d_n$,
-do nothing but declare success.
+\item If $E$ already has an annotation $T\mapsto \ldots$,
+terminate this algorithm.  In what follows, processing of $E$ is
+terminated whenever $E$ is annotated with $T\mapsto \ldots$.
 
-\item If $e$ is annotated with a {\tt const} value
-(from the Bottom-Up Step), then if $t$ equals {\tt const},
-annotate $e$ with $t\mapsto{*EXACT*}$.
+\item If $E$ is annotated with a {\tt const} value
+(from the Bottom-Up Step), then if $T$ equals {\tt const},
+annotate $E$ with $T\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
 graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
-for some shortest path $d_1,d_2,\ldots,d_n$ from $t$ to {\tt const},
-and if one is found annotate $e$ with $t\mapsto d_1,d_2,\ldots,d_n$,
+for some shortest path $D_1,D_2,\ldots,D_n$ from $T$ to {\tt const},
+and if one is found annotate $E$ with $T\mapsto D_1,D_2,\ldots,D_n$,
 or if not found,
-annotate $e$ with $t\mapsto {\tt *FAIL*}$.
+annotate $E$ with $T\mapsto {\tt *FAIL*}$.
 
-\item If $e$ is a
+\item If $E$ is a
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
-compute its type $T$. 
-Then if $t$ equals $T$ annotate $e$ with $t\mapsto{*EXACT*}$.
+compute its type $T'$. 
+Then if $T$ equals $T'$ annotate $E$ with $T\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
 graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
-for some shortest path $d_1,d_2,\ldots,d_n$ from $t$ to $T$,
-and if one is found annotate $e$ with $t\mapsto d_1,d_2,\ldots,d_n$,
+for some shortest path $D_1,D_2,\ldots,D_n$ from $T$ to $T'$,
+and if one is found annotate $E$ with $T\mapsto D_1,D_2,\ldots,D_n$,
 or if not found,
-annotate $e$ with $t\mapsto {\tt *FAIL*}$.
+annotate $E$ with $T\mapsto {\tt *FAIL*}$.
 
-\item If $e$ is a {\em function-call}, search for non-special
+\item If $E$ is a {\em function-call}, search for non-special
 {\em function-declarations}
-that match {\em function-call} $e$
-(see Call-Declaration Matching Algorithm below)
-and whose prototype result type is $t$.  When one is found, 
+that match {\em function-call} $E$
+and whose prototype result type is $T$.  If one is found, 
 use the prototype to specify the target types of the function arguments, and
 apply this algorithm recursively to each argument.  An argument is successful
-if it has target type $t'$ and annotation $t'\mapsto{\tt *EXACT*}$
-or $t'\mapsto d'_1,d'_2,\ldots,d'_n$.
+if it has target type $T'$ and annotation $T'\mapsto{\tt *EXACT*}$
+or $T'\mapsto D'_1,D'_2,\ldots,D'_n$.
 If there is success
 for each argument, the {\em function-declaration} is successful.
 
 If no successful {\em function-declarations} are found,
-annotate $e$ with $t\mapsto{\tt *FAIL*}$.
+annotate $E$ with $T\mapsto{\tt *FAIL*}$.
 
 If more than one is found, discard all but the ones with highest
 rank (see below).
 If there is still more than one,
-annotate $e$ with $t\mapsto{\tt *AMBIGUOUS*}$.
+annotate $E$ with $T\mapsto{\tt *AMBIGUOUS*}$.
 
-Otherwise if just one {\em function-declaration} $d$ remains,
-annotate $e$ with $t\mapsto d$.
+Otherwise if just one {\em function-declaration} $D$ remains,
+annotate $E$ with $T\mapsto D$.
 
-If $e$ is the top level {\em function-call}
+If $E$ is the top level {\em function-call}
 in a {\em call-assignment-statement}, and the latter has
-more than one {\em assignment-result}, then $t$ is replaced by a list
-$t_1,t_2,\ldots,t_m$ of target types (the types of the
+more than one {\em assignment-result}, then $T$ is replaced by a list
+$T_1,T_2,\ldots,T_m$ of target types (the types of the
 {\em assignment-results}), and the search for
 {\em function-declarations} is limited to those whose prototypes have
 at least $m$ results with the first $m$ of these being of types
-$t_1,t_2,\ldots,t_m$ respectively.
+$T_1,T_2,\ldots,T_m$ respectively.
 
 \end{enumerate}
+
+TBD
 
 Given all this, we define the algorithm that determines whether
 a particular {\em function-call} matches a particular
