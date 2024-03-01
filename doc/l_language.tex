@@ -5382,12 +5382,6 @@ Each {\em function-call} in a statement must be matched to a single
 {\em function-declaration}, else compilation of the statement fails
 with a compile error.
 
-This section applies to matching
-non-{\em reference-calls}.  The
-rules of this section are modified when matching
-{\em reference-calls}
-according to section \itemref{REFERENCE-CALL-DECLARATION-MATCHING}.
-
 The first step in processing
 a {\em statement} is to visit in bottom-to-top left-to-right order
 all the {\em expressions} in the {\em statement} and apply the following
@@ -5420,6 +5414,8 @@ bottom-to-top left-to-right transversal of the {\em expressions} of the
 current statement.  It applies special functions, replaces
 {\em expressions} that evaulate to {\tt const} value by their values
 when possible, and processes {\em reference-expressions}.
+When this algorithm searches for a declaration matching an {\em expression},
+it uses the Declaration Search Algorithm below.
 
 \item\label{CONSTANT-STEP}
 If $E$ is a {\em constant}\pagnote{CONSTANTS} other than
@@ -5604,6 +5600,14 @@ target type $T$ the second step executes:
 
 \centerline{\bf Top-Down Expression Algorithm}
 \begin{enumerate}
+
+\item This algorithm is applied to an {\em expression} $E$ found by
+top-to-bottom left-to-right transversal of the {\em expressions} of the
+current statement.  It annotates {\em expressions} with maps from
+possible target types to declarations containing code that can execute
+the {\em expressions},
+When this algorithm searches for a declaration matching an {\em expression},
+it uses the Declaration Search Algorithm below.
 
 \item If $E$ already has an annotation $T\mapsto \ldots$,
 terminate this algorithm.  In what follows, processing of $E$ is
