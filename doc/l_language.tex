@@ -9426,42 +9426,51 @@ The value is typically $-2^{S-1}$ where $S$ is the size of {\tt I} in bits.
 \subsection{Builtin Pointer Operations}
 \label{BUILTIN-POINTER-OPERATIONS}
 
-{\tt function P\$1 Q\$1 T\$1 r = std null}%
-\label{NULL}
+{\tt function dp Q\$1 T\$1 r = std null}\label{NULL} \\
+{\tt function ap Q\$1 T\$1 r = std null} \\
+{\tt function av Q\$1 T\$1 r = std null}
 \begin{indpar}
-This function returns zero converted to the pointer type.
+These functions return zero converted to the pointer type.
+For {\tt ap} the base and offset are set to zero, and for
+{\tt av} the base, offset, and bounds are set to zero.
 \\[1ex]
 Accessing the target of a null pointer usually produces
 a segmentation fault, as the virtual page with address zero
 is usually undefined.
 \\[1ex]
-This function \underline{cannot} be called by an
+These functions \underline{cannot} be called by an
 {\tt allocation-call}\pagnote{ALLOCATION-CALL}.
 \end{indpar}
 
-{\tt function P\$1 QL\$1 *LOCAL* T\$1 r =
-    std local ( uns length, uns alignment )}%
-\label{LOCAL}
+{\tt function ap QG\$1 *LOCAL* T\$1 r = \\
+\hspace*{1in}std ( uns length, uns alignment ) local}%
+\label{LOCAL} \\
+{\tt function av QG\$1 *LOCAL* T\$1 r = \\
+\hspace*{1in}std ( uns length, uns alignment ) local [ uns count ]}
 \begin{indpar}
-This function allocates a value of type {\tt T\$1} to local
+These functions allocate a value of type {\tt T\$1}
+(or {\tt count} values of type {\tt T\$1}) to local
 memory (the current out-of-line function execution's frame in the local stack:
 see \pagref{OUT-OF-LINE-LOCALS})
-and returns a pointer to the value.
+and return a pointer to the value(s).
 \\[1ex]
-This function can only be called by an
+These functions can only be called by an
 {\tt allocation-call}\pagnote{ALLOCATION-CALL}.
 See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
-{\tt function P\$1 QG\$1 *GLOBAL* T\$1 r =
-    std global ( uns length, uns alignment )}%
-\label{GLOBAL}
+{\tt function ap QG\$1 *GLOBAL* T\$1 r = \\
+\hspace*{1in}std ( uns length, uns alignment ) global}%
+\label{GLOBAL} \\
+{\tt function av QG\$1 *GLOBAL* T\$1 r = \\
+\hspace*{1in}std ( uns length, uns alignment ) global [ uns count ]}
 \begin{indpar}
-This function allocates a value of type {\tt T\$1} to global
+These functions allocate a value of type {\tt T\$1}
+(or {\tt count} values of type {\tt T\$1}) to global
 memory (the global stack: see \pagref{GLOBAL-MEMORY})
-and returns a pointer to the value.
+and return a pointer to the value(s).
 \\[1ex]
-This function can only be called by an
+These functions can only be called by an
 {\tt allocation-call}\pagnote{ALLOCATION-CALL}.
 See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
