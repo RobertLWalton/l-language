@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 2, 2024
+March 3, 2024
 
 \bigskip
  
@@ -8949,7 +8949,9 @@ See \itemref{TYPE-CONVERSIONS} for non-builtin conversions.
 Any value of number or {\tt bool} type {\tt N1}
 can be implicitly converted to a value
 of number type {\tt N2} if every value of type {\tt N1} can be
-precisely represented by a value of type {\tt N2}.  More specifically,
+precisely represented by a value of type {\tt N2}, or if {\tt N1} is
+an integer type and {\tt N2}
+is a floating point type.  More specifically,
 the implicit conversions are defined by:
 \begin{indpar} \tt
 function N2 r = std *IMPLICIT* *CONVERSION* ( N1 v )
@@ -8973,9 +8975,9 @@ in the following cases:
 \multicolumn{1}{c}{}	& \multicolumn{4}{c}{\tt N1} \\
 \tt N2  & \tt int64 & \tt int32 & \tt int16 & int8
 \\\hline
-\tt flt64 & no & yes & yes & yes \\
-\tt flt32 & no & no & yes & yes \\
-\tt flt16 & no & no & no & yes
+\tt flt64 & yes & yes & yes & yes \\
+\tt flt32 & yes & yes & yes & yes \\
+\tt flt16 & yes & yes & yes & yes
 \\\hline
 \tt int64 & no & yes & yes & yes \\
 \tt int32 & no & no & yes & yes \\
@@ -8990,9 +8992,9 @@ in the following cases:
 \multicolumn{1}{c}{}	& \multicolumn{5}{c}{\tt N1} \\
 \tt N2  & \tt uns64 & \tt uns32 & \tt uns16 & uns8 & bool
 \\\hline
-\tt flt64 & no & yes & yes & yes & yes \\
-\tt flt32 & no & no & yes & yes & yes \\
-\tt flt16 & no & no & no & yes & yes
+\tt flt64 & yes & yes & yes & yes & yes \\
+\tt flt32 & yes & yes & yes & yes & yes \\
+\tt flt16 & yes & yes & yes & yes & yes
 \\\hline
 \tt int64 & no & yes & yes & yes & yes \\
 \tt int32 & no & no & yes & yes & yes \\
@@ -9112,7 +9114,8 @@ If there are no errors, no flags are set.
 If {\tt s} does not have the proper format,
 or its value is negative and {\tt N} is an unsigned integer,
 the {\tt Invalid} flag is set, {\tt NaN} is returned for floating point types,
-and {\tt 0} is returned for integer types.
+and the indefinite integer\pagnote{INDEFINITE-INTEGER}
+is returned for integer types.
 If the value is to large to store, the
 {\tt Overflow} flag is set,
 {\tt $\pm$Inf} is returned for floating point types,
@@ -9314,7 +9317,6 @@ compute if not supported by hardware.\label{ADD-SUB-OVERFLOW}  See
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
 	\tt int  int128 int64  int32  int16 \\
-	\tt uns  uns128 uns64  uns32  uns16 \\
 	\end{tabular}
 \\[1ex]
 and {\tt U} is one of:
@@ -9339,7 +9341,6 @@ and {\tt cout} is the high order N bits.
 Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
 	\tt int  int128 int64  int32  int16 \\
-	\tt uns  uns128 uns64  uns32  uns16 \\
 	\end{tabular}
 \\[1ex]
 and {\tt U} is one of:
@@ -9412,7 +9413,7 @@ Standard comparison operators on integers {\tt v1} and {\tt v2}.
 {\tt function I r = std indefinite integer}%
 \label{INDEFINITE-INTEGER}
 \begin{indpar}
-Where {\tt I} is any \underline{signed} integer type.
+Where {\tt I} is any integer type.
 \\[1ex]
 This function returns the value that is returned when
 some operations, e.g. {\tt round},
