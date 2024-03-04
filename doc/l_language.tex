@@ -6402,13 +6402,20 @@ The syntax of a {\em reference-function-declaration} is:
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{parenthesized-pattern-term} ::=
-    {\em pattern-term} with\underline{out} \TT{[~]} brackets
+\emkey{reference-pattern-argument} ::=
+    \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
+\\[0.5ex]
+\emkey{parenthesized-pattern-argument-list} ::= \\
+\hspace*{0.5in}
+    {\em pattern-argument-list} with \TT{(~)} parentheses
 \\[0.5ex]
 \emkey{square-bracketed-pattern-argument-list} ::= \\
 \hspace*{0.5in}
     {\em pattern-argument-list} with square brackets \TT{[~]}
     (and \underline{not} parentheses \TT{(~)})
+\\[0.5ex]
+\emkey{parenthesized-pattern-term} ::=
+    {\em pattern-term} with\underline{out} \TT{[~]} brackets
 \\[0.5ex]
 {\em member-name} ::= see \pagref{MEMBER-NAME}
 \\[0.5ex]
@@ -6428,11 +6435,11 @@ are allowed ({\tt inclusion} is not allowed).
 The {\em reference-pattern-argument} must be
 followed by
 a {\em member-name}\pagnote{MEMBER-NAME} or square-bracketed
-{\em reference-pattern-argument-lists}.
+{\em square-bracketed-pattern-argument-lists}.
 \item
 The first actual argument in a {\em reference-call} is a
 smaller {\em reference-expression} that has already been deliminated.
-It is surrounded by parentheses {\tt (~)} if and only if it is preceded by
+It must be surrounded by parentheses {\tt (~)} if it is preceded by
 the {\em module-abbreviation} of the {\em reference-call}
 \item
 The {\em reference-pattern-argument} in the prototype cannot
