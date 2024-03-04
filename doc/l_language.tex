@@ -2894,7 +2894,7 @@ The syntax of function calls is:
 \emkey{function-call}\label{FUNCTION-CALL} ::= \\
 \hspace*{0.5in}
         {\em module-abbreviation}\QMARK{}
-        {\em call-argument-list}\STAR{}
+        {\em parenthesized-call-argument-list}\STAR{}
         {\em call-term}\PLUS{}
 \\[0.5ex]
 \emkey{call-term}\label{CALL-TERM}
@@ -2916,8 +2916,16 @@ The syntax of function calls is:
     \begin{tabular}[t]{rl}
     ::= & \TT{(} {\em actual-argument}
           \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{)} \\
-    $|$ & \TT{(~)} \\
+    $|$ & \TT{[} {\em actual-argument}
+          \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
+    $|$ & \TT{(~)} $|$ \TT{[~]} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{parenthesized-call-argument-list}%
+    \label{PARENTHESIZED-CALL-ARGUMENT-LIST} ::= \\
+\hspace*{0.5in}
+    {\em call-argument-list} with parentheses \TT{(~)}
+    (and \underline{not} square brackets \TT{[~]})
 \\[0.5ex]
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
@@ -2926,9 +2934,8 @@ The syntax of function calls is:
 \item {\em Call-term-names} cannot be abbreviated.
 \item {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
 equivalent to `{\tt x(FALSE)}'.
-\item {\em Call-argument-lists} are explicitly or implicitly
-\TT{(~)} parenthesized,
-as opposed to {\em reference-call-argument-lists}\pagnote{REFERENCE-CALL-ARGUMENT-LIST} that are \TT{[~]} square bracketed.
+\item {\em Parenthesized-call-argument-lists} may have implicit
+parentheses.
 \end{itemize}
 \end{indpar}
 
@@ -2937,8 +2944,8 @@ followed by a sequence of {\em function-term-names}
 and {\em call-argument-lists}.  Note that {\em Function-term-names} cannot
 contain `\TT{.}'s and therefore cannot be {\em member-names},
 which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
-Also \TT{[~]} bracketed lists cannot be {\em call-argument-lists},
-a syntactic distinction to their
+Also \TT{[~]} bracketed {\em call-argument-lists} cannot be placed
+before the first {\em call-term-name}, a syntactic distinction to their
 use in {\em reference-calls}.
 
 {\em Function-calls} are matched to function prototypes.  The
@@ -4964,7 +4971,7 @@ The syntax of a function declaration is:
     defined on \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
-    ::= {\em pattern-argument-list}\STAR{}~
+    ::= {\em parenthesized-pattern-argument-list}\STAR{}~
         {\em pattern-term}\PLUS{}
 \\[0.5ex]
 \emkey{pattern-term}\label{PATTERN-TERM}
@@ -4986,7 +4993,15 @@ The syntax of a function declaration is:
     \begin{tabular}[t]{@{}rl}
     ::= & \TT{(} {\em prototype-argument-declaration}~
 	     \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{} \TT{)} \\
+    $|$ & \TT{[} {\em prototype-argument-declaration}~
+	     \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{} \TT{]} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{parenthesized-pattern-argument-list}%
+    \label{PARENTHESIZED-PATTERN-ARGUMENT-LIST} ::= \\
+\hspace*{0.5in}
+    {\em pattern-argument-list} with parentheses \TT{(~)}
+    (and \underline{not} square brackets \TT{[~]})
 \end{indpar}
 \begin{itemize}\label{FUNCTION-DECLARATION-RULES}
 \item
@@ -5045,7 +5060,7 @@ one {\em prototype-result-variable-declaration}
 that has for its type this same {\em type-name} or has for its pointer type
 this same {\em pointer-type-name},
 and the {\em prototype-pattern} may not have any
-{\em pattern-argument-lists} before the first
+{\em parenthesized-pattern-argument-lists} before the first
 {\em function-term}.  The function
 declared is called a \key{explicit type conversion function}%
 \label{EXPLICIT-TYPE-CONVERSION-FUNCTION}, and a {\em function-call}
@@ -6291,13 +6306,13 @@ The syntax of a {\em reference-call} is:
         & {\em reference-call-base} ~
 	  \begin{tabular}[t]{@{}l@{}}
  	  {\em member-name} \\
-          {\em call-argument-list}\STAR{} \\
-          {\em call-term}\STAR{} \\
+          {\em parenthesized-call-argument-list}\STAR{} \\
+          {\em parenthesized-call-term}\STAR{} \\
 	  \end{tabular} \\
         & {\em reference-call-base} ~
 	  \begin{tabular}[t]{@{}l@{}}
-	  {\em reference-call-argument-list}\PLUS{} \\
-          {\em call-term}\STAR{} \\
+	  {\em square-bracketed-call-argument-list}\PLUS{} \\
+          {\em parenthesized-call-term}\STAR{} \\
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
@@ -6310,14 +6325,18 @@ The syntax of a {\em reference-call} is:
 \\[0.5ex]
 {\em ma} ::= {\em module-abbreviation} ~~~~~ [see \pagref{MODULE-ABBREVIATION}]
 \\[0.5ex]
+\emkey{parenthesized-call-term} ::=
+    {\em call-term} with\underline{out} \TT{[~]} brackets
+\\[0.5ex]
+\emkey{parenthesized-call-argument-list} ::=
+    {\em call-argument-list} with \TT{(~)} parentheses
+\\[0.5ex]
+\emkey{square-bracketed-call-argument-list} ::=
+    {\em call-argument-list} with \TT{[~]} brackets
+\\[0.5ex]
 {\em call-term} ::= see \pagref{CALL-TERM}
 \\[0.5ex]
-\emkey{call-argument-list}\label{REFERENCE-CALL-ARGUMENT-LIST}
-    \begin{tabular}[t]{rl}
-    ::= & \TT{[} {\em actual-argument}
-          \{ \TT{,} {\em actual-argument} \}\STAR{} \TT{]} \\
-    $|$ & \TT{[~]} \\
-    \end{tabular}
+{\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \begin{itemize}
 \item
 If the {\em reference-call} begins with a {\em module-abbreviation} ({\em ma}),
@@ -6373,39 +6392,35 @@ The syntax of a {\em reference-function-declaration} is:
     ::= & {\em reference-pattern-argument}~
           \begin{tabular}[t]{l}
           {\em member-name}~ \TT{()}\QMARK{}~ \\
-	  {\em pattern-argument-list}\STAR{} \\
-          {\em pattern-term}\STAR{} \\
+	  {\em parenthesized-pattern-argument-list}\STAR{} \\
+          {\em parenthesized-pattern-term}\STAR{} \\
 	  \end{tabular} \\
     $|$ & {\em reference-pattern-argument}~
           \begin{tabular}[t]{l}
-          {\em reference-pattern-argument-list}\PLUS{} \\
+          {\em square-bracketed-pattern-argument-list}\PLUS{} \\
+          {\em parenthesized-pattern-term}\STAR{} \\
 	  \end{tabular} \\
     \end{tabular}
-\\[0.5ex]
-{\em member-name} ::= see \pagref{MEMBER-NAME}
-\\[0.5ex]
-\emkey{reference-pattern-argument} ::=
-    \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
 \\[0.5ex]
 \emkey{parenthesized-pattern-term} ::=
     {\em pattern-term} with\underline{out} \TT{[~]} brackets
 \\[0.5ex]
+\emkey{square-bracketed-pattern-argument-list} ::= \\
+\hspace*{0.5in}
+    {\em pattern-argument-list} with square brackets \TT{[~]}
+    (and \underline{not} parentheses \TT{(~)})
+\\[0.5ex]
+{\em member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
 {\em pattern-term} ::= see \pagref{PATTERN-TERM}
 \\[0.5ex]
 {\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
-\\[0.5ex]
-\emkey{reference=pattern-argument-list}%
-    \label{REFERENCE-PATTERN-ARGUMENT-LIST} \\
-\hspace*{0.5in}
-    \begin{tabular}[t]{@{}rl}
-    ::= & \TT{[} {\em prototype-argument-declaration}~
-	     \{ \TT{,} {\em prototype-argument-declaration} \}\STAR{} \TT{]} \\
-    \end{tabular}
+\end{indpar}
 \begin{itemize}
 \item
 The rules for a {\em function-declaration}
 (\pagref{FUNCTION-DECLARATION-RULES})
-apply where applicable to a {\em reference-function-declaration},
+apply where applicable to a {\em reference-func\-tion-declaration},
 with exceptions as indicated here.
 \item Only the {\tt macro} and {\tt constant} {\em function-specializers}
 are allowed ({\tt inclusion} is not allowed).
@@ -6431,7 +6446,6 @@ This is the \underline{only} situation in which \TT{()} may be used.
 {\em Pattern-argument-lists} with square brackets are restricted to
 appearing just after the {\em reference-pattern-argument}.
 \end{itemize}
-\end{indpar}
 
 When a {\em reference-call} computes a pointer, the pointer target
 qualifiers are computed in the same manner as for builtin
