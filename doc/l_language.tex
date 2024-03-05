@@ -2722,13 +2722,16 @@ combination of explicit and implicit left parentheses and
 {\em module-abbreviations}
 is a {\em reference-expression}.
 
-Otherwise an {\em expression} with no operators is a
-{\em number-constant} or a
-(non-reference) {\em function-call}\pagnote{FUNCTION-CALL},
-unless it consists in its entirety of just
-an explicitly or implicitly parenthesized subexpression optionally
+Otherwise an {\em expression} with no operators is one of:
+\begin{enumerate}
+\item a {\em number-constant}, or
+\item
+a (non-reference) {\em function-call}\pagnote{FUNCTION-CALL}, or
+\item
+an explicitly or implicitly parenthesized subexpression
 preceded by a {\em module-abbreviation}
-(see \pagref{MA-SYNTACTIC-SUGAR} for more information about this last case).
+(see \pagref{MA-SYNTACTIC-SUGAR} for more information about this last case)
+\end{enumerate}
 \end{itemize}
 \end{indpar}
 
@@ -2752,12 +2755,12 @@ target type is allowed, whereas implicit conversion
 of a sub-{\em expression} that is a {\em function-call}
 is \underline{not} allowed.
 
-TBD
-
-A {\em reference-call} is a call to a reference function.
+A {\em reference-call} or a {\em function-variable-name}
+is a call to a reference function.
 For details see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
 The rest of this section applies to builtin {\em reference-expressions}
-that are \underline{not} {\em reference-calls}.
+that do \underline{not} contain
+{\em reference-calls} or {\em function-variable-names}.
 
 A {\em member-name} of the form `\TT{.}{\em data-label}\,'
 may be used to select a field or subfield\label{FIELD-SELECTION}
