@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 4, 2024
+March 5, 2024
 
 \bigskip
  
@@ -2649,59 +2649,44 @@ with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
-A \emkey{reference-expression} computes either a pointer to a location
-in memory, or the value of such a location, or stores a value in a location,
-or appears to do these things via calls to reference functions.
+A \emkey{reference-expression} denotes a location (a.k.a, a variable),
+and can either be used
+to read a value from that location or write a value into the location.
+It is possible for the location to be virtual, so that the
+{\em reference-expression}
+actually names a pair of functions, one for reading a value and one for
+writing a value.
 
-Syntactically a typical {\em reference-expression}
-begins with a {\em variable-name} or `\TT{next} {\em variable-name}'
-and then adds suffixes that begin with either a \TT{[} bracket
-or a {\em member-name} (which begins with `\TT{.}': see \pagref{MEMBER-NAME}).
-A {\em reference-expression} that is a {\em variable-name}
-or `\TT{next} {\em variable-name}'
-by itself or inside parentheses is called \key{simple}.
-More complex {\em reference-expressions}
-are called \key{compound} and consists of two parts:
+{\em Reference-expressions} are simple or compound.
+A \key{simple} {\em reference-expression} is
+a {\em variable-name}, `\TT{next} {\em variable-name}',
+{\em function-variable-name}, {\em string-constant}, or {\em map-constant}.
+A \key{compound} {\em reference-expression} consists of two parts:
 a \key{base} that is a smaller {\em reference-expression},
 and an \key{offset} that follows the base with
-a \TT{[} or {\em member-name}.  The base may be parenthesized, and
-if parenthesized, may be
-preceded by a {\em module-abbreviation} that is part of a
-{\em reference-call}.
+a \TT{[} or {\em member-name}
+(which begins with `\TT{.}': see \pagref{MEMBER-NAME}).
+The base may be parenthesized, and
+if parenthesized, may be preceded by a {\em module-abbreviation} which
+applies to the whole compound {\em reference-expression}.
 
-So a {\em reference-expression} begins with a {\em variable-name} or
-`\TT{next} {\em variable-name}' that may only
-be preceded
-by explicit or implicit left parentheses and {\em module-abbreviations}.
-The {\em variable-name} or `\TT{next} {\em variable-name}'
-is called the \key{root} of the {\em reference-expression}.
+At the beginning of every {\em reference-expression} is a simple
+{\em reference-expression} called the \key{root} of the
+{\em reference-expression}.  The root is then followed by zero or more
+offsets.
 
-The type of a {\em reference-expression} is computed bottom up starting
-with the type of the base which has been previously computed bottom up.
-The type of the {\em variable-name} in the root is specified by context.
-The type
-of the base of a compound {\em reference-expression} is known by
-recursion.  This type, the syntax of the offset, and the
-types of the any subexpressions that are arguments in the offset
-determine the type of a compound {\em reference-expression}.
+TBD
 
-This is different from the computation of the type of a general
-sub-{\em expression}, which proceeds top-down using a target type
-provided by the {\em statement} containing the sub-{\em expression}.
-Since the type of a {\em reference-expression} does not depend on
-its containing {\em statement}, implicit conversion of a
-{\em reference-expression} value to a {\em statement} provided
-target type is allowed, whereas implicit conversion
-of a sub-{\em expression} that is a {\em function-call}
-is \underline{not} allowed.
-
-The syntax of {\em reference-expressions} is:
+The full syntax of a {\em reference-expression} is:
 
 \begin{indpar}
 \emkey{reference-expression}\label{REFERENCE-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
     $|$ & \TT{next}~ {\em variable-name} \\
+    $|$ & {\em function-variable-name} \\
+    $|$ & {\em string-constant} \\
+    $|$ & {\em map-constant} \\
     $|$ & {\em reference-expression} \TT{[} {\em index-list} \TT{]} \\
     $|$ & {\em reference-expression} {\em member-name} \\
     $|$ & {\em reference-call} \\
@@ -2740,6 +2725,25 @@ preceded by a {\em module-abbreviation}
 (see \pagref{MA-SYNTACTIC-SUGAR} for more information about this case).
 \end{itemize}
 \end{indpar}
+
+The type of a {\em reference-expression} is computed bottom up starting
+with the type of the base which has been previously computed bottom up.
+The type of the {\em variable-name} in the root is specified by context.
+The type
+of the base of a compound {\em reference-expression} is known by
+recursion.  This type, the syntax of the offset, and the
+types of the any subexpressions that are arguments in the offset
+determine the type of a compound {\em reference-expression}.
+
+This is different from the computation of the type of a general
+sub-{\em expression}, which proceeds top-down using a target type
+provided by the {\em statement} containing the sub-{\em expression}.
+Since the type of a {\em reference-expression} does not depend on
+its containing {\em statement}, implicit conversion of a
+{\em reference-expression} value to a {\em statement} provided
+target type is allowed, whereas implicit conversion
+of a sub-{\em expression} that is a {\em function-call}
+is \underline{not} allowed.
 
 A {\em reference-call} is a call to a reference function.
 For details see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
