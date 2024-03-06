@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 5, 2024
+March 6, 2024
 
 \bigskip
  
@@ -2692,8 +2692,6 @@ The full syntax of a {\em reference-expression} is:
     ::= & {\em variable-name} \\
     $|$ & \TT{next}~ {\em variable-name} \\
     $|$ & {\em function-variable-name} \\
-    $|$ & {\em string-constant} \\
-    $|$ & {\em map-constant} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{index-list} ::= {\em index} \{ \TT{,} {\em index} \}\STAR{}
@@ -2717,14 +2715,14 @@ The full syntax of a {\em reference-expression} is:
 may be implied.
 \item
 An {\em expression} with no operators that begins
-with a {\em simple-reference-expression} possibly preceded by some
+with a ({\em function-}){\em variable-name} possibly preceded by some
 combination of explicit and implicit left parentheses and
 {\em module-abbreviations}
 is a {\em reference-expression}.
 
 Otherwise an {\em expression} with no operators is one of:
 \begin{enumerate}
-\item a {\em number-constant}, or
+\item a {\em constant}, or
 \item
 a (non-reference) {\em function-call}\pagnote{FUNCTION-CALL}, or
 \item
@@ -2772,10 +2770,12 @@ or array in a
 user defined type value, or the
 element of a vector pointed at by a pointer, or an element
 of a {\em map}.  An {\em index} can be a {\em const}
-string.  For a run-time {\em reference-expression} a string
-{\em index} is a {\em data-label}: `{\tt ["M"]}' is equivalent
-to `{\tt .M}'.  For a compile-time {\em reference-expression}
-the string is used to select a map {\em dictionary-entry}.
+string.  In general, if \TT{"$S$"} is a {\tt const} string,
+\TT{["$S$"]} is equivalent to `\TT{.$S$}'.  This can be used
+with a run-time {\em reference-expression}
+as a field or subfield label, or with a compile-time
+{\em reference-expression} to select a map {\em dictionary-entry}.
+
 Otherwise the
 {\em index} must be a positive or negative integer.  Bounds imposed
 by user defined types or stored in a pointer are used to
