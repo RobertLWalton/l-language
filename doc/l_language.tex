@@ -2886,7 +2886,10 @@ Dictionary members are marked read-only when they are initially created.
 The following example illustrates
 computation with map constants:
 \begin{indpar}\begin{verbatim}
+const U = {"A", "B"}[0]  // Illegal: {"A". "B"} is not a simple
+                         // reference expression.
 const X = {"A", "B"}
+const V = X[0]           // Legal, == "A".
 X[0] = "C"               // Illegal, X is read-only.
 read-write ( X )
 X[0] = "C"               // Now X is {"C", "B"}.
