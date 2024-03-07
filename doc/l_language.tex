@@ -4918,9 +4918,6 @@ The syntax of a function declaration is:
 	             {\em prototype-pattern} \\
     $|$ & {\em function-specializer}\QMARK{}~ \ttkey{function}~
           {\em module-abbreviation}\QMARK{}~ {\em prototype-pattern} \\
-    $|$ & {\em function-specializer}\QMARK{}~ \ttkey{function}~
-          {\em module-abbreviation}\QMARK{}~ {\em prototype-pattern}~ \TT{=} \\
-	& \TT{~~~~~} {\em input-argument-list} \\
     \end{tabular}
 \\[2ex]
 \emkey{function-specializer}\label{FUNCTION-SPECIALIZER} ::=
@@ -4963,10 +4960,6 @@ The syntax of a function declaration is:
     \label{PROTOTYPE-NEXT-VARIABLE-DECLARATION}
       ::= \ttkey{next} {\em variable-name}
 \\[0.5ex]
-\emkey{input-argument-list}\label{INPUT-ARGUMENT-LIST} ::= \\
-\hspace*{0.5in}{\em prototype-result-variable-declaration}
-                 \{ \TT{,} {\em input-argument-declaration} \}\STAR{}
-\\[0.5ex]
 \emkey{prototype-argument-declaration}\label{PROTOTYPE-ARGUMENT-DECLARATION} \\
 \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
     ::= & {\em prototype-result-variable-declaration}
@@ -4976,10 +4969,6 @@ The syntax of a function declaration is:
     $|$ & {\em prototype-result-variable-declaration}
           \TT{!=} {\em required-value} \\
     \end{tabular}
-\\[0.5ex]
-\emkey{input-argument-declaration}\label{INPUT-ARGUMENT-DECLARATION} ::= \\
-\hspace*{0.5in}{\em prototype-result-variable-declaration}
-          \{ \TT{?=} {\em default-value} \}\QMARK{}
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
@@ -4998,15 +4987,6 @@ The syntax of a function declaration is:
     ::= {\em function-term-name}~ {\em pattern-argument-list}\STAR{}
 \\[0.5ex]
 {\em function-term-name} ::= see \pagref{FUNCTION-TERM-NAME}
-\\[0.5ex]
-\emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::= \\
-\hspace*{0.5in}
-    \begin{tabular}[t]{@{}p{5in}@{}}
-    {\em variable-name} $N$ which also has the form: \\
-    \hspace*{1in}{\em module-abbreviation}\QMARK{} {\em function-term-name} \\
-    and that appears in a {\em function-prototype} of the form: \\
-    \hspace*{1in}{\tt function $N$ = \ldots}
-    \end{tabular}
 \\[0.5ex]
 \emkey{pattern-argument-list}\label{PATTERN-ARGUMENT-LIST} \\
 \hspace*{0.5in}
@@ -5055,13 +5035,7 @@ Result and argument {\em variable-names}
 in a {\em function-prototype} must
 be distinct, with an exception for the previous note.
 \item
-An {\em input-argument-list} cannot contain {\tt macro} or required
-arguments.
-\item
-The first {\em prototype-argument-declaration} in an {\em input-argument-list}
-must not have a {\em default-value}.
-\item
-In a {\em pattern-argument-list} or {\em input-argument-list}
+In a {\em pattern-argument-list}
 a {\em prototype-argument-declaration} with no {\em de\-fault-value} cannot
 follow a {\em prototype-argument-declaration} with a {\em default-value}.
 \item
@@ -5128,19 +5102,6 @@ the {\em pattern-term} with its
 (here {\tt H ( 7 )} is inserted).
 Similarly with an {\em argument-list} that is omitted
 (here {\tt ( 5 )} is inserted).
-
-An example containing an {\em input-argument-list} is:
-\begin{indpar}\begin{verbatim}
-function F [ int x ] = int y,  int z ?= 5:
-    . . . . . . . . . .
-F[10] = 6  // Effectively becomes F[10] "=" ( 6, 5 )
-\end{verbatim}\end{indpar}
-which is treated as if {\tt =} were a {\em function-term-name}
-that must be the last such in the call, and the comma separated
-values after {\tt =}
-in the call and {\em prototype-argument-declarations} after {\tt =}
-in the prototype
-were surrounded by parentheses {\tt (~)}.
 
 For an argument
 list in the prototype to match an argument list in the call, both
