@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 7, 2024
+March 8, 2024
 
 \bigskip
  
@@ -5416,8 +5416,8 @@ it uses the Declaration Search Algorithm below.
 \item\label{CONSTANT-STEP}
 If $E$ is a {\em constant}\pagnote{CONSTANTS} other than
 a {\em rational-constant}, evaluate $E$
-to a {\tt const} value $C$, annotate the
-{\em expression} with $C$ and with the type {\tt const},
+to a {\tt const} value $C$, annotate $E$
+with $C$ and with the type {\tt const},
 and terminate this algorithm.
 ({\em Rational-constants} are evaluated as {\em function-calls} to
 a {\tt constant} function in Step~\ref{CONSTANT-FUNCTION-STEP} below.)
@@ -5544,18 +5544,18 @@ have a result of this type (or results of these types).
 In an {\em expression-assignment-statement}%
 \pagnote{EXPRESSION-ASSIGNMENT-STATEMENTS} each right-side {\em expression}
 has a corresponding left-side {\em assignment-result} which is a
-{\em reference-expression} that specifies
-the {\em expression's} target type.
+{\em reference-expression} that is annotated with
+the right-side {\em expression's} target type.
 
 In a {\em call-assignment-statement}%
 \pagnote{CALL-ASSIGNMENT-STATEMENTS} in which $E$ is the {\em function-call}
 on the statement's right-side, the statement's
 left-side {\em assignment-results} are {\em reference-expressions} that
-together specify a list of target types.
+are annotated together with the list of the {\em function-call's} target types.
 
 For an {\em expression} that is a {\em function-call} argument,
 the declaration matched to the {\em function-call} specifies the
-target type of the {\em expression}.  For example, in
+target type of the argument {\em expression}.  For example, in
 `{\tt int z = x + 5}' the target type of {\tt +} is {\tt int},
 the declaration matched to `{\tt x +  5}' (the only one with an {\tt int}
 result type) has {\tt int} result
