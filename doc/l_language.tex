@@ -5597,7 +5597,8 @@ target type $T$ the second step executes:
 \centerline{\bf Top-Down Expression Algorithm}
 \begin{enumerate}
 
-\item This algorithm is applied to an {\em expression} $E$ found by
+\item This algorithm is applied to an {\em expression} $E$ and its
+target type $T$ found by
 top-to-bottom left-to-right transversal of the {\em expressions} of the
 current statement.  It annotates {\em expressions} with maps from
 possible target types to declarations containing code that can execute
@@ -5621,8 +5622,8 @@ annotate $E$ with $T\mapsto {\tt *FAIL*}$.
 
 \item If $E$ is a
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
-compute its type $T'$. 
-Then if $T$ equals $T'$ annotate $E$ with $T\mapsto{*EXACT*}$.
+annotated with its type $T'$,
+then if $T$ equals $T'$ annotate $E$ with $T\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
 graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
 for some shortest path $D_1,D_2,\ldots,D_n$ from $T$ to $T'$,
@@ -5637,7 +5638,7 @@ If none are found,
 annotate $E$ with $T\mapsto{\tt *FAIL*}$.
 If more than one is found (of highest rank),
 annotate $E$ with $T\mapsto{\tt *AMBIGUOUS*}$.
-Otherwise if just one {\em function-declaration} $D$ was found,
+Otherwise if just one {\em function-declaration} $D$ of highest rank was found,
 annotate $E$ with $T\mapsto D$.
 
 If $E$ is the top level {\em function-call}
@@ -5653,11 +5654,13 @@ $T_1,T_2,\ldots,T_m$ respectively.
 
 \bigskip
 
+The search algorithm used by the above is:
+
 \centerline{\bf Declaration Search Algorithm}
 \begin{enumerate}
 \item This algorithm examines all ({\em reference-}){\em function-declarations}
 in the current context\pagnote{CONTEXT} that meet criteria specified by the
-search and applies the Call-Declaration Matching Algorithm to each.
+search and applies the Call-Declaration Matching Algorithm (below) to each.
 Search criteria can restrict the search to, for example, {\tt macro}
 right {\em reference-function-declarations}, or to give another example,
 to all non-special {\em function-declarations} with a given target type
@@ -5665,7 +5668,7 @@ to all non-special {\em function-declarations} with a given target type
 \item
 After examining all the appropriate declarations, this algorithm has
 a set of declarations satisfying the Call-Declaraton Matching Algorithm.
-If the set is empty, this algorithm reports failure.  Otherwise all the
+If the set is empty, this algorithm reports failure.  Otherwise all but
 the highest ranking matches are discarded.  If there is only one match
 left, this algorithm reports success along with the single highest
 ranking matching declaration.
@@ -5674,7 +5677,11 @@ ambiguity failure.
 
 \end{enumerate}
 
-The matching algorithm used by the above is:
+The matching algorithm used by the above to match a {\em function-call}
+with a {\em function-declaration} is as follows.  For the corresponding
+algorithm matching a {\em reference-expression} to a
+{\em reference-function-declaration} see
+\itemref{REFERENCE-FUNCTION-DECLARATIONS}.
 
 \bigskip
 
