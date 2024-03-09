@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 8, 2024
+March 9, 2024
 
 \bigskip
  
@@ -2135,6 +2135,8 @@ rules below):
 	[\ref{TYPE-NAME-RULE}] \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     \MA{} {\em basic-name} \\
+\emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
+    {\em variable-name} \\
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
     {\em variable-name} whose {\em basic-name} begins with an \TT{@} \\
 \emkey{target-variable}\label{TARGET-VARIABLE} ::=
@@ -5678,7 +5680,7 @@ ambiguity failure.
 \end{enumerate}
 
 The matching algorithm used by the above to match a {\em function-call}
-with a {\em function-declaration} is as follows.  For the corresponding
+with a {\em function-declara\-tion} is as follows.  For the corresponding
 algorithm matching a {\em reference-expression} to a
 {\em reference-function-declaration} see
 \itemref{REFERENCE-FUNCTION-DECLARATIONS}.
@@ -6265,30 +6267,26 @@ called as part of evaluating a {\em reference-expression}.
 A reference function can be invoked by a {\em function-variable-name},
 that acts like a {\em variable-name} except that instead of
 naming a location in the stack the {\em function-variable-name}
-names a pair of functions: one for reading the function variable
-and one for writing it.  A {\em function-variable-name} is used
-as the root of a {\em reference-expression}.
+names a pair of functions: one for loading the value of the function variable
+and one for storing it.
 
 A reference function can also be invoked by a {\em reference-call}
-that invokes a defined by a particular offset, either a {\em member-name}
-or \TT{[~]} bracketed expressions.  In this case the reference function
-defines the behavior of the offset.
+that invokes functions associated with a particular {\em reference-offset},
+either a {\em member-name} or \TT{[~]} bracketed expressions.
+The part of the {\em reference-call} offset
+is a smaller {\em reference-expression} called the {\em reference-base}.
+The functions effectively apply the {\em reference-offset} as if it
+were a postfix operator to the {\em reference-base} in order to
+load a value, store a value, or index a {\em reference-base} pointer.
 
 The syntax of a {\em reference-call} is:
 
 \begin{indpar}
-\emkey{reference-call}\label{REFERENCE-CALL} ::= \\
-\hspace*{1em}\begin{tabular}[t]{rl}
-        & {\em reference-base} ~
- 	  {\em reference-offset} ~
-          {\em parenthesized-call-term}\STAR{} \\
-        & {\em ma} \TT{(} {\em reference-base} \TT{)} ~
- 	  {\em reference-offset} ~
-          {\em parenthesized-call-term}\STAR{} \\
-    \end{tabular}
+\emkey{reference-call}\label{REFERENCE-CALL} ::=
+        {\em reference-base} ~ {\em reference-offset}
 \\[0.5ex]
 {\em reference-offset}\begin{tabular}[t]{rl}
-	::= & {\em member-name} {\em parenthesized-call-argument-list}\STAR{} \\
+	::= & {\em member-name} \\
 	$|$ & {\em square-bracketed-call-argument-list}\PLUS{}
 	\end{tabular}
 \\[0.5ex]
@@ -6296,30 +6294,15 @@ The syntax of a {\em reference-call} is:
 \\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
 \\[0.5ex]
-{\em ma} ::= {\em module-abbreviation} ~~~~~ [see \pagref{MODULE-ABBREVIATION}]
-\\[0.5ex]
-\emkey{parenthesized-call-term} ::=
-    {\em call-term} with\underline{out} \TT{[~]} brackets
-\\[0.5ex]
-\emkey{parenthesized-call-argument-list} ::=
-    {\em call-argument-list} with \TT{(~)} parentheses
-\\[0.5ex]
 \emkey{square-bracketed-call-argument-list} ::=
     {\em call-argument-list} with \TT{[~]} brackets
-\\[0.5ex]
-{\em call-term} ::= see \pagref{CALL-TERM}
 \\[0.5ex]
 {\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \begin{itemize}
 \item
-If the {\em reference-call} begins with a {\em module-abbreviation} ({\em ma}),
-the {\em reference-base} must be parenthesized.  Otherwise
-the {\em module-abbreviation} will be parsed as part of the
-{\em reference-base} (e.g., as part of the {\em variable-name}
-that is the root of the {\em reference-expression}).
-\item
-{\em Reference-all-argument-lists} with square brackets are restricted to
-appearing just after the {\em reference-base}.
+If the {\em reference-call} begins with a {\em module-abbreviation}
+that is part of the the {\em variable-name} that is the root of
+the {\em reference-expression},
 \item
 A {\em member-name} in a {\em reference-offset}
 may \underline{not} be abbreviated.
@@ -6342,37 +6325,22 @@ The syntax of a {\em reference-function-declaration} is:
 \emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} \\
 \hspace*{0.25in}
     \begin{tabular}[t]{rl}
-        ::= & {\em right-reference-function-prototype} \\
-        $|$ & {\em left-reference-function-prototype} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{right-reference-function-prototype}%
-    \label{RIGHT-REFERENCE-FUNCTION-PROTOTYPE} \\
-\hspace*{0.25in}
-    \begin{tabular}[t]{rl}
-        ::= & \ttkey{reference function variable} \\
+        ::= & \ttkey{load reference function variable} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
             	{\em function-variable-name} \\
-        $|$ & \ttkey{reference function} \\
-	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~ \\
-            & \TT{~~~~~~~~}{\em module-abbreviation}\QMARK{}~
-	      {\em reference-prototype-pattern} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{left-reference-function-prototype}%
-\label{LEFT-REFERENCE-FUNCTION-PROTOTYPE} \\
-\hspace*{0.25in}
-    \begin{tabular}[t]{rl}
-        ::= & \ttkey{reference function variable} \\
+        $|$ & \ttkey{store reference function variable} \\
 	    & \TT{~~~~}{\em function-variable-name}~ \TT{=}~
             	{\em prototype-result-variable-declaration} \\
-        $|$ & \ttkey{reference function} \\
-            & \TT{~~~~}{\em module-abbreviation}\QMARK{}~
-	      {\em reference-prototype-pattern}~ \TT{=}~ \\
-	    & \TT{~~~~~~~~}{\em prototype-result-variable-declaration}
+        $|$ & \ttkey{load reference function} \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
+	        {\em reference-prototype-pattern} \\
+        $|$ & \ttkey{index reference function} \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
+	        {\em reference-prototype-pattern} \\
+        $|$ & \ttkey{store reference function} \\
+	    & \TT{~~~~}{\em reference-prototype-pattern}~ \TT{=}~ 
+	        {\em prototype-result-variable-declaration}
     \end{tabular}
-\\[0.5ex]
-{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \\[0.5ex]
 {\em prototype-result-variable-declaration} ::=
     see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
@@ -6381,35 +6349,25 @@ The syntax of a {\em reference-function-declaration} is:
 \hspace*{2em}\begin{tabular}[t]{rl}
     ::= & {\em reference-pattern-base}~
           \begin{tabular}[t]{l}
-          {\em member-name}~ \TT{()}\QMARK{}~ \\
-	  {\em parenthesized-pattern-argument-list}\STAR{} \\
-          {\em parenthesized-pattern-term}\STAR{} \\
+          {\em member-name}~ \\
 	  \end{tabular} \\
     $|$ & {\em reference-pattern-base}~
           \begin{tabular}[t]{l}
           {\em square-bracketed-pattern-argument-list}\PLUS{} \\
-          {\em parenthesized-pattern-term}\STAR{} \\
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
+{\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
+\\[0.5ex]
 \emkey{reference-pattern-base} ::=
     \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
-\\[0.5ex]
-\emkey{parenthesized-pattern-argument-list} ::= \\
-\hspace*{0.5in}
-    {\em pattern-argument-list} with \TT{(~)} parentheses
 \\[0.5ex]
 \emkey{square-bracketed-pattern-argument-list} ::= \\
 \hspace*{0.5in}
     {\em pattern-argument-list} with square brackets \TT{[~]}
     (and \underline{not} parentheses \TT{(~)})
 \\[0.5ex]
-\emkey{parenthesized-pattern-term} ::=
-    {\em pattern-term} with\underline{out} \TT{[~]} brackets
-\\[0.5ex]
 {\em member-name} ::= see \pagref{MEMBER-NAME}
-\\[0.5ex]
-{\em pattern-term} ::= see \pagref{PATTERN-TERM}
 \\[0.5ex]
 {\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
 \end{indpar}
@@ -6420,23 +6378,27 @@ The rules for a {\em function-declaration}
 apply where applicable to a {\em reference-func\-tion-declaration},
 with exceptions as indicated here.
 \item
+The functions associated with a {\em function-variable-name} are
+invoked from a
+{\em simple-reference-expression}\pagnote{SIMPLE-REFERENCE-EXPRESSION}
+consisting of nothing but the {\em function-variable-name}.
+\item
+A {\em function-variable-name} begins with a {\em module-abbreviation}
+if it is external (just like other {\em variable-names}.
+\item
+A a {\em reference-function-declaration} \underline{not} containing
+a {\em function-variable-name} is external if and only if the
+type of its {\em reference-pattern-base} is external.  In this case
+the {\em reference-function-declaration} \underline{must} be within
+the same module (file) as the {\em type-declaration} of this type.
+\item
 The {\em reference-pattern-base} must be
 followed by
-a {\em member-name}\pagnote{MEMBER-NAME} or square-bracketed
+a {\em member-name}\pagnote{MEMBER-NAME} or
 {\em square-bracketed-pattern-argument-lists}.
 \item
 The first actual argument in a {\em reference-call} is a
-smaller {\em reference-expression} that has already been deliminated.
-It must be surrounded by parentheses {\tt (~)} if it is preceded by
-the {\em module-abbreviation} of the {\em reference-call}
-\item
-A {\em member-name} cannot be followed immediately by a {\em pattern-term};
-in this case a \TT{()} must be placed immediately after the {\em member-name}
-to indicate the boundary between it and the following {\em pattern-term}.
-This is the \underline{only} situation in which \TT{()} may be used.
-\item
-{\em Pattern-argument-lists} with square brackets are restricted to
-appearing just after the {\em reference-pattern-base}.
+smaller {\em reference-expression} that has already been delimited.
 \end{itemize}
 
 When a {\em reference-call} computes a pointer, the pointer target
