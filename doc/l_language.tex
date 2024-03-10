@@ -2793,10 +2793,10 @@ like {\em variable-names} which are {\em simple-reference-expressions} and
 possibly the roots of compound {\em reference-expressions}.
 \item\key{Function Offsets}:~~
 These functions are invoked by {\em reference-offsets} in
-a compound {\em reference-expression}
+compound {\em reference-expressions}
 that act like postfix operators on
-real reference pointer produced by the base of the
-compound {\em reference-expression}.
+real reference pointers produced by the bases of the
+compound {\em reference-expressions}.
 \end{itemize}
 
 The type of a {\em reference-expression} is computed bottom up starting
@@ -2866,6 +2866,8 @@ are the target qualifiers of the pointer type.  A field's qualifiers
 are those its {\em field-declaration}\pagnote{FIELD-DECLARATION}.
 A subfield's qualifiers are those of its containing field.
 
+TBD
+
 The qualifiers of a pointer computed by such a reference expression,
 or of the target value referenced by the reference expression,
 are computed from the base and field qualifiers as per the
@@ -2918,8 +2920,6 @@ and lifetime depth as the base (see \itemref{LIFETIMES}).
 \caption{Reference Expression Qualifier Computation}
 \label{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
 \end{boxedfigure}
-
-TBD
 
 Map constants are represented internally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
