@@ -2679,7 +2679,7 @@ The full syntax of a {\em reference-expression} is:
 \emkey{reference-expression}\label{REFERENCE-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & {\em simple-reference-expression} \\
-    $|$ & {\em reference-expression} ~ {\em reference-offset} \\
+    $|$ & {\em reference-base} ~ {\em reference-offset} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{simple-reference-expression}\label{SIMPLE-REFERENCE-EXPRESSION}
@@ -2688,6 +2688,9 @@ The full syntax of a {\em reference-expression} is:
     $|$ & \TT{next}~ {\em variable-name} \\
     $|$ & {\em function-variable-name} \\
     \end{tabular}
+\\[0.5ex]
+\emkey{reference-base}\label{REFERENCE-BASE}
+    ::= {\em reference-expression}
 \\[0.5ex]
 \emkey{reference-offset}\label{REFERENCE-OFFSET}
     ::= {\em member-name} $|$ \{ \TT{[} {\em index-list} \TT{]} \}\PLUS{}
@@ -2759,8 +2762,21 @@ Compile time reference pointers (involving {\tt const} values) are always
 virtual, and consist of either a pointer into a compile-time local or
 global stack, or a map/index pair.
 
+
+A virtual reference pointer is replaced by the value it points at in
+the following situations:
+\begin{itemize}
+\item It was computed by a {\em reference-base} in a compound
+{\em reference-expression} and it points at
+a run-time pointer value or a compile-time map {\tt const} value.
+\item It was computed by an entire run-time {\em reference-expression}
+with a {\em pointer-variable} root, it points at a pointer value, and
+the {\em reference-expression} is being used to produce a value and not
+to store a value.
+\end{itemize}
+
 If the root of a {\em reference-expression} is a {\em pointer-variable}
-(beginning with \TT{@}), the reference pointer computed by the
+(beginning with \TT{@}), the reference pointer computed by the entire
 {\em reference-expression} is \underline{not}
 dereferenced, and it is an error if the reference pointer is not real.
 If the root is a {\em target-variable}, the reference
