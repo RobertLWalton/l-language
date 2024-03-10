@@ -2729,14 +2729,34 @@ type my type:
     int X;
     ap mytype @Y
 
-my type Z:       // A virtual pointer @Z is computed to the variable Z.
-    Z.X = 5      // A virtual ponter to Z.X is computed and dereferenced.
-    Z.@Y = null  // A virtual ponter to Z.@Y is computed and dereferenced.
+my type Z:       // A virtual pointer is computed to the variable Z.
+    Z.X = 5      // A virtual pointer to Z.X is computed and dereferenced.
+    Z.@Y = null  // A virtual pointer to Z.@Y is computed and dereferenced.
                  // This last is virtual both because it points into the
                  // local stack where Z is, and also because it points
                  // at a location whose type is a pointer type.
 
+ap my type @W:   // A real pointer @W is computed to the variable W.
+    W.X = 5      // A real pointer to W.X (denotable by @W.X) is computed
+                 // and dereferenced.
+    W.@Y = null  // A virtual pointer to W.@Y is computed and dereferenced.
+                 // The pointer is virtual because it points at a pointer.
 \end{verbatim}\end{indpar}
+
+{\em Reference-expressions} can call {\em reference-functions} to perform
+all or some of their computations.  There are two kinds of
+{\em reference-functions}:
+\begin{itemize}
+\item\key{Function Variables}:~~
+These are invoked by {\em function-variable-names} that are syntactically
+like {\em variable-names} which are {\em simple-reference-expressions} and
+possibly the roots of compound {\em reference-expressions}.
+\item\key{Function Offsets}:~~
+These are {\em reference-offsets} which act like postfix operators on
+real reference pointers produced by base {\em reference-expressions}.
+\end{itemize}
+
+TBD
 
 The type of a {\em reference-expression} is computed bottom up starting
 with the type of the base which has been previously computed bottom up.
