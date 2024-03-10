@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 9, 2024
+March 10, 2024
 
 \bigskip
  
@@ -2651,10 +2651,10 @@ with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
-A \emkey{reference-expression} computes a pointer to a location.
-In some cases it is possible to use a {\em reference-expression}
-to compute a pointer that can be stored in a variable.
-In other cases the pointer is virtual and
+A \emkey{reference-expression} computes a \key{reference pointer} to a location.
+In some cases the {\em reference-expression}
+computes a \key{real reference pointer} that can be stored in a variable.
+In other cases a \key{virtual reference pointer} is computed that
 can only be used by the {\em reference-expression} to read a value from the
 location or write a value into the location.
 
@@ -2679,7 +2679,7 @@ The full syntax of a {\em reference-expression} is:
 \emkey{reference-expression}\label{REFERENCE-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & {\em simple-reference-expression} \\
-    $|$ & {\em reference-expression} {\em reference-offset} \\
+    $|$ & {\em reference-expression} ~ {\em reference-offset} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{simple-reference-expression}\label{SIMPLE-REFERENCE-EXPRESSION}
@@ -2720,10 +2720,18 @@ an explicitly or implicitly parenthesized subexpression
 preceded by a {\em module-abbreviation}
 (see \pagref{MA-SYNTACTIC-SUGAR} for more information about this last case)
 \end{enumerate}
+\item If a {\em reference-expression} begins with a {\em module-abbreviation},
+the {\em module-abbrevia\-tion}
+is part of the ({\em function-}){\em variable-name} that is the
+root of the {\em reference-expression}.
+Note that removing the {\em module-abbreviation} that begins an external
+({\em function-}){\em variable-name} creates a different
+({\em function-}){\em variable-name} that names a different variable.
+
 \end{itemize}
 \end{indpar}
 
-Examples of virtual pointers are:
+Examples of reference pointers are:
 \begin{indpar}\small\begin{verbatim}
 type my type:
     int X;
@@ -2743,29 +2751,46 @@ ap my type @W:   // A real pointer @W is computed to the variable W.
                  // The pointer is virtual because it points at a pointer.
 \end{verbatim}\end{indpar}
 
+Generally a run-time reference pointer
+is virtual if and only if it points into a
+local or global stack or it points at a location containing a value of
+pointer type.
+Compile time reference pointers (involving {\tt const} values) are always
+virtual, and consist of either a pointer into a compile-time local or
+global stack, or a map/index pair.
+
+If the root of a {\em reference-expression} is a {\em pointer-variable}
+(beginning with \TT{@}), the reference pointer computed by the
+{\em reference-expression} is \underline{not}
+dereferenced, and it is an error if the reference pointer is not real.
+If the root is a {\em target-variable}, the reference
+pointer is dereferenced, and the pointer may be virtual.
+
 {\em Reference-expressions} can call {\em reference-functions} to perform
 all or some of their computations.  There are two kinds of
 {\em reference-functions}:
 \begin{itemize}
 \item\key{Function Variables}:~~
-These are invoked by {\em function-variable-names} that are syntactically
+These functions
+are invoked by {\em function-variable-names} that are syntactically
 like {\em variable-names} which are {\em simple-reference-expressions} and
 possibly the roots of compound {\em reference-expressions}.
 \item\key{Function Offsets}:~~
-These are {\em reference-offsets} which act like postfix operators on
-real reference pointers produced by base {\em reference-expressions}.
+These functions are invoked by {\em reference-offsets} in
+a compound {\em reference-expression}
+that act like postfix operators on
+real reference pointer produced by the base of the
+compound {\em reference-expression}.
 \end{itemize}
-
-TBD
 
 The type of a {\em reference-expression} is computed bottom up starting
 with the type of the base which has been previously computed bottom up.
-The type of any ({\em function-}){\em variable-name} in the root
+The type of any ({\em function-}){\em variable-name} that is the root
 is specified by context.
-The type
+Thereafter the type
 of the base of a compound {\em reference-expression} is known by
 recursion.  This type, the syntax of the offset, and the
-types of the any subexpressions that are arguments in the offset
+types of the any subexpressions that are arguments in the offset,
 determine the type of a compound {\em reference-expression}.
 
 This is different from the computation of the type of a general
@@ -2778,12 +2803,10 @@ target type is allowed, whereas implicit conversion
 of a sub-{\em expression} that is a {\em function-call}
 is \underline{not} allowed.
 
-A {\em reference-call} or a {\em function-variable-name}
-is a call to a reference function.
-For details see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
-The rest of this section applies to builtin {\em reference-expressions}
-that do \underline{not} contain
-{\em reference-calls} or {\em function-variable-names}.
+For details on calls to {\em reference-functions}
+see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
+The rest of this section applies to {\em reference-expressions}
+that do \underline{not} make these calls.
 
 A {\em member-name} of the form `\TT{.}{\em data-label}\,'
 may be used to select a field or subfield\label{FIELD-SELECTION}
@@ -2811,25 +2834,6 @@ The target type of a run-time {\em index} is \TT{int}.
 Within an {\em index-list} the comma (\TT{,}) is treated
 as equivalent to \TT{][}, so, for example, {\tt [x,y]}
 is equivalent to {\tt [x][y]}.
-
-If the {\em variable-name} in the root of a {\em reference-expression}
-is a {\em pointer-variable}, the reference expression computes a pointer.
-E.g., `{\tt @V[5]}' computes a pointer to the 5+1'st element of the
-vector pointed at by {\tt @V}.
-
-If the {\em variable-name} in the root of a {\em reference-expression}
-is a {\em target-variable} with an associated {\em pointer-variable},
-the reference expression refers to the value pointed by the pointer
-that would be computed if the {\em target-variable} was replaced by
-its associated {\em pointer-variable}.
-
-If the {\em variable-name} in the root of a {\em reference-expression}
-is a {\em target-variable} (i.e., does not begin with `\TT{@}')
-\underline{without}
-an associated {\em pointer-variable},
-the reference expression refers to the value of the variable,
-to a field or dictionary entry of this value,
-or to a vector or list element of this value.
 
 When a {\em reference-expression}
 \label{QUALIFIER-COMPUTATION}
@@ -2898,6 +2902,8 @@ and lifetime depth as the base (see \itemref{LIFETIMES}).
 \caption{Reference Expression Qualifier Computation}
 \label{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
 \end{boxedfigure}
+
+TBD
 
 Map constants are represented internally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
