@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 10, 2024
+March 11, 2024
 
 \bigskip
  
@@ -2771,8 +2771,8 @@ the following situations:
 a run-time pointer value or a compile-time map {\tt const} value.
 \item It was computed by an entire run-time {\em reference-expression}
 with a {\em pointer-variable} root, it points at a pointer value, and
-the {\em reference-expression} is being used to produce a value and not
-to store a value.
+the {\em reference-expression} is being used to produce a real reference
+pointer value and not to store a value.
 \end{itemize}
 
 If the root of a {\em reference-expression} is a {\em pointer-variable}
@@ -2798,26 +2798,6 @@ that act like postfix operators on
 real reference pointers produced by the bases of the
 compound {\em reference-expressions}.
 \end{itemize}
-
-The type of a {\em reference-expression} is computed bottom up starting
-with the type of the base which has been previously computed bottom up.
-The type of any ({\em function-}){\em variable-name} that is the root
-is specified by context.
-Thereafter the type
-of the base of a compound {\em reference-expression} is known by
-recursion.  This type, the syntax of the offset, and the
-types of the any subexpressions that are arguments in the offset,
-determine the type of a compound {\em reference-expression}.
-
-This is different from the computation of the type of a general
-sub-{\em expression}, which proceeds top-down using a target type
-provided by the {\em statement} containing the sub-{\em expression}.
-Since the type of a {\em reference-expression} does not depend on
-its containing {\em statement}, implicit conversion of a
-{\em reference-expression} value to a {\em statement} provided
-target type is allowed, whereas implicit conversion
-of a sub-{\em expression} that is a {\em function-call}
-is \underline{not} allowed.
 
 For details on calls to {\em reference-functions}
 see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
@@ -2851,27 +2831,32 @@ Within an {\em index-list} the comma (\TT{,}) is treated
 as equivalent to \TT{][}, so, for example, {\tt [x,y]}
 is equivalent to {\tt [x][y]}.
 
-When a {\em reference-expression}
+The type of a run-time {\em reference-expression}
+is computed bottom up starting with the type of the root.
+Run-time virtual reference pointers are just like real reference
+pointers of \TT{ap} or \TT{fp} type, except that a virtual pointer
+may point into the run-time local or global
+stack or may point at a pointer datum.  The reference pointer for
+a {\em variable-name} root of the reference expression is in essence an \TT{ap}
+pointer with {\tt co} or {\tt *INIT*} qualifier pointing into
+the local or global stack.  {\em Reference-offsets} modify this as the
+{\em reference-expression} is computed.  At some point the virtual
+reference pointer may point at a real pointer datum and be replaced
+by that real pointer datum according to the rules above.
+
+When a {\em member-name} {\em reference-offset} specifying a field
+in a user defined type modifies a
+virtual or real reference pointer, the qualifiers of the resulting reference
+pointer are determined according to 
+Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}.%
 \label{QUALIFIER-COMPUTATION}
-consists of a base that designates
-a user defined type value
-followed by a {\em member-name} that designates a field
-or subfield of this value
-value, both the base and the field or
-subfield have qualifiers.
-If the base is in a function frame its sole qualifier is {\tt co}
-or {\TT *INIT*}, as determined by context.
-Otherwise the base is the target of a pointer, and its qualifiers
-are the target qualifiers of the pointer type.  A field's qualifiers
-are those its {\em field-declaration}\pagnote{FIELD-DECLARATION}.
-A subfield's qualifiers are those of its containing field.
-
-TBD
-
-The qualifiers of a pointer computed by such a reference expression,
-or of the target value referenced by the reference expression,
-are computed from the base and field qualifiers as per the
-Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}%
+The target type of the modified pointer is provided by the 
+{\em member-name} {\em reference-offset}, which may also change the
+(effective) pointer type of the modified reference pointer from
+\TT{ap} to \TT{fp}.
+Note that if the qualifiers of the unmodified reference pointer
+are {\tt co} or {\tt *INIT*}, these remain the qualifiers of the
+modified reference pointer.
 
 \begin{boxedfigure}[!t]
 \newcommand{\tts}{\tt \small}
@@ -2920,6 +2905,19 @@ and lifetime depth as the base (see \itemref{LIFETIMES}).
 \caption{Reference Expression Qualifier Computation}
 \label{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
 \end{boxedfigure}
+
+Computing types of reference pointers is a bottom-up process,
+and is different from computing types of general
+sub-{\em expressions}, which are top-down using a target type
+provided by the {\em statement} containing the sub-{\em expression}.
+Since the type of a {\em reference-expression} does not depend on
+its containing {\em statement}, implicit conversion of a
+{\em reference-expression} value to a {\em statement} provided
+target type is allowed, whereas implicit conversion
+of a sub-{\em expression} that is a {\em function-call}
+is \underline{not} allowed.
+
+TBD
 
 Map constants are represented internally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
