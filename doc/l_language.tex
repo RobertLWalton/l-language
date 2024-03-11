@@ -2705,8 +2705,6 @@ The full syntax of a {\em reference-expression} is:
 {\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
 \\[0.5ex]
 {\em member-name} ::= see \pagref{MEMBER-NAME}
-\\[0.5ex]
-{\em reference-call} ::= see \pagref{REFERENCE-CALL}
 \begin{itemize}
 \item
 An {\em expression} with no operators that begins
@@ -6313,51 +6311,17 @@ for ( x, 15 ):
 
 A \key{reference function} is a function that can be
 called as part of evaluating a {\em reference-expression}.
-A reference function can be invoked by a {\em function-variable-name},
-that acts like a {\em variable-name} except that instead of
-naming a location in the stack the {\em function-variable-name}
-names a pair of functions: one for loading the value of the function variable
-and one for storing it.
+This part is called a {\em reference-call}\label{REFERENCE-CALL}.
 
-A reference function can also be invoked by a {\em reference-call}
-that invokes functions associated with a particular {\em reference-offset},
-either a {\em member-name} or \TT{[~]} bracketed expressions.
-The part of the {\em reference-call} offset
-is a smaller {\em reference-expression} called the {\em reference-base}.
-The functions effectively apply the {\em reference-offset} as if it
-were a postfix operator to the {\em reference-base} in order to
-load a value, store a value, or index a {\em reference-base} pointer.
 
-The syntax of a {\em reference-call} is:
+A {\em function-variable-name} appearing at the beginning of
+a {\em reference-expression} as the root is a {\em reference-call}.
 
-\begin{indpar}
-\emkey{reference-call}\label{REFERENCE-CALL} ::=
-        {\em reference-base} ~ {\em reference-offset}
-\\[0.5ex]
-{\em reference-offset}\begin{tabular}[t]{rl}
-	::= & {\em member-name} \\
-	$|$ & {\em square-bracketed-call-argument-list}\PLUS{}
-	\end{tabular}
-\\[0.5ex]
-{\em reference-base} ::= {\em reference-expression}
-\\[0.5ex]
-{\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
-\\[0.5ex]
-\emkey{square-bracketed-call-argument-list} ::=
-    {\em call-argument-list} with \TT{[~]} brackets
-\\[0.5ex]
-{\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
-\begin{itemize}
-\item
-If the {\em reference-call} begins with a {\em module-abbreviation}
-that is part of the the {\em variable-name} that is the root of
-the {\em reference-expression},
-\item
-A {\em member-name} in a {\em reference-offset}
-may \underline{not} be abbreviated.
-\end{itemize}
-\end{indpar}
+A compound {\em reference-expression} can be a {\em reference-call}.
 
+Note that is a {\em reference-expression} contains a
+{\em module-abbreviation}, it is at the very beginning and
+is part of the ({\em function-}){\em variable-name}.
 
 The syntax of a {\em reference-function-declaration} is:
 
@@ -6374,25 +6338,23 @@ The syntax of a {\em reference-function-declaration} is:
 \emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} \\
 \hspace*{0.25in}
     \begin{tabular}[t]{rl}
-        ::= & \ttkey{load reference function variable} \\
+        ::= & {\em reference-function-specifier}
+	      \ttkey{reference function variable} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
             	{\em function-variable-name} \\
-        $|$ & \ttkey{store reference function variable} \\
-	    & \TT{~~~~}{\em function-variable-name}~ \TT{=}~
-            	{\em prototype-result-variable-declaration} \\
-        $|$ & \ttkey{load reference function} \\
+        $|$ & {\em reference-function-specifier}
+	      \ttkey{reference function} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
 	        {\em reference-prototype-pattern} \\
-        $|$ & \ttkey{index reference function} \\
-	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
-	        {\em reference-prototype-pattern} \\
-        $|$ & \ttkey{store reference function} \\
-	    & \TT{~~~~}{\em reference-prototype-pattern}~ \TT{=}~ 
-	        {\em prototype-result-variable-declaration}
     \end{tabular}
+\\[0.5ex]
+{\em reference-function-specifier} ::=
+    \ttkey{load} $|$ \ttkey{index} $|$ \ttkey{store}
 \\[0.5ex]
 {\em prototype-result-variable-declaration} ::=
     see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
+\\[0.5ex]
+{\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
 \\[0.5ex]
 \emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN} \\
 \hspace*{2em}\begin{tabular}[t]{rl}
@@ -6405,8 +6367,6 @@ The syntax of a {\em reference-function-declaration} is:
           {\em square-bracketed-pattern-argument-list}\PLUS{} \\
 	  \end{tabular} \\
     \end{tabular}
-\\[0.5ex]
-{\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
 \\[0.5ex]
 \emkey{reference-pattern-base} ::=
     \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
@@ -6427,15 +6387,10 @@ The rules for a {\em function-declaration}
 apply where applicable to a {\em reference-func\-tion-declaration},
 with exceptions as indicated here.
 \item
-The functions associated with a {\em function-variable-name} are
-invoked from a
-{\em simple-reference-expression}\pagnote{SIMPLE-REFERENCE-EXPRESSION}
-consisting of nothing but the {\em function-variable-name}.
-\item
 A {\em function-variable-name} begins with a {\em module-abbreviation}
 if it is external (just like other {\em variable-names}.
 \item
-A a {\em reference-function-declaration} \underline{not} containing
+A {\em reference-function-declaration} \underline{not} containing
 a {\em function-variable-name} is external if and only if the
 type of its {\em reference-pattern-base} is external.  In this case
 the {\em reference-function-declaration} \underline{must} be within
@@ -6446,9 +6401,11 @@ followed by
 a {\em member-name}\pagnote{MEMBER-NAME} or
 {\em square-bracketed-pattern-argument-lists}.
 \item
-The first actual argument in a {\em reference-call} is a
-smaller {\em reference-expression} that has already been delimited.
+Default values, required values, and {\tt macro} arguments
+are not permitted.
 \end{itemize}
+
+TBD
 
 When a {\em reference-call} computes a pointer, the pointer target
 qualifiers are computed in the same manner as for builtin
