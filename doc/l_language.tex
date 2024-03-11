@@ -2917,9 +2917,15 @@ target type is allowed, whereas implicit conversion
 of a sub-{\em expression} that is a {\em function-call}
 is \underline{not} allowed.
 
-TBD
+Reference pointers at compile-time either point into the compile-time
+local or global stacks or consist of a map/index pair of {\tt const}
+value.  These pointers always point at a {\tt const} value, and
+are always virtual -- there are no real compile-time reference pointers.
+A {\em reference-offset} always dereferences the current reference point
+to a {\tt const} value that must be a map, and then forms a map/index
+pair for the new referenc pointer.
 
-Map constants are represented internally by pointers to where
+Map {\tt const} values are represented internally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
 i.e., pointing at, a map, then {\tt Y = X} copies the pointer
 to the map to the variable {\tt Y}.  By default map constants
@@ -8383,7 +8389,7 @@ When the map is created by a {\em map-constant}, it is made read-only.
 \end{indpar}
 
 Each map {\em dictionary-entry} can be separately made read-write or
-read-only.  When created, the entry is read-write.  This can be
+read-only.  When created, the entry is read-only.  This can be
 changed by the following:
 
 {\tt constant function const r = std} \ttkey{read-write}
@@ -8400,8 +8406,8 @@ read-write and the whole map is separately read-write.
 When a value is first written at a label, the label is created
 for the map and set to read-write.
 
-In addition, map labels may be \key{protected}.  Such entries
-are read-only to the code being compiled, and may either be
+In addition, the compiler will mark some map labels as \key{protected}.
+Such entries are read-only to the code being compiled, and may either be
 permanently read-only or may be written only by the compiler
 during compilation.
 \end{indpar}
