@@ -6442,6 +6442,8 @@ In the case of a {\em function-variable-name} reference call,
 the {\em function-variable-name} is just located in the current
 context just like any other {\em variable-name}, and may be
 a {\em pointer-variable} of a {\em target-variable}.
+The {\em function-variable-name} begins the {\em reference-expression}
+and is the root of the {\em reference-expression}.
 There are two cases:
 \begin{itemize}
 \item {\bf Load or Store} ~~
@@ -6456,6 +6458,7 @@ If the {\em reference-expression} is loading (or storing), there
 must be a {\tt load} (or {\tt store}) {\em reference-function-declaration}
 declaring the {\em function-variable-name}, and the declared function will
 be called to load (or store) a value in the referenced location.
+The {\em reference-expression} \underline{cannot} be pointing.
 \item {\bf Point} ~~
 There is only one {\em reference-function-declaration}
 declaring the {\em function-variable-name} and it has the {\tt point}
