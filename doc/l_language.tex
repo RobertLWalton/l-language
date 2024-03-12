@@ -6319,6 +6319,9 @@ a {\em reference-expression} as the root is a {\em reference-call}.
 
 A compound {\em reference-expression} can be a {\em reference-call}.
 
+{\em Reference-calls} only happen at run-time; {\em reference-functions}
+do \underline{not} execute at compile-time.
+
 Note that if a {\em reference-expression} contains a
 {\em module-abbreviation}, it is at the very beginning and
 is part of the ({\em function-}){\em variable-name}.
@@ -6461,13 +6464,21 @@ be called to load (or store) a value in the referenced location.
 The {\em reference-expression} \underline{cannot} be pointing.
 \item {\bf Point} ~~
 There is only one {\em reference-function-declaration}
-declaring the {\em function-variable-name} and it has the {\tt point}
+declaring the {\em function-vari\-able-name} and it has the {\tt point}
 {\em reference-function-specifier}.
 The {\em reference-expression} may be loading, or storing, or pointing.
 The declared function is called and its result is the real refererence pointer
 of the {\em reference-expression} root.  The {\em reference-expression}
 may have {\em reference-offsets} that modify this reference pointer.
 \end{itemize}
+
+In the case of a {\em reference-offset}, the part of the
+{\em reference-expression} before the {\em reference-offset} is
+the actual argument matched to the {\em reference-pattern-base}.
+At compile time the type of the reference pointer produced by this
+base argument has been computed by recursion, and at run-time
+the reference pointer has already computed.
+
 
 TDB
 
