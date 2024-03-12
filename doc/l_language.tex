@@ -6367,7 +6367,7 @@ The syntax of a {\em reference-function-declaration} is:
 	  \end{tabular} \\
     $|$ & {\em reference-pattern-base}~
           \begin{tabular}[t]{l}
-          {\em square-bracketed-pattern-argument-list}\PLUS{} \\
+          {\em square-bracketed-pattern-argument-list} \\
 	  \end{tabular} \\
     \end{tabular}
 \\[0.5ex]
@@ -6402,7 +6402,7 @@ the same module (file) as the {\em type-declaration} of this type.
 The {\em reference-pattern-base} must be
 followed by
 a {\em member-name}\pagnote{MEMBER-NAME} or
-{\em square-bracketed-pattern-argument-lists}.
+{\em square-bracketed-pattern-argument-list}.
 \item
 Default values, required values, and {\tt macro} arguments
 are not permitted.
@@ -6474,10 +6474,39 @@ may have {\em reference-offsets} that modify this reference pointer.
 
 In the case of a {\em reference-offset}, the part of the
 {\em reference-expression} before the {\em reference-offset} is
-the actual argument matched to the {\em reference-pattern-base}.
-At compile time the type of the reference pointer produced by this
-base argument has been computed by recursion, and at run-time
+the {\em reference-base} matched to the {\em reference-pattern-base}.
+At compile time the type of the reference pointer produced by the
+{\em reference-base} has been computed by recursion, and at run-time
 the reference pointer has already computed.
+
+\bigskip
+
+\centerline{\bf Reference-Call-Reference-Declaration Matching Algorithm}
+\begin{enumerate}
+\item\label{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING}
+If the declaration {\em reference-prototype-pattern} has a {\em member-name},
+the {\em reference-base} must be followed by the same member name,
+and this must be followed by either the end of the {\em reference-expression},
+or by another {\em reference-offset}, else the call-declaration match fails.
+
+Similarly, if the declaration {\em reference-prototype-pattern}
+has a {\em square-bracketed-pattern-argument-list},
+the {\em reference-base} must be followed by a
+{\em square-bracketed-argument-list} with the same number of elements,
+and this must be followed by either the end of the {\em reference-expression},
+or by another {\em reference-offset}, else the call-declaration match fails.
+
+\item\label{CALL-DECLARATION-ARGUMENT-MATCHING}
+The {\em reference-base} in the call is matched to the
+are matched to the {\em reference-pattern-base} in the declaration.
+If the latter has a wildcard, the wildcard is assigned
+information in the {\em reference-bases}'s type.
+
+If after this has been done, the type of the {\em reference-base}
+does not exactly match the type of the {\em reference-pattern-base},
+or if different values are assigned to the same wildcard by this
+process, the call-declaration match fails.
+\end{enumerate}
 
 
 TDB
@@ -6531,8 +6560,8 @@ a {\em member-name}, then the {\em reference-call} is terminated
 just before the next {\em member-name} or next `\TT{[}' bracket
 or at the end of the containing {\em expression}.
 \\[1ex]
-If the base {\em reference-expression} in the call is followed by
-{\em square-bracketed-call-argument-lists}, the {\em reference-call}
+If the base {\em reference-expression} in the call is followed by a
+{\em square-bracketed-call-argument-list}, the {\em reference-call}
 is extended to include exactly as many such lists as there are
 {\em square-bracketed-pattern-argument-lists} in the
 {\em reference-prototype-pattern}.  After this the
