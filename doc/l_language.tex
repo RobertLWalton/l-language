@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 11, 2024
+March 12, 2024
 
 \bigskip
  
@@ -6349,7 +6349,7 @@ The syntax of a {\em reference-function-declaration} is:
     \end{tabular}
 \\[0.5ex]
 {\em reference-function-specifier} ::=
-    \ttkey{load} $|$ \ttkey{index} $|$ \ttkey{store}
+    \ttkey{load} $|$ \ttkey{point} $|$ \ttkey{store}
 \\[0.5ex]
 {\em prototype-result-variable-declaration} ::=
     see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
@@ -6422,17 +6422,51 @@ and the other must have the {\tt store}
 {\em reference-function-specifier}.
 \end{itemize}
 
-TBD
-
-When a {\em reference-call} computes a pointer, the pointer target
-qualifiers are computed in the same manner as for builtin
-{\em reference-expressions} (see \pagref{QUALIFIER-COMPUTATION})
-using the base {\em reference-expression} qualifiers as the
-container qualifiers and the {\em prototype-result-variable-declaration}
-qualifiers as field qualifiers.
-
 \subsubsection{Reference Call-Declaration Matching}
 \label{REFERENCE-CALL-DECLARATION-MATCHING}
+
+A {\em reference-expression} is one of three types:
+\begin{itemize}
+\item \key{Loading} ~~ The {\em reference-expression} begins with a
+{\em target-variable} (that does \underline{not} begin with `\TT{@}')
+and is used to load a value from the referenced location.
+\item \key{Storing} ~~ The {\em reference-expression} begins with a
+{\em target-variable} (that does \underline{not} begin with `\TT{@}')
+and is used to store a value into the referenced location.
+\item \key{Pointing} ~~ The {\em reference-expression} begins with a
+{\em pointer-variable} (that begins with `\TT{@}')
+and is used to compute a pointer to the referenced location.
+\end{itemize}
+
+In the case of a {\em function-variable-name} reference call,
+the {\em function-variable-name} is just located in the current
+context just like any other {\em variable-name}, and may be
+a {\em pointer-variable} of a {\em target-variable}.
+There are two cases:
+\begin{itemize}
+\item {\bf Load or Store} ~~
+The {\em reference-function-declarations}
+declaring the {\em function-variable-name} have {\tt load}
+or {\tt store} {\em reference-function-specifiers} (there may be
+two declarations, one {\tt load} and one {\tt store}).
+The {\em function-variable-name} must be 
+the entire {\em reference-expression}
+(there can be no {\em reference-offsets}).
+If the {\em reference-expression} is loading (or storing), there
+must be a {\tt load} (or {\tt store}) {\em reference-function-declaration}
+declaring the {\em function-variable-name}, and the declared function will
+be called to load (or store) a value in the referenced location.
+\item {\bf Point} ~~
+There is only one {\em reference-function-declaration}
+declaring the {\em function-variable-name} and it has the {\tt point}
+{\em reference-function-specifier}.
+The {\em reference-expression} may be loading, or storing, or pointing.
+The declared function is called and its result is the real refererence pointer
+of the {\em reference-expression} root.  The {\em reference-expression}
+may have {\em reference-offsets} that modify this reference pointer.
+\end{itemize}
+
+TDB
 
 Three major differences between {\em refer\-ence-call}-prototype
 matching and inline {\em function-call}-declaration matching are:
