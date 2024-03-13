@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 12, 2024
+March 13, 2024
 
 \bigskip
  
@@ -2693,9 +2693,13 @@ The full syntax of a {\em reference-expression} is:
     ::= {\em reference-expression}
 \\[0.5ex]
 \emkey{reference-offset}\label{REFERENCE-OFFSET}
-    ::= {\em member-name} $|$ \{ \TT{[} {\em index-list} \TT{]} \}\PLUS{}
+    \begin{tabular}[t]{rl}
+    ::= & {\em member-name} \\
+    $|$ & {\em index-list} \\
+    $|$ & {\em member-name} ~ {\em index-list} \\
+    \end{tabular}
 \\[0.5ex]
-\emkey{index-list} ::= {\em index} \{ \TT{,} {\em index} \}\STAR{}
+\emkey{index-list} ::= \TT{[} {\em index} \{ \TT{,} {\em index} \}\STAR{} \TT{]}
 \\[0.5ex]
 \emkey{index}\label{REFERENCE-INDEX}
     ::= {\em expression}
@@ -2824,10 +2828,6 @@ by user defined types or stored in a pointer are used to
 check that the {\em index} is within range.
 The target type of a run-time {\em index} is \TT{int}.
 
-
-Within an {\em index-list} the comma (\TT{,}) is treated
-as equivalent to \TT{][}, so, for example, {\tt [x,y]}
-is equivalent to {\tt [x][y]}.
 
 The type of a run-time {\em reference-expression}
 is computed bottom up starting with the type of the root.
@@ -6341,18 +6341,28 @@ The syntax of a {\em reference-function-declaration} is:
 \emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} \\
 \hspace*{0.25in}
     \begin{tabular}[t]{rl}
-        ::= & {\em reference-function-specifier}
-	      \ttkey{reference function variable} \\
+        ::= & \ttkey{load reference function variable} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
             	{\em function-variable-name} \\
-        $|$ & {\em reference-function-specifier}
-	      \ttkey{reference function} \\
+        $|$ & \ttkey{store reference function variable} \\
+	    & \TT{~~~~}~ {\em function-variable-name} \TT{=}~
+            	{\em prototype-result-variable-declaration} \\
+        $|$ & \ttkey{point reference function variable} \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
+            	{\em function-variable-name} \\
+        $|$ & \ttkey{load reference function} \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
+	        {\em reference-prototype-pattern} \\
+        $|$ & \ttkey{store reference function} \\
+	    & \TT{~~~~}~ {\em reference-prototype-pattern} \TT{=}~
+	        {\em prototype-result-variable-declaration} \\
+        $|$ & \ttkey{point reference function} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
 	        {\em reference-prototype-pattern} \\
     \end{tabular}
 \\[0.5ex]
 {\em reference-function-specifier} ::=
-    \ttkey{load} $|$ \ttkey{point} $|$ \ttkey{store}
+    \ttkey{load} $|$ \ttkey{store} $|$ \ttkey{point}
 \\[0.5ex]
 {\em prototype-result-variable-declaration} ::=
     see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
@@ -6362,22 +6372,23 @@ The syntax of a {\em reference-function-declaration} is:
 \emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN} \\
 \hspace*{2em}\begin{tabular}[t]{rl}
     ::= & {\em reference-pattern-base}~
-          \begin{tabular}[t]{l}
-          {\em member-name}~ \\
-	  \end{tabular} \\
+          {\em member-name} \\
     $|$ & {\em reference-pattern-base}~
-          \begin{tabular}[t]{l}
-          {\em square-bracketed-pattern-argument-list} \\
-	  \end{tabular} \\
+          {\em member-name}~ {\em reference-pattern-index-list} \\
+    $|$ & {\em reference-pattern-base}~
+          {\em reference-pattern-index-list} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{reference-pattern-base} ::=
     \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
 \\[0.5ex]
-\emkey{square-bracketed-pattern-argument-list} ::= \\
+\emkey{reference-pattern-index-list} ::= \\
 \hspace*{0.5in}
-    {\em pattern-argument-list} with square brackets \TT{[~]}
-    (and \underline{not} parentheses \TT{(~)})
+    \TT{[} {\em reference-pattern-index-declaration}
+           \{ \TT{,} {\em reference-pattern-index-declaration} \}\STAR{} \TT{]}
+\\[0.5ex]
+\emkey{reference-pattern-index-declaration} ::=
+    {\em prototype-result-variable-declaration}
 \\[0.5ex]
 {\em member-name} ::= see \pagref{MEMBER-NAME}
 \\[0.5ex]
@@ -6496,7 +6507,7 @@ the {\em reference-base} must be followed by a
 and this must be followed by either the end of the {\em reference-expression},
 or by another {\em reference-offset}, else the call-declaration match fails.
 
-\item\label{CALL-DECLARATION-ARGUMENT-MATCHING}
+\item\label{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}
 The {\em reference-base} in the call is matched to the
 are matched to the {\em reference-pattern-base} in the declaration.
 If the latter has a wildcard, the wildcard is assigned
