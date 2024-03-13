@@ -6334,7 +6334,7 @@ do \underline{not} execute at compile-time.
 
 Note that if a {\em reference-expression} contains a
 {\em module-abbreviation}, it is at the very beginning and
-is part of the ({\em function-}){\em variable-name}.
+is part of the root ({\em function-}){\em variable-name}.
 
 The syntax of a {\em reference-function-declaration} is:
 
@@ -6379,14 +6379,14 @@ The syntax of a {\em reference-function-declaration} is:
 \\[0.5ex]
 {\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
 \\[0.5ex]
-\emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN} \\
-\hspace*{2em}\begin{tabular}[t]{rl}
-    ::= & {\em reference-pattern-base}~
-          {\em member-name} \\
-    $|$ & {\em reference-pattern-base}~
-          {\em member-name}~ {\em reference-pattern-index-list} \\
-    $|$ & {\em reference-pattern-base}~
-          {\em reference-pattern-index-list} \\
+\emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN}
+    ::= {\em reference-pattern-base}~ {\em reference-pattern-offset}
+\\[0.5ex]
+\emkey{reference-pattern-offset}\label{REFERENCE-PATTERN-OFFSET}
+    \begin{tabular}[t]{rl}
+    ::= & {\em member-name} \\
+    $|$ & {\em member-name}~ {\em reference-pattern-index-list} \\
+    $|$ & {\em reference-pattern-index-list} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{reference-pattern-base} ::=
@@ -6406,11 +6406,6 @@ The syntax of a {\em reference-function-declaration} is:
 \end{indpar}
 \begin{itemize}
 \item
-The rules for a {\em function-declaration}
-(\pagref{FUNCTION-DECLARATION-RULES})
-apply where applicable to a {\em reference-func\-tion-declaration},
-with exceptions as indicated here.
-\item
 A {\em function-variable-name} begins with a {\em module-abbreviation}
 if it is external (just like other {\em variable-names}).
 \item
@@ -6427,6 +6422,15 @@ a {\em member-name}\pagnote{MEMBER-NAME} or
 \item
 Default values, required values, and {\tt macro} arguments
 are not permitted.
+\item
+A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
+is treated in a {\em reference-function-prototype} as a {\em type-name}.
+A wild-card name of the form {\tt P\$\ldots} is treated as a
+{\em pointer-type-name}.
+A wild-card name of the form {\tt Q\ldots\$\ldots} is treated as a
+{\em qualifier-name} and \underline{must not} be combined with
+other {\em qualifier-names} in the same
+{\em prototype-result-variable-declaration}.
 \item At most two {\em reference-function-declarations} in a context
 may have the same {\em function-variable-name}, and in this case,
 one must have the {\tt load} {\em reference-function-specifier},
@@ -6505,17 +6509,16 @@ the reference pointer has already computed.
 \centerline{\bf Reference-Call-Reference-Declaration Matching Algorithm}
 \begin{enumerate}
 \item\label{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING}
-If the declaration {\em reference-prototype-pattern} has a {\em member-name},
-the {\em reference-base} must be followed by the same member name,
-and this must be followed by either the end of the {\em reference-expression},
-or by another {\em reference-offset}, else the call-declaration match fails.
-
-Similarly, if the declaration {\em reference-prototype-pattern}
-has a {\em square-bracketed-pattern-argument-list},
-the {\em reference-base} must be followed by a
-{\em square-bracketed-argument-list} with the same number of elements,
-and this must be followed by either the end of the {\em reference-expression},
-or by another {\em reference-offset}, else the call-declaration match fails.
+The {\em reference-offset} and the {\em  reference-pattern-offset} must
+match in that
+\begin{enumerate}
+\item
+If one has a {\em member-name}, both must have the same {\em member-name}.
+\item
+If one has an {\em index-list}, both must have {\em index-lists}
+with the same number of elements (but the types of the elements
+are not involved in matching).
+\end{enumerate}
 
 \item\label{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}
 The {\em reference-base} in the call is matched to the
