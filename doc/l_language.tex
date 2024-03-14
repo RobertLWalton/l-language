@@ -6502,7 +6502,7 @@ In the case of a {\em reference-offset}, the part of the
 the {\em reference-base} matched to the {\em reference-pattern-base}.
 At compile time the type of the reference pointer produced by the
 {\em reference-base} has been computed by recursion, and at run-time
-the reference pointer has already computed.
+the reference pointer has already been computed.
 
 \bigskip
 
@@ -6513,23 +6513,39 @@ The {\em reference-offset} and the {\em  reference-pattern-offset} must
 match in that
 \begin{enumerate}
 \item
-If one has a {\em member-name}, both must have the same {\em member-name}.
+If one has a {\em member-name}, both must have the same {\em member-name},
+else the call-declaration match fails.
 \item
 If one has an {\em index-list}, both must have {\em index-lists}
-with the same number of elements (but the types of the elements
-are not involved in matching).
+with the same number of elements
+else the call-declaration match fails
+(but the types of the elements are not involved in matching).
 \end{enumerate}
 
 \item\label{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}
 The {\em reference-base} in the call is matched to the
-are matched to the {\em reference-pattern-base} in the declaration.
-If the latter has a wildcard, the wildcard is assigned
+{\em reference-pattern-base} in the declaration.
+If the latter has wildcards, the wildcards are assigned
 information in the {\em reference-bases}'s type.
+
+If one wildcard is assigned two or more different values, or zero values,
+the call-declaration match fails.
 
 If after this has been done, the type of the {\em reference-base}
 does not exactly match the type of the {\em reference-pattern-base},
-or if different values are assigned to the same wildcard by this
-process, the call-declaration match fails.
+the call-declaration match fails.
+
+\item\label{REFERENCE-CALL-DECLARATION-RANK-COMPUTATION}
+If the call-declaration match has been successful, it is assigned
+a \key{rank} that is the sum of:
+\begin{itemize}
+\item the negative of the number of {\tt T\$\ldots} wildcards
+the prototype has; a wildcard name appearing more than once in
+the prototype is counted only once
+\item a very large number if the match {\em reference-offset} has
+both a {\em member-name} and an {\em index-list}
+\end{itemize}
+
 \end{enumerate}
 
 
