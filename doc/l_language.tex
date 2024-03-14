@@ -5448,16 +5448,16 @@ plus {\em reference-expressions} that are bases for
 larger {\em reference-expressions} (e.g., `{\tt x[3,4].weight}' has
 bases `{\tt x}' and `{\tt x[3,4]}').
 
-{\em Reference-expressions} are
-further divided into \key{left} (of \TT{=}) and \key{right} (of \TT{=}).
-Right {\em reference-expressions} are evaluated to produce a value.
-Left {\em reference-expressions} are \underline{not} evaluated by this
-first step, but may be used to store {\tt const} values after this
-first step.  Note that the basis of a compound left
-{\em reference-expression} is itself a right {\em reference-expression},
-so after the first step left {\em reference-expressions} storing {\tt const}
-values will either
-be variable names or compound with a known map as base and known indices.
+{\em Reference-expressions}\pagnote{REFERENCE-EXPRESSIONS} are
+further classified as \key{load} (left of \TT{=}) or \key{store}
+(right of \TT{=}).
+Load {\em reference-expressions} are evaluated to produce a value.
+Store {\em reference-expressions} are evaluated to produce a reference
+pointer that is used to store a value.
+A {\em reference-expression} with a {\tt const} valued root is evaluated
+by this first step.
+
+TBD
 
 \bigskip
 
@@ -5494,53 +5494,38 @@ See \pagref{MA-SYNTACTIC-SUGAR} for an example.
 If $E$ is a \underline{simple}
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
 annotate $E$ with the type of the variable named by $E$.  If
-this type is {\tt const} and $E$ is a right {\em reference-expression},
-also annotate $E$ with the value $C$ of the variable.  Then
-terminate this algorithm.
+this type is {\tt const} and $E$ is a load {\em reference-expression},
+also annotate $E$ with the value $C$ of the variable.  If the type
+is {\tt const} and $E$ is a store {\em reference-expression}
+annotate $E$ with a reference pointer pointing at the variable
+named by $E$.  Then terminate this algorithm.
 
-Note that if $E$ is a right {\em reference-expression} naming a
+Note that if $E$ is a load {\em reference-expression} naming a
 variable that cannot be read (e.g., an {\tt *INIT*} variable),
-or $E$ is a left {\em reference-expression} naming a variable
+or $E$ is a store {\em reference-expression} naming a variable
 that cannot be written (e.g., is {\tt co}),
 a compile error will be detected at this point.
 
-\item\label{MACRO-REFERENCE-FUNCTION-STEP}
-If $E$ is a left (right) \underline{compound}
-{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} (whose
-base will be annotated with a type by this point),
-search for left (right) {\tt macro}
-{\em reference-function-declarations} matching $E$.  If one is found,
-evaluate the declaration's function to get a {\tt const} value $R$,
-replace $E$ by $R$, and go to Step 1.
-See Macro Reference Expressions\pagnote{MACRO-REFERENCE-EXPRESSIONS}
-for more detail.
-
-\item\label{CONSTANT-REFERENCE-FUNCTION-STEP}
-If $E$ is a \underline{right} \underline{compound}
-{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS} whose
-base is annotated with a {\tt const} value, search for {\tt constant}
-{\em reference-function-declarations} matching $E$.  If one is found,
-evaluate the declaration's function to get a {\tt const} value $C$,
-annotate $E$ with the {\tt const} type and with $C$,
-and terminate this algorithm.
-
 \item\label{CONSTANT-REFERENCE-STEP}
-If $E$ is
-a \underline{right} \underline{compound}
+If $E$ is \underline{compound}
 {\em reference-expression} whose base has been annotated with a {\tt const}
 value,
-evaluate $E$ to a {\tt const} value $C$, annotate $E$
-with $C$ and the type {\tt const}, and terminate this algorithm.
+evaluate the reference pointer of $E$.  If $E$ is a load
+{\em reference-expression}, dereference this pointer to get
+a {\tt const} value $C$, and annotate $E$ with $C$ and
+the type {\tt const}, and terminate this algorithm.
+If $E$ is a store {\em reference-expression}, annotate $E$ with
+the reference pointer and terminate this algorithm.
 
 If the evaluation cannot be done (e.g, an index has not been annotated
 with a {\tt const} value, or an indexed map element does not exist),
 it is a compile error.
 
 \item\label{REFERENCE-FUNCTION-STEP}
-If $E$ is a left (right) \underline{compound} {\em reference-expression}
+If $E$ is a load (store) \underline{compound} {\em reference-expression}
 (whose base will be annotated with a type by this point),
-search for non-special left (right)
-{\em reference-function-declarations} matching $E$.  If a declaration $D$
+search for {\em reference-function-declarations} matching $E$.
+If a declaration $D$
 is found,
 annotate $E$ with $D$ and the input (result) type of $D$ and terminate
 this algorithm.
