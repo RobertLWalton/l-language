@@ -6549,8 +6549,6 @@ both a {\em member-name} and an {\em index-list}
 \end{enumerate}
 
 
-TDB
-
 Example:
 
 \begin{indpar}\label{REFERENCE-FUNCTION-EXAMPLE}\begin{verbatim}
@@ -6575,7 +6573,7 @@ type my vector:
     align 64
     *LABEL* first     // Offset of first element in bits.
 
-reference function ap Q$1 flt64 @x =
+point reference function ap Q$1 flt64 @x =
         ( ap Q$1 my vector @v ) [ int index ]:
     av Q$1 flt64 @p = *UNCHECKED*
             ( @v, v.offset, 0, v.length )
