@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 13, 2024
+March 14, 2024
 
 \bigskip
  
@@ -6550,88 +6550,6 @@ both a {\em member-name} and an {\em index-list}
 
 
 TDB
-
-Three major differences between {\em refer\-ence-call}-prototype
-matching and inline {\em function-call}-declaration matching are:
-\begin{itemize}
-\item
-The end of the {\em reference-call} may be before the end
-of its containing {\em reference-expres\-sion} and must be
-determined by special rules, while the
-end of a {\em function-call} is the end of its containing
-{\em expression}.
-\item
-There is no target type for a {\em reference-call}, and
-implicit conversion cannot be applied to its
-{\em reference-call-base}.
-\item
-The \key{key} to a {\em reference-function-declaration} is
-its {\em member-name} or the number of its
-{\em square-bracketed-pattern-argument-lists}.
-\end{itemize}
-
-With this in mind, the steps of the inline call-declaration matching algorithm
-of section \itemref{INLINE-CALL-DECLARATION-MATCHING}
-are modified to make a reference call-declaration matchine algorithm
-as follows:
-\begin{indpar}[3em] % Allows item names to be longer.
-\begin{itemize}
-
-\item[Step \ref{CALL-DECLARATION-MODULE-ABBREVIATION}%
-           \pagnote{CALL-DECLARATION-MODULE-ABBREVIATION}]
-If a {\em reference-expression} begins with a {\em module-abbreviation},
-the {\em module-abbrevi\-ation} must immediately precede a
-\underline{parenthesized} {\em reference-expes\-sion} (which is
-the {\em reference-call-base}).
-
-\item[Step \ref{CALL-DECLARATION-KEY}%
-           \pagnote{CALL-DECLARATION-KEY}]
-The \key{key} to a {\em reference-function-declaration} is
-its {\em member-name} or the number of its
-{\em square-bracketed-pattern-argument-lists}.
-
-\item[Step \ref{CALL-DECLARATION-TERM-NAMES}%
-           \pagnote{CALL-DECLARATION-TERM-NAMES}]
-The end of the {\em reference-call} is determined before proceeding
-with this step.
-\\[1ex]
-If the base {\em reference-expression} in the call is followed by
-a {\em member-name}, then the {\em reference-call} is terminated
-just before the next {\em member-name} or next `\TT{[}' bracket
-or at the end of the containing {\em expression}.
-\\[1ex]
-If the base {\em reference-expression} in the call is followed by a
-{\em square-bracketed-call-argument-list}, the {\em reference-call}
-is extended to include exactly as many such lists as there are
-{\em square-bracketed-pattern-argument-lists} in the
-{\em reference-prototype-pattern}.  After this the
-{\em reference-call} is terminated
-just before the next {\em member-name} or next `\TT{[}' bracket
-or at the end of the containing {\em expression}.
-If there are fewer {\em square-bracketed-call-argument-lists}
-than {\em square-bracketed-pattern-argument-lists},
-the entire call-declaration match fails.
-
-\item[Step \ref{CALL-DECLARATION-TARGET-MATCHING}%
-           \pagnote{CALL-DECLARATION-TARGET-MATCHING}]
-This step is skipped completely.  The result of a
-{\em reference-call} is the prototype result after
-wildcards have been assigned by arguments.
-
-\item[Step \ref{CALL-DECLARATION-REQUIRED-VALUES}%
-           \pagnote{CALL-DECLARATION-REQUIRED-VALUES}]
-This step is skipped completely; there are no {\em required-values}
-in a {\em reference-function-declaration}.
-
-\item[Step \ref{CALL-DECLARATION-ARGUMENT-TYPING}%
-           \pagnote{CALL-DECLARATION-ARGUMENT-TYPING}]
-
-Implicit conversion of the {\em reference-base}
-is \underline{not} permitted; its type must exactly match the type
-of the {\em reference-pattern-base}.
-
-\end{itemize}
-\end{indpar}
 
 Example:
 
