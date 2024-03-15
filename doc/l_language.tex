@@ -5579,26 +5579,38 @@ the {\em reference-offset} it matches becomes processed.
 If the $E$ is loading, $D$ cannot be a {\em store} declaration,
 and if $E$ is storing, $E$ cannot be a {\em load} declaration.  If no
 {\em reference-declaration} is found, it is a compile-error.
-If a {\tt load} or {\tt store} declaration is found be the matching
+If a {\tt load} or {\tt store} declaration is found and the matching
 {\em reference-offset} is not at the very end of $E$, it is a
 compile error.
 Note that to get a match, the type of the
-{\em reference-base} \underline{cannot} be virtual.
+{\em reference-base} reference pointer \underline{cannot} be virtual;
+to match it must be the exact type of the {\em reference-pattern-base}
+\pagnote{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}.
 
+If $D$ is found with its function $F$,
+annotate the {\em reference-call} with $D$ and
+with the type of its reference pointer.  
+For {\tt load} or {\tt store} $D$, this is the type of a
+(pseudo) virtual pointer to the type of the value returned by $F$
+(for {\tt load}) or input to $F$ (for {\tt store}).  For {\tt point}
+$D$ it is the type of the result of $F$.
 
-
-
-TBD
-
-Note that if $E$ is a load {\em reference-expression} naming a
-variable that cannot be read (e.g., an {\tt *INIT*} variable),
-or $E$ is a store {\em reference-expression} naming a variable
-that cannot be written (e.g., is {\tt co}),
-a compile error will be detected at this point.
+For a pointing {\em reference-expression} the reference pointer it
+computes must be real and its type must have a normal `real' pointer type.
+For a loading or storing {\em reference-expression} the reference
+pointer it computes may be virtual and its type may have a `virtual'
+pointer type, but the only thing that matters in this case is the
+type of the value pointed at, which will be a normal `real' type.
+In the case of a loading {\em reference-expression} the reference
+pointer type must allow values to be read (e.g., it cannot have
+the {\tt *INIT*} qualifier), and for a storing {\em reference-expression},
+the reference pointer type must allow values to be stored
+(e.g., it cannot have the {\tt co} qualifier), else there is a compile
+error.
 
 \end{enumerate}
 
-The second step in processing a {\em statement} is to visit in top-down order
+The third step in processing a {\em statement} is to visit in top-down order
 all the {\em expressions} $E$ in the {\em statement}
 and locate for each $E$ that are {\em function-calls}
 (and not annotated with a {\tt const} value and not {\em reference-expressions})
