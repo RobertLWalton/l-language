@@ -5802,8 +5802,6 @@ algorithm matching a {\em reference-call} to a
 
 \bigskip
 
-TBD
-
 \centerline{\bf Call-Declaration Matching Algorithm}
 \begin{enumerate}
 \item\label{CALL-DECLARATION-MODULE-ABBREVIATION}
@@ -5858,11 +5856,11 @@ one of the following must be found: (1) a {\em function-term-name} from
 the {\em prototype-pattern}, other than the first such, or
 (2) the word `{\tt no}', or (3) the word `{\tt not}', or
 (4) a bracketed argument list (with explicit or
-implicit {\tt (~)} brackets).
+implicit brackets).
 If none of these is found at some point in the scan,
 the call-declaration match fails.  If a {\em function-term-name} is
 found more than once, the call-declaration match fails.
-Every `{\tt no}' and `{\tt not}' must immediately preced a
+Every `{\tt no}' and `{\tt not}' must immediately precede a
 {\em function-term-name}, else the call-declaration match fails.
 
 If the scan succeeds, the {\em function-call} is divided into
@@ -5920,8 +5918,9 @@ is treated as if it had {\tt (~)} parentheses.
 
 If in a left-to-right scan of a {\em call-term},
 a {\em call-argument-list} with {\tt (~)} is expected but instead
+a {\tt [~]} bracketed {\em call-argument-list} or
 the end of the {\em call-term} is found,
-an empty list {\tt ()} is appended to the {\em call-term}.
+an empty list {\tt ()} is inserted into the {\em call-term}.
 
 If a {\em call-argument-list} is shorter than the
 corresponding {\em pattern-argument-list}, and all omitted
@@ -5935,7 +5934,7 @@ see \pagref{DEFAULT-CONTEXT}.
 
 At this point the {\em pattern-argument-lists} in the prototype
 {\em pattern-term} must match in order all the {\em call-argument-lists}
-in the {\em call-term} in number
+in the {\em call-term} in type of bracket and number
 of arguments, else the call-declaration match fails.
 
 \item If all the above is successful, then {\em actual-arguments}
@@ -5943,6 +5942,8 @@ in the call are matched to corresponding {\em prototype-argument-declarations}
 in the {\em function-declaration} according to the rules that follow.
 Failure of any of these matches causes
 the call-declaration match to fail.
+
+TBD
 
 \item\label{CALL-DECLARATION-TARGET-MATCHING}
 This section is skipped for special functions (functions whose
