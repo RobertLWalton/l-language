@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 15, 2024
+March 16, 2024
 
 \bigskip
  
@@ -5546,8 +5546,12 @@ If $E$ is a {\em reference-expression}, compute the type of its reference
 pointer according to the rules in
 Reference Expressions, \itemref{REFERENCE-EXPRESSIONS}, and annotate
 $E$ with this reference pointer type.  This works if there are no
-{\em reference-calls}\pagnote{REFERENCE-CALLS} in the
+{\em reference-calls}\pagnote{REFERENCE-CALL} in the
 {\em reference-expression}.
+
+For {\em reference-offsets} not involved in {\em reference-calls},
+any index {\em expressions} are annotated with the \TT{int}
+target type.
 
 {\em Reference-calls} are handled as follows:
 
@@ -5557,18 +5561,25 @@ find the {\em reference-declaration} $D$ associated with
 the {\em function-variable-name}.  If the $E$ is loading, exclude
 any {\em store} {\em reference-declaration}, and if $E$ is storing,
 exclude any {\em load} {\em reference-declaration}.  If no
-{\em reference-declaration} is found, it is a compile-error.
+{\em reference-declaration} is found (e.g., because $E$ is storing
+and there is only a {\tt load} declaration), it is a compile-error.
 
 Otherwise annotate the root of $E$ with $D$ and compute the type of
 the reference pointer of the root.  For a {\tt point} $D$
 (in which case $E$ must be pointing),
 this is the type of the value returned by the function $F$ of $D$.
 For {\tt load} or {\tt store} $D$, this is the type of a
-(pseudo) virtual pointer to the type of the value returned by $F$
+(pseudo) virtual pointer\footnote{A virtual reference pointer points
+at a location in the local or global stack or points at a location
+storing a pointer.  A pseudo virtual pointer
+is merely associated with a function to load a value or a function to store
+a value.}
+to the type of the value returned by $F$
 (for {\tt load}) or input to $F$ (for {\tt store}).  For {\tt load}
 or {\tt store} $D$, the {\em function-variable-name} must be the
 \underline{entire} {\em reference-expression} $E$, else there is
-a compile-error.
+a compile-error (because $E$ has no real or virtual reference pointer --
+it only has a function to load or store the value of $E$).
 
 The other {\em reference-call} case consists of an already processed
 {\em reference-base} with a known reference pointer type
@@ -5594,11 +5605,18 @@ For {\tt load} or {\tt store} $D$, this is the type of a
 (pseudo) virtual pointer to the type of the value returned by $F$
 (for {\tt load}) or input to $F$ (for {\tt store}).  For {\tt point}
 $D$ it is the type of the result of $F$.
+Any index {\em expression} in the {\em reference-call} is annotated with 
+its target type which is taken from the associated index argument type
+in the prototype of $D$ (these index target types are not required
+to be {\tt int}).
 
+For all {\em reference-expressions}, whether or not they contain
+{\em reference-calls}, the following is true.
 For a pointing {\em reference-expression} the reference pointer it
 computes must be real and its type must have a normal `real' pointer type.
 For a loading or storing {\em reference-expression} the reference
-pointer it computes may be virtual and its type may have a `virtual'
+pointer it computes may be (pseudo) virtual and its type may have a
+`(pseudo) virtual'
 pointer type, but the only thing that matters in this case is the
 type of the value pointed at, which will be a normal `real' type.
 In the case of a loading {\em reference-expression} the reference
@@ -5613,27 +5631,29 @@ error.
 The third step in processing a {\em statement} is to visit in top-down order
 all the {\em expressions} $E$ in the {\em statement}
 and locate for each $E$ that are {\em function-calls}
-(and not annotated with a {\tt const} value and not {\em reference-expressions})
+(and not annotated with a {\tt const} value by the Bottom-Up Algorithm above)
 a matching {\em function-declaration}.  Or more specifically,
 a {\em function-declaration} whose {\em function-prototype} matches
 the {\em function-call}.  In this step all \underline{non-special}
-{\em function-declarations} that are in scope are included in the search.
+{\em function-declarations} that are in scope are included in the search
+(special {\em function-declarations} were processed by the above
+Top-Down Replacement or Bottom-Up Algorithms).
 
-Furthermore in this step each $E$ has a target type (or types),
+Furthermore in this step each $E$ has a target type $T$ (or types),
 and {\em function-prototypes} that match the expression are required to
 have a result of this type (or results of these types).
 
 In an {\em expression-assignment-statement}%
 \pagnote{EXPRESSION-ASSIGNMENT-STATEMENTS} each right-side {\em expression}
 has a corresponding left-side {\em assignment-result} which is a
-{\em reference-expression} that is annotated with
-the right-side {\em expression's} target type.
+{\em reference-expression} that is annotated with a reference pointer type
+which when dereferenced gives the right-side {\em expression's} target type.
 
 In a {\em call-assignment-statement}%
 \pagnote{CALL-ASSIGNMENT-STATEMENTS} in which $E$ is the {\em function-call}
 on the statement's right-side, the statement's
 left-side {\em assignment-results} are {\em reference-expressions} that
-are annotated together with the list of the {\em function-call's} target types.
+taken together give a list of the {\em function-call's} target types.
 
 For an {\em expression} that is a {\em function-call} argument,
 the declaration matched to the {\em function-call} specifies the
@@ -5642,6 +5662,9 @@ target type of the argument {\em expression}.  For example, in
 the declaration matched to `{\tt x +  5}' (the only one with an {\tt int}
 result type) has {\tt int} result
 and argument types, so {\tt int} is the target type of `{\tt x}' and `{\tt 5}'.
+
+For an index of a {\em reference-expression}, the Bottom-Up 
+Algorithm above has annotated the index {\em expression} with its target type.
 
 As a special case, in a relational expression such as `{\tt x < y + 5}'
 all the operands are assigned the same target type by the following
@@ -5655,7 +5678,8 @@ Otherwise, if
 one of the operands is a {\em reference-expression},
 its type is tested as the target type of all the operands,
 and if successful, its type is used
-(in this case, the type of `{\tt x}' becomes the target type of `{\tt y + 5}'),
+(in `{\tt x < y + 5}',
+the type of `{\tt x}' becomes the target type of `{\tt y + 5}'),
 If several operands are {\em reference-expressions}, this succeeds if
 one of these has a type into which the types of the others can be
 implicitly converted.
@@ -5665,13 +5689,14 @@ containing an argument {\em expression} $E$.  The various
 {\em function-declarations} that might match $C$ specify various
 target types for $E$.  Some of these target types may be the same,
 so if we find matches for $E$ with a given target type, we should
-remember what we found so we do not re-compute the match for $~$ with
+remember what we found so we do not re-compute the match for
 that target type if it is needed again.  Therefore, when we find a
 {\em function-declaration} $D$ matching $E$ for target type $T$, we annotate
-$E$ with $T\mapsto D$.
+$E$ with $T\mapsto D$.  These annotations may then be used to compile
+the {\em statement} after this third step is completed.
 
-Given all this, when the second step visits an {\em expression} $E$ with
-target type $T$ the second step executes:
+Given all this, when the third step visits an {\em expression} $E$ with
+target type $T$ the third step executes:
 
 
 \bigskip
@@ -5704,7 +5729,8 @@ annotate $E$ with $T\mapsto {\tt *FAIL*}$.
 
 \item If $E$ is a
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
-annotated with its type $T'$,
+annotated with a reference pointer type that points at a value
+of type $T'$,
 then if $T$ equals $T'$ annotate $E$ with $T\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
 graph\pagnote{IMPLICIT-CONVERSION-GRAPH}
@@ -5737,6 +5763,10 @@ $T_1,T_2,\ldots,T_m$ respectively.
 \bigskip
 
 The search algorithm used by the above is:
+
+\bigskip
+
+TBD
 
 \centerline{\bf Declaration Search Algorithm}
 \begin{enumerate}
