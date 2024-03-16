@@ -5943,8 +5943,6 @@ in the {\em function-declaration} according to the rules that follow.
 Failure of any of these matches causes
 the call-declaration match to fail.
 
-TBD
-
 \item\label{CALL-DECLARATION-TARGET-MATCHING}
 This section is skipped for special functions (functions whose
 {\em prototype-result} has the form `{\tt macro} {\em variable-name}',
@@ -5971,11 +5969,12 @@ an {\em actual-arguments} and processed left to right.
 If a {\em prototype-argument-declaration} $PAD$ is matched
 to an {\em actual-argument} $AA$ and $PAD$ has a wildcard,
 $AA$ must be {\em reference-expression} or a {\em constant-expression},
+(i.e., annotated with a {\tt const} value by the Bottom-Up Algorithm)
 else the
 call-declaration match fails.  The wildcard is assigned from
 information in the {\em reference-expression}'s
-type \pagnote{REFERENCE-CALL-DECLARATION-MATCHING} or
-{\em constant-expression}'s type (which is {\tt const}).
+type (the type of value the reference pointer points at) or
+{\em constant-expression}'s type (which is just {\tt const}).
 
 If different values are assigned to the same wildcard by this
 process (by different prototype-actual argument matches, or by
@@ -6006,11 +6005,12 @@ not as lists of elements).
 This section is skipped for special functions.
 
 Matches between {\em prototype-argument-declaration} types
-and acceptable {\em actual-argu\-ments} subexpression target types
+and acceptable {\em actual-argu\-ment} subexpression target types
 are then checked, except for {\tt macro} arguments (that require
 no run-time typing).  Specifically, if a {\em prototype-argument-declaration}
 specifies a target type $T'$ for an {\em actual-argument} {\em expression} $E'$,
-this algorithm is applied recursively to $E'$ with target type $T'$ to get
+the Declaration Search Algorithm
+is applied recursively to $E'$ with target type $T'$ to get
 an annotation $T'\mapsto\ldots$ on $E'$.
 
 Then if any argument $T'$ is mapped to {\tt *FAIL*} or {\tt *AMBIGUOUS*}
@@ -6034,6 +6034,8 @@ the prototype is counted only once
 \end{itemize}
 
 \end{enumerate}
+
+TBD
 
 The following are examples using the builtin prototypes
 \begin{indpar}
