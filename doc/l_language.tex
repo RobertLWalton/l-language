@@ -2753,17 +2753,19 @@ type my type:
     ap mytype @Y
 
 my type Z:       // A virtual pointer is computed to the variable Z.
-    Z.X = 5      // A virtual pointer to Z.X is computed and dereferenced.
-    Z.@Y = null  // A virtual pointer to Z.@Y is computed and dereferenced.
-                 // This last is virtual both because it points into the
+    Z.X = 5      // A virtual pointer to Z.X is computed.
+    Z.@Y = null  // A virtual pointer to Z.@Y is computed.
+                 // This is virtual both because it points into the
                  // local stack where Z is, and also because it points
                  // at a location whose type is a pointer type.
 
 ap my type @W:   // A real pointer @W is computed to the variable W.
-    W.X = 5      // A real pointer to W.X (denotable by @W.X) is computed
-                 // and dereferenced.
-    W.@Y = null  // A virtual pointer to W.@Y is computed and dereferenced.
+    W.X = 5      // A real pointer to W.X (denotable by @W.X) is computed.
+    W.@Y = null  // A virtual pointer to W.@Y is computed.
                  // The pointer is virtual because it points at a pointer.
+    W.@Y = @W    // A virtual pointer to @W is computed and dereferenced
+                 // to make a real pointer that is the value of `@W'.
+                 // W.@Y now points at W.
 \end{verbatim}\end{indpar}
 
 Generally a run-time reference pointer
@@ -6034,8 +6036,6 @@ the prototype is counted only once
 \end{itemize}
 
 \end{enumerate}
-
-TBD
 
 The following are examples using the builtin prototypes
 \begin{indpar}
