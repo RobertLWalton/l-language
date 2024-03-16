@@ -5766,36 +5766,43 @@ The search algorithm used by the above is:
 
 \bigskip
 
-TBD
-
 \centerline{\bf Declaration Search Algorithm}
 \begin{enumerate}
 \item This algorithm examines all ({\em reference-}){\em function-declarations}
 in the current context\pagnote{CONTEXT} that meet criteria specified by the
-search and applies the Call-Declaration Matching Algorithm (below) to each.
+search and applies the
+Call-Declaration Matching Algorithm for
+{\em function-declarations} (see \itemref{INLINE-CALL-DECLARATION-MATCHING})
+of the Reference Call-Declaration Matching Algorithm for
+{\em reference-function-declarations}
+(see \itemref{REFERENCE-CALL-DECLARATION-MATCHING})
+to each.
 Search criteria can restrict the search to, for example, {\tt macro}
-right {\em reference-function-declarations}, or to give another example,
+{\em function-declarations}, or to give another example,
 to all non-special {\em function-declarations} with a given target type
 (type of their first result).
 \item
 After examining all the appropriate declarations, this algorithm has
-a set of declarations satisfying the Call-Declaraton Matching Algorithm.
+a set of declarations satisfying the (Reference)
+Call-Declaration Matching Algorithm.
 If the set is empty, this algorithm reports failure.  Otherwise all but
 the highest ranking matches are discarded.  If there is only one match
 left, this algorithm reports success along with the single highest
 ranking matching declaration.
-If there is more than one highest ranking match, this algorithm reports
+If there are more than one highest ranking match, this algorithm reports
 ambiguity failure.
 
 \end{enumerate}
 
 The matching algorithm used by the above to match a {\em function-call}
 with a {\em function-declara\-tion} is as follows.  For the corresponding
-algorithm matching a {\em reference-expression} to a
+algorithm matching a {\em reference-call} to a
 {\em reference-function-declaration} see
 \itemref{REFERENCE-FUNCTION-DECLARATIONS}.
 
 \bigskip
+
+TBD
 
 \centerline{\bf Call-Declaration Matching Algorithm}
 \begin{enumerate}
