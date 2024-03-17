@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 16, 2024
+March 17, 2024
 
 \bigskip
  
@@ -5439,47 +5439,15 @@ Each {\em function-call} in a statement must be matched to a single
 {\em function-declaration}, else compilation of the statement fails
 with a compile error.
 
-The first step in processing a {\em statement}
-is to visit in top-to-bottom left-to-right order
-all the {\em expressions} in the {\em statement} and apply the following
-{\em expression} (macro) replacement algorithm:
-
-\bigskip
-
-\centerline{\bf Top-Down Replacement Algorithm}
-\begin{enumerate}
-
-\item\label{MODULE-PROPAGATION-STEP}
-If the \underline{entire} {\em expression} $E$ has the form: \\
-\hspace*{2in}{\em module-abbreviation} \TT{(} {\em subexpression} \TT{)} \\
-where the parentheses may \underline{not}
-be implied, move the {\em module-abbreviation}
-to the beginning of the \underline{parsed} {\em subexpression}, and
-repeat this step.
-See \pagref{MA-SYNTACTIC-SUGAR} for an example.
-
-\item\label{MACRO-FUNCTION-STEP}
-If the expression $E$ is a function call,
-Search for \underline{macro} {\em function-declarations}
-matching $E$.  If one is found,
-evaluate the declaration's function to get a {\tt const} value $R$,
-replace $E$ by $R$, and go to Step 1.
-
-\end{enumerate}
-
-Note that macro processing is done top-down before any other processing on the
-{\em statement}.
-
-The second step in processing
+The first step in processing
 a {\em statement} is to visit in bottom-to-top left-to-right order
 all the {\em expressions} in the {\em statement} and apply the following
-algorithm with evaluates {\em constant-expressions} and analyzes
-{\em reference-expressions}:
+algorithm with evaluates {\em constant-expressions}, analyzes
+{\em reference-expressions}, and processes macros and inclusions:
 
 \bigskip
 
-\centerline{\bf Bottom-Up Constant Evaluation and Reference Expression
-                Algorithm}
+\centerline{\bf Bottom-Up Expression Algorithm}
 \begin{enumerate}
 
 \item This algorithm is applied to an {\em expression} $E$, and
@@ -5514,12 +5482,32 @@ or call a reference function, as these cannot have {\tt const} values.
 Note the $E$ cannot be pointing, as there are not {\tt const} pointers
 (other than virtual reference pointers).
 
+\item\label{MODULE-PROPAGATION-STEP}
+If the \underline{entire} {\em expression} $E$ has the form: \\
+\hspace*{2in}{\em module-abbreviation} \TT{(} {\em subexpression} \TT{)} \\
+where the parentheses may \underline{not}
+be implied, move the {\em module-abbreviation}
+to the beginning of the \underline{parsed} {\em subexpression}, and
+repeat this step for the modified {\em expression}.
+See \pagref{MA-SYNTACTIC-SUGAR} for an example.
+
 \item\label{CONSTANT-FUNCTION-STEP}
 If $E$ is a {\em function-call},
 search for \underline{constant} {\em function-declarations}
 matching $E$.  If one is found,
 evaluate the declaration's function to get a {\tt const} value $C$,
 and annotate $E$ with $C$ and the {\tt const} type.
+
+\item\label{MACRO-FUNCTION-STEP}
+If the expression $E$ is a {\em function-call},
+Search for \underline{macro} {\em function-declarations}
+matching $E$.  If one is found,
+evaluate the declaration's function to get a {\tt const} value $R$,
+replace $E$ by $R$, and go to Step 1.
+
+Note that macro arguments that are {\em constant-expressions}
+(those annotated with a {\tt const} value) or {\em reference-expressions}
+are processed before this step.
 
 \item\label{INCLUSION-FUNCTION-STEP}
 If $E$ is a {\em function-call}
@@ -5541,7 +5529,9 @@ it is a compile error.
 
 If $S$ has been replaced, terminate this algorithm.
 
-Note that macro processing precedes this step.
+Note that inclusion arguments that are {\em constant-expressions}
+(those annotated with a {\tt const} value), {\em reference-expressions},
+or macros are processed before this step.
 
 \item\label{REFERENCE-EXPRESSION-STEP}
 If $E$ is a {\em reference-expression}, compute the type of its reference
@@ -5630,7 +5620,7 @@ error.
 
 \end{enumerate}
 
-The third step in processing a {\em statement} is to visit in top-down order
+The second step in processing a {\em statement} is to visit in top-down order
 all the {\em expressions} $E$ in the {\em statement}
 and locate for each $E$ that are {\em function-calls}
 (and not annotated with a {\tt const} value by the Bottom-Up Algorithm above)
@@ -5639,7 +5629,7 @@ a {\em function-declaration} whose {\em function-prototype} matches
 the {\em function-call}.  In this step all \underline{non-special}
 {\em function-declarations} that are in scope are included in the search
 (special {\em function-declarations} were processed by the above
-Top-Down Replacement or Bottom-Up Algorithms).
+Bottom-Up Expression Algorithm).
 
 Furthermore in this step each $E$ has a target type $T$ (or types),
 and {\em function-prototypes} that match the expression are required to
