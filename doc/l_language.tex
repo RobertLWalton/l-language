@@ -5461,81 +5461,6 @@ with $C$ and with the type {\tt const}
 ({\em Rational-constants} are evaluated as {\em function-calls} to
 a {\tt constant} function in Step~\ref{CONSTANT-FUNCTION-STEP} below.)
 
-\item\label{CONSTANT-REFERENCE-EXPRESSION-STEP}
-If $E$ is a {\em reference-expression} that
-begins with a {\em variable-name} of {\tt const} type, evaluate
-the reference pointer of $E$ according to the rules in
-Reference Expressions, \itemref{REFERENCE-EXPRESSIONS}, and annotate
-$E$ with this reference pointer.
-In addition, if $E$ is a loading {\em reference-expression}, dereference this
-reference pointer to get a {\tt const} value $C$, and annotate
-$E$ with $C$ and the {\tt const} type.
-
-Note that indexes, being smaller subexpressions, are processed previously,
-and must be annotated with {\em const} type and a constant value, else
-there is a compile error.  Referencing a non-existant map element is also
-a compile error.
-
-All this works if there are no {\em refence-calls}\pagnote{REFERENCE-CALL}
-in the {\em reference-expression}.
-
-Note that $E$ cannot begin with a {\em function-variable-names},
-or call a reference function, as these cannot have {\tt const} values.
-
-Note the $E$ cannot be pointing, as there are not {\tt const} pointers
-(other than virtual reference pointers).
-
-\item\label{MODULE-PROPAGATION-STEP}
-If the \underline{entire} {\em expression} $E$ has the form: \\
-\hspace*{2in}{\em module-abbreviation} \TT{(} {\em subexpression} \TT{)} \\
-where the parentheses may \underline{not}
-be implied, move the {\em module-abbreviation}
-to the beginning of the \underline{parsed} {\em subexpression}, and
-repeat this step for the modified {\em expression}.
-See \pagref{MA-SYNTACTIC-SUGAR} for an example.
-
-\item\label{CONSTANT-FUNCTION-STEP}
-If $E$ is a {\em function-call},
-search for \underline{constant} {\em function-declarations}
-matching $E$.  If one is found,
-evaluate the declaration's function to get a {\tt const} value $C$,
-and annotate $E$ with $C$ and the {\tt const} type.
-
-\item\label{MACRO-FUNCTION-STEP}
-If the expression $E$ is a {\em function-call},
-Search for \underline{macro} {\em function-declarations}
-matching $E$.  If one is found,
-evaluate the declaration's function to get a {\tt const} value $R$,
-replace $E$ by $R$, and go to Step 1.
-
-Note that macro arguments that are {\em constant-expressions}
-(those annotated with a {\tt const} value) or {\em reference-expressions}
-are processed before this step.
-
-\item\label{INCLUSION-FUNCTION-STEP}
-If $E$ is a {\em function-call}
-that is top level in a {\em call-assignment-statement} $S$,
-search for \underline{inclusion} {\em function-declarations}
-matching $E$.
-
-Otherwise evaluate the declaration's function to {\tt const} return values.
-The first return value replaces $S$ (not $E$).
-
-Subsequent return values are assigned to $S$'s {\em assignment-results}
-in left-to-right order.
-Thus if $S$
-has $N$ {\em assignment-results} (all of which must be {\tt const} variables),
-then the execution must return at
-least $N+1$ results (all of which must be {\tt const} values).
-If there are excess results, discard them.  If there are too few,
-it is a compile error.
-
-If $S$ has been replaced, terminate this algorithm.
-
-Note that inclusion arguments that are {\em constant-expressions}
-(those annotated with a {\tt const} value), {\em reference-expressions},
-or macros are processed before this step.
-
 \item\label{REFERENCE-EXPRESSION-STEP}
 If $E$ is a {\em reference-expression}, processing depends upon whether
 the {\em reference-expres\-sion} is compile-time or run-time.
@@ -5609,11 +5534,17 @@ and if $E$ is storing, $E$ cannot be a {\em load} declaration.  If no
 If a {\tt load} or {\tt store} declaration is found and the matching
 {\em reference-offset} is not at the very end of $E$, it is a
 compile error.
+If $D$ is found annotate the {\em reference-call} with $D$,
+and annotate each run-time index {\em expression}
+with the {\tt int} target type.
+If a compile-time index is \underline{not}
+annotated with a {\tt const} value, it is a compile error.
+
+
 Note that to get a match for run-time $E$, the type of the
 {\em reference-base} reference pointer \underline{cannot} be virtual;
 to match it must be the exact type of the {\em reference-pattern-base}
 \pagnote{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}.
-If $D$ is found annotate the {\em reference-call} with $D$.
 
 For {\tt load} or {\tt store} $D$,
 annotate a compile-time $E$ with 
@@ -5650,6 +5581,57 @@ the {\tt *INIT*} qualifier), and for a storing
 the reference pointer type must allow values to be stored
 (e.g., it cannot have the {\tt co} qualifier), else there is a compile
 error.
+
+\item\label{MODULE-PROPAGATION-STEP}
+If the \underline{entire} {\em expression} $E$ has the form: \\
+\hspace*{2in}{\em module-abbreviation} \TT{(} {\em subexpression} \TT{)} \\
+where the parentheses may \underline{not}
+be implied, move the {\em module-abbreviation}
+to the beginning of the \underline{parsed} {\em subexpression}, and
+repeat this step for the modified {\em expression}.
+See \pagref{MA-SYNTACTIC-SUGAR} for an example.
+
+\item\label{CONSTANT-FUNCTION-STEP}
+If $E$ is a {\em function-call},
+search for \underline{constant} {\em function-declarations}
+matching $E$.  If one is found,
+evaluate the declaration's function to get a {\tt const} value $C$,
+and annotate $E$ with $C$ and the {\tt const} type.
+
+\item\label{MACRO-FUNCTION-STEP}
+If $E$ is a {\em function-call},
+Search for \underline{macro} {\em function-declarations}
+matching $E$.  If one is found,
+evaluate the declaration's function to get a {\tt const} value $R$,
+replace $E$ by $R$, and go to Step 1.
+
+Note that macro arguments that are {\em constant-expressions}
+(those annotated with a {\tt const} value) or {\em reference-expressions}
+are processed before this step.
+
+\item\label{INCLUSION-FUNCTION-STEP}
+If $E$ is a {\em function-call}
+that is top level in a {\em call-assignment-statement} $S$,
+search for \underline{inclusion} {\em function-declarations}
+matching $E$.
+
+Otherwise evaluate the declaration's function to {\tt const} return values.
+The first return value replaces $S$ (not $E$).
+
+Subsequent return values are assigned to $S$'s {\em assignment-results}
+in left-to-right order.
+Thus if $S$
+has $N$ {\em assignment-results} (all of which must be {\tt const} variables),
+then the execution must return at
+least $N+1$ results (all of which must be {\tt const} values).
+If there are excess results, discard them.  If there are too few,
+it is a compile error.
+
+If $S$ has been replaced, terminate this algorithm.
+
+Note that inclusion arguments that are {\em constant-expressions}
+(those annotated with a {\tt const} value), {\em reference-expressions},
+or macros are processed before this step.
 
 \end{enumerate}
 
