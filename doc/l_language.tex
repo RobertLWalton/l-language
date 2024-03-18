@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 17, 2024
+March 18, 2024
 
 \bigskip
  
@@ -5476,6 +5476,9 @@ and must be annotated with {\em const} type and a constant value, else
 there is a compile error.  Referencing a non-existant map element is also
 a compile error.
 
+All this works if there are no {\em refence-calls}\pagnote{REFERENCE-CALL}
+in the {\em reference-expression}.
+
 Note that $E$ cannot begin with a {\em function-variable-names},
 or call a reference function, as these cannot have {\tt const} values.
 
@@ -5534,44 +5537,66 @@ Note that inclusion arguments that are {\em constant-expressions}
 or macros are processed before this step.
 
 \item\label{REFERENCE-EXPRESSION-STEP}
-If $E$ is a {\em reference-expression}, compute the type of its reference
-pointer according to the rules in
-Reference Expressions, \itemref{REFERENCE-EXPRESSIONS}, and annotate
-$E$ with this reference pointer type.  This works if there are no
+If $E$ is a {\em reference-expression}, processing depends upon whether
+the {\em reference-expres\-sion} is compile-time or run-time.
+First we consider the case where there are no
 {\em reference-calls}\pagnote{REFERENCE-CALL} in the
 {\em reference-expression}.
 
-For {\em reference-offsets} not involved in {\em reference-calls},
-any index {\em expressions} are annotated with the \TT{int}
-target type.
+Then the {\em reference-expression} begins with a {\em variable-name}
+(not a {\em function-variable-name}) and is compile time if that
+variable has type {\tt const} and run-time otherwise.
+The according to the rule of
+Reference Expressions, \itemref{REFERENCE-EXPRESSIONS},
+if the {\em reference-expression} is compile time compute its reference pointer
+and annotate $E$ with that, and if run-time compute the type of its
+reference pointer and annotate $E$ with that.  Also for compile-time
+loading {\em reference-expressions}, dereference the reference pointer
+to get a {\tt const} value $C$, and annotate $E$ with $C$.
+
+For compile-time {\em reference-offsets} not involved in {\em reference-calls},
+any index {\em expressions} must have previously been annotated with
+a {\tt const} value, else it is a compile error.
+
+For run-time {\em reference-offsets} not involved in {\em reference-calls},
+any index {\em expressions} are annotated with the \TT{int} target type.
 
 {\em Reference-calls} are handled as follows:
 
 If the {\em reference-expression} $E$ begins with a
 {\em function-variable-name}\label{FUNCTION-VARIABLE-NAME-STEP},
 find the {\em reference-declaration} $D$ associated with
-the {\em function-variable-name}.  If the $E$ is loading, exclude
-any {\em store} {\em reference-declaration}, and if $E$ is storing,
-exclude any {\em load} {\em reference-declaration}.  If no
+the {\em function-variable-name}.  If the $E$ is not loading, exclude
+any {\em load} {\em reference-declaration}, and if $E$ is not storing,
+exclude any {\em store} {\em reference-declaration}.  If no
 {\em reference-declaration} is found (e.g., because $E$ is storing
 and there is only a {\tt load} declaration), it is a compile-error.
+Then annotate the root of $E$ with $D$.
 
-Otherwise annotate the root of $E$ with $D$ and compute the type of
-the reference pointer of the root.  For a {\tt point} $D$
-(in which case $E$ must be pointing),
-this is the type of the value returned by the function $F$ of $D$.
-For {\tt load} or {\tt store} $D$, this is the type of a
-(pseudo) virtual pointer\footnote{A virtual reference pointer points
+For {\tt load} or {\tt store}
+$D$, the root {\em function-variable-name} must be the
+\underline{entire} {\em reference-expression}, else there is a
+compile error.  In this case, annotate a compile-time $E$ with 
+a pseudo reference pointer indicating that to load or store one
+must call the function $F$ of $D$, and annotate a run-time $E$ with
+a pseudo virtual reference pointer whose target type is the
+result type of $F$ for {\tt load} $D$ and the input type of $F$
+for {\tt store} $D$.
+\footnote{A virtual reference pointer points
 at a location in the local or global stack or points at a location
 storing a pointer.  A pseudo virtual pointer
 is merely associated with a function to load a value or a function to store
 a value.}
-to the type of the value returned by $F$
-(for {\tt load}) or input to $F$ (for {\tt store}).  For {\tt load}
-or {\tt store} $D$, the {\em function-variable-name} must be the
-\underline{entire} {\em reference-expression} $E$, else there is
-a compile-error (because $E$ has no real or virtual reference pointer --
-it only has a function to load or store the value of $E$).
+For compile-time loading $E$, execute $F$
+to get a {\tt const} value $C$ and annotate $E$ with $C$.
+
+For {\tt point} $D$, $E$ must be run-time
+(a {\tt point} $D$ cannot have a {\tt const} type {\em reference-base}
+or result).  Then $E$'s reference pointer
+type is the type of the value returned by the function $F$ of $D$ --
+annotate the root of $E$ with this real reference pointer type.
+
+TBD
 
 The other {\em reference-call} case consists of an already processed
 {\em reference-base} with a known reference pointer type
