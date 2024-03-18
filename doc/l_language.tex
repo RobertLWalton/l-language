@@ -5596,10 +5596,9 @@ or result).  Then $E$'s reference pointer
 type is the type of the value returned by the function $F$ of $D$ --
 annotate the root of $E$ with this real reference pointer type.
 
-TBD
-
 The other {\em reference-call} case consists of an already processed
-{\em reference-base} with a known reference pointer type
+{\em reference-base} with a known reference pointer if compile-time
+or reference pointer type if run-time
 and its following unprocessed {\em reference-offset}.  With this
 information a search is made for a matching
 {\em reference-function-declaration} $D$, and if one is found,
@@ -5610,24 +5609,32 @@ and if $E$ is storing, $E$ cannot be a {\em load} declaration.  If no
 If a {\tt load} or {\tt store} declaration is found and the matching
 {\em reference-offset} is not at the very end of $E$, it is a
 compile error.
-Note that to get a match, the type of the
+Note that to get a match for run-time $E$, the type of the
 {\em reference-base} reference pointer \underline{cannot} be virtual;
 to match it must be the exact type of the {\em reference-pattern-base}
 \pagnote{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}.
+If $D$ is found annotate the {\em reference-call} with $D$.
 
-If $D$ is found with its function $F$,
-annotate the {\em reference-call} with $D$ and
-with the type of its reference pointer.  
-For {\tt load} or {\tt store} $D$, this is the type of a
-(pseudo) virtual pointer to the type of the value returned by $F$
-(for {\tt load}) or input to $F$ (for {\tt store}).  For {\tt point}
-$D$ it is the type of the result of $F$.
-Any index {\em expression} in the {\em reference-call} is annotated with 
-its target type which is taken from the associated index argument type
-in the prototype of $D$ (these index target types are not required
-to be {\tt int}).
+For {\tt load} or {\tt store} $D$,
+annotate a compile-time $E$ with 
+a pseudo reference pointer indicating that to load or store one
+must call the function $F$ of $D$, and annotate a run-time $E$ with
+a pseudo virtual reference pointer whose target type is the
+result type of $F$ for {\tt load} $D$ and the input type of $F$
+for {\tt store} $D$.
+For compile-time loading $E$, dereference the reference pointer
+for the {\em reference-base} and pass this as an argument to an
+execution of $F$ to get a {\tt const} result $C$, and then
+annotate $E$ with $C$.
 
-For all {\em reference-expressions}, whether or not they contain
+For {\tt point} $D$, $E$ must be run-time
+(a {\tt point} $D$ cannot have a {\tt const} type {\em reference-base}
+or result).  Then the processed part of $E$'s reference pointer
+type is the type of the value returned by the function $F$ of $D$ --
+annotate the processed part of $E$ with this real reference pointer type.
+
+For all \underline{run-time}
+{\em reference-expressions}, whether or not they contain
 {\em reference-calls}, the following is true.
 For a pointing {\em reference-expression} the reference pointer it
 computes must be real and its type must have a normal `real' pointer type.
@@ -5638,7 +5645,8 @@ pointer type, but the only thing that matters in this case is the
 type of the value pointed at, which will be a normal `real' type.
 In the case of a loading {\em reference-expression} the reference
 pointer type must allow values to be read (e.g., it cannot have
-the {\tt *INIT*} qualifier), and for a storing {\em reference-expression},
+the {\tt *INIT*} qualifier), and for a storing 
+{\em reference-expression},
 the reference pointer type must allow values to be stored
 (e.g., it cannot have the {\tt co} qualifier), else there is a compile
 error.
