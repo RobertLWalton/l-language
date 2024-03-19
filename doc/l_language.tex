@@ -6513,11 +6513,20 @@ Substitution for {\em include-arguments} obeys the following rules:
 value is a list, and if the
 instance being substituted is an element of a list,
 the {\em include-argument} list is spliced into the instance containing
-list.
+list.  However any {\em include-argument} dictionary entries are
+discarded.
 \\[0.5ex]
-Thus if {\tt X = \{"A", "B"\}} then \\
+Thus if {\tt X = \{"A", "B", ".separator" = ","\}} then \\
 \hspace*{2em}{ \tt
-"Y", "=", \{ "X" \} {\rm becomes} "Y", "=", \{ "A", "B" \}
+"Y", "=", \{ "X", "C" \} {\rm becomes} "Y", "=", \{ "A", "B", "C" \}
+} \\
+and \\
+\hspace*{2em}{ \tt
+"Y", "=", \{ "X", "C", ".separator" = "," \}} \\
+becomes \\
+\hspace*{2em}{ \tt
+"Y", "=",
+\{ "A", "B", "C", ".separator" = "," \}
 } \\
 The {\em include-argument} value list may be empty.
 If {\tt X = \{\}} then \\
