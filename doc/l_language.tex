@@ -6398,7 +6398,7 @@ An example of an inclusion is:
 //         STATEMENTS*
 //         V += 1
 //
-function inclusion r = for ( macro V, macro LIMIT ):
+inclusion function const r = for ( macro V, macro LIMIT ):
     r = { { { "int" } + V, "=", { 0 } },
           { { "while", { V, "<", LIMIT } },
             com *SUBBLOCK* +
@@ -6416,6 +6416,12 @@ for ( x, 15 ):
 //     while x < 15:
 //         next sum += x + 1
 //         next x += 1
+//
+// because:
+//
+//   com *SUBBLOCK* equals:
+//     { { { "next", "sum" }, "+=", { { "x" }, "+", { 1 } } },
+//       .initiator = ":", .terminator = *INDENTED-PARAGRAPH* }
     
 \end{verbatim}\end{indpar}
 
