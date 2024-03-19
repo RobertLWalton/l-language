@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 18, 2024
+March 19, 2024
 
 \bigskip
  
@@ -2473,9 +2473,9 @@ The syntax of the argument strings is:
 {\em character-representative} :::= see \pagref{CHARACTER-REPRESENTATIVE}
 \\[1ex]
 where
-\begin{itemize}
+\begin{enumerate}
 \item Denominators in fractions must not be zero.
-\end{itemize}
+\end{enumerate}
 
 \end{indpar}
 
@@ -2709,7 +2709,7 @@ The full syntax of a {\em reference-expression} is:
 {\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
 \\[0.5ex]
 {\em member-name} ::= see \pagref{MEMBER-NAME}
-\begin{itemize}
+\begin{enumerate}
 \item
 An {\em expression} with no operators that begins
 with a ({\em function-}){\em variable-name}
@@ -2743,7 +2743,7 @@ with user defined pointers that are the equivalent of multi-dimensional
 see Reference Function Declarations,
 \itemref{REFERENCE-FUNCTION-DECLARATIONS}.
 
-\end{itemize}
+\end{enumerate}
 \end{indpar}
 
 Examples of reference pointers are:
@@ -2899,7 +2899,7 @@ Given Base and Field Qualifiers
 \\[1ex]
 \begin{minipage}{6.0in}
 \raggedright
-\begin{itemize}
+\begin{enumerate}
 \item Here\label{INIT-FORCING}
 {\tt *INIT*} is a pseudo-qualifier used for bases
 that are being initialized.  It has the same effect as {\tt *WRITE-ONLY*}
@@ -2908,7 +2908,7 @@ even if they are {\tt co} or {\tt ro}.
 \item The {\em reference-expression} has the same lifetime qualifier
 ({\tt *GLOBAL*}, {\tt *HEAP*}, or {\tt *LOCAL*} )
 and lifetime depth as the base (see \itemref{LIFETIMES}).
-\end{itemize}
+\end{enumerate}
 \end{minipage}
 \end{center}
 
@@ -3010,13 +3010,18 @@ The syntax of function calls is:
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
-\begin{itemize}
+\begin{enumerate}
 \item {\em Call-term-names} cannot be abbreviated.
 \item {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
 equivalent to `{\tt x(FALSE)}'.
 \item {\em Parenthesized-call-argument-lists} may have implicit
 parentheses.
-\end{itemize}
+\item\label{PARENTHESIZED-ARGUMENT-LIST-RULE}
+There must be at least one explicit or implicit
+{\em parenthesized-call-argument-list} just before or just
+after the first {\em call-term-name} (to distinguish {\em function-calls}
+from {\em reference-expressions}).
+\end{enumerate}
 \end{indpar}
 
 Thus a {\em function-call} is an optional {\em module-abbreviation}
@@ -3024,9 +3029,9 @@ followed by a sequence of {\em function-term-names}
 and {\em call-argument-lists}.  Note that {\em Function-term-names} cannot
 contain `\TT{.}'s and therefore cannot be {\em member-names},
 which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
-Also \TT{[~]} bracketed {\em call-argument-lists} cannot be placed
-before the first {\em call-term-name}, a syntactic distinction to their
-use in {\em reference-calls}.
+Also any \TT{[~]} bracketed {\em call-argument-lists} must be preceded by
+a {\em paraenthesized-call-argument-list},
+a syntactic distinction to their use in {\em reference-calls}.
 
 {\em Function-calls} are matched to {\em function-prototypes} in
 {\em function-declarations}.  The
@@ -3218,7 +3223,7 @@ The forms of an {\em assignment-statement} are:
 \emkey{allocation-call}\label{ALLOCATION-CALL} ::= {\em function-call}
 \\[2ex]
 where
-\begin{itemize}
+\begin{enumerate}
 \item For a {\em pointer-variable} with an {\em allocation-call},
 the {\em allocation-call} allocates and zeros memory for the
 associated {\em target-variable}, and returns a pointer to the
@@ -3238,7 +3243,7 @@ is implied unless the declaration is of a {\tt *READ-WRITE*}
 {\tt *READ-WRITE*} {\em pointer-variable} (for which
 `{\tt = *DEFERRED*}' is \underline{not} implied) is equivalent
 to a {\em block-assignment-statement} with an empty subblock.
-\end{itemize}
+\end{enumerate}
 
 \end{indpar}
 
@@ -3404,7 +3409,7 @@ The syntax of an {\em expression-assign\-ment-statement} is:
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[2.0ex]
 where
-\begin{itemize}
+\begin{enumerate}
 
 \item The number of {\em expressions} must equal the number
 of {\em assignment-results}.
@@ -3415,7 +3420,7 @@ of {\em assignment-results}.
 \itemref{CALL-ASSIGNMENT-STATEMENTS}).  However the {\em expression-list}
 may consist of a single {\em reference-call}.
 
-\end{itemize}
+\end{enumerate}
 \end{indpar}
 
 Sub-{\em expressions} computable at compile-time are evaluated
@@ -3550,13 +3555,13 @@ The syntax of {\em block-assignment-statements} is:
 {\em throw-statement} ::= see \pagref{THROW-STATEMENT}
 \\[2.0ex]
 where
-\begin{itemize}
+\begin{enumerate}
 
 \item The {\em exit-label} \ttkey{*EXCEPTION*} is special and
 any {\em exception-subblock} must be the last {\em exit-subblock}
 in the {\em block-assignment-statement}.
 
-\end{itemize}
+\end{enumerate}
 \end{indpar}
 
 The {\em block-assignment-statement}
@@ -3975,10 +3980,10 @@ or block of {\em statements} according to what a
    \end{tabular}
 \\[1ex]
 where
-\begin{itemize}
+\begin{enumerate}
 \item An `{\tt else if}' or `{\tt else}' {\em statement} must be immediately
 preceded by an `{\tt if}' or `{\tt else if}' {\em statement}.
-\end{itemize}
+\end{enumerate}
 \end{indpar}
 
 An example is:
@@ -5064,7 +5069,7 @@ The syntax of a function declaration is:
     {\em pattern-argument-list} with parentheses \TT{(~)}
     (and \underline{not} square brackets \TT{[~]})
 \end{indpar}
-\begin{itemize}\label{FUNCTION-DECLARATION-RULES}
+\begin{enumerate}\label{FUNCTION-DECLARATION-RULES}
 \item
 A {\em prototype-pattern} {\em function-term-name} must not be
 an initial segment of any other {\em function-term-name}
@@ -5079,6 +5084,15 @@ may not be {\em member-names}\pagnote{MEMBER-NAME}
 {\em function-term-name} may not use square \TT{[~]} brackets
 (compare with {\em reference-function-declaration}%
 \pagnote{REFERENCE-FUNCTION-DECLARATION}).
+\item
+There must be a {\em parenthesized-pattern-argument-list} that
+is not omittable (it must have a {\em prototype-argument-declaration}
+that has \underline{no} {\em default-value}) either immediately
+before or immediately after the first {\em function-term-name}
+in a {\em prototype-pattern}.  This distinguishes a
+{\em function-call} from a {\em reference-expression}:
+see Rule~\ref{PARENTHESIZED-ARGUMENT-LIST-RULE} on
+page~\pageref{PARENTHESIZED-ARGUMENT-LIST-RULE}.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must not begin with a {\em module-abbreviation}.
@@ -5142,7 +5156,7 @@ These functions are referred to as \skey{macro function}s,
 A {\tt *DEFERRED*} {\em function-declaration} may \underline{not} be
 a special function.
 
-\end{itemize}
+\end{enumerate}
 
 An example of an inline function declaration and an inline function call is:
 \begin{indpar}\begin{verbatim}
@@ -6326,9 +6340,9 @@ combine a macro function with an indented paragraph:
 		$|$ & {\em function-call} \TT{:} \\
 		    & \TT{~~~~}{\em statement}\STAR{} \\
 		\end{tabular}
-\begin{itemize}
+\begin{enumerate}
 \item The {\em function-call} must call a macro function.
-\end{itemize}
+\end{enumerate}
 \end{indpar}
 
 {\em Macro-statements} may be used to translate user defined declarations
@@ -6472,7 +6486,7 @@ The syntax of a {\em reference-function-declaration} is:
 \\[0.5ex]
 {\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
 \end{indpar}
-\begin{itemize}
+\begin{enumerate}
 \item
 A {\em function-variable-name} begins with a {\em module-abbreviation}
 if it is external (just like other {\em variable-names}).
@@ -6516,7 +6530,7 @@ have a {\em square-bracketed-pattern-argument-list}, and in this case,
 one must have the {\tt load} {\em reference-function-specifier},
 and the other must have the {\tt store}
 {\em reference-function-specifier}.
-\end{itemize}
+\end{enumerate}
 
 \subsubsection{Reference Call-Declaration Matching}
 \label{REFERENCE-CALL-DECLARATION-MATCHING}
@@ -6712,7 +6726,7 @@ The syntax of an out-of-line function declaration is:
 \\[0.5ex]
 {\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
 
-\begin{itemize}
+\begin{enumerate}
 \item
 The rules for inline {\em function-declarations} on
 \pagref{FUNCTION-DECLARATION} must be followed where applicable.
@@ -6729,7 +6743,7 @@ their companions on \pagref{COMPANION-DECLARATION}
 must be followed for
 {\tt *DEFERRED*} {\tt out-of-line-function-de\-clar\-ations}
 and their companions.
-\end{itemize}
+\end{enumerate}
 \end{indpar}
 
 Out-of-line function calls must be the right side (after the {\tt =})
@@ -6754,10 +6768,10 @@ out-of-line function must be called with a:
 {\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
 \\[2ex]
 where the {\em function-expression} must evaluate to either:
-\begin{itemize}
+\begin{enumerate}
 \item a {\tt const} {\em foreign-function-name}
 \item a function-type value: see \itemref{FUNCTION-TYPE-DECLARATIONS}
-\end{itemize}
+\end{enumerate}
 \end{indpar}
 
 Unlike inline functions, an out-of-line function can
@@ -6874,7 +6888,7 @@ A \key{module} is a file whose first statement is a {\em module-declaration}:
 \emkey{import-clause}\label{IMPORT-CLAUSE}
     ::= \ttkey{import} {\em module-name} \TT{as} {\em module-abbreviation}
 
-\begin{itemize}
+\begin{enumerate}
 
 \item
 A {\em module-declaration} may only appear as the first statement
@@ -6883,7 +6897,7 @@ of a module file.
 \item
 In a {\em module-declaration} all {\em module-abbreviations} must be
 distinct, and all {\em module-names} must be distinct.
-\end{itemize}
+\end{enumerate}
 \end{indpar}
 
 The compiler maps {\em module-names} to POSIX file names in an
@@ -6924,7 +6938,7 @@ A \key{body} is a file whose first statement is a {\em body-declaration}:
 \\[0.5ex]
 \emkey{after-clause} ::= \ttkey{initialize after }{\em body-name}
 
-\begin{itemize}
+\begin{enumerate}
 
 \item
 A {\em body-declaration} may only appear as the first statement
@@ -6935,7 +6949,7 @@ In a {\em body-declaration} the {\em module-abbreviations} of imported
 modules must be distinct and must be different from the
 {\em module-abbreviation} used by the body's module,
 and all {\em module-names} and {\em body-names} must be distinct.
-\end{itemize}
+\end{enumerate}
 
 \end{indpar}
 
