@@ -6089,6 +6089,298 @@ bool b4 = ( flt64 ( x ) == 5 )
     // N = flt64 which works because flt64 <--- const exists.
 \end{verbatim}\end{indpar}
 
+\subsection{Reference Function Declarations}
+\label{REFERENCE-FUNCTION-DECLARATIONS}
+
+A \key{reference function} is a function that can be
+called as part of evaluating a {\em reference-expression}.
+This part is called a {\em reference-call}\label{REFERENCE-CALL}.
+
+
+A {\em function-variable-name} appearing at the beginning of
+a {\em reference-expression} as the root is a {\em reference-call}.
+
+A compound {\em reference-expression} can be a {\em reference-call}.
+
+Note that if a {\em reference-expression} contains a
+{\em module-abbreviation}, it is at the very beginning and
+is part of the root ({\em function-}){\em variable-name}.
+
+The syntax of a {\em reference-function-declaration} is:
+
+\begin{indpar}[0.1in]
+\emkey{reference-function-declaration}\label{REFERENCE-FUNCTION-DECLARATION}
+	::= \\
+\hspace*{2em}
+    \begin{tabular}[t]{rl}
+        &  {\em reference-function-prototype} \TT{:} \\
+	& \TT{~~~~~}{\em statement}\PLUS{} \\
+    $|$ &  {\em reference-function-prototype}~ \TT{:}~ \ttkey{*DEFERRED*} \\
+    \end{tabular}
+\\[2ex]
+\emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} \\
+\hspace*{0.25in}
+    \begin{tabular}[t]{rl}
+        ::= & \ttkey{load reference function variable} \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
+            	{\em function-variable-name} \\
+        $|$ & \ttkey{store reference function variable} \\
+	    & \TT{~~~~}~ {\em function-variable-name} \TT{=}~
+            	{\em prototype-result-variable-declaration} \\
+        $|$ & \ttkey{point reference function variable} \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
+            	{\em function-variable-name} \\
+        $|$ & \ttkey{load reference function} \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
+	        {\em reference-prototype-pattern} \\
+        $|$ & \ttkey{store reference function} \\
+	    & \TT{~~~~}~ {\em reference-prototype-pattern} \TT{=}~
+	        {\em prototype-result-variable-declaration} \\
+        $|$ & \ttkey{point reference function} \\
+	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
+	        {\em reference-prototype-pattern} \\
+    \end{tabular}
+\\[0.5ex]
+{\em reference-function-specifier} ::=
+    \ttkey{load} $|$ \ttkey{store} $|$ \ttkey{point}
+\\[0.5ex]
+{\em prototype-result-variable-declaration} ::=
+    see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
+\\[0.5ex]
+{\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
+\\[0.5ex]
+\emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN}
+    ::= {\em reference-pattern-base}~ {\em reference-pattern-offset}
+\\[0.5ex]
+\emkey{reference-pattern-offset}\label{REFERENCE-PATTERN-OFFSET}
+    \begin{tabular}[t]{rl}
+    ::= & {\em member-name} \\
+    $|$ & {\em member-name}~ {\em reference-pattern-index-list} \\
+    $|$ & {\em reference-pattern-index-list} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{reference-pattern-base} ::=
+    \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
+\\[0.5ex]
+\emkey{reference-pattern-index-list} ::= \\
+\hspace*{0.5in}
+    \TT{[} {\em reference-pattern-index-declaration}
+           \{ \TT{,} {\em reference-pattern-index-declaration} \}\STAR{} \TT{]}
+\\[0.5ex]
+\emkey{reference-pattern-index-declaration} ::=
+    {\em prototype-result-variable-declaration}
+\\[0.5ex]
+{\em member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
+{\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
+\end{indpar}
+\begin{enumerate}
+\item
+A {\em reference-function-declaration} is compile-time if
+its {\em prototype-result-variable-declara\-tion} before or after the
+\TT{=} sign in its {\em reference-function-prototype}
+has type {\tt const}, and is run-time otherwise.
+{\em Reference-pattern-index-declarations} have type {\tt const}
+if and only if the {\em reference-function-declaration} is compile-time.
+\item
+A {\tt point} {\em reference-function-declaration}
+\underline{cannot} be compile-time.
+\item
+A {\em function-variable-name} begins with a {\em module-abbreviation}
+if and only if it is external (just like other {\em variable-names}).
+\item
+A {\em reference-function-declaration} \underline{not} containing
+a {\em function-variable-name} is external if and only if the
+type of its {\em reference-pattern-base} is external.  In this case
+the {\em reference-function-declaration} \underline{must} be within
+the same module (file) as the {\em type-declaration} of this type.
+\item
+The {\em reference-pattern-base} must be
+followed by
+a {\em member-name}\pagnote{MEMBER-NAME} or
+{\em square-bracketed-pattern-argument-list}.
+\item
+Default values, required values, and {\tt macro} arguments
+are not permitted.
+\item
+A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
+is treated in a {\em reference-function-prototype} as a {\em type-name}.
+A wild-card name of the form {\tt P\$\ldots} is treated as a
+{\em pointer-type-name}.
+A wild-card name of the form {\tt Q\ldots\$\ldots} is treated as a
+{\em qualifier-name} and \underline{must not} be combined with
+other {\em qualifier-names} in the same
+{\em prototype-result-variable-declaration}.
+\item At most two {\em reference-function-declarations} in a context
+may have the same {\em function-variable-name}, and in this case,
+one must have the {\tt load} {\em reference-function-specifier},
+and the other must have the {\tt store}
+{\em reference-function-specifier}.
+\item At most two {\em reference-function-declarations} in a context
+may have the same {\em reference-pattern-base} argument type and
+{\em member-name}, and in this case,
+one must have the {\tt load} {\em reference-function-specifier},
+and the other must have the {\tt store}
+{\em reference-function-specifier}.
+\item At most two {\em reference-function-declarations} in a context
+may have the same {\em reference-pattern-base} argument type and
+have a {\em square-bracketed-pattern-argument-list}, and in this case,
+one must have the {\tt load} {\em reference-function-specifier},
+and the other must have the {\tt store}
+{\em reference-function-specifier}.
+\end{enumerate}
+
+\subsubsection{Reference Call-Declaration Matching}
+\label{REFERENCE-CALL-DECLARATION-MATCHING}
+
+A {\em reference-expression} is one of three types:
+\begin{itemize}
+\item \key{Loading} ~~ The {\em reference-expression} begins with a
+{\em target-variable} (that does \underline{not} begin with `\TT{@}')
+and is used to load a value from the referenced location.
+\item \key{Storing} ~~ The {\em reference-expression} begins with a
+{\em target-variable} (that does \underline{not} begin with `\TT{@}')
+and is used to store a value into the referenced location.
+\item \key{Pointing} ~~ The {\em reference-expression} begins with a
+{\em pointer-variable} (that begins with `\TT{@}')
+and is used to compute a pointer to the referenced location.
+\end{itemize}
+
+In the case of a {\em function-variable-name} reference call,
+the {\em function-variable-name} is just located in the current
+context just like any other {\em variable-name}, and may be
+a {\em pointer-variable} of a {\em target-variable}.
+The {\em function-variable-name} begins the {\em reference-expression}
+and is the root of the {\em reference-expression}.
+There are two cases:
+\begin{itemize}
+\item {\bf Load or Store} ~~
+The {\em reference-function-declarations}
+declaring the {\em function-variable-name} have {\tt load}
+or {\tt store} {\em reference-function-specifiers} (there may be
+two declarations, one {\tt load} and one {\tt store}).
+The {\em function-variable-name} must be 
+the entire {\em reference-expression}
+(there can be no {\em reference-offsets}).
+If the {\em reference-expression} is loading (or storing), there
+must be a {\tt load} (or {\tt store}) {\em reference-function-declaration}
+declaring the {\em function-variable-name}, and the declared function will
+be called to load (or store) a value in the referenced location.
+The {\em reference-expression} \underline{cannot} be pointing.
+\item {\bf Point} ~~
+There is only one {\em reference-function-declaration}
+declaring the {\em function-vari\-able-name} and it has the {\tt point}
+{\em reference-function-specifier}.
+The {\em reference-expression} may be loading, or storing, or pointing.
+The declared function is called and its result is the real refererence pointer
+of the {\em reference-expression} root.  The {\em reference-expression}
+may have {\em reference-offsets} that modify this reference pointer.
+A {\tt point} {\em reference-function-declaration} \underline{cannot}
+be compile-time.
+\end{itemize}
+
+In the case of a {\em reference-offset}, the part of the
+{\em reference-expression} before the {\em reference-offset} is
+the {\em reference-base} matched to the {\em reference-pattern-base}.
+At compile time the type of the reference pointer produced by the
+{\em reference-base} has been computed by recursion, and at run-time
+the reference pointer has already been computed.
+
+\bigskip
+
+\centerline{\bf Reference-Call-Reference-Declaration Matching Algorithm}
+\begin{enumerate}
+\item\label{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING}
+The {\em reference-offset} and the {\em  reference-pattern-offset} must
+match in that
+\begin{enumerate}
+\item
+If one has a {\em member-name}, both must have the same {\em member-name},
+else the call-declaration match fails.
+\item
+If one has an {\em index-list}, both must have {\em index-lists}
+with the same number of elements
+else the call-declaration match fails
+(but the types of the elements are not involved in matching).
+\end{enumerate}
+
+\item\label{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}
+The {\em reference-base} in the call is matched to the
+{\em reference-pattern-base} in the declaration.
+If the latter has wildcards, the wildcards are assigned
+information in the {\em reference-bases}'s type.
+
+If one wildcard is assigned two or more different values, or zero values,
+the call-declaration match fails.
+
+If after this has been done, the type of the {\em reference-base}
+does not exactly match the type of the {\em reference-pattern-base},
+the call-declaration match fails.
+
+\item\label{REFERENCE-CALL-DECLARATION-RANK-COMPUTATION}
+If the call-declaration match has been successful, it is assigned
+a \key{rank} that is the sum of:
+\begin{itemize}
+\item the negative of the number of {\tt T\$\ldots} wildcards
+the prototype has; a wildcard name appearing more than once in
+the prototype is counted only once
+\item a very large number if the match {\em reference-offset} has
+both a {\em member-name} and an {\em index-list}
+\end{itemize}
+
+\end{enumerate}
+
+
+Example:
+
+\begin{indpar}\label{REFERENCE-FUNCTION-EXAMPLE}\begin{verbatim}
+// The *UNCHECKED* function used below is a builtin function
+// that performs a variety of conversions which violate type
+// checking.  Here it has the prototype:
+//
+//    av Q$ T$ @r = std *UNCHECKED*
+//        ( ap Q$ T$ @p, int offset, int lower, int upper )
+//
+// that takes the ap @p, adds the offset argument to the
+// pointer offset, and returns this as an av with bounds
+// lower and upper.
+
+// In my vector X, a vector with flt64 elements is located
+// at X.offset from the address of X and allows index range
+// from 0 through X.length-1.
+//
+type my vector:
+    int offset        // Offset of first element in bytes.
+    int length        // Number of elements.
+    align 64
+    *LABEL* first     // Offset of first element in bits.
+
+point reference function ap Q$1 flt64 @x =
+        ( ap Q$1 my vector @v ) [ int index ]:
+    av Q$1 flt64 @p = *UNCHECKED*
+            ( @v, v.offset, 0, v.length )
+        // See *UNCHECKED* above.
+    @x = @p[index]
+
+type my data:
+    *INCLUDE* my vector
+    flt64[2]
+
+ap *READ-WRITE* my data @D:    // `@= local' is implied
+    D.offset = D.first / 8     // 8 converts bits to bytes.
+    D.length = 2
+
+D[0] = 5.5      // Computes and uses pointer @D[0]
+D[1] = -7.33    // Computes and uses pointer @D[1]
+flt64 x = D[0]  // Now x == 5.5
+flt64 y = D[1]  // Now y == -7.33
+flt64 z = D[2]  // Run time error: 2 >= upper bound of av
+                // that equals D.length.
+
+D[2] = 1.0      // Run-time error: bounds limit exceeded.
+\end{verbatim}\end{indpar}
+
+
 \subsection{Inclusions}
 \label{INCLUSIONS}
 
@@ -6395,298 +6687,6 @@ for ( x, 15 ):
 //         next sum += x + 1
 //         next x += 1
     
-\end{verbatim}\end{indpar}
-
-
-\subsection{Reference Function Declarations}
-\label{REFERENCE-FUNCTION-DECLARATIONS}
-
-A \key{reference function} is a function that can be
-called as part of evaluating a {\em reference-expression}.
-This part is called a {\em reference-call}\label{REFERENCE-CALL}.
-
-
-A {\em function-variable-name} appearing at the beginning of
-a {\em reference-expression} as the root is a {\em reference-call}.
-
-A compound {\em reference-expression} can be a {\em reference-call}.
-
-Note that if a {\em reference-expression} contains a
-{\em module-abbreviation}, it is at the very beginning and
-is part of the root ({\em function-}){\em variable-name}.
-
-The syntax of a {\em reference-function-declaration} is:
-
-\begin{indpar}[0.1in]
-\emkey{reference-function-declaration}\label{REFERENCE-FUNCTION-DECLARATION}
-	::= \\
-\hspace*{2em}
-    \begin{tabular}[t]{rl}
-        &  {\em reference-function-prototype} \TT{:} \\
-	& \TT{~~~~~}{\em statement}\PLUS{} \\
-    $|$ &  {\em reference-function-prototype}~ \TT{:}~ \ttkey{*DEFERRED*} \\
-    \end{tabular}
-\\[2ex]
-\emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} \\
-\hspace*{0.25in}
-    \begin{tabular}[t]{rl}
-        ::= & \ttkey{load reference function variable} \\
-	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
-            	{\em function-variable-name} \\
-        $|$ & \ttkey{store reference function variable} \\
-	    & \TT{~~~~}~ {\em function-variable-name} \TT{=}~
-            	{\em prototype-result-variable-declaration} \\
-        $|$ & \ttkey{point reference function variable} \\
-	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
-            	{\em function-variable-name} \\
-        $|$ & \ttkey{load reference function} \\
-	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
-	        {\em reference-prototype-pattern} \\
-        $|$ & \ttkey{store reference function} \\
-	    & \TT{~~~~}~ {\em reference-prototype-pattern} \TT{=}~
-	        {\em prototype-result-variable-declaration} \\
-        $|$ & \ttkey{point reference function} \\
-	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
-	        {\em reference-prototype-pattern} \\
-    \end{tabular}
-\\[0.5ex]
-{\em reference-function-specifier} ::=
-    \ttkey{load} $|$ \ttkey{store} $|$ \ttkey{point}
-\\[0.5ex]
-{\em prototype-result-variable-declaration} ::=
-    see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
-\\[0.5ex]
-{\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
-\\[0.5ex]
-\emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN}
-    ::= {\em reference-pattern-base}~ {\em reference-pattern-offset}
-\\[0.5ex]
-\emkey{reference-pattern-offset}\label{REFERENCE-PATTERN-OFFSET}
-    \begin{tabular}[t]{rl}
-    ::= & {\em member-name} \\
-    $|$ & {\em member-name}~ {\em reference-pattern-index-list} \\
-    $|$ & {\em reference-pattern-index-list} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{reference-pattern-base} ::=
-    \TT{(} {\em prototype-result-variable-declaration}~ \TT{)}
-\\[0.5ex]
-\emkey{reference-pattern-index-list} ::= \\
-\hspace*{0.5in}
-    \TT{[} {\em reference-pattern-index-declaration}
-           \{ \TT{,} {\em reference-pattern-index-declaration} \}\STAR{} \TT{]}
-\\[0.5ex]
-\emkey{reference-pattern-index-declaration} ::=
-    {\em prototype-result-variable-declaration}
-\\[0.5ex]
-{\em member-name} ::= see \pagref{MEMBER-NAME}
-\\[0.5ex]
-{\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
-\end{indpar}
-\begin{enumerate}
-\item
-A {\em reference-function-declaration} is compile-time if
-its {\em prototype-result-variable-declara\-tion} before or after the
-\TT{=} sign in its {\em reference-function-prototype}
-has type {\tt const}, and is run-time otherwise.
-{\em Reference-pattern-index-declarations} have type {\tt const}
-if and only if the {\em reference-function-declaration} is compile-time.
-\item
-A {\tt point} {\em reference-function-declaration}
-\underline{cannot} be compile-time.
-\item
-A {\em function-variable-name} begins with a {\em module-abbreviation}
-if and only if it is external (just like other {\em variable-names}).
-\item
-A {\em reference-function-declaration} \underline{not} containing
-a {\em function-variable-name} is external if and only if the
-type of its {\em reference-pattern-base} is external.  In this case
-the {\em reference-function-declaration} \underline{must} be within
-the same module (file) as the {\em type-declaration} of this type.
-\item
-The {\em reference-pattern-base} must be
-followed by
-a {\em member-name}\pagnote{MEMBER-NAME} or
-{\em square-bracketed-pattern-argument-list}.
-\item
-Default values, required values, and {\tt macro} arguments
-are not permitted.
-\item
-A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
-is treated in a {\em reference-function-prototype} as a {\em type-name}.
-A wild-card name of the form {\tt P\$\ldots} is treated as a
-{\em pointer-type-name}.
-A wild-card name of the form {\tt Q\ldots\$\ldots} is treated as a
-{\em qualifier-name} and \underline{must not} be combined with
-other {\em qualifier-names} in the same
-{\em prototype-result-variable-declaration}.
-\item At most two {\em reference-function-declarations} in a context
-may have the same {\em function-variable-name}, and in this case,
-one must have the {\tt load} {\em reference-function-specifier},
-and the other must have the {\tt store}
-{\em reference-function-specifier}.
-\item At most two {\em reference-function-declarations} in a context
-may have the same {\em reference-pattern-base} argument type and
-{\em member-name}, and in this case,
-one must have the {\tt load} {\em reference-function-specifier},
-and the other must have the {\tt store}
-{\em reference-function-specifier}.
-\item At most two {\em reference-function-declarations} in a context
-may have the same {\em reference-pattern-base} argument type and
-have a {\em square-bracketed-pattern-argument-list}, and in this case,
-one must have the {\tt load} {\em reference-function-specifier},
-and the other must have the {\tt store}
-{\em reference-function-specifier}.
-\end{enumerate}
-
-\subsubsection{Reference Call-Declaration Matching}
-\label{REFERENCE-CALL-DECLARATION-MATCHING}
-
-A {\em reference-expression} is one of three types:
-\begin{itemize}
-\item \key{Loading} ~~ The {\em reference-expression} begins with a
-{\em target-variable} (that does \underline{not} begin with `\TT{@}')
-and is used to load a value from the referenced location.
-\item \key{Storing} ~~ The {\em reference-expression} begins with a
-{\em target-variable} (that does \underline{not} begin with `\TT{@}')
-and is used to store a value into the referenced location.
-\item \key{Pointing} ~~ The {\em reference-expression} begins with a
-{\em pointer-variable} (that begins with `\TT{@}')
-and is used to compute a pointer to the referenced location.
-\end{itemize}
-
-In the case of a {\em function-variable-name} reference call,
-the {\em function-variable-name} is just located in the current
-context just like any other {\em variable-name}, and may be
-a {\em pointer-variable} of a {\em target-variable}.
-The {\em function-variable-name} begins the {\em reference-expression}
-and is the root of the {\em reference-expression}.
-There are two cases:
-\begin{itemize}
-\item {\bf Load or Store} ~~
-The {\em reference-function-declarations}
-declaring the {\em function-variable-name} have {\tt load}
-or {\tt store} {\em reference-function-specifiers} (there may be
-two declarations, one {\tt load} and one {\tt store}).
-The {\em function-variable-name} must be 
-the entire {\em reference-expression}
-(there can be no {\em reference-offsets}).
-If the {\em reference-expression} is loading (or storing), there
-must be a {\tt load} (or {\tt store}) {\em reference-function-declaration}
-declaring the {\em function-variable-name}, and the declared function will
-be called to load (or store) a value in the referenced location.
-The {\em reference-expression} \underline{cannot} be pointing.
-\item {\bf Point} ~~
-There is only one {\em reference-function-declaration}
-declaring the {\em function-vari\-able-name} and it has the {\tt point}
-{\em reference-function-specifier}.
-The {\em reference-expression} may be loading, or storing, or pointing.
-The declared function is called and its result is the real refererence pointer
-of the {\em reference-expression} root.  The {\em reference-expression}
-may have {\em reference-offsets} that modify this reference pointer.
-A {\tt point} {\em reference-function-declaration} \underline{cannot}
-be compile-time.
-\end{itemize}
-
-In the case of a {\em reference-offset}, the part of the
-{\em reference-expression} before the {\em reference-offset} is
-the {\em reference-base} matched to the {\em reference-pattern-base}.
-At compile time the type of the reference pointer produced by the
-{\em reference-base} has been computed by recursion, and at run-time
-the reference pointer has already been computed.
-
-\bigskip
-
-\centerline{\bf Reference-Call-Reference-Declaration Matching Algorithm}
-\begin{enumerate}
-\item\label{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING}
-The {\em reference-offset} and the {\em  reference-pattern-offset} must
-match in that
-\begin{enumerate}
-\item
-If one has a {\em member-name}, both must have the same {\em member-name},
-else the call-declaration match fails.
-\item
-If one has an {\em index-list}, both must have {\em index-lists}
-with the same number of elements
-else the call-declaration match fails
-(but the types of the elements are not involved in matching).
-\end{enumerate}
-
-\item\label{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}
-The {\em reference-base} in the call is matched to the
-{\em reference-pattern-base} in the declaration.
-If the latter has wildcards, the wildcards are assigned
-information in the {\em reference-bases}'s type.
-
-If one wildcard is assigned two or more different values, or zero values,
-the call-declaration match fails.
-
-If after this has been done, the type of the {\em reference-base}
-does not exactly match the type of the {\em reference-pattern-base},
-the call-declaration match fails.
-
-\item\label{REFERENCE-CALL-DECLARATION-RANK-COMPUTATION}
-If the call-declaration match has been successful, it is assigned
-a \key{rank} that is the sum of:
-\begin{itemize}
-\item the negative of the number of {\tt T\$\ldots} wildcards
-the prototype has; a wildcard name appearing more than once in
-the prototype is counted only once
-\item a very large number if the match {\em reference-offset} has
-both a {\em member-name} and an {\em index-list}
-\end{itemize}
-
-\end{enumerate}
-
-
-Example:
-
-\begin{indpar}\label{REFERENCE-FUNCTION-EXAMPLE}\begin{verbatim}
-// The *UNCHECKED* function used below is a builtin function
-// that performs a variety of conversions which violate type
-// checking.  Here it has the prototype:
-//
-//    av Q$ T$ @r = std *UNCHECKED*
-//        ( ap Q$ T$ @p, int offset, int lower, int upper )
-//
-// that takes the ap @p, adds the offset argument to the
-// pointer offset, and returns this as an av with bounds
-// lower and upper.
-
-// In my vector X, a vector with flt64 elements is located
-// at X.offset from the address of X and allows index range
-// from 0 through X.length-1.
-//
-type my vector:
-    int offset        // Offset of first element in bytes.
-    int length        // Number of elements.
-    align 64
-    *LABEL* first     // Offset of first element in bits.
-
-point reference function ap Q$1 flt64 @x =
-        ( ap Q$1 my vector @v ) [ int index ]:
-    av Q$1 flt64 @p = *UNCHECKED*
-            ( @v, v.offset, 0, v.length )
-        // See *UNCHECKED* above.
-    @x = @p[index]
-
-type my data:
-    *INCLUDE* my vector
-    flt64[2]
-
-ap *READ-WRITE* my data @D:    // `@= local' is implied
-    D.offset = D.first / 8     // 8 converts bits to bytes.
-    D.length = 2
-
-D[0] = 5.5      // Computes and uses pointer @D[0]
-D[1] = -7.33    // Computes and uses pointer @D[1]
-flt64 x = D[0]  // Now x == 5.5
-flt64 y = D[1]  // Now y == -7.33
-flt64 z = D[2]  // Run time error: 2 >= upper bound of av
-                // that equals D.length.
-
-D[2] = 1.0      // Run-time error: bounds limit exceeded.
 \end{verbatim}\end{indpar}
 
 
