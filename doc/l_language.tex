@@ -6411,9 +6411,6 @@ a {\em reference-expression} as the root is a {\em reference-call}.
 
 A compound {\em reference-expression} can be a {\em reference-call}.
 
-{\em Reference-calls} only happen at run-time; {\em reference-functions}
-do \underline{not} execute at compile-time.
-
 Note that if a {\em reference-expression} contains a
 {\em module-abbreviation}, it is at the very beginning and
 is part of the root ({\em function-}){\em variable-name}.
@@ -6488,8 +6485,18 @@ The syntax of a {\em reference-function-declaration} is:
 \end{indpar}
 \begin{enumerate}
 \item
+A {\em reference-function-declaration} is compile-time if
+its {\em prototype-result-variable-declara\-tion} before or after the
+\TT{=} sign in its {\em reference-function-prototype}
+has type {\tt const}, and is run-time otherwise.
+{\em Reference-pattern-index-declarations} have type {\tt const}
+if and only if the {\em reference-function-declaration} is compile-time.
+\item
+A {\tt point} {\em reference-function-declaration}
+\underline{cannot} be compile-time.
+\item
 A {\em function-variable-name} begins with a {\em module-abbreviation}
-if it is external (just like other {\em variable-names}).
+if and only if it is external (just like other {\em variable-names}).
 \item
 A {\em reference-function-declaration} \underline{not} containing
 a {\em function-variable-name} is external if and only if the
@@ -6577,6 +6584,8 @@ The {\em reference-expression} may be loading, or storing, or pointing.
 The declared function is called and its result is the real refererence pointer
 of the {\em reference-expression} root.  The {\em reference-expression}
 may have {\em reference-offsets} that modify this reference pointer.
+A {\tt point} {\em reference-function-declaration} \underline{cannot}
+be compile-time.
 \end{itemize}
 
 In the case of a {\em reference-offset}, the part of the
