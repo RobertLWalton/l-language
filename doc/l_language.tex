@@ -9025,7 +9025,7 @@ an integer type and {\tt N2}
 is a floating point type.  More specifically,
 the implicit conversions are defined by:
 \begin{indpar} \tt
-function N2 r = std *IMPLICIT* *CONVERSION* ( N1 v )
+function N2 r = std \ttkey{*IMPLICIT* *CONVERSION*} ( N1 v )
 \end{indpar}
 in the following cases:
 \begin{center}
@@ -9086,7 +9086,8 @@ in the following cases:
 An aligned pointer may be implicitly converted to a direct pointer:
 
 \begin{indpar}
-{\tt function dp Q\$ T\$ @r = std *IMPLICIT* *CONVERSION* ( ap Q\$ T\$ @p )}
+{\tt function dp Q\$ T\$ @r =
+    std \ttkey{*IMPLICIT* *CONVERSION} ( ap Q\$ T\$ @p )}
 \begin{indpar}
 The base address of {\tt @p} is added to the offset of {\tt @p} to
 produce the value of {\tt @r}.
