@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 20, 2024
+March 21, 2024
 
 \bigskip
  
@@ -6590,7 +6590,7 @@ The syntax of an out-of-line function declaration is:
 \hspace*{0.25in} \ttkey{out-of-line function}~
           \{ {\em prototype-result-list}~ \TT{=}~ \}\QMARK{} \\
 \hspace*{0.5in}{\em out-of-line-function-name}~
-	      {\em pattern-argument-list}\QMARK{}
+	      {\em parenthesized-pattern-argument-list}\QMARK{}
 \\[0.5ex]
 \emkey{out-of-line-function-name} ::= \\
 \hspace*{0.25in}
@@ -6606,14 +6606,15 @@ The syntax of an out-of-line function declaration is:
 \\[0.5ex]
 {\em basic-name} ::= see \pagref{BASIC-NAME}
 \\[0.5ex]
-{\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
+{\em parenthesized-pattern-argument-list} ::=
+    see \pagref{PARENTHESIZED-PATTERN-ARGUMENT-LIST}
 
 \begin{enumerate}
 \item
 The rules for inline {\em function-declarations} on
 \pagref{FUNCTION-DECLARATION} must be followed where applicable.
 \item
-{\tt macro} arguments are not allowed.
+{\tt macro} and required arguments are not allowed.
 \item
 Wild-cards are not allowed.
 \item Functions with {\em foreign-function-names} are called \key{foreign}.
@@ -6637,17 +6638,15 @@ out-of-line function must be called with a:
 \begin{indpar}
 \emkey{call-expression}\label{CALL-EXPRESSION} ::= \\
 \hspace*{0.25in}
-	\ttkey{call} {\em function-expression}
-	     {\em call-argument-list}\QMARK{}
+	\ttkey{call}~ {\em function-expression}~
+	     {\em parenthesized-call-argument-list}\QMARK{}
 \\[0.5ex]
-\emkey{function-expression} ::= {\em reference-expression} $|$
-                                {\em constant-expression}
-\\[0.5ex]
-{\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
+\emkey{function-expression} ::= {\em constant-expression}
 \\[0.5ex]
 {\em constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
-{\em call-argument-list} ::= see \pagref{CALL-ARGUMENT-LIST}
+{\em parenthesized-call-argument-list} ::=
+    see \pagref{PARENTHESIZED-CALL-ARGUMENT-LIST}
 \\[2ex]
 where the {\em function-expression} must evaluate to either:
 \begin{enumerate}
