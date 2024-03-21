@@ -6641,7 +6641,10 @@ out-of-line function must be called with a:
 	\ttkey{call}~ {\em function-expression}~
 	     {\em parenthesized-call-argument-list}\QMARK{}
 \\[0.5ex]
-\emkey{function-expression} ::= {\em constant-expression}
+\emkey{function-expression} ::= {\em reference-expression}
+                            $|$ {\em constant-expression}
+\\[0.5ex]
+{\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
 \\[0.5ex]
 {\em constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
@@ -6650,7 +6653,7 @@ out-of-line function must be called with a:
 \\[2ex]
 where the {\em function-expression} must evaluate to either:
 \begin{enumerate}
-\item a {\tt const} {\em foreign-function-name}
+\item a {\em foreign-function-name}\pagnote{FOREIGN-FUNCTION-NAME}
 \item a function-type value: see \itemref{FUNCTION-TYPE-DECLARATIONS}
 \end{enumerate}
 \end{indpar}
