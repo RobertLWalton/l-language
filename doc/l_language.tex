@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 21, 2024
+March 22, 2024
 
 \bigskip
  
@@ -6582,7 +6582,8 @@ The syntax of an out-of-line function declaration is:
     \begin{tabular}[t]{rl}
         &  {\em out-of-line-function-prototype} \TT{:} \\
 	& \TT{~~~~~}{\em statement}\PLUS{} \\
-    $|$ &  {\em out-of-line-function-prototype} \TT{:} \ttkey{*DEFERRED*} \\
+    $|$ &  {\em out-of-line-function-prototype} \TT{:}
+    		\ttkey{*DEFERRED*}~ {\em foreign-function-name}\QMARK{} \\
     \end{tabular}
 \\[2ex]
 \emkey{out-of-line-function-prototype}%
@@ -6592,10 +6593,8 @@ The syntax of an out-of-line function declaration is:
 \hspace*{0.5in}{\em out-of-line-function-name}~
 	      {\em parenthesized-pattern-argument-list}\QMARK{}
 \\[0.5ex]
-\emkey{out-of-line-function-name} ::= \\
-\hspace*{0.25in}
+\emkey{out-of-line-function-name} ::=
     {\em module-abbreviation}\QMARK{} {\em basic-name}
-    $|$ {\em foreign-function-name}
 \\[0.5ex]
 \emkey{foreign-function-name}\label{FOREIGN-FUNCTION-NAME}
 	::= {\em quoted-string}
@@ -6617,46 +6616,26 @@ The rules for inline {\em function-declarations} on
 {\tt macro} and required arguments are not allowed.
 \item
 Wild-cards are not allowed.
-\item Functions with {\em foreign-function-names} are called \key{foreign}.
-These must all be declared as {\tt *DEFERRED*}.
+\item Functions with {\em foreign-function-names} are called \key{foreign}
+and are all {\tt *DEFERRED*}.  Foreign functions are called using
+their associated {\em out-of-line-function-name}.
 \item
-The rules for inline `{\tt *DEFERRED*}' \underline{non-foreign}
+Arguments and results of foreign C and C++ functions cannot 
+have user defined types or user defined pointer types,
+but may builtin pointer types ({\tt dp}, {\tt ap}, {\tt fp}, etc.).
+\item
+The rules for inline `{\tt *DEFERRED*}'
 {\em function-declarations} and
 their companions on \pagref{COMPANION-DECLARATION}
 must be followed for
-{\tt *DEFERRED*} {\tt out-of-line-function-de\-clar\-ations}
+{\tt *DEFERRED*} \underline{non-foreign}
+{\tt out-of-line-function-de\-clar\-ations}
 and their companions.
 \end{enumerate}
 \end{indpar}
 
-Out-of-line function calls must be the right side (after the {\tt =})
-of {\em call-assignment-state\-ments},\pagnote{CALL-ASSIGNMENT-STATEMENTS}
-they cannot be subexpressions.
-A non-foreign out-of-line function can be called with a normal
-{\em function-call}\pagnote{FUNCTION-CALL}. A foreign
-out-of-line function must be called with a:
-\begin{indpar}
-\emkey{call-expression}\label{CALL-EXPRESSION} ::= \\
-\hspace*{0.25in}
-	\ttkey{call}~ {\em function-expression}~
-	     {\em parenthesized-call-argument-list}\QMARK{}
-\\[0.5ex]
-\emkey{function-expression} ::= {\em reference-expression}
-                            $|$ {\em constant-expression}
-\\[0.5ex]
-{\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
-\\[0.5ex]
-{\em constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
-\\[0.5ex]
-{\em parenthesized-call-argument-list} ::=
-    see \pagref{PARENTHESIZED-CALL-ARGUMENT-LIST}
-\\[2ex]
-where the {\em function-expression} must evaluate to either:
-\begin{enumerate}
-\item a {\em foreign-function-name}\pagnote{FOREIGN-FUNCTION-NAME}
-\item a function-type value: see \itemref{FUNCTION-TYPE-DECLARATIONS}
-\end{enumerate}
-\end{indpar}
+An out-of-line functions can be called with a normal
+{\em function-call}\pagnote{FUNCTION-CALL}.
 
 Unlike inline functions, an out-of-line function can
 be called from a statement for which only a {\tt *DEFERRED*} declaration
@@ -6664,11 +6643,12 @@ of the out-of-line function is visible.  A missing companion
 declaration is not a compile-time error, but will be a
 run-time error if the function is actually called at run-time.
 
-Like inline functions, a {\tt *DEFERRED*} {\em out-of-line-function-declaration}
+Like inline functions, a {\tt *DEFERRED*}
+non-foreign {\em out-of-line-function-declaration}
 can have only one companion.
 If\label{OUT-OF-LINE-EXTERNAL-COMPANION}
-a {\tt *DEFERRED*} {\em out-of-line-function-declaration}
-is external,\pagnote{EXTERNAL-FUNCTION}
+a {\tt *DEFERRED*} non-foreign {\em out-of-line-function-declaration}
+is ex\-ternal,\pagnote{EXTERNAL-FUNCTION}
 its companion may be anywhere in the scope of the declaration,
 including in another module or another module's body that imports
 the declaration's module.
@@ -6695,7 +6675,7 @@ functions may be declared by:
 	\label{FUNCTION-TYPE-PROTOTYPE} ::= \\
 \hspace*{0.25in} \ttkey{function}~
         \{ {\em prototype-result-list}~ \TT{=} \}\QMARK{}~
-	\TT{()}~ {\em pattern-argument-list}\QMARK{}
+	\TT{()}~ {\em parenthesized-pattern-argument-list}\QMARK{}
 \end{indpar}
 
 Here the {\em function-type-prototype} is just like an
@@ -6750,6 +6730,33 @@ value has the type named by the {\em function-type-name}.
 Internally, this value is a run-time pointer to the out-of-line function.
 In the \TT{*DEFERRED*} case this value is a pointer to the named
 foreign function.
+
+TBD
+
+A foreign
+out-of-line function must be called with a:
+\begin{indpar}
+\emkey{call-expression}\label{CALL-EXPRESSION} ::= \\
+\hspace*{0.25in}
+	\ttkey{call}~ {\em function-expression}~
+	     {\em parenthesized-call-argument-list}\QMARK{}
+\\[0.5ex]
+\emkey{function-expression} ::= {\em reference-expression}
+                            $|$ {\em constant-expression}
+\\[0.5ex]
+{\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
+\\[0.5ex]
+{\em constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
+\\[0.5ex]
+{\em parenthesized-call-argument-list} ::=
+    see \pagref{PARENTHESIZED-CALL-ARGUMENT-LIST}
+\\[2ex]
+where the {\em function-expression} must evaluate to either:
+\begin{enumerate}
+\item a {\em foreign-function-name}\pagnote{FOREIGN-FUNCTION-NAME}
+\item a function-type value: see \itemref{FUNCTION-TYPE-DECLARATIONS}
+\end{enumerate}
+\end{indpar}
 
 
 
