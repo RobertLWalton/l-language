@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 22, 2024
+March 23, 2024
 
 \bigskip
  
@@ -6613,16 +6613,21 @@ The syntax of an out-of-line function declaration is:
 The rules for inline {\em function-declarations} on
 \pagref{FUNCTION-DECLARATION} must be followed where applicable.
 \item
+{\em Out-of-line-function-declarations} must be top level; they
+\underline{cannot} be inside subblocks.
+\item
 {\tt macro} and required arguments are not allowed.
 \item
 Wild-cards are not allowed.
 \item Functions with {\em foreign-function-names} are called \key{foreign}
-and are all {\tt *DEFERRED*}.  Foreign functions are called using
+and are {\tt *DEFERRED*} but have \underline{no} companions.
+Foreign functions are called using
 their associated {\em out-of-line-function-name}.
 \item
 Arguments and results of foreign C and C++ functions cannot 
 have user defined types or user defined pointer types,
-but may builtin pointer types ({\tt dp}, {\tt ap}, {\tt fp}, etc.).
+but may builtin pointer types ({\tt dp}, {\tt ap}, {\tt fp}, etc.)
+pointing at builtin or user defined target types.
 \item
 The rules for inline `{\tt *DEFERRED*}'
 {\em function-declarations} and
@@ -6676,6 +6681,11 @@ functions may be declared by:
 \hspace*{0.25in} \ttkey{function}~
         \{ {\em prototype-result-list}~ \TT{=} \}\QMARK{}~
 	\TT{()}~ {\em parenthesized-pattern-argument-list}\QMARK{}
+\begin{enumerate}
+\item
+{\em Function-type-declarations} must be top level; they
+\underline{cannot} be inside subblocks.
+\end{enumerate}
 \end{indpar}
 
 Here the {\em function-type-prototype} is just like an
@@ -6708,20 +6718,25 @@ A function constant can be declared by:
 {\em target-variable} ::= see \pagref{TARGET-VARIABLE}
 \\[0.5ex]
 {\em foreign-function-name} ::= see \pagref{FOREIGN-FUNCTION-NAME}
-\end{indpar}
-
-Here the first line behaves like an {\em out-of-line-function-declaration}
+\begin{enumerate}
+\item
+{\em Function-constant-declarations} must be top level; they
+\underline{cannot} be inside subblocks.
+\item
+The first line of a {\em function-constant-declaration}
+behaves like an {\em out-of-line-func\-tion-declaration}
 first line made by replacing
-`{\em function-type-name} {\em function-constant-name}'
+`{\em function-type-name} {\em function-con\-stant-name}'
 by the {\em function-type-prototype} specified by the
 {\em function-type-name} and:
 \begin{enumerate}
 \item adding `{\tt out-of-line}' to the beginning
 \item
 replacing the {\tt ()} by the {\em function-constant-name}
-\item
-deleting any {\em foreign-function-name} after a \TT{*DEFERRED*}
 \end{enumerate}
+\item Non-foreign {\tt *DEFERRED*} function constants are not allowed.
+\end{enumerate}
+\end{indpar}
 
 
 The {\em function-constant-name} is declared as a run-time {\tt co}
@@ -6731,10 +6746,7 @@ Internally, this value is a run-time pointer to the out-of-line function.
 In the \TT{*DEFERRED*} case this value is a pointer to the named
 foreign function.
 
-TBD
-
-A foreign
-out-of-line function must be called with a:
+Functions accessed by function type pointers must be called by:
 \begin{indpar}
 \emkey{call-expression}\label{CALL-EXPRESSION} ::= \\
 \hspace*{0.25in}
@@ -6742,19 +6754,15 @@ out-of-line function must be called with a:
 	     {\em parenthesized-call-argument-list}\QMARK{}
 \\[0.5ex]
 \emkey{function-expression} ::= {\em reference-expression}
-                            $|$ {\em constant-expression}
 \\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSION}
 \\[0.5ex]
-{\em constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
-\\[0.5ex]
 {\em parenthesized-call-argument-list} ::=
     see \pagref{PARENTHESIZED-CALL-ARGUMENT-LIST}
-\\[2ex]
-where the {\em function-expression} must evaluate to either:
 \begin{enumerate}
-\item a {\em foreign-function-name}\pagnote{FOREIGN-FUNCTION-NAME}
-\item a function-type value: see \itemref{FUNCTION-TYPE-DECLARATIONS}
+\item
+The {\em function-expression} must evaluate to 
+a function-type value.
 \end{enumerate}
 \end{indpar}
 
