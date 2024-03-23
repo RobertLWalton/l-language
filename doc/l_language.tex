@@ -6191,9 +6191,10 @@ if and only if it is external (just like other {\em variable-names}).
 \item
 A {\em reference-function-declaration} \underline{not} containing
 a {\em function-variable-name} is external if and only if the
-type of its {\em reference-pattern-base} is external.  In this case
+target type of its {\em reference-pattern-base} is external
+(the full type is a pointer type to the target type).  In this case
 the {\em reference-function-declaration} \underline{must} be within
-the same module (file) as the {\em type-declaration} of this type.
+the same module (file) as the {\em type-declaration} of this target type.
 \item
 The {\em reference-pattern-base} must be
 followed by
@@ -7065,6 +7066,11 @@ A {\em result-variable-declaration} or
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.
 
+A {\em reference-function-declaration} containing a
+{\em function-variable-name}
+is external if the {func\-tion-variable-name} begins with a
+{\em module-abbreviation}.
+
 A {\em next-variable-declaration}
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.  However, the {\em next-variable-declaration}
@@ -7079,11 +7085,16 @@ or {\em function-type-name}
 declared begins with a
 {\em module-abbrev\-i\-a\-tion}.
 
-A {\em function-declaration}, {\em reference-function-declaration},
+A {\em function-declaration}
 or {\em out-of-line-function-declar\-a\-tion}
 is external\label{EXTERNAL-FUNCTION}
 if the {\em prototype-pattern} in the {\em declaration}
 is immediately preceded by a {\em module-abbreviation}.
+
+A {\em reference-function-declaration} containing a
+{\em prototype-reference-base}
+is external if the target type of the {prototype-reference-base} is
+external.
 
 {\em Prototype-result-declaration} and {\em prototype-argument-declaration}
 {\em variable-names} cannot begin with a {\em module-abbreviation},
