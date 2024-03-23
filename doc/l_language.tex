@@ -7126,12 +7126,12 @@ as the {\em type-declaration} they are expanding (they need not use the same
 If two {\em type-declarations} declaring the same {\em defined-type-name}
 have overlapping scope, they must follow the expansion tree rules
 of \itemref{DEFINED-TYPE-EXPANSIONS}.
-{\em Type-subdeclarations} of any {\em type-declaration} have the scope of the
-{\em type-declaration} in which they appear, and if they appear in
-an expansion, their scope is that of the expansion and not the scope of
-any ancestor {\em type-declaration} in their expansion tree.
-{\em Origin-labels} declared by a {\em type-subdeclaration}
-are only visible inside {\em type-declarations} in the same expansion tree.
+The scope of a {\tt *LABEL*} {\em type-subdeclaration}
+consists of the {\em type-subdeclarations} following it in its
+{\em type-declaration} and all the other
+{\em type-declarations} that are descendents
+of its {\em type-declaration} in the {\em defined-type-name}'s
+expansion tree.
 
 A {\em module-abbreviation} that makes a {\em declaration} external
 must abbreviate the module in which the {\em declaration} occurs,
@@ -7139,6 +7139,8 @@ with the exception of expansions of {\em type-declar\-ations}
 that end with the {\tt *EXTERNAL*} sub-declaration\pagnote{*EXTERNAL*}
 and companions of deferred
 {\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
+
+TBD
 
 If two different {\em result-variable-declarations},
 {\em block-variable-declarations},
