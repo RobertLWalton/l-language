@@ -7282,7 +7282,7 @@ The possible \skey{variable}s are:
 \hspace*{-0.3in}\key{assignment variable} ~
 	The value stored in a {\tt co} variable created by a
 	{\em result-variable-declaration} or
-	{\em block-variable-declaration},
+	{\em next-variable-declaration}
 	of an {\em assignment-state\-ment}.
 \\[1ex]
 \hspace*{-0.3in}\key{argument variable} ~
@@ -7321,15 +7321,16 @@ There are three possible variable \skey{lifetime type}s:
 \end{tabular}
 \end{indpar}
 
-All external variables are {\tt *GLOBAL*}
+All external variables are {\tt *GLOBAL*}.
 These are all top-level assignment variables in module files.
 Other assignment variables, all argument variables, and
 and all result variables are {\tt *LOCAL*}.
 A target variable has its lifetime type specified by the target
 qualifier of the pointer that points to the target containing the
 variable.  For example, the target of a pointer of type
-{\tt ap *GLOBAL* int} has {\tt *GLOBAL*} lifetime.
-This pointer can be stored in a {\tt *LOCAL*} assignment variable.
+`{\tt ap *GLOBAL* int}' has {\tt *GLOBAL*} lifetime.
+This pointer itself
+can be stored in a {\tt *LOCAL*} assignment variable.
 
 A pointer whose target has a particular lifetime is said to have that lifetime:
 thus we have {\tt *GLOBAL*} pointers, {\tt *LOCAL*} pointers, etc.
