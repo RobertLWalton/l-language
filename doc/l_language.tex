@@ -7215,13 +7215,20 @@ module "my_own_module" as mom:
     // gom contains:
     //    function int32 z = gom ( int32 x ) "+" ( int32 y )
 
-int32 mom my external constant = ...
-int32 my internal constant = ...
+int32 mom my constant = 44
+int32 my constant = 55
 
-function int32 y = mom my external function ( int32 x ):
+int32 x1 = mom my constant // == 44
+int32 x2 = my constant     // == 55
+
+function int32 y = mom my function ( int32 x ): // [A]
     ... function body omitted ...
-function int32 y = my internal function ( int32 x ):
+function int32 y = my function ( int32 x ):     // [B]
     ... function body omitted ...
+
+int32 y1 = mom my function ( 100 )  // Uses [A]
+int32 y2 = my function ( 100 )      // Compile error:
+                                    // ambiguity between [A] and [B]
 
 function int32 z = my inline function ( int32 x, int32 y ):
     int32 z1 = gom ( x + y )
@@ -7240,19 +7247,26 @@ More specifically,
 when a function declaration is used, the {\em module-abbreviation}
 beginning the function call may be omitted if the function declaration is
 the only function declaration within scope that matches the usage,
-according to the module proficiency rules of
-section~\itemref{INLINE-CALL-DECLARATION-MATCHING}.
-Thus in the context of the above example the lines:
+according to Step~\ref{CALL-DECLARATION-MODULE-ABBREVIATION}
+of the Call-Declaration Matching Algorithm,
+\pagref{CALL-DECLARATION-MODULE-ABBREVIATION}.
+Thus given:
+\begin{indpar}\begin{verbatim}
+function int32 y = mom my external function ( int32 x ):
+    ... function body omitted ...
+\end{verbatim}\end{indpar}
+the lines:
 \begin{indpar}\begin{verbatim}
 int32 y = mom my external function ( x )
 int32 y = my external function ( x )
 \end{verbatim}\end{indpar}
-are equivalent if no {\em function-prototype}
-\begin{center}
-\tt function int32 r = $ma$ my external function ( int32 v )
-\end{center}
-is in the current context, where $ma$ is a module abbreviation for a module
-other than `{\tt my\_own\_module}'.
+are equivalent if no {\em function-declarations}
+\begin{indpar}\tt
+function int32 r = $ma$ my external function ( int32 v ) \\
+function int32 r = my external function ( int32 v )
+\end{indpar}
+are in the current context, where $ma$ is a module abbreviation for a module
+other than {\tt "my\_own\_module"}.
 
 \section{Lifetimes}
 \label{LIFETIMES}
