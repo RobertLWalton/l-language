@@ -3230,16 +3230,16 @@ associated {\em target-variable}, and returns a pointer to the
 allocated memory that is stored in the {\em pointer-variable}.
 For such a {\em pointer-variable} it is the
 associated {\em target-variable} that is set by the {\em assignment-statement}.
-\item In an {\em isolated-variable-declaration} of a
-{\em pointer-variable} with no {\em allocation-call},
+\item For an {\em isolated-declaration-statement} declaring a
+{\em pointer-variable} with no {\em alloca\-tion-call},
 `{\tt @= local}' is implied if the {\em pointer-variable}
 has the {\tt *LOCAL*} qualifier, and 
 `{\tt @= global}' is implied if the {\em pointer-variable}
 has the {\tt *GLOBAL*} qualifier.
-\item In an {\em isolated-variable-declaration} `{\tt = *DEFERRED*}'
+\item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
 is implied unless the declaration is of a {\tt *READ-WRITE*}
 {\em pointer-variable}.
-\item An {\em isolated-variable-declaration} of a
+\item An {\em isolated-declaration-statement} declaring a
 {\tt *READ-WRITE*} {\em pointer-variable} (for which
 `{\tt = *DEFERRED*}' is \underline{not} implied) is equivalent
 to a {\em block-assignment-statement} with an empty subblock.
