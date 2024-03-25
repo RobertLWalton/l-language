@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 24, 2024
+March 25, 2024
 
 \bigskip
  
@@ -6121,13 +6121,13 @@ The syntax of a {\em reference-function-declaration} is:
 \emkey{reference-function-prototype}\label{REFERENCE-FUNCTION-PROTOTYPE} \\
 \hspace*{0.25in}
     \begin{tabular}[t]{rl}
-        ::= & \ttkey{load reference function variable} \\
+        ::= & \ttkey{load reference function} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
             	{\em function-variable-name} \\
-        $|$ & \ttkey{store reference function variable} \\
+        $|$ & \ttkey{store reference function} \\
 	    & \TT{~~~~}~ {\em function-variable-name} \TT{=}~
             	{\em prototype-result-variable-declaration} \\
-        $|$ & \ttkey{point reference function variable} \\
+        $|$ & \ttkey{point reference function} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
             	{\em function-variable-name} \\
         $|$ & \ttkey{load reference function} \\
@@ -7894,11 +7894,19 @@ However the following operators do \underline{not} map onto functions:
 \item[prefix \TT{type}]
 \item[prefix \TT{pointer type}] \vspace*{-0.15in}
 \item[prefix \TT{function}] \vspace*{-0.15in}
-\item[prefix \TT{reference function}] \vspace*{-0.15in}
+\item[prefix \TT{macro function}] \vspace*{-0.15in}
+\item[prefix \TT{constant function}] \vspace*{-0.15in}
+\item[prefix \TT{inclusion function}] \vspace*{-0.15in}
+\item[prefix \TT{load reference function}] \vspace*{-0.15in}
+\item[prefix \TT{store reference function}] \vspace*{-0.15in}
+\item[prefix \TT{point reference function}] \vspace*{-0.15in}
 \item[prefix \TT{out-of-line function}] \vspace*{-0.15in}
 \item[afix infix \TT{is type}] \vspace*{-0.15in}
 \item[afix infix \TT{is function}] \vspace*{-0.15in} ~\\
 See Declarations\pagnote{DECLARATIONS}.
+
+\item[prefix \TT{call}] ~\\
+See Call-Expression\pagnote{CALL-EXPRESSION}
 
 \item[prefix \TT{if}]
 \item[prefix \TT{else if}] \vspace*{-0.15in}
@@ -7987,7 +7995,7 @@ is evaluated and returned.
 \item[infix \TT{OR}] ~\\
 `{\tt x OR y}' is syntactic sugar for `{\tt TRUE if x else y}'.
 
-\item[infix \TT{NOT}] ~\\
+\item[prefix \TT{NOT}] ~\\
 `{\tt NOT x}' is syntactic sugar for `{\tt FALSE if x else TRUE}'.
 
 \end{itemlist}
