@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 25, 2024
+March 26, 2024
 
 \bigskip
  
@@ -7275,51 +7275,85 @@ The \key{lifetime} of a variable, i.e., a piece of memory,
 is the time interval from the time that the variable
 is allocated to the time that
 the variable is deallocated.  The compiler tracks lifetimes by assigning each
-variable a lifetime type and in some cases a separate lifetime depth.
+variable a lifetime type and for variables in the local stack
+a separate lifetime depth.
 
-The possible \skey{variable}s are:
-\begin{indpar}[0.5in]
-\hspace*{-0.3in}\key{assignment variable} ~
-	The value stored in a {\tt co} variable created by a
+The possible variable lifetimes are:
+\begin{indpar}[0.2in]
+\begin{tabular}{lp{5.0in}}
+\key{global} &
+	The variable is stored in the global stack\pagnote{GLOBAL-STACK}
+	as a {\tt co} variable created by a
 	{\em result-variable-declaration} or
 	{\em next-variable-declaration}
 	of an {\em assignment-state\-ment}.
-\\[1ex]
-\hspace*{-0.3in}\key{argument variable} ~
-	The value stored in a {\tt co} variable created by an
-	{\em prototype-argument-declaration} in a {\em function-prototype}
-	when the function is called.
-\\[1ex]
-\hspace*{-0.3in}\key{result variable} ~
-	The value stored in variable created by an
-	{\em prototype-result-declaration} in a {\em function-prototype}
-	when the function is called.
-\\[1ex]
-\hspace*{-0.3in}\key{target variable} ~
-	A value that is part of the target of a pointer
-	(e.g., a field, element of a field, etc.).
-\end{indpar}
+	\\[1ex]
+	&
+	The variable lifetime starts when the variable is created
+	and stops when the program terminates.
 
-There are three possible variable \skey{lifetime type}s:
-\begin{indpar}[0.2in]
-\begin{tabular}{lp{5.0in}}
-\ttkey{*GLOBAL*}	& The lifetime starts when the variable is created
-                          and stops when the program terminates.
 \\[1ex]
-\ttkey{*LOCAL*}		& The lifetime starts when the statement declaring
-                          and creating
-                          the variable executes and stops when 
-			  scope of the variable's declaration ends.
+\key{local} &
+	The variable is stored in the local stack\pagnote{LOCAL-STACK}
+	as a {\tt co} variable created by a
+	{\em result-variable-declaration} or
+	{\em next-variable-declaration}
+	of an {\em assignment-state\-ment},
+	or by a
+	{\em prototype-result-variable-declaration} or
+	{\em prototype-argument-variable-declaration} during a
+	function call.
+	\\[1ex]
+	&
+	The variable lifetime starts when the variable is created
+	and stops when the scope of the declaration creating the
+	variable ends.
 \\[1ex]
-\ttkey{*HEAP*}		& The lifetime starts when the variable is allocated
-                          to the heap (i.e., garbage collectible
-			  memory), and stops when the variable can no longer
-			  be referenced by following a chain of pointer values
-			  the root of which is a variable that
-			  is either {\tt *GLOBAL*} or is {\tt *LOCAL*}
-			  with a lifetime that has not yet terminated.
+\key{heap} &
+	The variable is stored in the heap (i.e., garbage collectible memory).
+	\\[1ex]
+	&
+	The variable lifetime starts when the variable is allocated
+	to the heap, and stops when the variable can no longer
+        be referenced by following a chain of pointer values
+        the root of which is a global variable or is a local variable
+        with a lifetime that has not yet terminated.
 \end{tabular}
 \end{indpar}
+
+A pointer value has a pointer type that may have a \key{lifetime qualifier}
+which tells something about the lifetimes of the target variables in the
+datum the pointer points at.  The possible lifetime qualifiers are:
+
+\begin{indpar}[0.2in]
+\begin{tabular}{lp{5.0in}}
+\ttkey{*GLOBAL*}	& The target variables are in the global stack.
+\\[1ex]
+\ttkey{*HEAP*}		& The target variables are either in the heap
+			  or they are in the global stack.
+\\[1ex]
+		        & Note: allowing {\tt *HEAP*} pointers to point
+			  into the global stack requires the garbage
+			  collector to be able to distinguish global stack
+			  and heap addresses and treat them differently.
+\\[1ex]
+(none)			& The compiler assigns a lifetime depth to the
+                          target variables if pointers with no lifetime
+			  qualifiers.  This is the lexical
+			  depth of the statement that created the pointer,
+			  with top level statements begin given depth 1
+			  (details are below).
+\\[1ex]
+			& Or the depth may be the special depth 0,
+			  which means that
+			  the only thing known about the pointer value is
+			  that the lifetime of its target includes the
+			  lifetime of the variable in which the pointer
+			  value is stored.
+\end{tabular}
+\end{indpar}
+
+TBD
 
 All external variables are {\tt *GLOBAL*}.
 These are all top-level assignment variables in module files.
@@ -7837,7 +7871,7 @@ A list of global and local variables that contain {\tt *HEAP*}
 pointers needs to be made available to the garbage collector.
 
 From the point of view of the garbage collector, variables
-are held in two stacks: the \key{global stack} and
+are held in two stacks: the \key{global stack}\label{GLOBAL-STACK} and
 the \key{local stack}\label{LOCAL-STACK}.  These
 stacks are each a sequence of blocks.  Each block has at its
 beginning a \key{block type} ID which references load time data that tells
