@@ -7353,46 +7353,37 @@ datum the pointer points at.  The possible lifetime qualifiers are:
 \end{tabular}
 \end{indpar}
 
-TBD
-
-All external variables are {\tt *GLOBAL*}.
-These are all top-level assignment variables in module files.
-Other assignment variables, all argument variables, and
-and all result variables are {\tt *LOCAL*}.
-A target variable has its lifetime type specified by the target
-qualifier of the pointer that points to the target containing the
-variable.  For example, the target of a pointer of type
-`{\tt ap *GLOBAL* int}' has {\tt *GLOBAL*} lifetime.
-This pointer itself
-can be stored in a {\tt *LOCAL*} assignment variable.
-
-A pointer whose target has a particular lifetime is said to have that lifetime:
-thus we have {\tt *GLOBAL*} pointers, {\tt *LOCAL*} pointers, etc.
-In general a pointer cannot be stored in a variable unless one of the
-\skey{lifetime rule}s of this section permits it.
-
-The goal of these rules is to keep a pointer with a given lifetime
+The following rules prevent a pointer to a target with a given lifetime
 from being stored in a variable with a longer lifetime.
-
-The first rules are:
+The first of these rules are:
 \begin{indpar}[0.2in]
 \begin{tabular}{p{0.4in}p{5.0in}}
-\key{(L1)}	& A {\tt *GLOBAL*} pointer can be stored in any variable.
+\key{(L1)}	& A pointer value with the {\tt *GLOBAL*} qualifier
+                  can be stored in any variable whose type is a
+		  pointer type with the {\tt *GLOBAL*} qualifier.
 \end{tabular}
 
 \begin{tabular}{p{0.4in}p{5.0in}}
-\key{(L2)}	& A {\tt *HEAP*} pointer can be stored in any variable.
+\key{(L2)}	& A pointer value with the {\tt *HEAP*} qualifier
+                  can be stored in any variable whose type is a
+		  pointer type with the {\tt *HEAP*} qualifier.
 \end{tabular}
 
 \begin{tabular}{p{0.4in}p{5.0in}}
-\key{(L3)}	& A {\tt *GLOBAL*} lifetime type qualifier can be
-		  implicitly converted to a {\tt *HEAP*} lifetime type
-		  qualifier.
+\key{(L3)}	& A pointer value with the {\tt *GLOBAL*} qualifier
+                  can be stored in any variable whose type is a
+		  pointer type with the {\tt *HEAP*} qualifier.
 \\[1ex]
 		& Note: This requires the garbage collector to be able
-		  to identify {\tt *GLOBAL*} pointers and treat them
-		  differently.
+		  to distinguish global stack
+		  and heap addresses and treat them differently.
 \end{tabular}
+
+\end{indpar}
+
+TBD
+
+\begin{indpar}[0.2in]
 
 \begin{tabular}{p{0.4in}p{5.0in}}
 \key{(L4)}	& A {\tt *GLOBAL*} lifetime type qualifier can be
