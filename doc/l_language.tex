@@ -7337,14 +7337,14 @@ datum the pointer points at.  The possible lifetime qualifiers are:
 			  collector to be able to distinguish global stack
 			  and heap addresses and treat them differently.
 \\[1ex]
-(none)			& The compiler assigns a lifetime depth to the
-                          target variables if pointers with no lifetime
+{\bf (none)}		& The compiler assigns a lifetime depth to the
+                          target variables of pointers with no lifetime
 			  qualifiers.  This is the lexical
 			  depth of the statement that created the pointer,
 			  with top level statements begin given depth 1
 			  (details are below).
 \\[1ex]
-			& Or the depth may be the special depth 0,
+			& Or the compiler may assign the special depth 0,
 			  which means that
 			  the only thing known about the pointer value is
 			  that the lifetime of its target includes the
