@@ -7326,7 +7326,7 @@ which tells something about the lifetimes of the target variables in the
 datum the pointer points at.  The possible lifetime qualifiers are:
 
 \begin{indpar}[0.2in]
-\begin{tabular}{lp{5.0in}}
+\begin{tabular}{lp{4.5in}}
 \ttkey{*GLOBAL*}	& The target variables are in the global stack.
 \\[1ex]
 \ttkey{*HEAP*}		& The target variables are either in the heap
@@ -7337,21 +7337,31 @@ datum the pointer points at.  The possible lifetime qualifiers are:
 			  collector to be able to distinguish global stack
 			  and heap addresses and treat them differently.
 \\[1ex]
-{\bf (none)}		& The compiler assigns a lifetime depth to the
-                          target variables of pointers with no lifetime
-			  qualifiers.  This is the lexical
-			  depth of the statement that created the pointer,
-			  with top level statements begin given depth 1
-			  (details are below).
+{\bf (undeclared)}	& The pointer type has no lifetime qualifiers.
+                          There are two cases:
 \\[1ex]
-			& Or the compiler may assign the special depth 0,
-			  which means that
-			  the only thing known about the pointer value is
-			  that the lifetime of its target includes the
-			  lifetime of the variable in which the pointer
-			  value is stored.
+{\bf ~~~~(local)}	& The compiler knows that the target variables are
+                          in the local stack, and also knows the lexical
+			  depth of the statement that created the variables.
+\\[1ex]
+{\bf ~~~~(anywhere)}	& The compiler does \underline{not} know whether
+			  the target variables are in the global stack,
+			  the local stack, or the heap.  However, the
+			  compiler does know that the lifetime of the
+			  target variables contains the lifetime of the
+			  variable holding the pointer value.
 \end{tabular}
 \end{indpar}
+
+A pointer value whose type has the {\tt *GLOBAL*} lifetime qualifier
+is called a \key{global pointer}. 
+A pointer value whose type has the {\tt *HEAP*} lifetime qualifier
+is called a \key{heap pointer}. 
+A pointer value known to point at target variables in the local stack
+(the type of this pointer value must be undeclared) is calls a
+\key{local pointer}. 
+A pointer value with undeclared pointer type that is not known to be
+a local pointer is called an \key{anywhere pointer}.
 
 The following rules prevent a pointer to a target with a given lifetime
 from being stored in a variable with a longer lifetime.
