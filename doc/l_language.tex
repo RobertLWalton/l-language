@@ -7363,6 +7363,7 @@ A pointer value with undeclared pointer type that is not known to be
 a local pointer is called an \key{anywhere pointer}.
 
 Somewhat similarly for variables.
+A \key{pointer variable} is a variable storing a pointer.
 A variable whose type is a pointer type with
 the {\tt *GLOBAL*} lifetime qualifier
 is called a \key{global pointer variable}. 
@@ -7372,6 +7373,22 @@ is called a \key{heap pointer variable}.
 A variable whose type is a pointer type with
 undeclared lifetime qualifier
 is called an \key{undeclared pointer variable}. 
+
+We also divide variables into the following three classes:
+\begin{indpar}[0.2in]
+\begin{tabular}{lp{3.5in}}
+\key{target variables} &
+	The variable is located in the target datum of a pointer.
+\\[1ex]
+\key{local non-target variables} &
+	The variable is stored in the local stack
+	and is \underline{not} a target variable.
+\\[1ex]
+\key{global non-target variables} &
+	The variable is stored in the global stack
+	and is \underline{not} a target variable.
+\end{tabular}
+\end{indpar}
 
 The following rules prevent a pointer to a target with a given lifetime
 from being stored in a variable with a longer lifetime.
@@ -7395,6 +7412,31 @@ The first of these rules are:
 		  to distinguish global stack
 		  and heap addresses and treat them differently.
 \end{tabular}
+
+\begin{tabular}{p{0.4in}p{5.0in}}
+\key{(L4)}	& A value read from a global pointer variable is a
+		  global pointer.
+\end{tabular}
+
+\begin{tabular}{p{0.4in}p{5.0in}}
+\key{(L5)}	& A value read from a heap pointer variable is a
+		  heap pointer (has pointer type with {\tt *HEAP*}
+		  qualifier), even if in fact it points at the
+		  global stack.
+\end{tabular}
+
+\begin{tabular}{p{0.4in}p{5.0in}}
+\key{(L6)}	& Undeclared pointer variables that are in the target
+                  of a global pointer are global pointer variables.
+\\[1ex]
+		& Undeclared pointer variables that are in the target
+                  of a heap pointer are heap pointer variables.
+\\[1ex]
+		& In other words, a lifetime qualifier of a pointer $P$
+		  is added to the type of any undeclared pointer variables
+		  in the target of $P$.
+\end{tabular}
+
 
 \end{indpar}
 
