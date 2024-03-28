@@ -7392,19 +7392,19 @@ We also divide variables into the following three classes:
 
 The following rules prevent a pointer to a target with a given lifetime
 from being stored in a variable with a longer lifetime.
-The first of these rules are:
+The first of these rules govern global and heap pointers and variables and are:
 \begin{indpar}[0.2in]
-\begin{tabular}{p{0.4in}p{5.0in}}
+\begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L1)}	& A global pointer value
                   can be stored in any global pointer variable.
 \end{tabular}
 
-\begin{tabular}{p{0.4in}p{5.0in}}
+\begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L2)}	& A heap pointer value
                   can be stored in any heap pointer variable.
 \end{tabular}
 
-\begin{tabular}{p{0.4in}p{5.0in}}
+\begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L3)}	& A global pointer value
                   can be stored in any heap pointer variable.
 \\[1ex]
@@ -7413,19 +7413,19 @@ The first of these rules are:
 		  and heap addresses and treat them differently.
 \end{tabular}
 
-\begin{tabular}{p{0.4in}p{5.0in}}
+\begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L4)}	& A value read from a global pointer variable is a
 		  global pointer.
 \end{tabular}
 
-\begin{tabular}{p{0.4in}p{5.0in}}
+\begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L5)}	& A value read from a heap pointer variable is a
 		  heap pointer (has pointer type with {\tt *HEAP*}
 		  qualifier), even if in fact it points at the
 		  global stack.
 \end{tabular}
 
-\begin{tabular}{p{0.4in}p{5.0in}}
+\begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L6)}	& Undeclared pointer variables that are in the target
                   of a global pointer are global pointer variables.
 \\[1ex]
@@ -7444,51 +7444,44 @@ TBD
 
 \begin{indpar}[0.2in]
 
-\begin{tabular}{p{0.4in}p{5.0in}}
-\key{(L4)}	& A {\tt *GLOBAL*} lifetime type qualifier can be
-		  implicitly converted to a {\tt *LOCAL*} lifetime type
-		  qualifier of depth 0 (see discussion of depth below).
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L7)}	& A pointer into the local stack
+		  created by an {\em allocation-call}
+		  in an {\em assignment-statement} of depth $D$
+		  is a local pointer of depth $D$.
 \end{tabular}
 
-\begin{tabular}{p{0.4in}p{5.0in}}
-\key{(L5)}	& A {\tt *HEAP*} pointer can be implicitly
-                  converted to a {\tt *LOCAL*} pointer of depth 0
-		  provided the {\tt *HEAP*} pointer is stored in
-		  an assignment variable or argument variable.
-\\[1ex]
-		& Note 1: the variable in which the {\tt *HEAP*} pointer
-		  is stored is {\tt co} and will exist as long as
-		  the {\tt *LOCAL*} pointer exists.
-\\[1ex]
-		& Note 2: because of this conversion, both {\tt *HEAP*}
-		  and {\tt *LOCAL*} pointers in the stack will have
-		  to be updated by by some kinds of garbage collection: see
-		  \itemref{COPYING-GARBAGE-COLLECTION}, Copying Garbage
-		  Collection.
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L8)}	& A local pointer of depth $D$ may be stored in
+		  an undeclared local non-target pointer variable
+		  that is \underline{not} an {\tt out-of-line}
+		  function argument variable (it may be an inline
+		  function argument variable).  The compiler
+		  then annotes the pointer variable as holding a local
+		  pointer of depth $D$.
 \end{tabular}
 
-\begin{tabular}{p{0.4in}p{5.0in}}
-\key{(L6)}	& A {\tt *LOCAL*} pointer can only be stored in a
-                  {\tt *LOCAL*} variable.  It
-                  can\underline{not} be stored in a
-		  {\tt *GLOBAL*} or {\tt *HEAP*} variable.
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L9)}	& A pointer value read from an
+		  an undeclared non-target target pointer variable
+		  that is annotated as holding a local pointer of depth $D$
+		  is a local pointer of depth $D$.
 \end{tabular}
-\\[1ex]
-Note: The variable in which a pointer is stored
-must have by default a pointer type that is the same as the
-type of the pointer value being stored:
-e.g., when a {\tt *HEAP*} pointer is stored in a {\tt *LOCAL*}
-variable, the {\tt *LOCAL*} variable's type must be a pointer type
-with the {\tt *HEAP*} qualifier.
-In particular, (L1) and (L2) do \underline{not} permit implied
-lifetime qualifier conversions.
 
-However, (L3) and (L4) do permit {\tt *GLOBAL*} pointers to be stored in
-variables which have a pointer type with the {\tt *HEAP*} or {\tt *LOCAL*}
-qualifier, and (L5) permits {\tt *HEAP*} pointers to be stored in
-variables which have a pointer type with the {\tt *LOCAL*} qualifier.
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L10)}	& A local pointer of depth $D$ may be stored in
+		  an undeclared target pointer variable
+		  that is in the target of a
+		  local pointer of depth $D$.
+\end{tabular}
 
-Also see \itemref{QUALIFIER-IMPLICIT-CONVERSIONS}.
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L11)}	& A pointer value read from an
+		  an undeclared target pointer variable
+		  in the target of a local pointer of depth $D$
+		  is a local pointer of depth $D$.
+\end{tabular}
+
 \end{indpar}
 
 An example is:
