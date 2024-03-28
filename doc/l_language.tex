@@ -7440,7 +7440,12 @@ The first of these rules govern global and heap pointers and variables and are:
 
 \end{indpar}
 
-TBD
+A local pointer is tagged automatically by the compiler with the
+lexical depth of the {\em statement} that created the pointer.  Top level
+{\em statements} have lexical depth 1.  {\em Statements} in a subblock
+of a top level {\em statement} has lexical depth 2, and so forth.
+Details, including how to handle inline function calls, are below.
+
 
 \begin{indpar}[0.2in]
 
@@ -7483,6 +7488,63 @@ TBD
 \end{tabular}
 
 \end{indpar}
+
+Note that local pointers cannot be stored in global non-target variables
+or in pointer variables in the target of a global or heap pointer.
+If a local non-target variable holds a local pointer $P$ of depth $D$,
+all the undeclared target variables reachable by tracing
+undeclared target variable values starting at $P$ necessarily hold
+local variables of depth $D$, or in otherwords, in network of
+data completely connected by local pointers, all these local pointers
+have the same depth.
+
+The last kind of pointer is the \key{anywhere pointer}.
+{\em Out-of-line} argument undeclared pointer variables
+must be anywhere pointers.  The rules are:
+
+\begin{indpar}[0.2in]
+
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L12)}	& If a global or heap pointer is stored in an
+                  undeclared local non-target pointer variable
+		  (specifically including {\em out-of-line}
+		  argument undeclared pointer variables),
+		  the value stored becomes an anywhere pointer,
+		  and the compiler
+		  annotes the pointer variable as holding
+		  an anywhere pointer.
+\end{tabular}
+
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L13)}	& If an anywhere pointer is stored in an
+                  undeclared local non-target pointer variable
+		  (specifically including {\em out-of-line}
+		  argument undeclared pointer variables),
+		  the value stored becomes an anywhere pointer,
+		  and the compiler
+		  annotes the pointer variable as holding
+		  an anywhere pointer.
+\end{tabular}
+
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L14)}	& A pointer value read from an
+		  an undeclared non-target target pointer variable
+		  that is annotated as holding an anywhere pointer
+		  is an anywhere pointer.
+\end{tabular}
+
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L15)}	& A pointer value read from an
+		  an undeclared target pointer variable
+		  in the target of an anywhere pointer
+		  is an anywhere pointer.
+\end{tabular}
+
+\end{indpar}
+
+Note that an anywhere pointer can only be stored in local non-target
+variables, and any target pointer variable value that is reachable from
+an anywhere pointer becomes an anywhere pointer when it is read.
 
 An example is:
 \begin{indpar}\begin{verbatim}
