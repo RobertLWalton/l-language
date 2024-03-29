@@ -7450,13 +7450,15 @@ type list element:
 // In the following, `@= global' is implied because the pointers
 // are *GLOBAL*.
 
+ap *GLOBAL* list element @list empty @= null
+
 // Circular list:
 //
-ap *GLOBAL* *READ-WRITE* list element @last:  // `@= global' is implied
-    last.@successor = null
+ap *GLOBAL* list element @last:  // `@= global' is implied
+    last.@successor = @list empty
     // Last element is pointed at by last.@successor
     // First element is pointed at by last.successor.@successor
-    // Empty list has last.@successor == null
+    // Empty list has last.@successor == @list empty
 
 // Put two elements in list.
 //
@@ -7539,16 +7541,16 @@ An example is:
 type list element:
     ap list element @successor
 
+ap list element @list empty @= null
+    // Depth 1 null value.
+
 // In the following, `@= local' is implied because the pointers
 // are (lifetime) undeclared.
-
-ap *READ-WRITE* list element @list empty @= null
-    // Depth 1 null value.
 
 // Circular list:
 //
 ap *READ-WRITE* list element @last:  // `@= local' is implied
-    last.@successor = @list end
+    last.@successor = @list empty
     // Last element is pointed at by last.@successor
     // First element is pointed at by last.successor.@successor
     // Empty list has last.@successor == @list empty
@@ -7558,7 +7560,7 @@ ap *READ-WRITE* list element @last:  // `@= local' is implied
 ap list element @X  // `@= local = *DEFERRED*' is implied
 ap list element @Y  // `@= local = *DEFERRED*' is implied
 
-// Now @last, @X, @Y, last.@successor, X.@successor, etc.
+// Note: @last, @X, @Y, last.@successor, X.@successor, etc.
 // all have depth 1
 
 ap list element @X:
@@ -7667,34 +7669,44 @@ The rules for assigning depth to {\em statements} are as follows:
 The last example modified to use inline functions is:
 \begin{indpar}\begin{verbatim}
 type list element:
-    ap list element @successor   // target is *LOCAL* by default
+    ap *READ-WRITE* list element @successor
+        // List elements must be *READ-WRITE*
+
+ap *READ-WRITE* list element @list empty @= null
+    // Depth 1 null value.
+
+// In the following, `@= local' is implied because the pointers
+// are (lifetime) undeclared.
 
 // Circular list:
 //
-ap *READ-WRITE* list element @last:      // `@= local' is implied
-    last.@successor = null
+ap *READ-WRITE* list element @last:  // `@= local' is implied
+    last.@successor = @list empty
     // Last element is pointed at by last.@successor
     // First element is pointed at by last.successor.@successor
-    // Empty list has last.@successor == null
-    // The variable `last' has depth 1
+    // Empty list has last.@successor == @list empty
+
+// Put two elements in list.
+//
+ap *READ-WRITE* list element @X  // `@= local = *DEFERRED*' is implied
+ap *READ-WRITE* list element @Y  // `@= local = *DEFERRED*' is implied
+
+// Note: @last, @X, @Y, last.@successor, X.@successor, etc.
+// all have depth 1
 
 // Add element to end of circular list:
 //
-function add ( ap *READ-WRITE* @element ):
+function add ( ap *READ-WRITE* list element @element ):
     // element depth is taken from actual argument
-    if last.@successor == null:
+    if last.@successor == @list empty:
         element.@successor = @element
     else:
         element.@successor = last.successor.@successor
         last.successor.@successor = @element
     last.@successor = @element
 
-// Put two elements in list.
+// Put elements in list.
 //
-ap *READ-WRITE* list element @X          // `@= local' is implied
-                                         // @X and X are depth 1
-ap *READ-WRITE* list element @Y          // `@= local' is implied
-                                         // @Y and Y are depth 1
 add ( @X )           // X is first element
 add ( @Y )           // Y is second element
 \end{verbatim}\end{indpar}
