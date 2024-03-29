@@ -7440,6 +7440,42 @@ The first of these rules govern global and heap pointers and variables and are:
 
 \end{indpar}
 
+An example is:
+\begin{indpar}\begin{verbatim}
+type list element:
+    ap *READ-WRITE* list element @successor
+        // When in the global stack, @successor has *GLOBAL*
+        // lifetime qualifer implied by (L6).
+
+// In the following, `@= global' is implied because the pointers
+// are *GLOBAL*.
+
+// Circular list:
+//
+ap *GLOBAL* *READ-WRITE* list element @last:  // `@= global' is implied
+    last.@successor = null
+    // Last element is pointed at by last.@successor
+    // First element is pointed at by last.successor.@successor
+    // Empty list has last.@successor == null
+
+// Put two elements in list.
+//
+ap *GLOBAL* list element @X  // `@= global = *DEFERRED*' is implied
+ap *GLOBAL* list element @Y  // `@= global = *DEFERRED*' is implied
+
+ap *GLOBAL* list element @X:
+    // Put X on empty list
+    X.@successor = @X
+    last.@successor = @X
+    // List now consists of (X)
+ap *GLOBAL* list element @Y:
+    // Add Y to end of list
+    Y.@successor = last.successor.@successor 
+    last.successor.@successor = @Y
+    last.@successor = @Y
+    // List now consists of (X, Y)
+\end{verbatim}\end{indpar}
+
 A local pointer is tagged automatically by the compiler with the
 lexical depth of the {\em statement} that created the pointer.  Top level
 {\em statements} have lexical depth 1.  {\em Statements} in a subblock
@@ -7498,6 +7534,46 @@ local variables of depth $D$, or in otherwords, in network of
 data completely connected by local pointers, all these local pointers
 have the same depth.
 
+An example is:
+\begin{indpar}\begin{verbatim}
+type list element:
+    ap list element @successor
+
+// In the following, `@= local' is implied because the pointers
+// are (lifetime) undeclared.
+
+ap *READ-WRITE* list element @null1
+    // Depth 1 null value.
+
+// Circular list:
+//
+ap *READ-WRITE* list element @last:  // `@= local' is implied
+    last.@successor = @null1
+    // Last element is pointed at by last.@successor
+    // First element is pointed at by last.successor.@successor
+    // Empty list has last.@successor == @null1
+
+// Put two elements in list.
+//
+ap list element @X  // `@= local = *DEFERRED*' is implied
+ap list element @Y  // `@= local = *DEFERRED*' is implied
+
+// Now @last, @X, @Y, last.@successor, X.@successor, etc.
+// all have depth 1
+
+ap list element @X:
+    // Put X on empty list
+    X.@successor = @X
+    last.@successor = @X
+    // List now consists of (X)
+ap list element @Y:
+    // Add Y to end of list
+    Y.@successor = last.successor.@successor 
+    last.successor.@successor = @Y
+    last.@successor = @Y
+    // List now consists of (X, Y)
+\end{verbatim}\end{indpar}
+
 The last kind of pointer is the \key{anywhere pointer}.
 {\em Out-of-line} argument undeclared pointer variables
 must be anywhere pointers.  The rules are:
@@ -7545,40 +7621,6 @@ must be anywhere pointers.  The rules are:
 Note that an anywhere pointer can only be stored in local non-target
 variables, and any target pointer variable value that is reachable from
 an anywhere pointer becomes an anywhere pointer when it is read.
-
-An example is:
-\begin{indpar}\begin{verbatim}
-type list element:
-    ap *GLOBAL* list element @successor
-
-// In the following, `@= global' is implied because the pointers
-// are *GLOBAL*.
-
-// Circular list:
-//
-ap *GLOBAL* *READ-WRITE* list element @last:  // `@= global' is implied
-    last.@successor = null
-    // Last element is pointed at by last.@successor
-    // First element is pointed at by last.successor.@successor
-    // Empty list has last.@successor == null
-
-// Put two elements in list.
-//
-ap *GLOBAL* list element @X  // `@= global = *DEFERRED*' is implied
-ap *GLOBAL* list element @Y  // `@= global = *DEFERRED*' is implied
-
-ap *GLOBAL* list element @X:
-    // Put X on empty list
-    X.@successor = @X
-    last.@successor = @X
-    // List now consists of (X)
-ap *GLOBAL* list element @Y:
-    // Add Y to end of list
-    Y.@successor = last.successor.@successor 
-    last.successor.@successor = @Y
-    last.@successor = @Y
-    // List now consists of (X, Y)
-\end{verbatim}\end{indpar}
 
 {\tt *LOCAL*} pointers can only be stored in assignment, argument,
 or result variables, or in targets of {\tt *LOCAL*} pointers.
@@ -7669,46 +7711,6 @@ Because of (L7), a {\tt *LOCAL*} pointer read from the target of a {\tt *LOCAL*}
 pointer must have the same depth as that pointer.  So the compiler
 always knows the depth of a {\tt *LOCAL*} pointer and can enforce
 (L7).
-
-Rule (L7) permits a set of {\tt *LOCAL*} objects created at the
-\underline{same depth} to point at each other.
-An example is:
-\begin{indpar}\begin{verbatim}
-type list element:
-    ap list element @successor
-
-// In the following, `@= local' is implied because the pointers
-// default to *LOCAL*.  Also, non-external assignment-variables
-// of top level statements have depth 1.
-
-// Circular list:
-//
-ap *READ-WRITE* list element @last:  // `@= local' is implied
-    last.@successor = null
-    // Last element is pointed at by last.@successor
-    // First element is pointed at by last.successor.@successor
-    // Empty list has last.@successor == null
-
-// Put two elements in list.
-//
-ap list element @X  // `@= local = *DEFERRED*' is implied
-ap list element @Y  // `@= local = *DEFERRED*' is implied
-
-// Now @last, @X, @Y, last.@successor, X.@successor, etc.
-// all have depth 1
-
-ap list element @X:
-    // Put X on empty list
-    X.@successor = @X
-    last.@successor = @X
-    // List now consists of (X)
-ap list element @Y:
-    // Add Y to end of list
-    Y.@successor = last.successor.@successor 
-    last.successor.@successor = @Y
-    last.@successor = @Y
-    // List now consists of (X, Y)
-\end{verbatim}\end{indpar}
 
 
 The same example using inline functions is:
