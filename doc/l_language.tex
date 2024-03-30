@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 29, 2024
+March 30, 2024
 
 \bigskip
  
@@ -269,15 +269,16 @@ name.  The qualifier {\tt *WRITE-ONLY*} says that the value cannot be
 read but can be written using the variable name given,
 but might be read by some other piece of code or other device.
 
-There are also three qualifiers that specify the lifetime of the target
-of a pointer: {\tt *LOCAL*}, {\tt *GLOBAL*}, and {\tt *HEAP*}.  The
-default is {\tt *LOCAL*} which means, roughly, that the pointer is valid until
+There are also two qualifiers that specify the lifetime of the target
+of a pointer: {\tt *GLOBAL*}, and {\tt *HEAP*}.  The
+default is no lifetime qualifier (a.k.a., undeclared pointer)
+which means, roughly, that the pointer is valid only until
 the code block in which the pointer was first calculated is no
-longer executing.  Typically pointer variables are default-{\tt *LOCAL*},
+longer executing.  Typically pointer variables are default-undeclared,
 as in the example.  The {\tt "Hello!"} constant in the example is
 a {\tt *GLOBAL*} pointer, meaning that the pointer is valid during the
 entire program execution, but such pointers are implicitly convertable
-to {\tt *LOCAL*} pointers, as in the example.  {\tt *HEAP*} pointers
+to undeclared pointers, as in the example.  {\tt *HEAP*} pointers
 point at garbage collectable values and obey special rules that we
 shall not discuss here.
 
@@ -2175,13 +2176,12 @@ rules below):
     \begin{tabular}[t]{rl}
     ::= & \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE}
                      $|$ \ttakey{WRITE-ONLY} \\
-    $|$ & \ttakey{GLOBAL} $|$ \ttakey{LOCAL} $|$ \ttakey{HEAP} \\
+    $|$ & \ttakey{GLOBAL} $|$ \ttakey{HEAP} \\
     \end{tabular}
 \begin{indpar}
 {\tt co} abbreviates `constant' meaning `never changes' \\
 {\tt ro} abbreviates `read-only' meaning `other code may change' \\
 {\tt *GLOBAL*} has global (forever) lifetime \\
-{\tt *LOCAL*} has lifetime that ends when current stack frame is destroyed \\
 {\tt *HEAP*} has lifetime managed by a garbage collector
 \end{indpar}
 \emkey{operator-word}
@@ -2217,7 +2217,8 @@ rules below):
 \hspace*{0.2in}\begin{tabular}{rll}
 \ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
 \ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
-\ttkey{L} & allows \TT{*LOCAL*}  & [\ref{Q-FLAG-RULE}] \\
+\ttkey{U} & allows undeclared  & [\ref{Q-FLAG-RULE}] \\
+          & \multicolumn{2}{l}{(i.e., neither \TT{*GLOBAL*} ~or \TT{*HEAP*})} \\
 \ttkey{G} & allows \TT{*GLOBAL*} & [\ref{Q-FLAG-RULE}] \\
 \ttkey{H} & allows \TT{*HEAP*}   & [\ref{Q-FLAG-RULE}] \\
 \end{tabular}
@@ -2906,7 +2907,7 @@ that are being initialized.  It has the same effect as {\tt *WRITE-ONLY*}
 except that it forces fields/subfields of the base to be {\tt *INIT*}
 even if they are {\tt co} or {\tt ro}.
 \item The {\em reference-expression} has the same lifetime qualifier
-({\tt *GLOBAL*}, {\tt *HEAP*}, or {\tt *LOCAL*} )
+({\tt *GLOBAL*}, {\tt *HEAP*}, or undeclared )
 and lifetime depth as the base (see \itemref{LIFETIMES}).
 \end{enumerate}
 \end{minipage}
@@ -3233,7 +3234,7 @@ associated {\em target-variable} that is set by the {\em assignment-statement}.
 \item For an {\em isolated-declaration-statement} declaring a
 {\em pointer-variable} with no {\em alloca\-tion-call},
 `{\tt @= local}' is implied if the {\em pointer-variable}
-has the {\tt *LOCAL*} qualifier, and 
+has no lifetime qualifier (is undeclared), and 
 `{\tt @= global}' is implied if the {\em pointer-variable}
 has the {\tt *GLOBAL*} qualifier.
 \item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
@@ -7957,7 +7958,7 @@ which words of the element contain {\tt *HEAP*} pointers.
 An out-of-line function call\label{OUT-OF-LINE-LOCALS}
 begins by allocating a block in the
 local stack to hold
-its {\tt *LOCAL*} {\tt co} variables.  All the variables are allocated
+its local {\tt co} variables.  All the variables are allocated
 at the beginning of the call execution, so this block does not vary
 in size or layout during the function call execution.  Executions
 of `{\tt @= local}' during the function call will add a block to the
@@ -9271,8 +9272,8 @@ The following are qualifier conversions:
 \item {\tt *READ-WRITE*} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
 \item {\tt *GLOBAL*} may be replaced by {\tt *HEAP*}
-\item {\tt *GLOBAL*} may be replaced by {\tt *LOCAL*} with depth {\tt 0}
-\item {\tt *HEAP*} may be replaced by {\tt *LOCAL*} of depth 0 when copying
+\item {\tt *GLOBAL*} may be replaced by undeclared (an anywhere pointer)
+\item {\tt *HEAP*} may be replaced by undeclared (an anywhere pointer)
 from a {\em reference-expression} that
 is nothing but a {\em pointer-variable} (i.e., is a stack
 variable which is {\tt co}).
@@ -9663,26 +9664,27 @@ The value is typically $-2^{S-1}$ where $S$ is the size of {\tt I} in bits.
 \subsection{Builtin Pointer Operations}
 \label{BUILTIN-POINTER-OPERATIONS}
 
-{\tt function dp Q\$1 T\$1 r = std null}\label{NULL} \\
-{\tt function ap Q\$1 T\$1 r = std null} \\
-{\tt function av Q\$1 T\$1 r = std null}
+{\tt function ap Q\$1  T\$1 r = \\
+\hspace*{1in}std ( uns length, uns alignment ) null}%
+\label{NULL} \\
+{\tt function av Q\$1  T\$1 r = \\
+\hspace*{1in}std ( uns length, uns alignment ) null [ uns count ]}
 \begin{indpar}
-These functions return zero converted to the pointer type.
-For {\tt ap} the base and offset are set to zero, and for
-{\tt av} the base, offset, and bounds are set to zero.
+These functions allocate a value of type {\tt T\$1}
+(or {\tt count} values of type {\tt T\$1}) to null
+memory (memory in inaccessible virtual pages that memory fault if
+accessed)
+and return a pointer to the value(s).
 \\[1ex]
-Accessing the target of a null pointer usually produces
-a segmentation fault, as the virtual page with address zero
-is usually undefined.
-\\[1ex]
-These functions \underline{cannot} be called by an
+These functions can only be called by an
 {\tt allocation-call}\pagnote{ALLOCATION-CALL}.
+See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
-{\tt function ap QG\$1 *LOCAL* T\$1 r = \\
+{\tt function ap QU\$1  T\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) local}%
 \label{LOCAL} \\
-{\tt function av QG\$1 *LOCAL* T\$1 r = \\
+{\tt function av QU\$1  T\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) local [ uns count ]}
 \begin{indpar}
 These functions allocate a value of type {\tt T\$1}
@@ -9696,10 +9698,10 @@ These functions can only be called by an
 See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
-{\tt function ap QG\$1 *GLOBAL* T\$1 r = \\
+{\tt function ap QU\$1 *GLOBAL* T\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) global}%
 \label{GLOBAL} \\
-{\tt function av QG\$1 *GLOBAL* T\$1 r = \\
+{\tt function av QU\$1 *GLOBAL* T\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) global [ uns count ]}
 \begin{indpar}
 These functions allocate a value of type {\tt T\$1}
