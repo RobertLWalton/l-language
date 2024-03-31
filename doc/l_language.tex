@@ -7403,7 +7403,8 @@ is a convenient fiction, since such variables can never be referenced.
 
 The following rules prevent a pointer to a target with a given lifetime
 from being stored in a variable with a longer lifetime.
-The first of these rules govern global and heap pointers and variables and are:
+The first of these rules govern global and heap pointers and
+pointer variables and are:
 \begin{indpar}[0.2in]
 \begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L1)}	& A global pointer value
@@ -7454,7 +7455,7 @@ The first of these rules govern global and heap pointers and variables and are:
 An example is:
 \begin{indpar}\begin{verbatim}
 type list element:
-    ap *READ-WRITE* list element @successor
+    ap list element @successor
         // When in the global stack, @successor has *GLOBAL*
         // lifetime qualifer implied by (L6).
 
@@ -7462,6 +7463,7 @@ type list element:
 // are *GLOBAL*.
 
 ap *GLOBAL* list element @list empty @= null
+    // $list empty is now a global pointer
 
 // Circular list:
 //
@@ -7492,7 +7494,7 @@ ap *GLOBAL* list element @Y:
 A local pointer is tagged automatically by the compiler with the
 lexical depth of the {\em statement} that created the pointer.  Top level
 {\em statements} have lexical depth 1.  {\em Statements} in a subblock
-of a top level {\em statement} has lexical depth 2, and so forth.
+of a top level {\em statement} have lexical depth 2, and so forth.
 Details, including how to handle inline function calls, are below.
 
 
@@ -7517,7 +7519,7 @@ Details, including how to handle inline function calls, are below.
 
 \begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L9)}	& A pointer value read from an
-		  an undeclared non-target target pointer variable
+		  an undeclared non-target pointer variable
 		  that is annotated as holding a local pointer of depth $D$
 		  is a local pointer of depth $D$.
 \end{tabular}
@@ -7541,9 +7543,9 @@ Details, including how to handle inline function calls, are below.
 Note that local pointers cannot be stored in global non-target variables
 or in pointer variables in the target of a global or heap pointer.
 If a local non-target variable holds a local pointer $P$ of depth $D$,
-all the undeclared target variables reachable by tracing
-undeclared target variable values starting at $P$ necessarily hold
-local variables of depth $D$, or in otherwords, in network of
+all the undeclared target pointer variables reachable by tracing
+undeclared target pointer variable values starting at $P$ necessarily hold
+local pointers of depth $D$.  So in a network of
 data completely connected by local pointers, all these local pointers
 have the same depth.
 
@@ -7560,7 +7562,7 @@ ap list element @list empty @= null
 
 // Circular list:
 //
-ap *READ-WRITE* list element @last:  // `@= local' is implied
+ap list element @last:  // `@= local' is implied
     last.@successor = @list empty
     // Last element is pointed at by last.@successor
     // First element is pointed at by last.successor.@successor
@@ -7627,6 +7629,12 @@ must be anywhere pointers.  The rules are:
 		  an undeclared target pointer variable
 		  in the target of an anywhere pointer
 		  is an anywhere pointer.
+\\[1ex]
+		& Note that because of (L6) the pointer value may actually
+		  point at the global stack or the heap.
+\\[1ex]
+		& Note that because of (L11) the pointer value may actually
+		  point at the local stack.
 \end{tabular}
 
 \end{indpar}
