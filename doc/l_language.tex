@@ -7731,7 +7731,8 @@ add ( @X )           // X is first element
 add ( @Y )           // Y is second element
 \end{verbatim}\end{indpar}
 
-A {\em reference-expression} that computes a pointer assigns to that
+A {\em reference-expression} with \underline{no} {\em reference-calls}
+that computes a pointer assigns to that
 pointer the lifetime qualifiers given for the root of the
 {\em reference-expression}.  E.g., a pointer to a member of the
 target of a global pointer is a global pointer.  When the
@@ -7739,6 +7740,11 @@ target of a global pointer is a global pointer.  When the
 {\em reference-call}, this makes sense because a member of the
 target of a global pointer is contained by the target of the global
 pointer.
+
+A {\tt point reference function} assigns lifetime qualifiers according
+to instructions in its {\em reference-function-prototype}.  By using
+wildcards the prototype may copy root lifetime qualifiers to the
+result or change these qualifiers.
 
 The garbage collector must be able to find all heap pointer variables
 in the local and global stacks.  Since anywhere pointer variables in
