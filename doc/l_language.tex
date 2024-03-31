@@ -7663,27 +7663,28 @@ The rules for assigning depth to {\em statements} are as follows:
 \key{(S3)}	& An \underline{inline} {\em function-call} is treated
                   as creating a sub-block immediately inside
 		  the {\em statement} containing the {\em function-call}.
+		  The argument and result variables created by the inline
+		  {\em function-prototype} are treated as having been
+		  created by this {\em statement}.
 \\[1ex]
 		& Thus if an inline function is called from a {\em statement}
 		  of depth $D$, the {\em statements} in the sub-block $S$ at the
 		  end of the inline function declaration that are not inside
-		  a sub-block of $S$ will have depth $D+1$.
+		  a sub-block of $S$ will have depth $D+1$ and the
+		  argument and result variables of the inline function
+		  declaration will have depth $D$.
 \\[1ex]
 		& Note: If an inline function is called from a {\em statement}
 		  of depth $D$, the depth $D'$ of the function's declaration
 		  must such that $D'\leq D$, since the calling {\em statement}
 		  must be in the scope of the declaration.
 \end{tabular}
-
-\begin{tabular}{p{0.4in}p{5.0in}}
-\key{(S4)}	& Let $S$ be the sub-block at the end of an
-                  \underline{out-of-line} function declaration that, because
-		  it is top level, must be of depth 1.
-		  Then any statement in $S$ that is not also
-		  in a sub-block of $S$ is assigned depth 2.
-\end{tabular}
 \end{indpar}
 
+Note that because of (S1) and (S2) and the fact that an
+\underline{\tt out-of-line} function declaration must be top level,
+the sub-block $S$ at the end of an {\tt out-of-line}
+declaration is assigned depth 2.
 
 The last example modified to use inline functions is:
 \begin{indpar}\begin{verbatim}
@@ -7729,6 +7730,15 @@ function add ( ap *READ-WRITE* list element @element ):
 add ( @X )           // X is first element
 add ( @Y )           // Y is second element
 \end{verbatim}\end{indpar}
+
+A {\em reference-expression} that computes a pointer assigns to that
+pointer the lifetime qualifiers given for the root of the
+{\em reference-expression}.  E.g., a pointer to a member of the
+target of a global pointer is a global pointer.  When the
+{\em reference-expression} does \underline{not} contain a
+{\em reference-call}, this makes sense because a member of the
+target of a global pointer is contained by the target of the global
+pointer.
 
 The garbage collector must be able to find all heap pointer variables
 in the local and global stacks.  Since anywhere pointer variables in
