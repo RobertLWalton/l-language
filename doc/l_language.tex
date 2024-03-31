@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 30, 2024
+March 31, 2024
 
 \bigskip
  
@@ -7283,36 +7283,36 @@ The possible variable lifetimes are:
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{5.0in}}
 \key{global} &
-	The variable is stored in the global stack\pagnote{GLOBAL-STACK}
-	as a {\tt co} variable created by a
-	{\em result-variable-declaration} or
-	{\em next-variable-declaration}
-	of an {\em assignment-state\-ment}.
-	\\[1ex]
-	&
+	The variable is stored in the global stack\pagnote{GLOBAL-STACK}.
 	The variable lifetime starts when the variable is created
 	and stops when the program terminates.
+	\\[1ex]
+	&
+	Global variables are \underline{external} variables created by 
+	a {\em result-variable-declaration} or {\em next-variable-declaration}
+	of an {\em assignment-state\-ment}, or by an {\em allocation-call}
+	to the {\tt global} allocator function.
 
 \\[1ex]
 \key{local} &
-	The variable is stored in the local stack\pagnote{LOCAL-STACK}
-	as a {\tt co} variable created by a
-	{\em result-variable-declaration} or
-	{\em next-variable-declaration}
-	of an {\em assignment-state\-ment},
-	or by a
-	{\em prototype-argument-variable-declaration} during a
-	function call.
-	\\[1ex]
-	&
+	The variable is stored in the local stack\pagnote{LOCAL-STACK}.
 	The variable lifetime starts when the variable is created
 	and stops when the scope of the declaration creating the
 	variable ends.
+	\\[1ex]
+	&
+	Local variables are \underline{non}-external variables created by
+	a {\em result-variable-declaration} or
+	{\em next-variable-declaration}
+	of an {\em assignment-state\-ment},
+	or by a {\em prototype-argument-result-declaration} or
+	{\em prototype-argument-variable-declaration} during a
+	function call,
+	or by an {\em allocation-call}
+	to the {\tt local} allocator function.
 \\[1ex]
 \key{heap} &
 	The variable is stored in the heap (i.e., garbage collectible memory).
-	\\[1ex]
-	&
 	The variable lifetime starts when the variable is allocated
 	to the heap, and stops when the variable can no longer
         be referenced by following a chain of pointer values
@@ -7390,6 +7390,16 @@ We also divide variables into the following three classes:
 	and is \underline{not} a target variable.
 \end{tabular}
 \end{indpar}
+
+The {\tt null} allocator function\pagnote{NULL} is special in that
+it can set a pointer of any lifetime type to a particular address
+that addresses a block of virtual memory that is inaccessible, and
+causes a memory fault when accessed.  A pointer allocated by {\tt null}
+is always a global, heap, or local pointer, depending on whether
+the pointer's type has a {\tt *GLOBAL*} or {\tt *HEAP*} qualifier
+or is undeclared, and is never an anywhere pointer.
+The lifetime assigned to target variables of a pointer allocated by {\tt null}
+is a convenient fiction, since such variables can never be referenced.
 
 The following rules prevent a pointer to a target with a given lifetime
 from being stored in a variable with a longer lifetime.
