@@ -9527,8 +9527,8 @@ even integer if there are two nearest integers.
 
 The floating point flags set are those set by division (see above), plus the
 inexact flag may be set if the division quotient is not a integer.
-If the division quotient is an infinity, no flags are set and {\tt r}
-is set to the quotient.
+If the division quotient is an infinity or {\tt NaN},
+{\tt r} is set to this quotient.
 \end{indpar}
 
 {\tt function bool r = std (F v1) \ttkey{"=="} ( F v2 )} \\
@@ -9556,7 +9556,9 @@ flag is set.
 Where {\tt F} is one of {\tt flt}, {\tt flt64}, {\tt flt32}, or {\tt flt16}.
 \begin{itemlist}
 \item[\tt is nan]
-Returns {\tt true} if {\tt v1} is any NaN number (not just {\tt NaN}),
+Returns {\tt true} if {\tt v1} is \underline{any} NaN number
+(not just the quiet {\tt NaN} with zero significand bits except for
+the highest order one),
 and {\tt false} otherwise.
 \item[\tt is infinity]
 Returns {\tt true} if {\tt v1} is {\tt +Inf} or {\tt -Inf}, and {\tt false}
@@ -9578,13 +9580,14 @@ type~std~\ttkey{FP flags}:\label{FP-FLAGS} \\
 \tt [\ldots] bool inexact \\
 \end{tabular} \\
 }
-{\tt function std FP flags r = std} \ttkey{FP flags register} \\
-{\tt function} std \ttkey{FP flags register} {\tt = std FP flags v}
+{\tt load reference function std FP flags r = std} \ttkey{FP flags register} \\
+{\tt store reference function std}
+    \ttkey{FP flags register} {\tt = std FP flags v}
 \begin{indpar}
 The hardware floating point flags can be read into a datum of type
 {\tt FP flags} and an {\tt FP flags} datum can be written
 to the hardware floating point flags by using the {\tt FP flags register}
-functions.  The exact bits in the data that contain the flags
+reference functions.  The exact bits in the data that contain the flags
 are implementation dependent, and are here represented by `{\tt \ldots{}}'.
 \end{indpar}
 
