@@ -4633,7 +4633,9 @@ convert the result type of $d_1$ to the argument type of $d_n$.
 When defining an implicit conversion from type {\tt T1} to type
 {\tt T2}, each value of type {\tt T1} should be exactly representable
 by a value of type {\tt T2}.  This rule should be followed, but
-is not checked by the compiler.
+is not checked by the compiler.  This rule is also violated by the
+builtin implicit conversions for any integer type to any floating
+point type.\pagnote{NUMERIC-IMPLICIT-CONVERSIONS}
 
 And there is one notable exception: conversions from {\tt const}
 which are done at compile-time may fail (the failure will be at
