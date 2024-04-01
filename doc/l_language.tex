@@ -9969,11 +9969,11 @@ reads or writes.
 Example 1:
 \begin{indpar}
 A device has registers in global memory which are shared between the
-device an a process.  The registers are either owned by the process
+device and a process.  The registers are either owned by the process
 and the device is inactive, or the registers are owned by the device
 which is executing an operation.  There is a register with a GO bit
-which is turned on by the process to activate the devices, and another
-register with a READY bit which is set by the devince when its current
+which is turned on by the process to activate the device, and another
+register with a READY bit which is set by the device when its current
 operation is done.
 
 The GO bit is set by an atomic write, which guarentees that all writes
