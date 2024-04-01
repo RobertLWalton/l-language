@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-March 31, 2024
+April 1, 2024
 
 \bigskip
  
@@ -9812,11 +9812,14 @@ type~std~\ttkey{exception data}: \\
 \tt dp~uns8~@pc~~~~~// program counter of throw statement\\
 \end{tabular} \\
 }
-{\tt function std exception data r = std} \ttkey{current exception data} \\
-{\tt function} std \ttkey{current exception data} {\tt = std exception data v}
+{\tt load reference function std exception data r = std}
+    \ttkey{current exception data} \\
+{\tt store reference function std} \ttkey{current exception data}
+    {\tt = std exception data v}
 \begin{indpar}
 The current exception data contain the exception ID and program counter
-of the last exception.  These are set by a {\em throw-statement} that
+of the last exception.  These are set by
+a {\em throw-statement}\pagnote{THROW-STATEMENT} that
 gives an exception ID.   A {\em throw-statement} without an exception ID
 coes not change the current exception data.
 \end{indpar}
@@ -9843,12 +9846,12 @@ for the {\tt std new exception ID} function.
 A mask determining which {\em trace-statements} are active
 is recorded in the following:
 
-{\tt function uns64 r = std} \ttkey{current trace mask}%
+{\tt load reference function uns64 r = std} \ttkey{current trace mask}%
 \label{CURRENT-TRACE-MASK} \\
-{\tt function} std \ttkey{current trace mask} {\tt = uns64 v}
+{\tt store reference function std} \ttkey{current trace mask} {\tt = uns64 v}
 \begin{indpar}
 Read and write the current trace mask.
-A {\em trace-statement} with trace ID X
+A {\em trace-statement}\pagnote{TRACE-STATEMENT} with trace ID X
 will be executed if the current trace mask has bit {\tt 1 <{}< X}
 on, and will be a no-operation otherwise.
 \end{indpar}
