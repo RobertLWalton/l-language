@@ -8880,6 +8880,38 @@ currently {\tt *DEFERRED*} and not yet defined by the
 compilation.
 \end{indpar}
 
+\ttkey{.min} \\
+\ttkey{.max}
+\begin{indpar}
+The minimum and maximum values of a number type $N$.  Not defined for
+non-number types.  These are {\tt const} values which must be
+converted to the run-time type $N$ before being used
+(e.g., by the expression `$N$($N$..max)').  These values are exact;
+for some $N$, these values can be {\em number-constants}, but
+for others they must be {\em rational-constants}
+(e.g., {\tt uns64..max} is {\tt X\#"7FFFFFFFFFFFFFFF"}).
+\end{indpar}
+
+\ttkey{.indefinite}
+\begin{indpar}
+The value of the indefinite integer for a \underline{signed} integer type $I$.
+Not defined for non-integer and unsigned integer types.
+
+The \key{indefinite integer}\label{INDEFINITE-INTEGER} is returned by
+some operations, e.g. {\tt round},
+when they return a correct integer value.%
+\footnote{See documentation of the intel IA-64 FIST instruction.}
+
+The value is typically $-2^{S-1}$ where $S$ is the size of $I$ in bits.
+
+This is a {\tt const} value which must be
+converted to the run-time type $I$ before being used
+(e.g., by the expression `$I$($I$..indefinite)').  This value is exact;
+for some $I$, the values can be a {\em number-constant}, but
+for others it must be a {\em rational-constant}
+(e.g., {\tt int64..indefinite} is {\tt -B\#"1e63"}).
+\end{indpar}
+
 Example:
 \begin{indpar}\begin{verbatim}
 int64 = { .type => "type",
@@ -8888,7 +8920,10 @@ int64 = { .type => "type",
           .alignment => 64,
           .expandable => FALSE,
           .external => FALSE,
-          .fields => {} }
+          .fields => {},
+          .min => -X#"8000000000000000",
+          .max => X#"7FFFFFFFFFFFFFFF",
+          .indefinite => -X#"8000000000000000" }
 \end{verbatim}\end{indpar}
 
 \subsubsection{Field Maps}
@@ -9680,19 +9715,6 @@ Where {\tt I} is one of:
 	\end{tabular}
 \\[1ex]
 Standard comparison operators on integers {\tt v1} and {\tt v2}.
-\end{indpar}
-
-{\tt function I r = std indefinite integer}%
-\label{INDEFINITE-INTEGER}
-\begin{indpar}
-Where {\tt I} is any integer type.
-\\[1ex]
-This function returns the value that is returned when
-some operations, e.g. {\tt round},
-cannot return a correct integer value.%
-\footnote{See documentation of the intel IA-64 FIST instruction.}
-
-The value is typically $-2^{S-1}$ where $S$ is the size of {\tt I} in bits.
 \end{indpar}
 
 \subsection{Builtin Pointer Operations}
