@@ -7419,7 +7419,8 @@ pointer variables and are:
 \end{tabular}
 
 \begin{tabular}{p{0.5in}p{5.0in}}
-\key{(L3)}	& A global pointer value
+\key{(L3)}
+		& A global pointer value
                   can be stored in any heap pointer variable.
 \\[1ex]
 		& Note: This requires the garbage collector to be able
@@ -9105,7 +9106,8 @@ These functions are principally of use in {\tt macro} or
 \label{COM-STATEMENT}
 \begin{indpar}
 This {\em function-variable-name} returns the parsed {\em statement}
-containing the inline function currently executing at compile-time.
+containing the {\tt inclusion} function
+currently executing at compile-time.
 \end{indpar}
 
 {\tt load reference function const r = com \ttkey{*SUBBLOCK*} }%
@@ -9113,7 +9115,7 @@ containing the inline function currently executing at compile-time.
 \begin{indpar}
 This {\em function-variable-name} returns the subblock at the end
 of the parsed {\em statement}
-containing the inline function currently executing at compile-time.
+containing the {\tt inclusion} function currently executing at compile-time.
 This is annotated with {\tt ".initiator" = ":"} and
 {\tt ".terminator" = *INDENTED-PARAGRAPH*}.
 
@@ -9140,14 +9142,16 @@ compilation.  In particular, the function does not return the same
 {\tt constant function const r = com \ttkey{name of} ( const variable name )}
 \begin{indpar}
 Here `{\tt variable name}' is a {\em variable name}
-declared in a non-macro {\em prototype-argument-declaration}.
+declared in a non-macro {\em prototype-argument-declaration} of a
+{\tt macro} or {\tt inclusion} {\em function-declaration} $D$,
+and the {\tt name of} function is called by $D$.
 The type of the variable
-in this {\em prototype-argument-declaration} \underline{cannot}
+in this {\em proto\-type-argument-declaration} \underline{cannot}
 be {\tt const}.
 
 This function returns a {\em variable-name} of the form {\tt V\$\ldots}
 created by calling {\tt com new variable name}
-that can be used inside run-time code produced by the inline
+that can be used inside run-time code produced by the inline or inclusion
 function to reference the value of the actual argument associated with
 the {\em prototype-argument-declaration} of the `{\tt variable name}'.
 More explicitly,
@@ -9353,12 +9357,8 @@ The following are qualifier conversions:
 \item {\tt co} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
-\item {\tt *GLOBAL*} may be replaced by {\tt *HEAP*}
-\item {\tt *GLOBAL*} may be replaced by undeclared (an anywhere pointer)
-\item {\tt *HEAP*} may be replaced by undeclared (an anywhere pointer)
-from a {\em reference-expression} that
-is nothing but a {\em pointer-variable} (i.e., is a stack
-variable which is {\tt co}).
+\item Lifetime qualifiers can be converted when pointers are read or
+stored: see (L3), (L6), (L12), (L14), (L15) of \itemref{LIFETIMES}.
 
 \end{enumerate}
 \end{indpar}
