@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 1, 2024
+April 2, 2024
 
 \bigskip
  
@@ -7781,17 +7781,24 @@ Specifically, the compiler recognizes the following options:
 
 \begin{indpar}
 
-\ttkey{stub} or \ttkey{no-stub}
-\begin{indpar}
-With the {\tt stub} option, heap pointers point at a stub and the
-first word of the stub points at the heap datum body.  With the
-{\tt no-stub} option, heap pointers point directly at the body.
-\end{indpar}
-
 \ttkey{copying-gc}, \ttkey{marking-gc}, \ttkey{counting-gc}, or \ttkey{no-gc}
 \begin{indpar}
 These options specify garbage collection (\key{GC})
-algorithm being used.  These algorithms are described below.
+algorithm being used.
+With {\tt no-gc}, there is no heap and no garbage collection.
+The garbage collection algorithms are described below.
+\end{indpar}
+
+\ttkey{separate-stub} or \ttkey{integrated-stub}
+\begin{indpar}
+Heap pointers always point at a stub.
+With the {\tt separate-stub} option, heap pointers point at a stub that is
+separate from the heap datum body, and the first word of the stub points at the
+body.  With the {\tt integrated-stub} option,
+the body is immediately after the
+stub, though the stub may begin with a forwarding pointer
+that points at the true location of both the stub and the body
+(this is done in {\tt copying-gc}).
 \end{indpar}
 
 \ttkey{read-gc} or \ttkey{write-gc}
@@ -7799,6 +7806,17 @@ algorithm being used.  These algorithms are described below.
 These are sub-options of GC, indicating whether the GC is
 read-oriented or write-oriented.  See the descriptions
 of GC below.
+\end{indpar}
+
+\ttkey{deallocation-allowed} or \ttkey{deallocation-forbidden}
+\begin{indpar}
+These are sub-options of GC, indicating whether a datum body can be
+deallocated without the datum being garbage collected.  With the
+{\tt separate-stub} option, the pointer to the body merely points
+at inaccessible memory.  With the {\tt integrated-stub} option, the
+{\tt copying-gc} option allows the datum to consist of just a forwarding
+pointer pointing at inaccessible memory, but other {\tt \ldots-gc}
+options do not support deallocation without the datum being garbage collected.
 \end{indpar}
 
 \end{indpar}
@@ -7894,8 +7912,11 @@ The advantage of write-oriented over read-oriented is
 that write operations are less frequent than read
 operations and therefore write-oriented may be more
 efficient.  The disadvantage is that in order to finish, the GC
-must update all pointers in global memory and
-the stack without non-GC execution changing the stack.
+must update all pointers in the local stack while
+non-GC execution is changing the local stack.
+This could be done by having GC update pointers from the bottom
+to the top of the local stack, and terminate GC if the non-GC execution
+pops the local stack so it no longer includes non-updated pointers.
 
 It is possible to implement a deallocate operation
 which deallocates a body, except for its body pointer.
@@ -7977,8 +7998,10 @@ pointer loops, such as circular lists.
 
 \subsection{Locating Global and Local Heap Pointers}
 
-A list of global and local variables that contain {\tt *HEAP*}
+A list of global and local variables that contain heap
 pointers needs to be made available to the garbage collector.
+As per the Lifetimes section\pagnote{LIFETIMES}, these are
+pointers of declared {\tt *HEAP*} type plus anywhere pointers.
 
 From the point of view of the garbage collector, variables
 are held in two stacks: the \key{global stack}\label{GLOBAL-STACK} and
@@ -7986,11 +8009,11 @@ the \key{local stack}\label{LOCAL-STACK}.  These
 stacks are each a sequence of blocks.  Each block has at its
 beginning a \key{block type} ID which references load time data that tells
 the length of the block and contains a map specifying which words of the block
-contain {\tt *HEAP*} pointers.  Some types of blocks contain a vector
+contain heap pointers.  Some types of blocks contain a vector
 of similar elements, and for these there is a separate count of the number of
 vector elements at the beginning of the block and the block type data
 only specifies that length of an element and
-which words of the element contain {\tt *HEAP*} pointers.
+which words of the element contain heap pointers.
 
 An out-of-line function call\label{OUT-OF-LINE-LOCALS}
 begins by allocating a block in the
@@ -8013,7 +8036,7 @@ any of its executions.
 
 When a block is allocated it is zeroed.  This
 allows the garbage collector to avoid variables containing
-{\tt *HEAP*} pointers that have not yet been set.
+heap pointers that have not yet been set.
 
 The execution of each module and body file initialization is
 treated the same as an execution of an out-of-line function
