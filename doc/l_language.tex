@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 2, 2024
+April 9, 2024
 
 \bigskip
  
@@ -271,8 +271,8 @@ but might be read by some other piece of code or other device.
 
 There are also two qualifiers that specify the lifetime of the target
 of a pointer: {\tt *GLOBAL*}, and {\tt *HEAP*}.  The
-default is no lifetime qualifier (a.k.a., undeclared pointer)
-which means, roughly, that the pointer is valid only until
+default is no lifetime qualifier,
+which means, roughly, that the pointer is only known to be valid until
 the code block in which the pointer was first calculated is no
 longer executing.  Typically pointer variables are default-undeclared,
 as in the example.  The {\tt "Hello!"} constant in the example is
@@ -282,7 +282,7 @@ to undeclared pointers, as in the example.  {\tt *HEAP*} pointers
 point at garbage collectable values and obey special rules that we
 shall not discuss here.
 
-Variables in function frames and module memory
+Variables in function frames and global memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z}, and values
 that are constants.
 These values most frequently
@@ -363,7 +363,7 @@ efficient by keeping variables constant (i.e., {\tt co}), and
 it improves debuggability by retaining the different values of
 the variable for inspection by a debugger.
 
-Loops use the `{\tt next \ldots}' construct.  For example:
+Loops also use the `{\tt next \ldots}' construct.  For example:
 \begin{indpar}\begin{verbatim}
 // Compute sum of 4, 5, and 6.
 //
@@ -391,7 +391,7 @@ The `{\tt next sum}' and `{\tt next i}' before the `{\tt :}',
 which are the output variables for the block of code containing
 the two `{\tt +}' statements,
 can also be implied as they appear as output variables
-of the `{\tt +}' statements, so the above loop can be written as:
+of the `{\tt +}' statements, so the above code can be written as:
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 4
@@ -445,6 +445,15 @@ next op = OP            // Now op == 129
 bool B = Y.has constant // Now B == 1
 C = -1234               // Now Y.constant = -1234
 \end{verbatim}\end{indpar}
+
+In this example the declaration `{\tt my type X}' is approximately the same as
+`{\tt ap co my type @X}', but the pointer {\tt @X} is hidden.
+In the subblock of code that initializes {\tt X}, the {\tt co} qualifier
+of {\tt X} is implicitly changed to the {\tt *INIT*} pseudo-qualifier that
+has the same effect as {\tt *WRITE-ONLY*}
+except that it forces fields/subfields of {\tt X} to be {\tt *INIT*}
+even if they are {\tt co} or {\tt ro}.  In code after the subblock,
+{\tt X} is {\tt co}.
 
 In this example there is one field in a {\tt my type} value,
 an unlabeled {\tt uns32} integer.
@@ -4232,6 +4241,10 @@ A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 An \ttkey{*INCLUDE*} sub-declaration copies all the {\em type-subdeclarations}
 of the given defined type into the current sequence of
 {\em type-subdeclarations}.
+If the defined type is
+defined by multiple {\em type-declarations}, only sub-declarations
+from the {\em type-declarations} in the current scope (see \itemref{SCOPE})
+are copied.
 
 A \ttkey{*DEFERRED*} {\em type-declaration} declares a {\em defined-type-name}
 without declaring the definition of the named type.
