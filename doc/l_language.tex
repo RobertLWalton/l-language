@@ -656,7 +656,7 @@ may be implicitly converted to a target type.
 Most builtin operators, such as `{\tt +}',
 have operands of the same type as their result.
 
-An example of all this is:
+An example of all this, using the declaration of {\tt max} above, is:
 
 \begin{indpar}\begin{verbatim}
 flt w = 1.1                 // flt is target type of 1.1
@@ -681,7 +681,7 @@ int r6 = max ( x, c1 + c2 ) // legal; c1 + c2 is replaced by 1100
 For each type {\tt T}, a function:
 \begin{center} \tt
 \begin{tabular}{l}
-function T r = T ( T v ); \\
+function T r = T ( T v ): \\
 ~~~~r = v
 \end{tabular}
 \end{center}
@@ -737,8 +737,10 @@ negative infinity ({\tt floor}),
 positive infinity ({\tt ceiling}),
 zero ({\tt truncate}),
 or nearest ({\tt round}).  If the value is too large to be stored
-in {\tt I}, the result is undefined and may or may not cause
-program termination.
+in {\tt I}, a floating point exception flag is set, and
+the result is an indefinite integer, which is
+a particular value of type {\tt I} analogous to {\tt NaN}
+for floating point.
 
 The {\tt ro} qualifier name can be used by itself as a
 conversion function name to convert
