@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 9, 2024
+April 10, 2024
 
 \bigskip
  
@@ -760,30 +760,39 @@ can be, and implicit conversion of {\tt co} or {\tt *READ-WRITE*} to
 In addition to using target types to select which overloaded
 function is being called, the types of implicitly convertible
 arguments, that is, variables and constants, can be used.
-Essentually function definitions that require fewer implicit
-conversions are preferred.  For example,
+Specifically, a function definition at least one of whose arguments
+does not require an implicit conversion is preferred.
+
+Finding a target type for comparison operands is more complicated.
+If one of the operands is a function call to an explicit type conversion
+function (a function whose name is a type name), then the type of
+that function is used.  Othersize if some operands are reference
+expressions, their types are tried.  An example is:
 
 \begin{indpar}\begin{verbatim}
 int x = ...
 bool b1 = ( x < 6 )
     // There is a separate "<" operator for every number type,
-    // so x and 6 could both be converted to, say, flt.  But this
-    // is two implicit conversions, whereas using the "<" operator
-    // for int requires only one conversion, so this is used.
+    // X is a reference expression, so its type int is tried and
+    // succeeds.
 bool b2 = ( x < 6.5 )
-    // Again int is chosen for "<", but this time 6.5 produces a
-    // compiler error when converted to an int.  Inconveribility
-    // of particular constant values is NOT considered in selecting
-    // among overloaded function definitions.
+    // Again int is tried and succeeds, but this time 6.5 produces
+    // a compiler error when converted to an int.  Inconveribility of
+    // particular constant values is NOT considered in selecting
+    // function definitions.
 bool b3 = ( x <= floor ( 6.5 ) )
-    // Again int is chosen for "<", but this time 6.5 is replaced
-    // by 6.0 by the compile-time execution of the floor function.
+    // Again int is tried and succeeds, but this time 6.5 is replaced
+    // by 6.0 by the compile-time execution of the floor function,
+    // and 6.0 converts to an int without error.
+bool b3 = ( x <= flt ( 6.5 ) )
+    // As flt is here an explicit conversion function with type flt,
+    // that type must be used, and it succeeds.
 \end{verbatim}\end{indpar}
 
 It is possible to define compile-time functions:
 
 \begin{indpar}\begin{verbatim}
-function const r = max ( const x, const y ):
+constant function const r = max ( const x, const y ):
     if x < y: r = y
     else:     r = x
 
@@ -793,9 +802,10 @@ const z = 9e4
 const w = max ( x, max( y, z ) )
 \end{verbatim}\end{indpar}
 
-Such functions are not available at run-time, and
-are not really inline, as there is no
-distinction between inline and out-of-line for compile-time functions.
+A `{\tt constant}' function is just an inline function that
+is guarenteed to not generate any run-time code.
+Thus it can be executed at compile time to compute with
+{\tt const} values.
 
 Inline function definitions may make use of type wildcards.
 A name that is a single word beginning with {\tt T\$}
@@ -810,9 +820,11 @@ function T$r r = max ( T$r x, T$r y ):
 const x = 2e5
 int y = 27e4
 int z = max ( x, y )      // T$r is int, x converts to int.
-const u = 34e4
-const v = max ( x, u )    // T$r is const, all values are const.
-const w = max ( x, y )    // Illegal: T$r is const, y is not.
+flt u = 3.1415
+flt v = max ( x, u )      // T$r is flt, x converts to flt.
+flt v = max ( x, y )      // T$r is flt, x and y convert to flt.
+int v = max ( x, u )      // Illegal, T$r is int, u cannot
+                          // implicitly convert to int.
 \end{verbatim}\end{indpar}
 
 A wildcard type of a result variable gets its value from the
@@ -830,9 +842,13 @@ can also be a wild card named by a single word beginning with
 {\tt Q\$}.  An example is:
 
 \begin{indpar}\begin{verbatim}
+out-of-line function
+    uns r = strlen ( dp Q$s uns8 @s ) : *DEFERED* "strlen"
+    // External function in C library.
 function uns r = strlen ( P$s Q$s uns8 @s ):
+    // Inline wrapper.
     dp ro uns8 @sdp = *UNCHECKED* ( @s )
-    r = call "strlen" ( @sdp )
+    r = strlen ( @sdp )
 \end{verbatim}\end{indpar}
 
 which converts the pointer of type {\tt P\$s} to a pointer of
@@ -841,6 +857,9 @@ language subroutine {\tt strlen} with the direct pointer.
 The {\tt *UNCHECKED*} function is needed to produce a direct pointer
 from other pointer types, though this function is undefined
 for some argument pointer types (e.g., field pointer types).
+Calling {\tt strlen} with a {\tt dp} pointer calls the external
+function directly, bypassing the inline wrapper, because the
+external call has fewer wildcards (only 1 instead of 2).
 
 A pointer type
 has two places where a qualifier may appear, as in
@@ -855,40 +874,28 @@ read-only {\tt uns32} location {\tt cr}.
 
 Pointer types cannot be cascaded, but there are a work-arounds.
 
-Any inline function can create new code that is inserted
-after the statement containing a call to the function.
-The code is expressed as a {\tt const} map value in
-the format output by the code parser.  As a simple
-example, if the inline function contains:
-\begin{indpar}\begin{verbatim}
-const T = `my number'     // == {"my", "number"}
-const V = `my variable'   // == {"my", "variable"}
-*INCLUDE* (T, V):
-    T V = x + y
-    T z = max ( V, 1000 )
+An {\tt inclusion} function can create new code that replaces
+the statement calling the {\tt inclu\-sion} function.  For example:
+\begin{indpar}[0.1in]\begin{verbatim}
+inclusion function const r = max add ( macro V, macro I, macro LIMIT ):
+    r = *INCLUDE* (V, I, LIMIT):
+        int V += I
+        int V = max ( V, LIMIT )
+max add ( my sum, my increment, z + 100 )
+    // This statement is replaced by
+    //     int my sum += my increment
+    //     int my sum = max ( my sum, z + 100 )
+    // or more specifically:
+    //     V = { "my", "sum" }
+    //     I = { "my", "increment" }
+    //     LIMIT = { { "z" }, "+", { 100 } }
+    //     r = { { { "int", "my", "sum" }, "+=", { "my", "increment" } },
+    //           { { "int", "my", "sum" }, "="
+    //             { "max", { { "my", "sum" }, { { "z" }, "+", { 100 } },
+    //                        ".initiator" => "(",
+    //                        ".terminator" => ")",
+    //                        ".separator" => "," } } } }
 \end{verbatim}\end{indpar}
-then a statement calling the inline function will be
-followed by the code:
-\begin{indpar}\begin{verbatim}
-my number my variable = x + y
-my number z = max ( my variable, 1000 )
-\end{verbatim}\end{indpar}
-which the parser renders as the {\tt const} map value:
-\begin{indpar}\begin{verbatim}
-{ { { "my", "number", "my", "variable" }, "=",
-    { { "x" }, "+", { "y" } } },
-  { { "my", "number", "z" }, "=",
-    { "max", { { "my", "variable" }, { "1000" },
-               ".initiator" => "(",
-               ".separator" => ",",
-               ".terminator" => ")" } } } }
-\end{verbatim}\end{indpar}
-
-Code to be inserted can also be computed directly as a {\tt const} map
-value without using `{\tt *INCLUDE*}' statements.
-
-
-
 
 \section{Lexemes}
 \label{LEXEMES}
