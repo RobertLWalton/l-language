@@ -1499,7 +1499,8 @@ and primaries, such as variable names and function calls.
 
 Operators are characterized by fixity, precedence, and format.
 The L-Language operators are listed in
-Figures~\itemref{L-LANGUAGE-LINE-OPERATORS},
+Figures~\itemref{L-LANGUAGE-LINE-OPERATORS-1},
+~\itemref{L-LANGUAGE-LINE-OPERATORS-2},
 ~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-1},
 and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-2}.
 
@@ -1626,7 +1627,7 @@ All of these but {\tt initial} and {\tt prefix} can be combined with {\tt afix}.
 
 \begin{boxedfigure}[!p]
 \begin{center}
-Line Level Operators \\
+Line Level Operators: Part I \\
 Must Occur Outside Parentheses and Brackets \\
 At Top Level or Inside \{* \ldots{} *\}
 \\[1ex]
@@ -1655,15 +1656,15 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-1}
 \ttkey{pointer type} & & & &
 \\\cline{1-1}
-\ttkey{function} & & & &
+\ttkey{\begin{tabular}[t]{@{}l@{}}
+       out-of-line\\
+       ~~function
+       \end{tabular}} & & & &
+\\\cline{1-1}\cline{3-3}
+\ttkey{function} & & right & &
 \\\cline{1-1}
 \ttkey{\begin{tabular}[t]{@{}l@{}}
        reference\\
-       ~~function
-       \end{tabular}} & & & &
-\\\cline{1-1}
-\ttkey{\begin{tabular}[t]{@{}l@{}}
-       out-of-line\\
        ~~function
        \end{tabular}} & & & &
 \\\cline{1-1}\cline{3-4}
@@ -1699,21 +1700,20 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \end{tabular}
 \end{center}
 
-\caption{L-Language Line Operators}
-\label{L-LANGUAGE-LINE-OPERATORS}
+\caption{L-Language Line Operators: Part I}
+\label{L-LANGUAGE-LINE-OPERATORS-1}
 \end{boxedfigure}
 
 \begin{boxedfigure}[!p]
 \begin{center}
-Non-Line Level Operators: Part I \\
-May Occur Inside or Outside Parentheses and Brackets
+Line Level Operators: Part II \\
+Must Occur Outside Parentheses and Brackets \\
+At Top Level or Inside \{* \ldots{} *\}
 \\[1ex]
 \begin{tabular}{|l|l|l|l|r|}
 \hline
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
-\ttkey{,} & separator & nofix & separator & 2000
-\\\hline
 \ttkey{loop} & iterator & prefix & unary & 3000
 \\\cline{1-1}
 \ttkey{while} &       &        &       &
@@ -1726,6 +1726,24 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-4}
 \ttkey{times} & iteration & afix   & (none) & \\
                & modifier &        &       &
+\\\hline
+\end{tabular}
+\end{center}
+
+\caption{L-Language Line Operators: Part II}
+\label{L-LANGUAGE-LINE-OPERATORS-2}
+\end{boxedfigure}
+
+\begin{boxedfigure}[!p]
+\begin{center}
+Non-Line Level Operators: Part I \\
+May Occur Inside or Outside Parentheses and Brackets
+\\[1ex]
+\begin{tabular}{|l|l|l|l|r|}
+\hline
+Operator & Meaning & Fixity & Format & Precedence \\
+\hline
+\ttkey{,} & separator & nofix & separator & 2000
 \\\hline
 \ttkey{if} & selector & infix & selector & 10000
 \\\cline{1-1}\cline{3-4}
@@ -1752,6 +1770,25 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-2}
 \ttkey{>=}  & is greater than or equal & & &
 \\\hline
+
+\end{tabular}
+\end{center}
+
+\caption{L-Language Non-Line Operators}
+\label{L-LANGUAGE-NON-LINE-OPERATORS-1}
+\end{boxedfigure}
+
+\clearpage
+
+\begin{boxedfigure}[!t]
+\begin{center}
+Non-Line Level Operators: Part II \\
+May Occur Inside or Outside Parentheses and Brackets
+\\[1ex]
+\begin{tabular}{|l|l|l|l|r|}
+\hline
+Operator & Meaning & Fixity & Format & Precedence \\
+\hline
 \ttkey{+}  & addition & infix & sum & 13000
 \\\cline{1-2}
 \ttkey{-}  & subtraction & & &
@@ -1772,25 +1809,6 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\cline{1-2}
 \ttkey{>{}>}  & right shift & & &
 \\\hline
-
-\end{tabular}
-\end{center}
-
-\caption{L-Language Non-Line Operators}
-\label{L-LANGUAGE-NON-LINE-OPERATORS-1}
-\end{boxedfigure}
-
-\clearpage
-
-\begin{boxedfigure}[!t]
-\begin{center}
-Non-Line Level Operators: Part II \\
-May Occur Inside or Outside Parentheses and Brackets
-\\[1ex]
-\begin{tabular}{|l|l|l|l|r|}
-\hline
-Operator & Meaning & Fixity & Format & Precedence \\
-\hline
 \ttkey{+}  & no-op & prefix & unary & H-1
 \\\cline{1-2}
 \ttkey{-}  & negation & & & 
@@ -1816,7 +1834,8 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \end{boxedfigure}
 
 The operators in
-Figures~\itemref{L-LANGUAGE-LINE-OPERATORS},
+Figures~\itemref{L-LANGUAGE-LINE-OPERATORS-1},
+~\itemref{L-LANGUAGE-LINE-OPERATORS-2},
 ~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-1},
 and~\itemref{L-LANGUAGE-NON-LINE-OPERATORS-2}
 have precedences in
@@ -1996,11 +2015,15 @@ but the following examples give an idea of some of this semantics:
       at run-time, and a target type {\tt T} needs to be found for
       these operands.
       A single target type {\tt T} must work as the target type of all
-      the run-time operands.  If several target types {\tt T} work and
-      one is the type of a reference expression operand, that is used.
-      Otherwise if several work, it is a compile error.
+      the run-time operands.  If one of the operands is a call
+      to an explicit conversion function, the type of that conversion
+      is the only one considered (i.e., if one operand has the form
+      {\tt T (\ldots)} then {\tt T} is the target type for all the
+      operands).  Otherwise if some of the operands are reference expressions,
+      their types are tried.  If neither of these methods works,
+      it is a compile error.
 
-      Changing the expression to `{\tt T(x) < y < z}' will force
+      Thus changing the expression to `{\tt T(x) < y < z}' will force
       the target type to be {\tt T} if that works, or a compile
       error otherwise.
 
@@ -2627,7 +2650,9 @@ sublists and moves bracket and separator punctuation to annotations
 \end{tabular}
 \end{center}
 In an \TT{\{*} {\em expression} \TT{*\}} constant,
-line level operators (those in Figure~\itemref{L-LANGUAGE-LINE-OPERATORS})
+line level operators (those in
+Figures~\itemref{L-LANGUAGE-LINE-OPERATORS-1}
+and~\itemref{L-LANGUAGE-LINE-OPERATORS-2})
 are recognized if and only if
 they are outside parentheses in the {\em expression}.
 
