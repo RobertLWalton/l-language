@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 10, 2024
+April 11, 2024
 
 \bigskip
  
@@ -2143,7 +2143,8 @@ for use by systems and compilers (e.g., \TT{..size} in the examples).
 Name items that are words containing `\TT{\$}' or that both
 begin and end with `\TT{*}' are
 similarly reserved.  For example, words of the form `\TT{T\$}\ldots'
-are reserved for use as type wildcards.
+are reserved for use as type wildcards, and the word \TT{*READ-WRITE*}
+is reserved for use as a qualifier.
 
 A name may begin with a {\em word} that is a {\em module-abbreviation}
 that designates a code module: see~\itemref{MODULE-AND-BODY-DECLARATIONS}.
@@ -2217,13 +2218,14 @@ rules below):
     \begin{tabular}[t]{rl}
     ::= & \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE}
                      $|$ \ttakey{WRITE-ONLY} \\
-    $|$ & \ttakey{GLOBAL} $|$ \ttakey{HEAP} \\
+    $|$ & \ttakey{GLOBAL} $|$ \ttakey{HEAP} $|$ \ttakey{INIT} \\
     \end{tabular}
 \begin{indpar}
 {\tt co} abbreviates `constant' meaning `never changes' \\
 {\tt ro} abbreviates `read-only' meaning `other code may change' \\
 {\tt *GLOBAL*} has global (forever) lifetime \\
-{\tt *HEAP*} has lifetime managed by a garbage collector
+{\tt *HEAP*} has lifetime managed by a garbage collector \\
+{\tt *INIT*} forces write-only during initialization
 \end{indpar}
 \emkey{operator-word}
     \begin{tabular}[t]{rl}
@@ -2251,17 +2253,14 @@ rules below):
 		    {\em qualifier-wild-card-flags} `\ldots'\\
 \end{tabular}
 
-\emkey{qualifier-wild-card}\label{QUALIFIER-WILD-CARD} :::=
-    \TT{Q}~{\em qualifier-wild-card-flag}\STAR{}~ \TT{\$}
-
 \emkey{qualifier-wild-card-flag}\label{QUALIFIER-WILD-FLAG} :::= one of: \\
-\hspace*{0.2in}\begin{tabular}{rll}
+\hspace*{0.2in}\begin{tabular}{rl}
 \ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
 \ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
-\ttkey{U} & allows undeclared  & [\ref{Q-FLAG-RULE}] \\
-          & \multicolumn{2}{l}{(i.e., neither \TT{*GLOBAL*} ~or \TT{*HEAP*})} \\
-\ttkey{G} & allows \TT{*GLOBAL*} & [\ref{Q-FLAG-RULE}] \\
-\ttkey{H} & allows \TT{*HEAP*}   & [\ref{Q-FLAG-RULE}] \\
+\ttkey{U} & allows undeclared
+            (i.e., neither \TT{*GLOBAL*} ~or \TT{*HEAP*}) \\
+\ttkey{G} & allows \TT{*GLOBAL*} \\
+\ttkey{H} & allows \TT{*HEAP*} \\
 \end{tabular}
 \end{indpar}
 
@@ -2303,12 +2302,6 @@ A {\em pointer-type-name} should not begin with a {\em type-name}.
 should not contain {\em qualifier-names}, with the
 exception that a {\em qualifier-name} by itself can be
 a {\em function-term-name}.
-\item\label{Q-FLAG-RULE}
-If any of {\tt L}, {\tt G}, or {\tt H} are
-used as a {\em qualifier-wild-card-flags}, those \underline{not} used
-indicate that their corresponding lifetime types are not allowed.
-If none of {\tt L}, {\tt G}, or {\tt H} are used,
-all lifetime types are allowed (as if {\tt LGH} has been used).
 \end{enumerate}
 
 {\em Variable-names}, {\em type-names}, and {\em pointer-type-names}
@@ -2316,7 +2309,7 @@ that begin with a {\em module-abbreviation} are called
 \key{external}\label{EXTERNAL-NAME}.
 Non-external names are called \key{internal}\label{INTERNAL-NAME}.
 
-A name can abbreviate another name, using the statement:
+Names can abbreviate other names, using the statement:
 \begin{indpar}
 \emkey{abbreviation-statement}\label{ABBREVIATION-STATEMENT} ::=
     {\em abbreviating-name}~ \ABV{}~ {\em abbreviated-name}
