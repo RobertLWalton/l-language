@@ -2753,7 +2753,9 @@ The full syntax of a {\em reference-expression} is:
 \begin{enumerate}
 \item
 An {\em expression} with no operators that begins
-with a ({\em function-}){\em variable-name}
+with a {\em variable-name} or `\TT{next} {\em vari\-able-name}'
+and which is not followed
+by an explicitly or implicitly parenthesized subexpression
 is a {\em reference-expression}.
 
 Otherwise an {\em expression} with no operators is one of:
@@ -2762,26 +2764,25 @@ Otherwise an {\em expression} with no operators is one of:
 \item
 a (non-reference) {\em function-call}\pagnote{FUNCTION-CALL}, or
 \item
-an explicitly or implicitly parenthesized subexpression
+an explicitly parenthesized subexpression
 preceded by a {\em module-abbreviation}
 (see \pagref{MA-SYNTACTIC-SUGAR} for more information about this last case)
 \end{enumerate}
-\item If a {\em reference-expression} begins with a {\em module-abbreviation},
-the {\em module-abbrevia\-tion}
-is part of the ({\em function-}){\em variable-name} that is the
-root of the {\em reference-expression}.
-Note that removing the {\em module-abbreviation} that begins an external
-({\em function-}){\em variable-name} creates a different
-({\em function-}){\em variable-name} that names a different variable.
+\item In a {\em reference-expression},
+{\em module-abbreviation} may appear as part of a
+({\em function-}){\em variable-name}, but may \underline{not} appear
+elsewhere.
+A ({\em function-}){\em variable-name} with a {\em module-abbreviation}
+names a different variable or reference function than does the same
+name without the {\em module-abbreviation}.
 \item
-One dimensional indexing can be used with \TT{av} and \TT{fv} pointers.
+One dimensional indexing can be used with \TT{av} and \TT{fv} pointers,
+and with user defined pointer types that convert to \TT{av} or \TT{fv}
+pointers.
 Multi-dimensional indexing can be used with {\em member-names}
 of multi-dimensional fields and subfields.  Multi-dimensional indexing
-can also be used
-with user defined pointers that are the equivalent of multi-dimensional
-\TT{av} or \TT{fv}, plus reference functions defining
-{\em reference-offsets} that use such pointers:
-see Reference Function Declarations,
+can also be used with {\em reference-offsets} defined by
+{\em reference-functions}: see Reference Function Declarations,
 \itemref{REFERENCE-FUNCTION-DECLARATIONS}.
 
 \end{enumerate}
