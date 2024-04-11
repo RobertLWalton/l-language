@@ -2425,7 +2425,8 @@ denominator is at least 1 and the numerator and denominator
 have no common factors (other than 1).  If the denominator is 1, the
 rational is called a \key{rational integer}.
 
-Rational constants are computed at compile-time by the operators:
+Non-negative rational constants may be computed at compile-time
+by the prefix operators:
 \begin{center}
 \begin{tabular}{ll}
 \bf Operator	& Argument String
@@ -2533,6 +2534,9 @@ hexadecimal constants, a power of \TT{16}.
 The value of a character constant is the integral UNICODE code point of the
 {\em character-representative}.
 
+Negative rational constants can be computed at compile-time by applying
+the minus operator `\TT{-}' to a non-negative rational constant.
+
 A rational constant may be converted to a run-time number
 type such as {\tt int32} or {\tt flt64}.
 It is a compile error to convert to an integer type that cannot
@@ -2583,7 +2587,7 @@ A map constant is computed by an {\em expression} whose syntax is:
 \emkey{dictionary-value}\label{DICTIONARY-VALUE}
     ::= {\em constant-expression}
 \\[0.5ex]
-{\em constant-expression} ::= a {\tt const} valued expression as
+{\em constant-expression} ::= a {\tt const} valued {\em expression} as
     defined on \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
@@ -2613,9 +2617,9 @@ whose dominant mode of usage is to access the map's dictionary elements.
 Dictionary entries are also called \skey{attribute}s.  For lists and
 vectors, they are also called \skey{annotation}s.
 
-Each {\em map-expression}
+Each {\em map-constant}
 creates a distinct map: no two such maps are \TT{==}.  A map created
-by a {\em map-expression} is initially set so that it and all its dictionary
+by a {\em map-constant} is initially set so that it and all its dictionary
 entries are read-only.  This can be changed: see \pagref{READ-ONLY-MAP}.
 
 An \emkey{expression-constant}\label{EXPRESSION-CONSTANT}
@@ -2638,8 +2642,8 @@ sublists and moves bracket and separator punctuation to annotations
 \\[0.5ex]
 \{* X + Y * Z *\}	& \{ \{ "X" \}, "+", \{ \{ "Y" \}, "*", \{ "Z" \} \} \}
 \\[0.5ex]
-\{* X 3 = Y Z + 1 *\}	& \{ \{ "X", 3 \} "=",
-                             \{ \{ "Y", "Z" \} "+", \{ 1 \} \} \}
+\{* X 3 = Y Z + 1 *\}	& \{ \{ "X", 3 \}, "=",
+                             \{ \{ "Y", "Z" \}, "+", \{ 1 \} \} \}
 \end{tabular}
 \end{center}
 In an \TT{\{*} {\em expression} \TT{*\}} constant,
@@ -2661,7 +2665,7 @@ with {\em expression-constants} are:
 `X = Y + 1'			& \{ "X", "=", "Y", "+", 1 \}
 \\[0.5ex]
 \{* X = Y + 1 *\}		& \{ \{ "X" \}, "=",
-                                     \{ \{ "Y" \} "+" \{ 1 \} \} \}
+                                     \{ \{ "Y" \}, "+", \{ 1 \} \} \}
 \\[0.5ex]
 `X = ( Y + 1 )'		& \{ "X", "=", \{ "Y", "+", 1, \\
                         & ~~~~~~~~~~~~~~".initiator" => "(", \\
