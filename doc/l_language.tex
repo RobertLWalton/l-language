@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 11, 2024
+April 12, 2024
 
 \bigskip
  
@@ -863,7 +863,6 @@ external call has fewer wildcards (only 1 instead of 2).
 
 A pointer type
 has two places where a qualifier may appear, as in
-
 \begin{indpar}\begin{verbatim}
 type my control block:
     *READ-WRITE* ap *GLOBAL* ro uns32 @cr
@@ -872,7 +871,16 @@ type my control block:
 in which {\tt @cr} is a read-write pointer variable pointing at a global
 read-only {\tt uns32} location {\tt cr}.
 
-Pointer types cannot be cascaded, but there are a work-arounds.
+Pointer types can be cascades: e.g., one can have a pointer to a pointer
+to a pointer.  If the cascade has $N$ pointer type names the pointer
+variable name must begin with exactly $N$ `\TT{@}'s.  An example is:
+\begin{indpar}\begin{verbatim}
+ap ap *READ-WRITE* ap int @@@x = ...
+    // Now @@@x is a pointer with 3 cascaded pointer type names.
+    // Now @@x is @@@x dereferenced once.
+    // Now @x is @@x dereferenced once or @@@x dereferenced twice.
+    // Now x is @x dereferenced once or @@@x dereferenced three times.
+\end{verbatim}\end{indpar}
 
 An {\tt inclusion} function can create new code that replaces
 the statement calling the {\tt inclu\-sion} function.  For example:
@@ -2181,7 +2189,8 @@ rules below):
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
     {\em variable-name} \\
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
-    {\em variable-name} whose {\em basic-name} begins with an \TT{@} \\
+    {\em variable-name} whose {\em basic-name} begins with one or more
+    `\TT{@}'s \\
 \emkey{target-variable}\label{TARGET-VARIABLE} ::=
     {\em variable-name} whose {\em basic-name} does \underline{not}
     begin with an \TT{@} \\
@@ -2200,7 +2209,8 @@ rules below):
 			 the beginning of the {\em name})
 			\end{tabular} \\
 \emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::=
-    {\em member-name} with `\TT{@}' following the initial `\TT{.}'s \\
+    {\em member-name} with one or more `\TT{@}'s
+    following the initial `\TT{.}'s \\
 \emkey{target-member-name}\label{TARGET-MEMBER-NAME} ::=
     {\em member-name} that is \underline{not} a {\em pointer-member-name}
 \\[1ex]
@@ -2268,7 +2278,7 @@ The name resolver treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
 \begin{tabular}{l}
-\{ {\em qualifier-name}\STAR{} ~ {\em pointer-type-name}\}\QMARK{} \\
+\{ {\em qualifier-name}\STAR{} ~ {\em pointer-type-name}\}\STAR{} \\
 \hspace*{0.5in}{\em qualifier-name}\STAR{} ~
 {\em type-name} ~ {\em variable-name}
 \end{tabular}
@@ -2340,7 +2350,8 @@ The {\em abbreviating-name} will be of the same kind as the
 {\em abbreviated-name}, and must follow the syntax rules of that
 kind.  For example, if the {\em abbreviated-name}
 is a {\em target-name}, the {\em abbreviating-name} cannot begin with
-`\TT{@}'.
+`\TT{@}', and if the {\em abbreviated-name} begins with $N>0$ `\TT{@}'s,
+the {\em abbreviating-name} must begin with exactly $N$ `\TT{@}'s.
 
 Note that {\em function-term-names} used in {\em function-calls}
 cannot be abbreviated.
@@ -3237,8 +3248,13 @@ The forms of an {\em assignment-statement} are:
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em target-variable} \\
-	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      {\em type-name} \\
+	$|$ & {\em pointer-type-name}
+	      \{ {\em qualifier-name}\STAR{} {\em pointer-type-name} \}\PLUS{}
+	      \\
+	    & ~~~~~~~~{\em qualifier-name}\STAR{} {\em type-name} \\
+	    & ~~~~~~~~ {\em pointer-variable} \\
+	$|$ & {\em pointer-type-name}
+	      {\em qualifier-name}\STAR{} {\em type-name} \\
 	    & ~~~~~~~~ {\em pointer-variable}
 	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
@@ -3266,6 +3282,12 @@ The forms of an {\em assignment-statement} are:
 \\[2ex]
 where
 \begin{enumerate}
+\item If a {\em result-variable-declaration}
+has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
+it declares must begin with exactly $N$ `\TT{@}'s.
+\item {\em Result-variable-declarations}
+with $N>1$ {\em pointer-type-names} can\underline{not} have
+{\em alloca\-tion-calls}.
 \item For a {\em pointer-variable} with an {\em allocation-call},
 the {\em allocation-call} allocates and zeros memory for the
 associated {\em target-variable}, and returns a pointer to the
@@ -4166,6 +4188,8 @@ The syntax of a type declaration is:
         & {\em qualifier-name}\STAR{} {\em field-type-name}~
           {\em target-label}~ {\em field-dimension}\STAR{} \\
     $|$ & {\em qualifier-name}\STAR{} {\em pointer-type-name} \\
+        & ~~~~~ \{ {\em qualifier-name}\STAR{} {\em pointer-type-name}
+	        \}\STAR{} \\
         & ~~~~~ {\em qualifier-name}\STAR{} {\em field-type-name}~
                 {\em pointer-label}~ {\em field-dimension}\STAR{}
 	\end{tabular}
@@ -4194,7 +4218,7 @@ The syntax of a type declaration is:
 \emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
 \emkey{pointer-label}\label{POINTER-LABEL} ::=
     {\em field-label} beginning with zero or more `\TT{.}'s followed by
-    an `\TT{@}' \\
+    one or more `\TT{@}' \\
 \emkey{target-label}\label{TARGET-LABEL} ::=
     {\em field-label} that is \underline{not} a {\em pointer-label} \\
 \emkey{origin-label}\label{ORIGIN-LABEL} ::=
@@ -4235,6 +4259,13 @@ The syntax of a type declaration is:
 \\[2ex]
 \emkey{alignment} ::= {\tt constant-expression}
 		      with power of 2 integer value
+\\[2ex]
+where
+\begin{enumerate}
+\item If a {\em field-without-subfields-declaration}
+has $N>0$ {\em pointer-type-names}, the {\em pointer-label}
+it declares must begin with exactly $N$ `\TT{@}'s.
+\end{enumerate}
 \end{indpar}
 
 The {\em type-subdeclarations} are processed in order.  At the
@@ -5054,8 +5085,11 @@ The syntax of a function declaration is:
     \label{PROTOTYPE-RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em target-variable} \\
-	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      {\em type-name} {\em pointer-variable}
+	$|$ & {\em pointer-type-name}
+              \{ {\em qualifier-name}\STAR{} {\em pointer-type-name}
+	      \}\STAR{} \\
+	& ~~~~~ {\em qualifier-name}\STAR{}
+	        {\em type-name} {\em pointer-variable}
 	\end{tabular}
 \\[0.5ex]
 {\em type-name} ::= see \pagref{TYPE-NAME}
@@ -5153,6 +5187,9 @@ any actual argument associated to the {\em prototype-argument-declaration}
 by some {\em function-call}
 must be a {\em reference-expression} that
 does not have the form `{\tt next} {\em variable-name}'.
+\item If a {\em prototype-result-declaration}
+has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
+it declares must begin with exactly $N$ `\TT{@}'s.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must
