@@ -2811,10 +2811,7 @@ type my type:
 my type Z:       // The Z reference pointer is an `ap my type' pointer
                  // to Z in the stack with a set dereference flag.
     Z.X = 5      // The Z.X reference pointer is an `ap int' pointer
-                 // to in the stack Z.X with a set dereference flag.
-    Z.@Y = null  // The Z.@Y reference pointer is an `ap ap my type'
-                 // pointer to Z.@Y in the stack with a set dereference
-                 // flag.
+                 // to Z.X in the stack with a set dereference flag.
 
 ap my type @W:   // The @W reference pointer is an `ap my type' pointer,
                  // the value of @W, with a clear dereference flag.
@@ -2828,37 +2825,10 @@ ap my type @W:   // The @W reference pointer is an `ap my type' pointer,
                  // is set to the value of @W.
     W.Y.X = 6    // The W.Y reference pointer is an `ap my type'
                  // pointer, the value of W.@Y, with a set deference flag.
+                 // The W.Y.X reference pointer is an `ap int' pointer,
+                 // computed from W.@Y and the offset of X in my type,
+                 // with a set dereference flag.
 \end{verbatim}\end{indpar}
-
-TBD
-
-Generally a run-time reference pointer
-is virtual if and only if it points into a
-local or global stack or it points at a location containing a value of
-pointer type.
-Compile time reference pointers (involving {\tt const} values) are always
-virtual, and consist of either a pointer into a compile-time local or
-global stack, or a map/index pair.
-
-
-A virtual reference pointer is replaced by the value it points at in
-the following situations:
-\begin{itemize}
-\item It was computed by a {\em reference-base} in a compound
-{\em reference-expression} and it points at
-a run-time pointer value or a compile-time map {\tt const} value.
-\item It was computed by an entire run-time {\em reference-expression}
-with a {\em pointer-variable} root, it points at a pointer value, and
-the {\em reference-expression} is being used to produce a real reference
-pointer value and not to store a value.
-\end{itemize}
-
-If the root of a {\em reference-expression} is a {\em pointer-variable}
-(beginning with \TT{@}), the reference pointer computed by the entire
-{\em reference-expression} is \underline{not}
-dereferenced, and it is an error if the reference pointer is not real.
-If the root is a {\em target-variable}, the reference
-pointer is dereferenced, and the pointer may be virtual.
 
 {\em Reference-expressions} can call {\em reference-functions} to perform
 all or some of their computations.  There are two kinds of
@@ -2881,6 +2851,8 @@ For details on calls to {\em reference-functions}
 see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
 The rest of this section applies to {\em reference-expressions}
 that do \underline{not} make these calls.
+
+TBD
 
 A {\em member-name} of the form `\TT{.}{\em data-label}\,'
 may be used to select a field or subfield\label{FIELD-SELECTION}
