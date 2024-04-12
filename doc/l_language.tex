@@ -2704,17 +2704,20 @@ with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 \label{REFERENCE-EXPRESSIONS}
 
 A \emkey{reference-expression} computes a \key{reference pointer} to a location.
-In some cases the {\em reference-expression}
-computes a \key{real reference pointer} that can be stored in a variable.
-In other cases a \key{virtual reference pointer} is computed that
-can only be used by the {\em reference-expression} to read a value from the
-location or write a value into the location.
+A reference pointer consists of a pointer and a
+\key{dereference flag}.  If the dereference flag is clear, the value of
+the {\em reference-expression} is the pointer.  If the dereference flag
+is set, the value of the {\em reference-expression} is the target of
+the pointer -- that is, the dereferenced pointer.
 
-{\em Reference-expressions} are simple or compound.
+An {\tt ap} or {\tt fp} pointer part of a reference pointer may point
+into the global or local stacks as long as the dereference flag is set.
+
+Syntactically {\em reference-expressions} are simple or compound.
 A \key{simple} {\em reference-expression} is
 a {\em variable-name}, `\TT{next} {\em variable-name}', or
 {\em function-variable-name}.
-A \key{compound} {\em reference-expression} consists of two parts:
+A \key{compound} {\em refer\-ence-expression} consists of two parts:
 a \key{base} that is a smaller {\em reference-expression},
 and an \key{offset} that follows the base with
 a \TT{[} or {\em member-name}
@@ -2803,23 +2806,31 @@ Examples of reference pointers are:
 \begin{indpar}\small\begin{verbatim}
 type my type:
     int X;
-    ap mytype @Y
+    ap my type @Y
 
-my type Z:       // A virtual pointer is computed to the variable Z.
-    Z.X = 5      // A virtual pointer to Z.X is computed.
-    Z.@Y = null  // A virtual pointer to Z.@Y is computed.
-                 // This is virtual both because it points into the
-                 // local stack where Z is, and also because it points
-                 // at a location whose type is a pointer type.
+my type Z:       // The Z reference pointer is an `ap my type' pointer
+                 // to Z in the stack with a set dereference flag.
+    Z.X = 5      // The Z.X reference pointer is an `ap int' pointer
+                 // to in the stack Z.X with a set dereference flag.
+    Z.@Y = null  // The Z.@Y reference pointer is an `ap ap my type'
+                 // pointer to Z.@Y in the stack with a set dereference
+                 // flag.
 
-ap my type @W:   // A real pointer @W is computed to the variable W.
-    W.X = 5      // A real pointer to W.X (denotable by @W.X) is computed.
-    W.@Y = null  // A virtual pointer to W.@Y is computed.
-                 // The pointer is virtual because it points at a pointer.
-    W.@Y = @W    // A virtual pointer to @W is computed and dereferenced
-                 // to make a real pointer that is the value of `@W'.
-                 // W.@Y now points at W.
+ap my type @W:   // The @W reference pointer is an `ap my type' pointer,
+                 // the value of @W, with a clear dereference flag.
+    W.X = 5      // The W reference pointer is a `ap my type' pointer,
+                 // the value of @W, with a set dereference flag.
+                 // The W.X reference pointer is an `ap int' pointer,
+                 // computed from @W and the offset of X in my type,
+                 // with a set dereference flag.
+    W.@Y = @W    // The W.@Y reference pointer is an `ap ap my type'
+                 // pointer with a set dereference flag.  This field
+                 // is set to the value of @W.
+    W.Y.X = 6    // The W.Y reference pointer is an `ap my type'
+                 // pointer, the value of W.@Y, with a set deference flag.
 \end{verbatim}\end{indpar}
+
+TBD
 
 Generally a run-time reference pointer
 is virtual if and only if it points into a
