@@ -3166,7 +3166,7 @@ from {\em reference-expressions}).
 
 Thus a {\em function-call} is an optional {\em module-abbreviation}
 followed by a sequence of {\em function-term-names}
-and {\em call-argument-lists}.  Note that {\em Function-term-names} cannot
+and {\em call-argument-lists}.  Note that {\em function-term-names} cannot
 contain `\TT{.}'s and therefore cannot be {\em member-names},
 which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
 Also any \TT{[~]} bracketed {\em call-argument-lists} must be preceded by
@@ -3384,7 +3384,7 @@ associated {\em target-variable} that is set by the {\em assignment-statement}.
 \item For an {\em isolated-declaration-statement} declaring a
 {\em pointer-variable} with no {\em alloca\-tion-call},
 `{\tt @= local}' is implied if the {\em pointer-variable}
-has no lifetime qualifier (is undeclared), and 
+has no lifetime qualifier (is `undeclared'\pagnote{UNDECLARED}), and 
 `{\tt @= global}' is implied if the {\em pointer-variable}
 has the {\tt *GLOBAL*} qualifier.
 \item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
@@ -3414,15 +3414,19 @@ to control the flow of execution within the more complex
 \end{indpar}
 
 A {\em \ldots-variable-declaration}\label{VARIABLE-ALLOCATION}
-allocates memory for its variables
-in the frame of the currently executing out-of-line function.
+allocates memory for its variables in the global or local stack.
 The sizes of these variables must be known at compile time.
-For a {\em pointer-variable} it is the pointer itself that is
-allocated to the currently executing out-of-line function; the
+For a {\em pointer-variable}, it is the pointer itself that is
+allocated to the local or global stack; the
 memory pointed at can be allocated elsewhere.
 For sizes not known at compile time, a pointer to the variable
 can be allocated by an {\em allocation-call} that is given the variable
 size at run-time.
+
+Allocations to the local stack are more specifically allocations to the
+frame of the current out-of-line function within the local stack,
+or to the portion of the local stack that is allocated to
+a subblock of a top level statement.
 
 {\em Expression-assignment-statements} set the values of their result variables
 to the values of the {\em expressions} in the {\em expression-list}.
@@ -3528,7 +3532,7 @@ variables).
 
 For loops\label{LOOP-ALLOCATION},
 4 copies of the variables allocated by an iteration
-are allocated to the out-of-line function frame when the function is called,
+are allocated to the local stack,
 and the loop cycles among these copies.
 A call to `{\tt local}' inside a loop stores a pointer value in
 one of these 4 copies.  If such a pointer is already
@@ -7498,9 +7502,11 @@ datum the pointer points at.  The possible lifetime qualifiers are:
 
 \begin{indpar}[0.2in]
 \begin{tabular}{lp{4.5in}}
-\ttkey{*GLOBAL*}	& The target variables are in the global stack.
+\ttkey{*GLOBAL*}\label{*GLOBAL*}
+			& The target variables are in the global stack.
 \\[1ex]
-\ttkey{*HEAP*}		& The target variables are either in the heap
+\ttkey{*HEAP*}\label{*HEAP*}
+			& The target variables are either in the heap
 			  or they are in the global stack.
 \\[1ex]
 		        & Note: allowing {\tt *HEAP*} pointers to point
@@ -7508,7 +7514,8 @@ datum the pointer points at.  The possible lifetime qualifiers are:
 			  collector to be able to distinguish global stack
 			  and heap addresses and treat them differently.
 \\[1ex]
-{\bf (undeclared)}	& The pointer type has no lifetime qualifiers.
+{\bf (undeclared)}\label{UNDECLARED}
+			& The pointer type has no lifetime qualifiers.
                           There are two cases:
 \\[1ex]
 {\bf ~~~~(local)}	& The compiler knows that the target variables are
