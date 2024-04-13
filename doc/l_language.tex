@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 12, 2024
+April 13, 2024
 
 \bigskip
  
@@ -2710,9 +2710,6 @@ the {\em reference-expression} is the pointer.  If the dereference flag
 is set, the value of the {\em reference-expression} is the target of
 the pointer -- that is, the dereferenced pointer.
 
-An {\tt ap} or {\tt fp} pointer part of a reference pointer may point
-into the global or local stacks as long as the dereference flag is set.
-
 Syntactically {\em reference-expressions} are simple or compound.
 A \key{simple} {\em reference-expression} is
 a {\em variable-name}, `\TT{next} {\em variable-name}', or
@@ -2802,7 +2799,50 @@ can also be used with {\em reference-offsets} defined by
 \end{enumerate}
 \end{indpar}
 
-Examples of reference pointers are:
+{\em Reference-expressions} can call {\em reference-functions} to perform
+all or some of their computations.  There are two kinds of
+{\em reference-functions}:
+\begin{itemize}
+\item\key{Function Variables}:~~
+These functions
+are invoked by {\em function-variable-names} that are syntactically
+like {\em variable-names} which are {\em simple-reference-expressions} and
+possibly the roots of compound {\em reference-expressions}.
+\item\key{Function Offsets}:~~
+These functions are invoked by {\em reference-offsets} in
+compound {\em reference-expressions}
+that act like postfix operators on
+real reference pointers produced by the bases of the
+compound {\em reference-expressions}.
+\end{itemize}
+
+For details on calls to {\em reference-functions}
+see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
+The rest of this section applies to {\em reference-expressions}
+that do \underline{not} make these calls.
+
+{\em Reference-expressions} whose root is a non-{\tt const} value are
+run-time, and {\em reference-expres\-sions}
+whose root is a {\tt const} value are compile-time.
+We describe these separately.
+
+\subsubsection{Run-Time Reference Expressions}
+\label{RUN-TIME-REFERENCE-EXPRESSIONS}
+
+The pointer part of a run-time reference pointer is just
+a normal run-time pointer value, except that
+{\tt ap} and {\tt fp} pointers that are the pointer part
+of a reference pointer may point
+into the global or local stacks provided the dereference flag is set.
+
+If the entire {\em reference-expression} computes a reference pointer
+with dereference flag set, the pointer part of that reference pointer
+can be used to load its target value or store a value into its target.
+If on the other hand the dereference flag is clear, the pointer part
+itself is the value of the {\em reference-expression}, can cannot
+be used to load from or store into its target.
+
+Examples of run-time reference pointers are:
 \begin{indpar}\small\begin{verbatim}
 type my type:
     int X;
@@ -2830,79 +2870,114 @@ ap my type @W:   // The @W reference pointer is an `ap my type' pointer,
                  // with a set dereference flag.
 \end{verbatim}\end{indpar}
 
-{\em Reference-expressions} can call {\em reference-functions} to perform
-all or some of their computations.  There are two kinds of
-{\em reference-functions}:
+The special member name `\TT{.*}' may be used to dereference
+a run-time reference pointer.  Specifically if `{\em reference-base}\TT{.*}' is 
+a {\em reference-expression}, $P$ is the pointer part of the
+reference pointer computed by the {\em reference-base}, and $D$
+is the dereference flag part, then the reference pointer computed by
+the entire {\em reference-expression} has pointer part $P'$ and dereference
+flag $D'$ where:
 \begin{itemize}
-\item\key{Function Variables}:~~
-These functions
-are invoked by {\em function-variable-names} that are syntactically
-like {\em variable-names} which are {\em simple-reference-expressions} and
-possibly the roots of compound {\em reference-expressions}.
-\item\key{Function Offsets}:~~
-These functions are invoked by {\em reference-offsets} in
-compound {\em reference-expressions}
-that act like postfix operators on
-real reference pointers produced by the bases of the
-compound {\em reference-expressions}.
+\item If $D$ is clear and $P$ points at a non-pointer value,
+$P'=P$ and $D'=$~set.
+\item If $D$ is clear and $P$ points at a pointer value,
+$P'=$the pointer value pointed at by $P$ and $D'=$~clear.
+\item If $D$ is set, it is a compile error.
 \end{itemize}
 
-For details on calls to {\em reference-functions}
-see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
-The rest of this section applies to {\em reference-expressions}
-that do \underline{not} make these calls.
+Dropping an `\TT{@}' from the beginning of a pointer variable name
+is equivalent to appending `\TT{.*}' to the name.  Cases taken
+from the above example are:
+\begin{center}
+\begin{tabular}{r@{~~is equivalent to~~}l}
+\tt W.X & \tt @W.*.X \\
+\tt W.@Y & \tt @W.*.@Y \\
+\tt W.Y.X & \tt @W.*.@Y.*.X \\
+\end{tabular}
+\end{center}
 
-TBD
+As another example, if {\tt @@@p} is a {\em pointer-variable},
+\begin{center}
+\begin{tabular}{r@{~~is equivalent to~~}l}
+\tt @@p & \tt @@@p.* \\
+\tt @p & \tt @@@p.*.* \\
+\tt p & \tt @@@p.*.*.* \\
+\end{tabular}
+\end{center}
 
-A {\em member-name} of the form `\TT{.}{\em data-label}\,'
-may be used to select a field or subfield\label{FIELD-SELECTION}
-of a user defined type\pagnote{TYPE-DECLARATIONS} value or
-a dictionary entry of a {\em map-dictionary}.
+A run-time {\em reference-offset} operates on the pointer part $P$
+of the {\em reference-base}, leaving the dereference flag
+alone.  There are various cases, for computing the
+pointer part of the reference pointer of the entire
+{\em reference-expression}:\label{FIELD-SELECTION}
+\begin{enumerate}
 
-An {\em index} may be used to select an element of a vector
-or array in a
-user defined type value, or the
-element of a vector pointed at by a pointer, or an element
-of a {\em map}.  An {\em index} can be a {\em const}
-string.  In general, if \TT{"$S$"} is a {\tt const} string,
-\TT{["$S$"]} is equivalent to `\TT{.$S$}'.  This can be used
-with a run-time {\em reference-expression}
-as a field or subfield label, or with a compile-time
-{\em reference-expression} to select a map {\em dictionary-entry}.
+\item If $P$ points at a user defined type and the
+{\em member-offset} has the form
+`\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
+\underline{no} {\em index-list}:
+\begin{enumerate}
+\item For a {\em field-label} of an aligned field with no
+dimensions, an {\tt ap} pointer pointing at the field value.
+\item For a {\em field-label} of an aligned field with \underline{one}
+dimension, an {\tt av} pointer pointing at the vector of field values.
+\item For a {\em field-label} of an unaligned aligned field with no
+dimensions, or a {\em subfield-label}, an {\tt fp} pointer pointing at the
+field or subfield value.
+\item For a {\em field-label} of an unaligned aligned field with \underline{one}
+dimension, or a {\em subfield-label} of a subfield with \underline{one}
+dimension, an {\tt fp} pointer pointing at the
+field or subfield value.
+\end{enumerate}
 
-Otherwise the
-{\em index} must be a positive or negative integer.  Bounds imposed
-by user defined types or stored in a pointer are used to
-check that the {\em index} is within range.
-The target type of a run-time {\em index} is \TT{int}.
+\item If $P$ points at a user defined type and the
+{\em member-offset} has the form
+`\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
+an {\em index-list}, and the designated field or subfield 
+as a number of dimensions equal to the number of indices in the
+{\em index-list}:
+\begin{enumerate}
+\item For a {\em field-label} of an aligned field,
+an {\tt ap} pointer pointing at the field array element value
+designated by the indices.
+\item For a {\em field-label} of an unaligned aligned field,
+or a {\em subfield-label}, an {\tt fp} pointer pointing at the
+field or subfield array element value designated by the indices.
+\end{enumerate}
 
+\item If $P$ is an {\tt av} or {\tt fv} pointer and the
+{\em member-offset} is an
+{\em index-list} with \underline{one} index:
+\begin{enumerate}
+\item For an {\tt av} pointer,
+an {\tt ap} pointer pointing at the array element value
+designated by the index.
+\item For an {\tt fv} pointer,
+an {\tt fp} pointer pointing at the array element value
+designated by the index.
+\end{enumerate}
 
-The type of a run-time {\em reference-expression}
-is computed bottom up starting with the type of the root.
-Run-time virtual reference pointers are just like real reference
-pointers of \TT{ap} or \TT{fp} type, except that a virtual pointer
-may point into the run-time local or global
-stack or may point at a pointer datum.  The reference pointer for
-a {\em variable-name} root of the reference expression is in essence an \TT{ap}
-pointer with {\tt co} or {\tt *INIT*} qualifier pointing into
-the local or global stack.  {\em Reference-offsets} modify this as the
-{\em reference-expression} is computed.  At some point the virtual
-reference pointer may point at a real pointer datum and be replaced
-by that real pointer datum according to the rules above.
+\item All other cases are compile errors.
+
+\end{enumerate}
+
+A run-time {\em reference-expression} of the form
+`{\em reference-base}\TT{[}{\em constant-expression}\TT{]}',
+where the {\em constant-expression} evaluates to the {\tt const}
+string $S$, is equivalent to `{\em reference-base}\TT{.}$S$'.
+
+Run-time {\em member-offset} indices have the target type {\tt int}.
+
 
 When a {\em member-name} {\em reference-offset} specifying a field
-in a user defined type modifies a
-virtual or real reference pointer, the qualifiers of the resulting reference
+in a user defined type modifies the pointer part of
+a reference pointer, the qualifiers of the resulting
 pointer are determined according to 
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}.%
 \label{QUALIFIER-COMPUTATION}
-The target type of the modified pointer is provided by the 
-{\em member-name} {\em reference-offset}, which may also change the
-(effective) pointer type of the modified reference pointer from
-\TT{ap} to \TT{fp}.
-Note that if the qualifiers of the unmodified reference pointer
+Note that if the qualifiers of the unmodified pointer
 are {\tt co} or {\tt *INIT*}, these remain the qualifiers of the
-modified reference pointer.
+modified pointer.
 
 \begin{boxedfigure}[!t]
 \newcommand{\tts}{\tt \small}
@@ -2952,16 +3027,24 @@ and lifetime depth as the base (see \itemref{LIFETIMES}).
 \label{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
 \end{boxedfigure}
 
-Computing types of reference pointers is a bottom-up process,
+The type of the \underline{target} of the
+pointer part of a {\em reference-expression} is called
+the \key{type of the {\em reference-expression}}.
+Computing {\em reference-expressions} types
+is a bottom-up process,
 and is different from computing types of general
 sub-{\em expressions}, which are top-down using a target type
 provided by the {\em statement} containing the sub-{\em expression}.
 Since the type of a {\em reference-expression} does not depend on
-its containing {\em statement}, implicit conversion of a
+the {\em statement} containing the {\em reference-expression},
+implicit conversion of a
 {\em reference-expression} value to a {\em statement} provided
 target type is allowed, whereas implicit conversion
 of a sub-{\em expression} that is a {\em function-call}
 is \underline{not} allowed.
+
+\subsubsection{Compile-Time Reference Expressions}
+\label{Compile-TIME-REFERENCE-EXPRESSIONS}
 
 Reference pointers at compile-time either point into the compile-time
 local or global stacks or consist of a map/index pair of {\tt const}
@@ -3244,8 +3327,8 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION} \\
 \hspace*{0.5in}\begin{tabular}{rl}
-      ::= & \ttkey{next} {\em target-variable-name} \\
-      $|$ & \ttkey{next} {\em pointer-variable-name}
+      ::= & \ttkey{next} {\em target-variable} \\
+      $|$ & \ttkey{next} {\em pointer-variable}
 	      ~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
       \end{tabular}
 \\[0.5ex]
