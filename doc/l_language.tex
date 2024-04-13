@@ -3046,13 +3046,35 @@ is \underline{not} allowed.
 \subsubsection{Compile-Time Reference Expressions}
 \label{Compile-TIME-REFERENCE-EXPRESSIONS}
 
-Reference pointers at compile-time either point into the compile-time
-local or global stacks or consist of a map/index pair of {\tt const}
-value.  These pointers always point at a {\tt const} value, and
-are always virtual -- there are no real compile-time reference pointers.
-A {\em reference-offset} always dereferences the current reference point
-to a {\tt const} value that must be a map, and then forms a map/index
-pair for the new referenc pointer.
+The pointer part of a compile-time reference pointer is one of:
+\begin{itemize}
+\item A compiler global stack pointer, pointing at a {\tt const}
+variable in the compiler global stack.
+\item A compiler local stack pointer, pointing at a {\tt const}
+variable in the compiler local stack.
+\item A pair of {\tt const} values, the first a map, and the
+second an index that is either an integer or a string.
+\end{itemize}
+The dereference flag part of a compile-time reference pointer is
+always set.
+
+A {\em reference-offset} of a compile-time compound {\em reference-expression}
+computes the pointer part for the compound {\em reference-expression}
+by first reading the target of the reference pointer of the
+{\em reference-base}, which must be a map, and then computing
+the index part as follows:
+\begin{enumerate}
+\item If the {\em reference-offset} is a {\em member-name} `\TT{.}$M$',
+set the index to the {\tt const} string $M$.
+\item If the {\em reference-offset} is an {\em index-list} with one
+index, and the index $I$ is an integer or string {\tt const} value,
+set the index of the reference pointer to $I$.
+\item If the {\em reference-offset} is a {\em member-name} followed
+by an {\em index-list}, split the {\em reference-offset} into two
+{\em reference-offsets}, one with just the {\em member-name} and one with
+just the {\em index-list}.
+\item All other cases are compile errors.
+\end{enumerate}
 
 Map {\tt const} values are represented internally by pointers to where
 the map is stored, so that if {\tt X} is a variable equal to,
@@ -3063,8 +3085,7 @@ a whole map as read-write, and to independently mark dictionary members
 as either read-only or read-write.
 Dictionary members are marked read-only when they are initially created.
 
-The following example illustrates
-computation with map constants:
+The following example illustrates compile-time {\em reference-expressions}:
 \begin{indpar}\begin{verbatim}
 const U = {"A", "B"}[0]  // Illegal: {"A". "B"} is not a simple
                          // reference expression.
