@@ -3881,9 +3881,9 @@ The syntax of {\em defer\-red-assignment-state\-ments} is:
 Each variable declared by a {\em result-variable-declaration}
 of a {\em deferred-assignment-statement} must be declared identically,
 except for addition or subtraction of an {\em allocation-call},
-as a {\em block-variable-declaration} of a {\em block-assignment-statement}
+as a {\em block-variable-declaration} of an {\em assignment-statement}
 that is within the scope\pagnote{SCOPE} of the
-{\em deferred-assignment-statement}.  The {\em block-assignment-statement},
+{\em deferred-assignment-statement}.  The {\em assignment-statement},
 known as the \key{companion} of the {\em result-variable-declaration},
 computes the value of the
 declared variable, except in the case of a pointer variable whose value is
@@ -3910,21 +3910,15 @@ before companions compute their values will
 read zero.
 For pointers this will typically reference undefined memory which
 will cause a memory fault if accessed.
-For code after a companion in the same file as the companion the
+For code within the scope of a companion the
 variable qualifier will be changed to {\tt co}.
 
 
 For pointers allocated by a {\em deferred-assignment-statment},
-the target value will be zeroed and the
+the target value will be zeroed and
 the pointer target will be given the {\tt ro} qualifier, except for
-code after the pointer's companion in the same file as the companion,
+code within the scope of the pointer's companion,
 for which the pointer target will be given its declared qualifiers.
-In particular, function bodies after the companion in the companion's
-file will see these declared qualifiers.\footnote{
-If the companion is in a body, that body may not be initialized
-(thereby executing the companion)
-until \underline{after} code that imports the body's module is initialized:
-see \itemref{PROGRAM-INITIALIZATION}.}
 
 
 The variables declared in a {\em deferred-assignment-statement} are treated as
