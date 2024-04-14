@@ -4256,9 +4256,10 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
     $|$ &  \ttkey{*OFFSET*} {\em origin-label} \{ \{\TT{+}|\TT{-}\}
-                            {\em integer-constant-expression} \}\QMARK{} \\
-    $|$ &  \ttkey{*OFFSET*} \{\TT{+}|\TT{-}\}\QMARK{}
-                            {\em integer-constant-expression} \\
+                            {\em offset-increment} \}\QMARK{} \\
+    $|$ &  \ttkey{*OFFSET*} \{\TT{+}|\TT{-}\}
+                            {\em offset-increment} \\
+    $|$ &  \ttkey{*OFFSET*} {\em offset} \\
     $|$ &  \ttkey{*OFFSET* *SIZE*} \\
     $|$ &  \ttkey{***} \\
     $|$ &  \ttkey{*EXTERNAL*} \\
@@ -4269,8 +4270,10 @@ The syntax of a type declaration is:
 \emkey{origin-label}\label{ORIGIN-LABEL} ::=
     {\em basic-name} not containing \TT{@} \\
 \emkey{basic-name} ::=  see \pagref{BASIC-NAME} \\
-{\em integer-constant-expression} ::=
+{\em offset-increment} ::=
     integer valued {\em constant-expression} \\
+{\em offset} ::=
+    non-negative integer valued {\em constant-expression} \\
 {\em constant-expression} ::= a {\tt const} valued expression as
     defined on \pagref{CONSTANT-EXPRESSION}
 \\[2ex]
@@ -4407,7 +4410,7 @@ are copied.
 
 A \ttkey{*DEFERRED*} {\em type-declaration} declares a {\em defined-type-name}
 without declaring the definition of the named type.
-Such a {\em type-declaration} is typically used allow the
+Such a {\em type-declaration} is typically used to allow the
 {\em defined-type-name}
 to be used as the target type of a pointer before its fields are declared.
 
@@ -4423,7 +4426,8 @@ defined type.
 
 An \ttkey{*OFFSET*} sub-declaration changes the current offset to the value
 of a given {\em origin-label}, or to that value plus or minus
-an integer, or to a given integer.
+an integer, or to the current value plus or minus an integer,
+or to a given non-negative integer.
 `\ttkey{*OFFSET* *SIZE*} is special: see \pagref{OFFSET-SIZE}.
 
 \subsubsection{Defined Type Expansions }
