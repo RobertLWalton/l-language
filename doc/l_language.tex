@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 13, 2024
+April 14, 2024
 
 \bigskip
  
@@ -233,8 +233,8 @@ bp[cp.upper] = 0
 \end{verbatim}\end{indpar}
 
 Here `{\tt local[81]}' creates an aligned vector of
-81 {\tt uns8} (8-bit unsigned) numbers in the current function
-frame and returns an aligned vector pointer, or {\tt av}, to
+81 {\tt uns8} (8-bit unsigned) numbers in the local stack
+and returns an aligned vector pointer, or {\tt av}, to
 the vector, marking the vector elements as {\tt *READ-WRITE*}.
 {\tt "Hello!"} is a constant vector of {\tt uns8} numbers
 and is similar except that it marks the vector elements
@@ -282,7 +282,7 @@ to undeclared pointers, as in the example.  {\tt *HEAP*} pointers
 point at garbage collectable values and obey special rules that we
 shall not discuss here.
 
-Variables in function frames and global memory
+Variables in local and global memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z}, and values
 that are constants.
 These values most frequently
@@ -343,8 +343,8 @@ ap ro int @Z = @Y        // Copies pointer value @Y.
                          // to ro is legal.
 \end{verbatim}\end{indpar}
 
-Here the implied `{\tt @= local}' allocates an {\tt int} to the current
-function frame, zeros it, and returns an `{\tt ap *READ-WRITE* int}'
+Here the implied `{\tt @= local}' allocates an {\tt int} to the local
+stack, zeros it, and returns an `{\tt ap *READ-WRITE* int}'
 pointer to its location.
 
 Instead of making a variable point at a {\tt *READ-WRITE*} location you
@@ -3433,7 +3433,7 @@ to the values of the {\em expressions} in the {\em expression-list}.
 {\em Call-assignment-statements} set the values of their result variables
 to the values returned by the {\em function-call}.
 
-A {\em block-variable-declaration}
+A {\em block-variable-declaration}\label{VARIABLE-INITIALIZATION}
 initializes its variables
 according to the declaration syntax as follows:
 \begin{indpar}[0.05in]
@@ -3447,6 +3447,37 @@ Variable declaration with {\em allocation-call}\,: \\
 \end{indpar}
 Zeroed numbers are zero, while zeroed pointers typically
 cause segmentation faults when de-referenced.
+
+When a declaration has an {\em allocation-call}\label{ALLOCATION-CALLS},
+its variable must have pointer
+type, and the {\em allocation-call} is executed to set the pointer
+before the rest of the {\em assignment-statement} is
+executed.  The {\em allocation-call} is executed
+with a pre-pended argument list consisting of two {\tt uns} values
+in {\tt ()} parentheses.  The first value is the number of bytes to
+be allocated, and the second value is the byte alignment of the
+memory to be allocated.
+The {\em prototype-pattern}
+of the called function's prototype\pagnote{PROTOTYPE-PATTERN}
+must begin with `{\tt ( uns length, uns alignment )}', although
+the argument names may be different.
+The called function must allocate a block of
+memory with the required number of bytes and alignment and zero that
+block.  The prototype must have
+exactly one result variable whose type is identical to the
+the pointer type of the {\em pointer-variable} being set (but the
+prototype result type may contain wildcards).
+
+As a general rule, allocator functions that return a value of
+type {\tt av} or {\tt fv} or a user defined vector pointer
+have a {\tt []} argument list
+with a single argument giving a vector size {\tt N}.
+Then the allocator allocates not a single block of the given length
+and alignment, but instead a vector of {\tt N} such blocks, with zero padding
+between the blocks if necessary to obtain proper alignment for each
+block.  However,
+this is by convention and is not a builtin requirement of the L-Language.
+The convention is followed by the builtin allocators (e.g., {\tt local}).
 
 In a {\em block-assignment-statement},
 variables declared by {\em block-variable-declarations}
@@ -3580,7 +3611,8 @@ may consist of a single {\em reference-call}.
 
 Sub-{\em expressions} computable at compile-time are evaluated
 in bottom-to-top left-to-right order and replaced by their {\tt const} values
-before the {\em statement} is compiled into run-time code.
+before the {\em statement} is compiled into run-time code.%
+\pagnote{CONSTANT-EXPRESSION}
 At run-time {\em expressions} are evaluated in bottom-to-top
 left-to-right order and
 then the {\em expression} values are stored in the {\em assignment-results}.
@@ -3594,7 +3626,8 @@ that exists before the {\em expression-assignment-statement}.
 The type of an {\em assignment-result} becomes the \key{target type}
 of its corresponding {\em expression}.  If the {\em expression}
 is a {\em function-call}, the type of the first result of the
-{\em function-prototype} must match the target type of the {\em expression},
+{\em function-prototype} must exactly match
+the target type of the {\em expression},
 and the types of the prototype arguments become the target types
 of the {\em actual-argument} sub-expressions.
 
@@ -3720,8 +3753,9 @@ in the {\em block-assignment-statement}.
 \end{indpar}
 
 The {\em block-assignment-statement}
-first allocates and initializes memory in the current function frame
-for the variables declared by the {\em block-variable-declarations}.
+first allocates and initializes memory in the local or global stack
+for the variables declared by the {\em block-variable-declarations}.%
+\pagnote{VARIABLE-INITIALIZATION}
 
 Then any {\em statements} and
 {\em exit-subblocks} are executed.  During this execution
@@ -3732,37 +3766,6 @@ and after this execution, these variables become
 an {\em allocation-call} are {\tt co}, but their target type is changed
 to {\tt *INIT*}, and after execution the target type
 qualifiers become whatever the pointer variable declarations specify.
-
-When a declaration has an {\em allocation-call}\label{ALLOCATION-CALLS},
-its variable must have pointer
-type, and the {\em allocation-call} is executed to set the pointer
-before any {\em statements} in the {\em block-assignment-statement}
-are executed.  The {\em allocation-call} is executed
-with a pre-pended argument list consisting of two {\tt uns} values
-in {\tt ()} parentheses.  The first value is the number of bytes to
-be allocated, and the second value is the byte alignment of the
-memory to be allocated.
-The {\em prototype-pattern}
-of the called function's prototype\pagnote{PROTOTYPE-PATTERN}
-must begin with `{\tt ( uns length, uns alignment )}', although
-the argument names may be different.
-The called function must allocate a block of
-memory with the required number of bytes and alignment and zero that
-block.  The prototype must have
-exactly one result variable whose type is identical to the
-the pointer type of the {\em pointer-variable} being set (but the
-prototype result type may contain wildcards).
-
-As a general rule, allocator functions that return a value of
-type {\tt av} or {\tt fv} or a user defined vector pointer
-have a {\tt []} argument list
-with a single argument giving a vector size {\tt N}.
-The allocator allocates not a single block of the given length
-and alignment, but instead a vector of {\tt N} such blocks, with zero padding
-between the blocks if necessary to obtain proper alignment for each
-block.  However,
-this is by convention and is not a builtin requirement of the L-Language.
-The convention is followed by the builtin allocators (e.g., {\tt local}).
 
 A {\em go-to-exit-statement} within a block may exit the block or
 enter an {\em exit-subblock} of the block:
@@ -3783,9 +3786,9 @@ A {\em go-to-exit-statement} in an {\em exit-subblock} may only enter
 a \underline{subsequent} {\em exit-subblock} or exit any of its containing
 {\em block-assignment-statements} by using that block's {\em block-label}.
 
-An {\em exception-subblock} is entered if any
-preceding {\em statement} in the {\em block-assignment-state\-ment}
-executes a:
+An {\em exception-subblock} is entered if a {\em throw-statement}
+in the {\em block-assignment-state\-ment}
+but not in the {\em exception-subblock} is executed:
 \begin{indpar}
 \emkey{throw-statement}\label{THROW-STATEMENT} ::=
     \ttkey{throw} ~ {\em throw-ID}\QMARK{} \\
