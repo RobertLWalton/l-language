@@ -4445,6 +4445,10 @@ as each name is unique in the scope of the {\em type-declaration}
 that defines the name (because two {\em type-declarations} in the expansion
 tree can have disjoint scopes).
 
+There are examples in the following sections.  Here we describe the
+logical structure of expansion trees and the rules for scoping
+their subdeclarations.
+
 All but one of the {\em type-declarations} in an expansion tree must be within
 the scope\pagnote{SCOPE} of another {\em type-declaration}
 in the expansion tree, and
@@ -4453,23 +4457,27 @@ the root of a subtree containing all {\em type-declarations} Y
 in the tree
 that are within the scope of X
 (or equivalently, that have a scope
-that is a subset of the scope of X).  Thus the \key{parent} of
+that is a subset of the scope of X).  The root of the expansion tree
+is the {\em type-declaration} that is \underline{not} in the scope
+of any other {\em type-declaration} in the expansion tree.
+The \key{parent} of
 a non-root Y is the {\em type-declaration} X in the expansion tree
 with the smallest scope that contains Y.
 
-Non-root {\em type-declarations} in the expansion tree are called
-{\em expansions}, and the root {\em type-declaration} is called just
-the \key{root}\label{ROOT}.
+A non-root {\em type-declaration} in an expansion tree is called an
+\key{expansion}\label{EXPANSION},
+the root {\em type-declaration} is just called
+a \key{root}\label{ROOT},
+and a {\em type-declaration} with no children
+is called a \key{leaf}\label{LEAF}.
 
-A {\em defined-type-name} must be inside the scope of the root of its expansion
-tree to be visible, and hence usable.
-
-A \key{leaf} in an expansion tree is a {\em type-declaration} that
-is not the parent of any other {\em type-declaration} in the expansion
-tree (equivalently, a leaf is a tree node with no children).  An expansion
+An expansion
 tree is \key{linear} if it has only one leaf (equivalently, no tree node
 has more than one child).
 The sole leaf of a linear expansion tree is called a \key{linear leaf}.
+
+A {\em defined-type-name} must be inside the scope of the root of its expansion
+tree to be visible, and hence usable.
 
 Expansion trees are either internal or external.
 
@@ -4483,7 +4491,7 @@ have a {\tt ***} sub-declaration, the {\em defined-type-name}
 is \key{non-expandable}
 within the scope of the linear leaf {\em type-declaration}.
 Outside that scope, but within the scope of the tree root,
-the {\em defined-type-name} is said to be expandable.
+the {\em defined-type-name} is said to be \key{expandable}.
 
 Each {\em type-declaration} in an \key{external expansion tree}
 must end with the {\tt *EXTERNAL*}\label{*EXTERNAL*} sub-declaration.
@@ -4494,7 +4502,7 @@ The final size and alignment of an expandable {\em defined-type-name}
 are not known until load time.
 Allocators use the load time
 size and alignment to allocate memory for a value of
-the type and then zero that memory.  Thus the `{\tt local}' allocator 
+the type and then zero that memory.  Thus an allocator 
 can allocate a datum of an expandable {\em defined-type-name}
 and return a pointer to the datum.
 
@@ -4506,17 +4514,23 @@ in a {\em type-subdeclaration}, or as a {\em defined-type-name} in an
 can be used as the target of a pointer type used as a variable type or
 field type.
 
-A {\em field-label} or {\em subfield-label}
-declared within a {\em type-declaration} may
-only be used within the scope of the {\em type-declaration}
-in which the {\em field-label} or {\em subfield-label} is declared,
-and may \underline{not} be re-declared within this scope.
+The full extent of an expansion tree may not be known until load-time.
+When code requiring an {\em defined-type-name} to be non-expandible is
+compiled, the compiler assumes that the {\em defined-type-name} is in fact
+non-expandible at the point of the code,
+and associates the {\em defined-type-name} with the
+{\em type-declaration} that must be a linear leaf if the {\em defined-type-name}
+is non-expandable at that point.
+If the compiler or loader discovers later that the
+{\em type-declaration} is not in fact a linear leaf, an error message
+is issued.
 
-Similarly an {\em origin-label} may only be used only after its definition
-in its defining {\em type-declaration} X
-and within other {\em type-declarations}
-in the same expansion tree that are within the scope of X, and
-may \underline{not} be re-declarated in the places it can be used.
+The scope of a {\em type-subdeclaration} consists of
+the {\em type-subdeclarations} following it within its
+{\em type-declaration}, plus the descendants
+of this {\em type-declaration} in its expansion tree.
+A {\em field-label}, {\em subfield-label}, or {\em origin-label} may
+only be used within the scope of its {\em type-subdeclaration}.
 
 Because it is possible for different {\em type-declarations} in
 an expansion tree to have disjoint scopes, a given label may refer
@@ -4527,7 +4541,7 @@ other, or it might name completely different fields in the two scopes.
 At the beginning of each {\em type-declaration} the align/pack switch
 is set to align, the offset is set to zero if the {\em type-declaration}
 is the root of its expansion tree, and the offset is undefined and
-must be set by an {\tt *OFFSET*} statement before
+must be set by an {\tt *OFFSET*} {\em type-subdeclaration} before
 it is used if the {\em type-declaration} is a non-root.
 
 {\tt *LABEL*} and {\tt *OFFSET*} sub-declarations are typically used
@@ -4544,7 +4558,8 @@ and its ancestors in the expansion tree.
 The `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 is \underline{not} allowed in a {\em type-declaration}
 if any of the ancestors of the {\em type-declaration} in its expansion
-tree has more than one child.
+tree has more than one child.  This error may not be discovered until
+load time.
 
 \subsubsection{Type Fields}
 
