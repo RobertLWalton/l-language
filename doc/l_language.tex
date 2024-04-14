@@ -4262,8 +4262,17 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{*OFFSET* *SIZE*} \\
     $|$ &  \ttkey{***} \\
     $|$ &  \ttkey{*EXTERNAL*} \\
-    $|$ &  \ttkey{*OFFSET*} \ttkey{*SIZE*} \\
     \end{tabular}
+\\[2ex]
+\emkey{alignment} ::= {\em constant-expression}
+		      with power of 2 integer value \\
+\emkey{origin-label}\label{ORIGIN-LABEL} ::=
+    {\em basic-name} not containing \TT{@} \\
+\emkey{basic-name} ::=  see \pagref{BASIC-NAME} \\
+{\em integer-constant-expression} ::=
+    integer valued {\em constant-expression} \\
+{\em constant-expression} ::= a {\tt const} valued expression as
+    defined on \pagref{CONSTANT-EXPRESSION}
 \\[2ex]
 \emkey{field-declaration}\label{FIELD-DECLARATION}
     \begin{tabular}[t]{@{}rl}
@@ -4274,13 +4283,34 @@ The syntax of a type declaration is:
 \emkey{field-without-subfields-declaration} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
         & {\em qualifier-name}\STAR{} {\em field-type-name}~
-          {\em target-label}~ {\em field-dimension}\STAR{} \\
+          {\em target-label}~ {\em field-dimensions}\QMARK{} \\
     $|$ & {\em qualifier-name}\STAR{} {\em pointer-type-name} \\
         & ~~~~~ \{ {\em qualifier-name}\STAR{} {\em pointer-type-name}
 	        \}\STAR{} \\
         & ~~~~~ {\em qualifier-name}\STAR{} {\em field-type-name}~
-                {\em pointer-label}~ {\em field-dimension}\STAR{}
+                {\em pointer-label}~ {\em field-dimensions}\QMARK{}
 	\end{tabular}
+\\[2ex]
+\emkey{field-type-name} ::= {\em type-name} that is not {\tt const} \\
+{\em type-name} ::= see \pagref{TYPE-NAME} \\
+{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME} \\
+{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[2ex]
+\emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
+\emkey{pointer-label}\label{POINTER-LABEL} ::= {\em field-label}
+    \begin{tabular}[t]{@{}l}
+    beginning with zero or more `\TT{.}'s \\
+    followed by one or more `\TT{@}'s \\
+    \end{tabular} \\
+\emkey{target-label}\label{TARGET-LABEL} ::=
+    {\em field-label} that is \underline{not} a {\em pointer-label} \\
+\emkey{data-label} ::=  see \pagref{DATA-LABEL}
+\\[2ex]
+\emkey{field-dimensions} ::= 
+    \TT{[} {\em dimension-size} \{ \TT{,} {\em dimension-size} \}\STAR{}
+    \TT{]} \\
+\emkey{dimension-size} ::=  {\em constant-expression}
+			    with strictly positive integer value
 \\[2ex]
 \emkey{field-with-subfields-declaration} ::= \\
 \hspace*{0.5in}
@@ -4290,8 +4320,6 @@ The syntax of a type declaration is:
 \hspace*{0.5in}
     {\em subfield-declaration}\PLUS{}
 \\[2ex]
-\emkey{field-type-name} ::= {\em type-name} that is not {\tt const} \\
-{\em type-name} ::= see \pagref{TYPE-NAME} \\
 \emkey{number-type-name}
     \begin{tabular}[t]{@{}rl}
     ::= &  \ttkey{int} $|$ \ttkey{int8} $|$ \ttkey{int16} $|$ \ttkey{int32}
@@ -4300,34 +4328,17 @@ The syntax of a type declaration is:
                        $|$ \ttkey{uns64} $|$ \ttkey{uns128} \\
     $|$ &  \ttkey{flt} $|$ \ttkey{flt16} $|$ \ttkey{flt32} $|$ \ttkey{flt64}
                          $|$ \ttkey{flt128} \\
-    \end{tabular} \\
-{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
-\\[2ex]
-\emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
-\emkey{pointer-label}\label{POINTER-LABEL} ::=
-    {\em field-label} beginning with zero or more `\TT{.}'s followed by
-    one or more `\TT{@}' \\
-\emkey{target-label}\label{TARGET-LABEL} ::=
-    {\em field-label} that is \underline{not} a {\em pointer-label} \\
-\emkey{origin-label}\label{ORIGIN-LABEL} ::=
-    {\em basic-name} not beginning with \TT{@} \\
-\emkey{data-label} ::=  see \pagref{DATA-LABEL} \\
-\emkey{basic-name} ::=  see \pagref{BASIC-NAME}
-\\[2ex]
-\emkey{field-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
-\emkey{dimension-size} ::=  {\em constant-expression}
-			    with non-negative integer value \\
-{\em constant-expression} ::= a {\tt const} valued expression as
-    defined on \pagref{CONSTANT-EXPRESSION}
+    \end{tabular}
 \\[2ex]
 \emkey{subfield-declaration}\label{SUBFIELD-DECLARATION} ::= \\
 \hspace*{0.5in}
     {\em bit-range} {\em subfield-type-name} {\em subfield-label}
-    		{\em subfield-dimension}\STAR{} \\
+    		{\em subfield-dimensions}\QMARK{} \\
 \emkey{subfield-type-name}\label{SUBFIELD-TYPE-NAME} ::=
     {\em number-type-name} $|$ \TT{bool} \\
 \emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em target-label} \\
-\emkey{subfield-dimension} ::=  \TT{[} {\em dimension-size} \TT{]} \\
+\emkey{subfield-dimensions} ::= 
+    \TT{[} {\em dimension-size} \{ \TT{,} {\em dimension-size} \}\STAR{} \TT{]}
 \\[2ex]
 \emkey{bit-range}
     \begin{tabular}[t]{@{}rl}
@@ -4344,9 +4355,6 @@ The syntax of a type declaration is:
 \emkey{lowbit} ::= {\tt constant-expression}
 		   with non-negative integer value \\
 {\em dit} ::= see \pagref{DIT}
-\\[2ex]
-\emkey{alignment} ::= {\tt constant-expression}
-		      with power of 2 integer value
 \\[2ex]
 where
 \begin{enumerate}
