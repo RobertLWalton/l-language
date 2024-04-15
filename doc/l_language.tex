@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 14, 2024
+April 15, 2024
 
 \bigskip
  
@@ -4559,7 +4559,12 @@ The `\ttkey{*OFFSET*} \ttkey{*SIZE*}' sub-declaration
 is \underline{not} allowed in a {\em type-declaration}
 if any of the ancestors of the {\em type-declaration} in its expansion
 tree has more than one child.  This error may not be discovered until
-load time.
+load time.\footnote{
+The compiler can attach a unique ID to each {\em type-declaration}
+consisting of the name of the file in which it occurs and an integer,
+and using these output to the loader the expansion tree and any constraints
+on nodes in the tree, such as a node being a linear leaf, or a node not
+having any ancestors with more than one child.}
 
 \subsubsection{Type Fields}
 
@@ -4631,21 +4636,23 @@ ap my type @Z:      // Legal, `@= local' is implied
 
 type my type:       // Definition of my type that was *DEFERRED*.
     *LABEL* origin  // `origin' is set to offset 0
-    int I           // Offset of I is 0.
-    ***
+    int32 I         // Offset of I is 0.
+    ***             // Allows expansion.
+
 X.I = 55            // Legal, .I has been declared.  X is
                     // *READ-WRITE*.
 
 type my type:       // Expansion of my type
-    *OFFSET* *SIZE*
-    int J           // Now X.J == 0
-    ***
+    *OFFSET* *SIZE* // offset set to 32.
+    int32 J         // Now X.J == 0
+    ***             // Allows expansion.
+
 X.J = 66            // Legal, .J has been declared.
 
 type my type:       // Expansion of my type
-    *OFFSET* origin
-    int K1
-    int K2
+    *OFFSET* origin // Offset set to 0.
+    int32 K1        // Overlays I at offset 0.
+    int32 K2        // Overlays J at offset 32.
 
 // Now X.K1 == X.I == 55; X.K2 == X.J == 66; but you must know
 // how offsets are assigned to believe this.
@@ -4657,6 +4664,7 @@ Subfields are parts of the previously declared number type field.
 The bits occupied
 by a subfield are given by its {\em bit-range}, where bits are numbered
 0, 1, \ldots{} from the low order end of numbers.
+Subfield types must themselves be number types or {\tt bool}.
 
 A subfield value may have fewer bits than the number-type of the subfield.
 For integer types, the value is the low order bits of the integer, with
@@ -4697,10 +4705,11 @@ flt weight = X.weight
 \subsubsection{Type Dimensions}
 
 If a {\em field-declaration} with {\em field-label}\, {\tt F} contains 
-a single {\em field-dimension} {\tt [$n$]} then $n$ fields are
+a single {\em dimension-size} {\tt [$n$]} then $n$ fields are
 allocated to ascending offsets, using zero padding
 if necessary to align all $n$ fields.  The labels of these
-fields are {\tt F[$i$]} for $0\le i<n$.  If there is a subfield
+fields are {\tt F[$i$]} for $0\le i<n$, where $i$ is the index.
+If there is a subfield
 labeled {\tt S} of the field, {\tt S[$i$]} refers to the
 subfield in {\tt F[$i$]}.  For example:
 
@@ -4718,21 +4727,19 @@ bool line feed is graphic = X.is graphic [C#"<LF>"]
 bool A is graphic = X.is graphic [C#"A"]
 \end{verbatim}\end{indpar}
 
-In a {\em field-declaration}
-\underline{two} {\em field-dimensions} {\tt [$n1$][$n2$]} is
-treated as syntactic sugar for {\tt [$n1$*$n2$]} with
-{\tt F[$i1$][$i2$]} being syntactic sugar for
-{\tt F[$i1$*$n2$+$i2$]}.\footnote{Thus arrays are stored in
-row major order: last subscript varies fastest, as in C/C++}
+A {\em field-declaration} with two {\em dimension-sizes}
+{\tt [$n1$, $n2$]} allocates $n1$*$n2$ fields and
+{\tt F[$i1$, $i2$]} references the $i1$*$n2$+$i2$+1'st
+of these.\footnote{Thus arrays are stored in
+row major order: last subscript varies fastest, as in C/C++.}
 Similarly
-{\tt [$n1$][$n2$][$n3$]} is
-syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
-{\tt F[$i1$][$i2$][$i3$]} being syntactic sugar for
-{\tt F[$i1$*$n2$*$n3$*+$i2$*$n2$+$i3$]}.  And so forth for any
+{\tt [$n1$, $n2$, $n3$]} allocates $n1$*$n2$*$n3$ fields with
+{\tt F[$i1$, $i2$, $i3$]} referencing the
+$i1$*$n2$*$n3$*+$i2$*$n2$+$i3$+1'st.  And so forth for any
 number of {\em field-dimensions}.
 
 If a {\em subfield-declaration} with {\em subfield-label}\, {\tt S} contains 
-{\em subfield-dimension} {\tt [$n$]} then $n$ subfields are
+a single {\em dimension-size} {\tt [$n$]} then $n$ subfields are
 allocated to the containing field, starting with the bits
 designated by the {\em subfield-declaration}'s {\em bit-range}
 and adding the number of bits in the {\em bit-range} to each integer
@@ -4754,25 +4761,25 @@ hex digits X:
 \end{verbatim}\end{indpar}
 
 A {\em subfield-declaration} with {\em subfield-label} S
-and more than one {\em subfield-dimension} is
+and more than one {\em dimension-size} is
 treated in the same manner as a {\em field-declaration} with
-more than one {\em field-dimension}.  For example,
-{\tt [$n1$][$n2$][$n3$]} is
-syntactic sugar for {\tt [$n1$*$n2$*$n3$]} with
-{\tt S[$i1$][$i2$][$i3$]} being syntactic sugar for
-{\tt S[$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$]}.
+more than one {\em dimension-size}.  For example,
+{\tt [$n1$, $n2$, $n3$]} allocates $n1$*$n2$*$n3$ subfields with
+{\tt S[$i1$, $i2$, $i3$]} referencing the
+$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$+1'st of these.
 
 If a {\em field-declaration} with {\em field-label} {\tt F}
-has a {\em field-dimension}
-and also a subfield with {\em subfield-label} {\tt S}, then
+has one {\em dimension-size}
+and also a subfield with {\em subfield-label} {\tt S} and no
+{\em dimension-sizes}, then
 {\tt S[$i$]} references the subfield in the field value {\tt F[$i$]}.
-If in addition the subfield has a {\em subfield-dimension},
-{\tt S[$i$][$j$]} references the subfield selected by {\tt [$j$]}
+If in addition the subfield has one {\em dimension-size},
+{\tt S[$i$, $j$]} references the subfield selected by {\tt [$j$]}
 in the field value {\tt F[$i$]}.
-
-In all cases `\TT{][}' may be replaced by `\TT{,~}' (the space
-after the comma is required), so that,
-for example, `{\tt [$i$][$j$]}' is equivalent to `{\tt [$i$, $j$]}'.
+In general, if the {\em field-declaration} has $f>0$ {\em dimension-sizes}
+and the {\em subfield-declaration} has $s>0$ dimension sizes,
+then $S$ subfields are referenced using $f+s$ indices, with the
+field indices first.
 
 \subsubsection{Type Conversions}
 \label{TYPE-CONVERSIONS}
@@ -4784,11 +4791,13 @@ T2 v2 = v1
 \end{verbatim}\end{indpar}
 where {\tt T1} and {\tt T2} are different types,
 the compiler just rewrites the code to:
-\begin{indpar}\begin{verbatim}
-T1 v1 = ...
-T2 v2 = *IMPLICIT* *CONVERSION* ( v1 )
-\end{verbatim}\end{indpar}
-and compiles the rewritten code.  If you define a function
+\begin{indpar}\tt
+T1 v1 = ... \\
+T2 v2 = {\rm \em implicit-conversions} ( v1 )
+\end{indpar}
+where {\em implicit-conversions} denotes one or more applications
+of {\tt *IMPLICIT* *CONVERSION*} functions.
+If you define a function
 with the prototype
 \begin{indpar} \tt
 function T2 r = {\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( T1 v )
@@ -4821,12 +4830,21 @@ acyclic.  A path $d_1,d_2,\ldots,d_n$ in this graph denotes a chain
 of {\t *IMPLICIT* *CONVERSION*} {\em function-declarations} that together
 convert the result type of $d_1$ to the argument type of $d_n$.
 
+When implicitly converting a value of type {\tt T1} to a value of
+type {\tt T2}, the compiler will choose a \underline{shortest path}
+in the implicit conversion graph.
+
 When defining an implicit conversion from type {\tt T1} to type
 {\tt T2}, each value of type {\tt T1} should be exactly representable
 by a value of type {\tt T2}.  This rule should be followed, but
 is not checked by the compiler.  This rule is also violated by the
 builtin implicit conversions for any integer type to any floating
 point type.\pagnote{NUMERIC-IMPLICIT-CONVERSIONS}
+
+It is important that a shortest path in the implicit conversion graph
+be chosen by the compiler, so that, for example,
+{\tt int32 ---> flt64} will be chosen instead of
+{\tt int32 ---> flt32 ---> flt64}, as the latter would lose precision.
 
 And there is one notable exception: conversions from {\tt const}
 which are done at compile-time may fail (the failure will be at
