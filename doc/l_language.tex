@@ -4937,17 +4937,18 @@ function std data for ap r = std data for ap ( ap Q$1 PST$1 @ptr )
     // These functions just copy the argument value to the
     // result value changing the type of the value.  Here
     // Q$1 is a wild-card that matches any list of qualifier-names,
-    // and PST$1 is a wild-card that matches any type-name.
+    // and PST$1 is a wild-card that matches any pointer target
+    // type.
 \end{verbatim}\end{indpar}
 
 Reading and writing values using a pointer of type $P$
 can be accomplished by the functions:
 
 \begin{indpar}[1ex] \tt
-load reference function T\$1 r =
+load reference function PST\$1 r =
     ( $P$ QR\$1 PST\$1 @p ) \ttkey{..load} \\
 store reference function ( $P$ QW\$1 PST\$1 @p ) \ttkey{..store} =
-    T\$1 r
+    PST\$1 r
 \end{indpar}
 
 These functions can be defined after $P$ is defined.
