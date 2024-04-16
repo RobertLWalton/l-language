@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 15, 2024
+April 16, 2024
 
 \bigskip
  
@@ -2258,6 +2258,15 @@ rules below):
 \hspace*{0.2in}\begin{tabular}{rp{4in}}
 \ttkey{T\$} & name is assigned a {\em type-name} \\
 \ttkey{P\$} & name is assigned a {\em pointer-type-name} \\
+\ttkey{PS\$} & name is assigned a possibly empty
+               sequence of {\em pointer-type-names}
+	       and {\em qualifiers} beginning and ending with
+	       a {\em pointer-type-name} \\
+\ttkey{PST\$} & name is assigned a possibly empty
+               sequence of {\em pointer-type-names}
+	       and {\em qualifiers} beginning with
+	       a {\em pointer-type-name} and followed by a single
+	       {\em type-name} \\
 \ttkey{Q\ldots\$} & {\em qualifier-wild-card}; name is assigned a
                     list of {\em qualifier-names} subject to
 		    {\em qualifier-wild-card-flags} `\ldots'\\
@@ -4903,8 +4912,8 @@ are generally user defined types.
 A {\em pointer-type-declaration} `{\tt pointer type $P$ is type $D$}'
 implicitly declares the functions:
 \begin{indpar} \tt
-function $P$ Q\$1 T\$1 @p = {\em ma}\QMARK{} *UNCHECKED* ( $D$ d ) \\
-function $D$ d = $D$ ( $P$ Q\$1 T\$1 @p )
+function $P$ Q\$1 PST\$1 @p = {\em ma}\QMARK{} *UNCHECKED* ( $D$ d ) \\
+function $D$ d = $D$ ( $P$ Q\$1 PST\$1 @p )
 \end{indpar}
 where {\em ma}\QMARK{} denotes the {\em module-abbreviation} of $P$,
 if any.
@@ -4921,26 +4930,25 @@ type std data for ap:
     dp ro int @base
     int offset
 
-function dp Q$1 T$1 @r = std *UNCHECKED* ( std data for dp ddp )
-function ap Q$1 T$1 @r = std *UNCHECKED* ( std data for ap dap )
-function std data for dp r = std data for dp ( dp Q$1 T$1 @ptr )
-function std data for ap r = std data for ap ( ap Q$1 T$1 @ptr )
+function dp Q$1 PST$1 @r = std *UNCHECKED* ( std data for dp ddp )
+function ap Q$1 PST$1 @r = std *UNCHECKED* ( std data for ap dap )
+function std data for dp r = std data for dp ( dp Q$1 PST$1 @ptr )
+function std data for ap r = std data for ap ( ap Q$1 PST$1 @ptr )
     // These functions just copy the argument value to the
     // result value changing the type of the value.  Here
     // Q$1 is a wild-card that matches any list of qualifier-names,
-    // and T$1 is a wild-card that matches any type-name.
+    // and PST$1 is a wild-card that matches any type-name.
 \end{verbatim}\end{indpar}
 
 Reading and writing values using a pointer of type $P$
 can be accomplished by the functions:
 
 \begin{indpar}[1ex] \tt
-reference function T\$1 r =
-    {\em ma}\QMARK{} ( $P$ QR\$1 T\$1 @p ) \ttkey{".*"} \\
-reference function {\em ma}\QMARK{} ( $P$ QW\$1 T\$1 @p ) \ttkey{".*"} =
+load reference function T\$1 r =
+    ( $P$ QR\$1 PST\$1 @p ) \ttkey{..load} \\
+store reference function ( $P$ QW\$1 PST\$1 @p ) \ttkey{..store} =
     T\$1 r
 \end{indpar}
-where {\em ma}, if present here, refers to the module in which $P$ is defined.
 
 These functions can be defined after $P$ is defined.
 They allow the pointer to be used to read a copy of the
@@ -4954,11 +4962,13 @@ of a pointer variable is read or written.  For example:
 ap int @p:
     p = 5
         // This translates to:
-        //   @p.* = 5
+        //   @p.*..store = 5
 int x = p
   // This translates to:
-  //   int x = @p.*
+  //   int x = @p.*..load
 \end{verbatim}\end{indpar}
+
+TBD
 
 An alternative strategy is to convert a pointer of type $P1$
 to a pointer of type $P2$ that allows members and elements
