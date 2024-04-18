@@ -2276,10 +2276,9 @@ rules below):
 \hspace*{0.2in}\begin{tabular}{rl}
 \ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
 \ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
-\ttkey{U} & allows undeclared
-            (i.e., neither \TT{*GLOBAL*} ~or \TT{*HEAP*}) \\
-\ttkey{G} & allows \TT{*GLOBAL*} \\
-\ttkey{H} & allows \TT{*HEAP*} \\
+\ttkey{U} & excludes \TT{*GLOBAL*} ~and \TT{*HEAP*} (a.k.a., undeclared) \\
+          & (e.g., {\tt QU\$1} requires undeclared - a.k.a., local) \\
+          & (e.g., {\tt QU\$1 *GLOBAL*} requires {\tt *GLOBAL*}) \\
 \end{tabular}
 \end{indpar}
 
@@ -5135,9 +5134,9 @@ An example is:
 //
 dp *GLOBAL* int std @zero:
     zero = 0
-function std ap QG$1 T$1 @r = std *IMPLICIT* *CONVERSION*
-        ( std dp QG$1 T$1 @p ):
-    std data for dp ddp = std data for dp ( dp QG$1 T$1 @p )
+function std ap QU$1 *GLOBAL* PST$1 @r = std *IMPLICIT* *CONVERSION*
+        ( std dp QU$1 *GLOBAL* PST$1 @p ):
+    std data for dp ddp = std data for dp ( @p )
     std data for ap dap:
         dap.@base  = std @zero
         dap.offset = ddp.address
@@ -10022,14 +10021,14 @@ These functions can only be called by an
 See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
-{\tt function ap QU\$1  T\$1 r = \\
+{\tt function ap QU\$1  PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) local}%
 \label{LOCAL} \\
-{\tt function av QU\$1  T\$1 r = \\
+{\tt function av QU\$1  PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) local [ uns count ]}
 \begin{indpar}
-These functions allocate a value of type {\tt T\$1}
-(or {\tt count} values of type {\tt T\$1}) to local
+These functions allocate a value of type {\tt PST\$1}
+(or {\tt count} values of type {\tt PST\$1}) to local
 memory (the current out-of-line function execution's frame in the local stack:
 see \pagref{OUT-OF-LINE-LOCALS})
 and return a pointer to the value(s).
@@ -10039,14 +10038,14 @@ These functions can only be called by an
 See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
-{\tt function ap QU\$1 *GLOBAL* T\$1 r = \\
+{\tt function ap QU\$1 *GLOBAL* PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) global}%
 \label{GLOBAL} \\
-{\tt function av QU\$1 *GLOBAL* T\$1 r = \\
+{\tt function av QU\$1 *GLOBAL* PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) global [ uns count ]}
 \begin{indpar}
-These functions allocate a value of type {\tt T\$1}
-(or {\tt count} values of type {\tt T\$1}) to global
+These functions allocate a value of type {\tt PST\$1}
+(or {\tt count} values of type {\tt PST\$1}) to global
 memory (the global stack: see \pagref{GLOBAL-MEMORY})
 and return a pointer to the value(s).
 \\[1ex]
@@ -10064,7 +10063,7 @@ to determine which variables of its containing
 have been set.
 
 {\tt function bool r = std is set ( N value )} \\
-{\tt function bool r = std is set ( P\$1 Q\$1 T\$1 pointer )}%
+{\tt function bool r = std is set ( P\$1 Q\$1 PST\$1 pointer )}%
 \label{IS-SET}
 \begin{indpar}
 where {\tt N} is any number type.
