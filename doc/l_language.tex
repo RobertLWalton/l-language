@@ -3,7 +3,7 @@
 % File:         l_language.tex
 % Author:       Bob Walton (walton@acm.org)
 % Date:		See \date below.
-  
+
 \documentclass[12pt]{article}
 
 \usepackage[T1]{fontenc}
@@ -151,7 +151,7 @@
 	{\end{list}}
 
 \begin{document}
-        
+
 \begin{center}
 \Large \bf
 Low Level Layered Language\\[0.5ex]
@@ -163,16 +163,16 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 16, 2024
+April 18, 2024
 
 \bigskip
- 
+
 Table of Contents
 \end{center}
 
 \bigskip
 
-\tableofcontents 
+\tableofcontents
 
 \newpage
 
@@ -714,7 +714,7 @@ bool b3 = ( x + 3 < int ( 5 ) )
     // becomes the target type of "5".  Because int (...) is
     // an explicit type conversion, int is also the target
     // type of x + 5.
-    // 
+    //
 \end{verbatim}\end{indpar}
 
 Integer arithmetic ignores overflows (as in C and C++); for example,
@@ -1106,7 +1106,7 @@ warning messages.
                               \TT{|}\PLUS{}
 \\[0.5ex]
 \emkey{leading-separator} :::=
-	\TT{`}\PLUS{} $|$ 
+	\TT{`}\PLUS{} $|$
 	\TT{\textexclamdown}\PLUS{} $|$ \TT{\textquestiondown}\PLUS{}
 \\[0.5ex]
 \emkey{trailing-separator} :::= \TT{'}\PLUS{} $|$
@@ -1118,7 +1118,7 @@ warning messages.
 				   \TT{,}
 \\[0.5ex]
 \emkey{separator}
-    ::= {\em strict-separator} 
+    ::= {\em strict-separator}
     $|$ {\em leading-separator}
     $|$ {\em trailing-separator}
 \\[1ex]
@@ -1142,7 +1142,7 @@ warning messages.
 			  {\em middle-lexeme}\QMARK{}
                           {\em trailing-separator}\STAR{}
 \\[0.5ex]
-\emkey{middle-lexeme} :::= 
+\emkey{middle-lexeme} :::=
 	{\em lexical-item}
 	\begin{tabular}[t]{@{}l@{}}
 	not beginning with a {\em leading-separator-character} \\
@@ -1319,7 +1319,7 @@ which is equivalent to
 
 
 A {\em numeric-word}, {\em natural}, or {\em number} lexeme
-is a C/C++ constant, and 
+is a C/C++ constant, and
 conversely a C/C++ decimal constant
 that does not end in a {\em decimal-point}
 is a {\em numeric-word}, {\em natural}, or {\em number} lexeme.
@@ -1561,7 +1561,7 @@ have precedence equal to or greater than P:
 where in a {\em P-expression}: \\
 \hspace*{1em}\begin{tabular}[t]{l}
        P is any precedence in the range [L-1,H]; \\
-       no two {\em (P+1)-expressions} may be adjacent; \\ 
+       no two {\em (P+1)-expressions} may be adjacent; \\
        each {\em P-operator} with a \TT{left} flag must be
               preceded by a {\em (P+1)-expression}; \\
        each {\em P-operator} with a \TT{right} flag must be
@@ -1819,19 +1819,19 @@ Operator & Meaning & Fixity & Format & Precedence \\
 \\\hline
 \ttkey{+}  & no-op & prefix & unary & H-1
 \\\cline{1-2}
-\ttkey{-}  & negation & & & 
+\ttkey{-}  & negation & & &
 \\\cline{1-2}
-\ttkey{\textasciitilde}  & bitwise complement & & & 
+\ttkey{\textasciitilde}  & bitwise complement & & &
 \\\cline{1-2}
-\ttkey{\#}  & length & & & 
+\ttkey{\#}  & length & & &
 \\\cline{1-2}
-\ttkey{D\#}  & decimal rational & & & 
+\ttkey{D\#}  & decimal rational & & &
 \\\cline{1-2}
-\ttkey{B\#}  & binary rational & & & 
+\ttkey{B\#}  & binary rational & & &
 \\\cline{1-2}
-\ttkey{X\#}  & hexadecimal rational & & & 
+\ttkey{X\#}  & hexadecimal rational & & &
 \\\cline{1-2}
-\ttkey{C\#}  & character rational & & & 
+\ttkey{C\#}  & character rational & & &
 \\\hline
 
 \end{tabular}
@@ -2005,7 +2005,7 @@ but the following examples give an idea of some of this semantics:
       The {\tt const} values {\tt TRUE}
       and {\tt FALSE} are implicitly convertible to run-time {\tt bool}
       {\tt true} ({\tt 1}) and {\tt false} ({\tt 0}), respectively.
- 
+
 \hspace*{-0.2in}{\tt x \TT{<} y \TT{<} z} \\
       This is logically equivalent to `{\tt x < y} AND {\tt y < z}', except that
       {\tt y} is evaluated at most once.
@@ -2384,7 +2384,7 @@ There are five of types of constants:
     $|$ & {\em rational-constant} \\
     $|$ & {\em map-constant} \\
     \end{tabular} \\
-\emkey{special-constant} 
+\emkey{special-constant}
     \begin{tabular}[t]{@{}rl}
     ::= & \ttkey{TRUE} $|$ \ttkey{FALSE}
                        $|$ \ttkey{UNDEF} $|$ \ttkey{NONE} \\
@@ -2476,7 +2476,7 @@ The syntax of the argument strings is:
     \end{tabular}
 \\[0.5ex]
 \emkey{decimal-natural}
-    :::= {\em dit}\PLUS{} 
+    :::= {\em dit}\PLUS{}
          \{ \TT{,} {\em dit} {\em dit} {\em dit} \}\STAR{} \\
 \emkey{decimal-fraction} :::=
     \TT{.} \{ {\em dit} {\em dit} {\em dit} \TT{,} \}\STAR{}
@@ -2880,7 +2880,7 @@ ap my type @W:   // The @W reference pointer is an `ap my type' pointer,
 \end{verbatim}\end{indpar}
 
 The special member name `\TT{.*}' may be used to dereference
-a run-time reference pointer.  Specifically if `{\em reference-base}\TT{.*}' is 
+a run-time reference pointer.  Specifically if `{\em reference-base}\TT{.*}' is
 a {\em reference-expression}, $P$ is the pointer part of the
 reference pointer computed by the {\em reference-base}, and $D$
 is the dereference flag part, then the reference pointer computed by
@@ -2942,7 +2942,7 @@ field or subfield value.
 \item If $P$ points at a user defined type and the
 {\em member-offset} has the form
 `\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
-an {\em index-list}, and the designated field or subfield 
+an {\em index-list}, and the designated field or subfield
 as a number of dimensions equal to the number of indices in the
 {\em index-list}:
 \begin{enumerate}
@@ -2981,7 +2981,7 @@ Run-time {\em member-offset} indices have the target type {\tt int}.
 When a {\em member-name} {\em reference-offset} specifying a field
 in a user defined type modifies the pointer part of
 a reference pointer, the qualifiers of the resulting
-pointer are determined according to 
+pointer are determined according to
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}.%
 \label{QUALIFIER-COMPUTATION}
 Note that if the qualifiers of the unmodified pointer
@@ -3103,8 +3103,8 @@ const V = X[0]           // Legal, == "A".
 X[0] = "C"               // Illegal, X is read-only.
 read-write ( X )
 X[0] = "C"               // Now X is {"C", "B"}.
-const Y = X              // Now X and Y are both {"C", "B"}. 
-Y[1] = "D"               // Now X and Y are both {"C", "D"}. 
+const Y = X              // Now X and Y are both {"C", "B"}.
+Y[1] = "D"               // Now X and Y are both {"C", "D"}.
 const Z = { Y, "M" }     // Now Z is {{"C", "D"}, "M"}.
 Z[0].W = "N"             // Now Z is {{"C", "D", "W" => "N"}, "M"},
                          // X and Y are both {"C", "D", "W" => "N"}.
@@ -3393,7 +3393,7 @@ associated {\em target-variable} that is set by the {\em assignment-statement}.
 \item For an {\em isolated-declaration-statement} declaring a
 {\em pointer-variable} with no {\em alloca\-tion-call},
 `{\tt @= local}' is implied if the {\em pointer-variable}
-has no lifetime qualifier (is `undeclared'\pagnote{UNDECLARED}), and 
+has no lifetime qualifier (is `undeclared'\pagnote{UNDECLARED}), and
 `{\tt @= global}' is implied if the {\em pointer-variable}
 has the {\tt *GLOBAL*} qualifier.
 \item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
@@ -3504,9 +3504,9 @@ In a {\em block-assignment-statement},
 are initialized by the {\em allocation-call}
 (see \pagref{ALLOCATION-CALLS}) and are thereafter
 {\tt co}, but the memory
-pointed at is zeroed initially, 
+pointed at is zeroed initially,
 {\tt *INIT*} in {\em statements}
-of the {\em block-assignment-statement}, and 
+of the {\em block-assignment-statement}, and
 subject to the {\em pointer-variable} {\em qualifiers} after
 the {\em block-assignment-statement}.
 
@@ -3698,7 +3698,7 @@ be implicitly converted to the types of the {\em assignment-results}.
 
 \label{CALL-NEXT-PROMOTION}
 The right side of a {\em call-assignment-statement} may have
-an implied `\TT{next} $v$' if the {\em function-prototype} has 
+an implied `\TT{next} $v$' if the {\em function-prototype} has
 a `\TT{next} $w$' {\em prototype-result-declaration}
 and a {\em prototype-argument-declaration} of the
 form `\dots{} {\em type-name} $w$', and $v$ is a {\em variable-name}
@@ -4028,7 +4028,7 @@ next sum, next i =:
 However at run-time the variable values of all but the
 last 4 iterations of the {\em loop-assignment-statement}
 are discarded, which would not be the case if the compiler
-actually inserted iterations in the source code. 
+actually inserted iterations in the source code.
 This only affects debugging.
 
 If instead there are {\em result-variable-declarations}, these are
@@ -4318,7 +4318,7 @@ The syntax of a type declaration is:
     {\em field-label} that is \underline{not} a {\em pointer-label} \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
-\emkey{field-dimensions} ::= 
+\emkey{field-dimensions} ::=
     \TT{[} {\em dimension-size} \{ \TT{,} {\em dimension-size} \}\STAR{}
     \TT{]} \\
 \emkey{dimension-size} ::=  {\em constant-expression}
@@ -4349,7 +4349,7 @@ The syntax of a type declaration is:
 \emkey{subfield-type-name}\label{SUBFIELD-TYPE-NAME} ::=
     {\em number-type-name} $|$ \TT{bool} \\
 \emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em target-label} \\
-\emkey{subfield-dimensions} ::= 
+\emkey{subfield-dimensions} ::=
     \TT{[} {\em dimension-size} \{ \TT{,} {\em dimension-size} \}\STAR{} \TT{]}
 \\[2ex]
 \emkey{bit-range}
@@ -4511,7 +4511,7 @@ The final size and alignment of an expandable {\em defined-type-name}
 are not known until load time.
 Allocators use the load time
 size and alignment to allocate memory for a value of
-the type and then zero that memory.  Thus an allocator 
+the type and then zero that memory.  Thus an allocator
 can allocate a datum of an expandable {\em defined-type-name}
 and return a pointer to the datum.
 
@@ -4713,7 +4713,7 @@ flt weight = X.weight
 
 \subsubsection{Type Dimensions}
 
-If a {\em field-declaration} with {\em field-label}\, {\tt F} contains 
+If a {\em field-declaration} with {\em field-label}\, {\tt F} contains
 a single {\em dimension-size} {\tt [$n$]} then $n$ fields are
 allocated to ascending offsets, using zero padding
 if necessary to align all $n$ fields.  The labels of these
@@ -4747,7 +4747,7 @@ Similarly
 $i1$*$n2$*$n3$*+$i2$*$n2$+$i3$+1'st.  And so forth for any
 number of {\em field-dimensions}.
 
-If a {\em subfield-declaration} with {\em subfield-label}\, {\tt S} contains 
+If a {\em subfield-declaration} with {\em subfield-label}\, {\tt S} contains
 a single {\em dimension-size} {\tt [$n$]} then $n$ subfields are
 allocated to the containing field, starting with the bits
 designated by the {\em subfield-declaration}'s {\em bit-range}
@@ -4960,16 +4960,21 @@ members or elements of the value to be accessed
 These functions are implicitly called when the target
 of a pointer variable is read or written.  For example:
 \begin{indpar}\begin{verbatim}
+// Assume that ..load and ..store are defined for P = ap
+//
 ap int @p:
     p = 5
-        // This translates to:
-        //   @p.*..store = 5
+        // This translates first to:
+        //   @p.* = 5
+        // and then translates further to:
+        //   @p..store = 5
 int x = p
-  // This translates to:
-  //   int x = @p.*..load
+  // This translates first to:
+  //   int x = @p.*
+  // and then translates further to:
+  //   int x = @p..load
 \end{verbatim}\end{indpar}
 
-TBD
 
 An alternative strategy is to convert a pointer of type $P1$
 to a pointer of type $P2$ that allows members and elements
@@ -4981,77 +4986,88 @@ pointer type $P2$ is type $D2$
 
 Then we can define a reference function with the prototype:
 \begin{indpar} \tt
-reference function $P2$ Q\$1 T\$1 @p2 =
-    {\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p1 ) \ttkey{".@"}
+point reference function $P2$ Q\$1 PST\$1 @p2 = \\
+\hspace*{1in}( $P1$ Q\$1 PST\$1 @p1 ) \ttkey{..point}
 \end{indpar}
-which converts a pointer of type $P1$ to a pointer of type $P2$,
-where {\em ma}\QMARK{}, if present, refers to a module in which
-both $P1$ and $P2$ are defined.
-This conversion function is automatically called without any
-{\em module-abbreviation} if a value pointed at by a pointer of type $P1$ is to
-be accessed, in preference to calling the {\tt .*} functions above.
+which converts a pointer of type $P1$ to a pointer of type $P2$.
+This conversion function is automatically called
+if a value pointed at by a pointer of type $P1$ is to
+be accessed, in preference to directly calling
+the {\tt ..load} and {\tt ..store} functions above.
 Then if $P2$ is {\tt dp}, {\tt ap}, {\tt fp}, {\tt av},
 or {\tt fv}, the $P2$ pointer can be used to not only read or write
 the value, but to also read or write members or elements of the
 value.
 
-Thus the above example becomes:
+For example:
 \begin{indpar}\begin{verbatim}
+// Assume that ..point is defined for P1 = ap and P2 = dp and
+// ..load and ..store are defined for P = dp.
+//
 ap int @p:
     p = 5
-        // This translates to:
-        //   @p.@.* = 5
+        // This first translates to:
+        //   @p.* = 5
+        // and then translates further to:
+        //   @p..point.* = 5
+        // and then translates to:
+        //   @p..point..store = 5
 int x = p
-  // This translates to:
-  //   int x = @p.@.*
+    // This first translates to:
+    //   int x = @p.*
+    // and then translates further to:
+    //   int x = @p..point.*
+    // and then translates to:
+    //   int x = @p..point..load
 \end{verbatim}\end{indpar}
 
-Since {\tt @p.*} and {\tt @p.@} are syntactically
-{\em reference-calls}, these expressions
-can only match reference function prototypes, and such matches
+Since {\tt @p..point} is syntactically a {\em reference-call},
+this {\em expression}
+can only match {\em reference-function-prototypes}, and such matches
 ignore the prototype result types, and use only the prototype
 argument types.\pagnote{REFERENCE-CALL-DECLARATION-MATCHING}
-Thus the inserted calls, which have no
-module abbreviation, can be matched only if there
-is at most one {\tt ".*"} or {\tt .@} function in the current context
-with suitable qualifiers and type (e.g., {\tt Q\$1} and {\tt T\$1})
-for a given $P1$.
+Generally an inserted call to {\tt ..point} can be matched only if there
+is at most one {\tt "..point"} function in the current context
+with suitable qualifiers and type (e.g., {\tt Q\$1} and {\tt PST\$1})
+for a given $P1$).
 
-Because there can be at most one matching {\tt .@} reference function 
-declaration, {\tt .@} calls can be chained by the compiler.  In particular,
-a {\tt .@} reference function that produces an {\tt ap} result will
+Because there can be at most one matching {\tt ..point} reference function
+declaration, {\tt ..point} calls can be chained by the compiler.  In particular,
+a {\tt ..point} reference function that produces an {\tt ap} result will
 be chained to the builtin:
 \begin{indpar}\begin{verbatim}
-reference function dp Q$1 T$1 @r = std ( ap Q$1 T$1 @p ) ".@":
+point reference function dp Q$1 PST$1 @r =
+        std ( ap Q$1 PST$1 @p ) ..point:
     std data for ap dap = std data for ap ( @p )
     std data for dp ddp:
         ddp.address = dap.base + dap.offset
     @r = *UNCHECKED* ( ddp )
 \end{verbatim}\end{indpar}
 
-You can provide reference function definitions of {\tt .*} or {\tt .@}
+You can provide reference function definitions of {\tt ..point}
 with different actual
-types in place of {\tt T\$1}, and these will be used in preference
-to the definition that has the wildcard {\tt T\$1}.
+types in place of {\tt PST\$1}, and these will be used in preference
+to a definition that has the wildcard {\tt PST\$1}.
 
-As a convenience feature, instead of defining {\tt .@}, you
-can define a reference function with prototype:
+Similar considerations apply to {\tt ..load} and {\tt .store}.  However
+if {\tt ..point} is defined, its use will be preferred.
+
+As a convenience feature, instead of defining {\tt ..point}, you
+can define a (non-reference) function with prototype:
 \begin{indpar} \tt
-reference function $D2$ d2 = \\
+function $D2$ d2 = \\
 \hspace*{4em} {\em ma}\QMARK{} \ttkey{*POINTER* *ACCESS* *CONVERSION*}
 		( $D1$ d1 )
 \end{indpar}
 where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
 This implicitly defines the reference function:
 \begin{indpar} \tt
-reference function $P2$ Q\$1 T\$1 @p2 = \\
-\hspace*{1in}{\em ma}\QMARK{} ( $P1$ Q\$1 T\$1 @p1 ) ".@": \\
+point reference function $P2$ Q\$1 PST\$1 @p2 = \\
+\hspace*{1in}( $P1$ Q\$1 PST\$1 @p1 ) "..point": \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 = *POINTER* *ACCESS* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
 \end{indpar}
-where {\em ma} is the same module as that of the
-{\tt *POINTER* *ACCESS* *CONVERSION*} function, if any.
 An example usage is the builtin:
 \begin{indpar}\begin{verbatim}
 // This function enables conversion of `ap ...' to `dp ...'
@@ -5066,14 +5082,16 @@ function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
     r = ddp
 \end{verbatim}\end{indpar}
 
+TBD
+
 An example implementing a new pointer type is:
 
 \begin{indpar}\begin{verbatim}
 type file:
     *READ-WRITE* av uns8 @name
     . . . . .
-av *READ-WRITE* file @files @= global [1000]
-ap *READ-WRITE* int @number of files @= global
+av *GLOBAL* *READ-WRITE* file @files @= global [1000]
+ap *GLOBAL* *READ-WRITE* int @number of files @= global
 
 // Implement a file descriptor (fd) that addresses a file
 // in files.  The fd contains an index and addresses
@@ -5084,7 +5102,7 @@ type data for fd:
 
 pointer type fd is type data for fd
 
-reference function ap Q$1 file @r = ( fd Q$1 file @p ) ".@":
+point reference function ap Q$1 file @r = ( fd Q$1 file @p ) ..point:
     data for fd d = data for fd ( @p )
     ap file *READ_WRITE* @f = @files[d.index]
     @r = @f  // Implicitly converts *READ-WRITE* to Q$1
@@ -5096,9 +5114,9 @@ function fd *READ-WRITE* file @r = allocate fd:
     number of files = number of files + 1
 
 fd *READ-WRITE* file @f @= allocate fd
-f.@name = ...
+f.@name = ...        // Translates to @f..point.*.@name
 . . . . .
-av uns8 @n = f.@name
+av uns8 @n = f.@name // Translates to av uns8 @n = @f..point.*.@name
 . . . . .
 \end{verbatim}\end{indpar}
 
@@ -5114,7 +5132,7 @@ An example is:
 // `ap ...', where the latter has the constant 0 for a base
 // and the dp value for its offset, provided the dp target is
 // *GLOBAL*.
-// 
+//
 dp *GLOBAL* int std @zero:
     zero = 0
 function std ap QG$1 T$1 @r = std *IMPLICIT* *CONVERSION*
@@ -5551,7 +5569,7 @@ the {\em function-call}.  For example:
 \begin{indpar}\begin{verbatim}
 macro function const r = sum ( macro a1, macro a2 ?= { 1 } ):
     r = { a1, "+", a2 };
-    
+
 int x = ...
 int y = sum ( x, 5 ) // Same as: int y = x "+" 5
                      // Parsed equivalent:
@@ -5744,7 +5762,7 @@ Then annotate the root of $E$ with $D$.
 For {\tt load} or {\tt store}
 $D$, the root {\em function-variable-name} must be the
 \underline{entire} {\em reference-expression}, else there is a
-compile error.  In this case, annotate a compile-time $E$ with 
+compile error.  In this case, annotate a compile-time $E$ with
 a pseudo reference pointer indicating that to load or store one
 must call the function $F$ of $D$, and annotate a run-time $E$ with
 a pseudo virtual reference pointer whose target type is the
@@ -5790,7 +5808,7 @@ to match it must be the exact type of the {\em reference-pattern-base}
 \pagnote{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}.
 
 For {\tt load} or {\tt store} $D$,
-annotate a compile-time $E$ with 
+annotate a compile-time $E$ with
 a pseudo reference pointer indicating that to load or store one
 must call the function $F$ of $D$, and annotate a run-time $E$ with
 a pseudo virtual reference pointer whose target type is the
@@ -5819,7 +5837,7 @@ pointer type, but the only thing that matters in this case is the
 type of the value pointed at, which will be a normal `real' type.
 In the case of a loading {\em reference-expression} the reference
 pointer type must allow values to be read (e.g., it cannot have
-the {\tt *INIT*} qualifier), and for a storing 
+the {\tt *INIT*} qualifier), and for a storing
 {\em reference-expression},
 the reference pointer type must allow values to be stored
 (e.g., it cannot have the {\tt co} qualifier), else there is a compile
@@ -5913,7 +5931,7 @@ the declaration matched to `{\tt x +  5}' (the only one with an {\tt int}
 result type) has {\tt int} result
 and argument types, so {\tt int} is the target type of `{\tt x}' and `{\tt 5}'.
 
-For an index of a {\em reference-expression}, the Bottom-Up 
+For an index of a {\em reference-expression}, the Bottom-Up
 Algorithm above has annotated the index {\em expression} with its target type.
 
 As a special case, in a relational expression such as `{\tt x < y + 5}'
@@ -6489,7 +6507,7 @@ The {\em reference-function-declarations}
 declaring the {\em function-variable-name} have {\tt load}
 or {\tt store} {\em reference-function-specifiers} (there may be
 two declarations, one {\tt load} and one {\tt store}).
-The {\em function-variable-name} must be 
+The {\em function-variable-name} must be
 the entire {\em reference-expression}
 (there can be no {\em reference-offsets}).
 If the {\em reference-expression} is loading (or storing), there
@@ -6652,7 +6670,6 @@ for ( x, 15 ):
 //   com *SUBBLOCK* equals:
 //     { { { "next", "sum" }, "+=", { { "x" }, "+", { 1 } } },
 //       ".initiator" = ":", ".terminator" = *INDENTED-PARAGRAPH* }
-    
 \end{verbatim}\end{indpar}
 
 Although the value of an inclusion is to be a sequence of
@@ -6854,7 +6871,7 @@ and are {\tt *DEFERRED*} but have \underline{no} companions.
 Foreign functions are called using
 their associated {\em out-of-line-function-name}.
 \item
-Arguments and results of foreign C and C++ functions cannot 
+Arguments and results of foreign C and C++ functions cannot
 have user defined types or user defined pointer types,
 but may builtin pointer types ({\tt dp}, {\tt ap}, {\tt fp}, etc.)
 pointing at builtin or user defined target types.
@@ -6991,7 +7008,7 @@ Functions accessed by function type pointers must be called by:
     see \pagref{PARENTHESIZED-CALL-ARGUMENT-LIST}
 \begin{enumerate}
 \item
-The {\em function-expression} must evaluate to 
+The {\em function-expression} must evaluate to
 a function-type value.
 \end{enumerate}
 \end{indpar}
@@ -7371,7 +7388,7 @@ and companions of deferred
 
 If two difference declarations of a {\em variable-name} have overlapping
 scope, one of these must necessarily include the other,
-and the declaration with the smaller scope is said to 
+and the declaration with the smaller scope is said to
 `\key{hide}'\label{HIDE} the other declaration.
 
 The same applies to {\em type-names}, {\em pointer-type-names},
@@ -7466,7 +7483,7 @@ function int32 z = my inline function ( int32 x, int32 y ):
     int32 z2 = std ( x + y )
         // Uses builtin std's + operator.
         // Compiles as as `std (x) "+" (y)'.
-    z  = z1 + z2 
+    z  = z1 + z2
         // Compiles as `z = ( (x) "+" (y) )'.
         // Compile error, ambiguous: both std + operator
         // and gom's + operator match the call to "+".
@@ -7516,7 +7533,7 @@ The possible variable lifetimes are:
 	and stops when the program terminates.
 	\\[1ex]
 	&
-	Global variables are \underline{external} variables created by 
+	Global variables are \underline{external} variables created by
 	a {\em result-variable-declaration} or {\em next-variable-declaration}
 	of an {\em assignment-state\-ment}, or by an {\em allocation-call}
 	to the {\tt global} allocator function.
@@ -7585,12 +7602,12 @@ datum the pointer points at.  The possible lifetime qualifiers are:
 \end{indpar}
 
 A pointer value whose type has the {\tt *GLOBAL*} lifetime qualifier
-is called a \key{global pointer}. 
+is called a \key{global pointer}.
 A pointer value whose type has the {\tt *HEAP*} lifetime qualifier
-is called a \key{heap pointer}. 
+is called a \key{heap pointer}.
 A pointer value with undeclared pointer type that is known
 to point at target variables in the local stack is called a
-\key{local pointer}. 
+\key{local pointer}.
 A pointer value with undeclared pointer type that is not known to be
 a local pointer is called an \key{anywhere pointer}.
 
@@ -7598,13 +7615,13 @@ Somewhat similarly for variables.
 A \key{pointer variable} is a variable storing a pointer.
 A variable whose type is a pointer type with
 the {\tt *GLOBAL*} lifetime qualifier
-is called a \key{global pointer variable}. 
+is called a \key{global pointer variable}.
 A variable whose type is a pointer type with
 the {\tt *HEAP*} lifetime qualifier
-is called a \key{heap pointer variable}. 
+is called a \key{heap pointer variable}.
 A variable whose type is a pointer type with
 undeclared lifetime qualifier
-is called an \key{undeclared pointer variable}. 
+is called an \key{undeclared pointer variable}.
 
 We also divide variables into the following three classes:
 \begin{indpar}[0.2in]
@@ -7717,7 +7734,7 @@ ap *GLOBAL* list element @X:
     // List now consists of (X)
 ap *GLOBAL* list element @Y:
     // Add Y to end of list
-    Y.@successor = last.successor.@successor 
+    Y.@successor = last.successor.@successor
     last.successor.@successor = @Y
     last.@successor = @Y
     // List now consists of (X, Y)
@@ -7815,7 +7832,7 @@ ap list element @X:
     // List now consists of (X)
 ap list element @Y:
     // Add Y to end of list
-    Y.@successor = last.successor.@successor 
+    Y.@successor = last.successor.@successor
     last.successor.@successor = @Y
     last.@successor = @Y
     // List now consists of (X, Y)
@@ -8128,7 +8145,7 @@ a pointer is written to a body (which itself will be in new
 space) by non-GC execution.
 
 A write-oriented GC updates heap pointers when they are
-written into scavenged bodies by non-GC execution. 
+written into scavenged bodies by non-GC execution.
 After \underline{all} objects in new space have been scavenged,
 the GC updates all pointers in global memory and the stack,
 and if this does \underline{not}
@@ -8360,7 +8377,7 @@ type $T$ which has the syntax:
 \begin{indpar}[0.2in]
 \emkey{else-expression} ::=
     {\em if-expression}~ \{ \ttkey{else}~ {\em if-expression} \}\STAR{}~
-    \ttkey{else}~ {\em T-expression} 
+    \ttkey{else}~ {\em T-expression}
 \\[0.5ex]
 \emkey{if-expression} ::=
     {\em T-expression}~ \ttkey{if}~ {\em bool-expression}
@@ -8402,7 +8419,7 @@ is evaluated and returned.
 calls, but not for data types, pointer types, or variables used
 as global constants, such as \TT{true} or \TT{false}.
 In order to avoid having to
-input a {\em module-abbreviation} with every type name, 
+input a {\em module-abbreviation} with every type name,
 {\em abbreviation-statements} are used (\pagref{ABBREVIATION-STATEMENT}).
 The following are the builtin abbreviations:
 \begin{center}
@@ -8933,7 +8950,7 @@ If {\tt i < 0} then {\tt i} is replaced by {\tt \# m + i} before the
 following is done.
 
 Then if {\tt n > 0}, returns a new map consisting of just a vector of the
-elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.  
+elements {\tt m[i]}, {\tt m[i+1]}, \ldots, {\tt m[i+n-1]}.
 If any of these elements do not exist, they are omitted (e.g.,
 if {\tt i >= \# m} or {\tt i + n <= 0} the empty map is returned).
 
@@ -8962,7 +8979,7 @@ If {\tt n == 0}
 the elements of {\tt v} are pushed into {\tt m}
 just after {\tt m[i]}.
 
-If {\tt n < 0} the elements replaced are 
+If {\tt n < 0} the elements replaced are
 {\tt m[i+n]}, {\tt m[i+n+1]}, \ldots, {\tt m[i-1]}.
 
 The elements being replaced need not (all) exist.  {\tt m} is thought
@@ -10053,7 +10070,7 @@ have been set.
 where {\tt N} is any number type.
 \\[1ex]
 Returns {\tt true} if the {\tt value} is not zero or the {\tt pointer}
-is not {\tt null}, and {\tt false} otherwise. 
+is not {\tt null}, and {\tt false} otherwise.
 These functions should only be used inside
 {\em exception-subblocks}\pagnote{EXCEPTION-SUBBLOCK}.
 \end{indpar}
@@ -10239,7 +10256,7 @@ to registers in the code before the GO bit is set are actually done
 before the GO bit is set.
 
 The READY bit is read by an atomic read, which guarentees that all reads
-from registers in the code after the READY bit has been read as being on 
+from registers in the code after the READY bit has been read as being on
 are actually done after the READY bit has been read as being on.
 \end{indpar}
 
@@ -10279,6 +10296,6 @@ but can read B atomically and check the value against V
 at any time to see if the data read so far is uncorrupted.
 \end{indpar}
 
-	
+
 
 \end{document}
