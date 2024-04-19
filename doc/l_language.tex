@@ -5113,7 +5113,7 @@ function fd *READ-WRITE* file @r = allocate fd:
     number of files = number of files + 1
 
 fd *READ-WRITE* file @f @= allocate fd
-f.@name = ...        // Translates to @f..point.*.@name
+f.@name = ...        // Translates to @f..point.*.@name = ...
 . . . . .
 av uns8 @n = f.@name // Translates to av uns8 @n = @f..point.*.@name
 . . . . .
@@ -5158,16 +5158,17 @@ function $D2$ d2 = {\em ma}\QMARK{} \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
 where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
 This implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @p2 = \\
-\hspace*{1in}{\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( $P1$ Q\$1 T\$1 @p1 ): \\
+function $P2$ Q\$1 PST\$1 @p2 = \\
+\hspace*{1in}{\em ma}\QMARK{} *IMPLICIT* *CONVERSION*
+			( $P1$ Q\$1 PST\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
-\hspace*{0.3in}$D2$ d2 = *IMPLICIT* *ACCESS* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}$D2$ d2 = *POINTER* *IMPLICIT* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
 \end{indpar}
 where {\em ma} is the same module as that of the
-{\tt *IMPLICIT* *ACCESS* *CONVERSION*} function, if any.
+{\tt *POINTER* *IMPLICIT* *CONVERSION*} function, if any.
 
-One can define an {\tt *UNCHECKED*} function to convert
+Similarly one can define an {\tt *UNCHECKED*} function to convert
 $P1$ values to $P2$ values.  As a convience, this can be
 done by defining:
 \begin{indpar} \tt
@@ -5176,8 +5177,8 @@ function $D2$ d2 = {\em ma}\QMARK{}  \ttkey{*POINTER* *UNCHECKED* *CONVERSION*}
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 T\$1 @p2 = {\em ma}\QMARK{} \ttkey{*UNCHECKED*}
-	( $P1$ Q\$1 T\$1 @p1 ): \\
+function $P2$ Q\$1 PST\$1 @p2 = {\em ma}\QMARK{} \ttkey{*UNCHECKED*}
+	( $P1$ Q\$1 PST\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 = *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
@@ -5199,7 +5200,7 @@ function std data for dp r = std *POINTER* *UNCHECKED* *CONVERSION*
 Lastly, one can define an explicit pointer conversion function with
 prototype:
 \begin{indpar}
-function $P2$ Q\$1 T\$1 @p2 = {\em ma}\QMARK{} $P2$ ( $P1$ Q\$1 T\$1 @p1 )
+function $P2$ Q\$1 PST\$1 @p2 = {\em ma}\QMARK{} $P2$ ( $P1$ Q\$1 PST\$1 @p1 )
 \end{indpar}
 
 \subsection{Inline Function Declarations}
