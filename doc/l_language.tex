@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 18, 2024
+April 19, 2024
 
 \bigskip
 
@@ -2887,7 +2887,8 @@ the entire {\em reference-expression} has pointer part $P'$ and dereference
 flag $D'$ where:
 \begin{itemize}
 \item If $D$ is clear and $P$ points at a non-pointer value,
-$P'=P$ and $D'=$~set.
+$P'=P$ and $D'=$~set.  Then as long as {\tt $P'$..point} exists,
+apply {\tt $P'$ = $P'$..point} (see \pagref{..POINT}).
 \item If $D$ is clear and $P$ points at a pointer value,
 $P'=$the pointer value pointed at by $P$ and $D'=$~clear.
 \item If $D$ is set, it is a compile error.
@@ -4984,7 +4985,7 @@ pointer type $P2$ is type $D2$
 \end{indpar}
 
 Then we can define a reference function with the prototype:
-\begin{indpar} \tt
+\begin{indpar}\label{..POINT} \tt
 point reference function $P2$ Q\$1 PST\$1 @p2 = \\
 \hspace*{1in}( $P1$ Q\$1 PST\$1 @p1 ) \ttkey{..point}
 \end{indpar}
