@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 19, 2024
+April 20, 2024
 
 \bigskip
 
@@ -5229,7 +5229,7 @@ The syntax of a function declaration is:
     \end{tabular}
 \\[2ex]
 \emkey{function-specializer}\label{FUNCTION-SPECIALIZER} ::=
-	\TT{macro} $|$ \TT{constant} $|$ \TT{inclusion}
+	\TT{macro} $|$ \TT{constant} $|$ \TT{inclusion} $|$ \TT{allocation}
 \\[2ex]
 \emkey{prototype-result-list}\label{PROTOTYPE-RESULT-LIST} ::= \\
 \hspace*{0.5in}
@@ -5287,7 +5287,7 @@ The syntax of a function declaration is:
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
-{\em constant-expression} ::= an {\tt const} valued expression as
+{\em constant-expression} ::= a {\tt const} valued expression as
     defined on \pagref{CONSTANT-EXPRESSION}
 \\[0.5ex]
 \emkey{prototype-pattern}\label{PROTOTYPE-PATTERN}
@@ -5363,11 +5363,24 @@ a {\em prototype-argument-declaration} with no {\em de\-fault-value} cannot
 follow a {\em prototype-argument-declaration} with a {\em default-value}.
 \item
 The first {\em prototype-argument-declaration}
-in a {\em pattern-argument-list} that is at the very beginning
-of a {\em prototype-pattern}, \underline{before} the first
-{\em function-term}, must not have a {\em default-value}.
-I.e., these {\em pattern-argument-lists} cannot be omitted from
+in a {\em parenthesized-pattern-argument-list} that is
+\underline{before} the first {\em pattern-term} of a
+{\em prototype-pattern} must \underline{not} have a {\em default-value}.
+I.e., these {\em parenthesized-pattern-argument-lists} cannot be omitted from
 {\em function-calls}.
+\item
+If there are \underline{no} {\em parenthesized-pattern-argument-lists}
+\underline{before} the first {\em pattern-term} of a
+{\em prototype-pattern}, there must be a
+{\em parenthesized-pattern-argument-list}
+immedately after the {\em function-term-name} in that {\em pattern-term},
+and the first {\em prototype-argument-declaration} in that
+{\em parenthesized-pattern-argument-list}
+must \underline{not} have a {\em default-value}
+(i.e., this {\em parenthesized-pattern-argument-list} cannot be omitted from
+{\em function-calls}).
+
+This distinguishes {\em function-calls} from {\em reference-expressions}.
 \item
 If the first {\em function-term-name} in the {\em prototype-pattern}
 is a {\em type-name} or {\em pointer-type-name},
@@ -5385,16 +5398,17 @@ to the function is called an \key{explicit type conversion}%
 \label{EXPLICIT-TYPE-CONVERSION}.
 \item
 A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
-is treated in a {\em function-prototype} as a {\em type-name}.
-A wild-card name of the form {\tt P\$\ldots} is treated as a
+can only match a {\em type-name}.
+A wild-card name of the form {\tt P\$\ldots} can only match a
 {\em pointer-type-name}.
-A wild-card name of the form {\tt Q\ldots\$\ldots} is treated as a
-{\em qualifier-name} and \underline{must not} be combined with
-other {\em qualifier-names} in the same
-{\em prototype-result-variable-declaration}
-or {\em prototype-argument-declaration}.
+A wild-card name of the form {\tt Q\ldots\$\ldots} can only match a
+possibly empty sequence of {\em qualifier-names}.
+A wild-card name of the form {\tt PST\$\ldots} can only match an
+optional sequence of {\em pointer-type-names} and {\em qualifier-names}
+beginning with a {\em pointer-type-name}, all followed by a {\em type-name}.
 \item
-{\em Function-declarations} with {\em function-specifiers} declare
+{\em Function-declarations} with {\em function-specifiers} other
+than {\tt allocation} declare
 \skey{special-function}s.  These may not compile run-time code,
 and all their {\em prototype-result-variable-declarations}
 must be of the form `{\tt const} {\em target-variable}.
@@ -5419,7 +5433,7 @@ the first {\em function-term-name} which must be the same in the
 declaration and the call.  Thus the {\em call-terms} of the call
 are re-ordered to match the order of the {\em pattern-terms} of the
 declaration.  If one of the {\em pattern-terms} is omitted in the
-call, but its arguments have {\em default-values},
+call, but all its arguments have {\em default-values},
 the {\em pattern-term} with its
 {\em default-values} will be inserted into the call
 (here {\tt H ( 7 )} is inserted).
