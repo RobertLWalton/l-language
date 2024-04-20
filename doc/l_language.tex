@@ -5597,10 +5597,14 @@ int y = sum ( x )    // Same as: int y = x "+" 1
 \end{verbatim}\end{indpar}
 
 When a \key{constant function}\label{CONSTANT-FUNCTION} is called
-its must return a {\tt const} result that replaces
-the {\em function-call} if the {\tt const} value is not a map,
-and effectively replaces the {\em function-call} if the {\em const}
-value is a map.  Examples:
+its must return a {\tt const} result that becomes the sole
+result of the {\em function-call}.  The difference between a
+{\tt constant} function the same function without the {\tt constant}
+{\em function-specifier} is that the former cannot compile run-time code
+whereas the latter can.
+Thus the {\tt constant} {\em function-specializer} effectively does nothing
+but promise that the function will not compile run-time code.
+Examples:
 \begin{indpar}\begin{verbatim}
 constant function const r = sum ( const a1, const a2 ):
     r = a1 + a2;
@@ -5609,23 +5613,24 @@ const x = 10
 const y = sum ( x, 5 )  // Sets y to 15
                         // a1 is 10, a2 is 5, r is 15
                         // sum ( x, 5) can be thought of as
-                        // being replaced by 5
+                        //             being replaced by 15
 
 constant function const r = list ( const a1, const a2 ):
     r = { a1, a2 }
 
 const z = list ( 4, 5 )  // Sets z to { 4, 5 }
-    // list ( 4, 5 ) can be thought of as being replaced by:
-    // { { 4, 5 }, ".initiator" = "{", ".terminator" = "}" }[0]
-    // which evaluates to { 4, 5 }
+    // list ( 4, 5 ) can be thought of as being replaced by { 4, 5 }
 \end{verbatim}\end{indpar}
 
-The {\tt constant} {\em function-specializer} effectively does nothing
-but promise that the function will not compile run-time code.
 
 A \emkey{constant-expression}\label{CONSTANT-EXPRESSION}
 is an {\em expression} that is either
-a {\em constant} or a {\em function-call} to a {\tt constant} function.
+a {\em constant}\pagnote{CONSTANT}
+or a {\em function-call} to a {\tt constant} function
+with arguments that are {\em constant-expressions}.\footnote{
+A {\em rational-constant} is both a {\em constant} and a {\em function-call}
+to a {\tt constant} function whose argument is a ({\em quoted-string})
+{\em constant}.}
 {\em Constant-expressions} are used to compute parameters that must be
 known at compile-time.
 
