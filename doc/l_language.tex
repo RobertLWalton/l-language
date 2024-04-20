@@ -2711,7 +2711,8 @@ with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
-A \emkey{reference-expression} computes a \key{reference pointer} to a location.
+A \emkey{reference-expression} computes a
+\key{reference pointer}\label{REFERENCE-POINTER} to a location.
 A reference pointer consists of a pointer and a
 \key{dereference flag}.  If the dereference flag is clear, the value of
 the {\em reference-expression} is the pointer.  If the dereference flag
@@ -5726,6 +5727,41 @@ a {\em statement} is to visit in bottom-to-top left-to-right order
 all the {\em expressions} in the {\em statement} and apply the following
 algorithm with evaluates {\em constant-expressions}, analyzes
 {\em reference-expressions}, and processes macros and inclusions:
+
+A {\em reference-expression} is one of the following:
+\begin{itemize}
+\item \key{Compile-Time {\em Reference-expression}} ~~
+The root has a {\tt const} value.  In this
+case all indices must be
+{\em constant-expressions}\pagnote{CONSTANT-EXPRESSION}, else it is
+a compile error.
+\item \key{Run-Time {\em Reference-expression}} ~~
+All other {\em reference-expressions}.
+\end{itemize}
+
+A run-time {\em reference-expression} is one of the following
+(for the definiting of reference pointer see \pagref{REFERENCE-POINTER}):
+\begin{itemize}
+\item \key{Storing {\em Reference-Expression}} ~~
+The {\em reference-expression} is an
+{\em assignment-re\-sult}\pagnote{ASSIGNMENT-RESULT}.
+The {\em reference-expression} must compute a reference pointer with its
+dereference flag set.
+Values are stored into the location specified by the {\em reference-expression}.
+\item \key{Loading {\em Reference-Expression}} ~~
+The {\em reference-expression} is \underline{not} an
+{\em assignment-result}, and the reference pointer it computes has the
+dereference flag set.
+Values are loaded from the
+location specified by the {\em reference-expression}.
+\item \key{Pointing {\em Reference-Expression}} ~~
+The reference pointer computed by the {\em reference-expression}
+has its dereference flag clear.
+The {\em reference-expression} must \underline{not} be an
+{\em assignment-result}, else it is a compile error.
+The pointer part of the reference pointer is the value of the
+{\em reference-expression}.
+\end{itemize}
 
 \bigskip
 
