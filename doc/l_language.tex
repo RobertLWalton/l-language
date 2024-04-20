@@ -5635,7 +5635,8 @@ to a {\tt constant} function whose argument is a ({\em quoted-string})
 known at compile-time.
 
 An \key{inclusion function} declaration can only be matched to
-a {\em function-call} at statement level in a {\em call-assign\-ment-statement}.
+a {\em function-call} at statement level (i.e., outside explicit or implicit
+parentheses or brackets) in a {\em call-assign\-ment-statement}.
 When an \key{inclusion function} is called it must return a {\tt const} result
 that is a parsed list of {\em statements} that replaces
 the {\em call-assignment-statement}.
@@ -5691,7 +5692,7 @@ and be omitted in the companion, but not vice-versa.
 \item If {\em default-values} and {\em required-values} appear
 in both the {\tt *DEFERRED*} declaration and its companion,
 they must evaluate to the same {\em const} value.  They need not
-have the same {\em constant-expressions}, but note
+have the same {\em constant-expressions}, and note
 that the two {\em constant-expressions} are each evaluated where
 their prototype is declared, and therefore are evaluated in
 two different contexts.
