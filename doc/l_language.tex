@@ -5771,6 +5771,9 @@ The pointer part of the reference pointer is the value of the
 \item This algorithm is applied to an {\em expression} $E$, and
 terminates after any step that annotates $E$.
 
+When this algorithm searches for a declaration matching an {\em expression},
+it uses the Declaration Search Algorithm below.
+
 \item\label{CONSTANT-STEP}
 If $E$ is a {\em constant}\pagnote{CONSTANTS} other than
 a {\em rational-constant}, evaluate $E$
