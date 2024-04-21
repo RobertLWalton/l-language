@@ -2798,39 +2798,11 @@ Multi-dimensional indexing (of which one dimensional is a special
 case) can be used with {\em member-names}
 of multi-dimensional fields and subfields.  Multi-dimensional indexing
 can also be used with {\em reference-offsets} defined by
-{\em reference-functions}: see Reference Function Declarations,
+reference functions: see Reference Function Declarations,
 \itemref{REFERENCE-FUNCTION-DECLARATIONS}.
 
 \end{enumerate}
 \end{indpar}
-
-{\em Reference-expressions} can call {\em reference-functions} to perform
-all or some of their computations.  There are two kinds of
-{\em reference-functions}:
-\begin{itemize}
-\item\key{Function Variables}:~~
-These functions
-are invoked by {\em function-variable-names} that are syntactically
-like {\em variable-names} and can be {\em simple-reference-expressions} and
-roots of compound {\em reference-expressions}.
-{\em Function-variable-names} are in the same symbol table as
-other {\em variable-names}, and their functions are called when they are
-used at the beginning
-of a {\em reference-expression}.  They can\underline{not}
-be used with `{\tt next}'.
-\item\key{Function Offsets}:~~
-These functions are invoked by {\em reference-offsets} in
-compound {\em reference-expressions}
-that act like postfix operators on
-reference pointers produced by the {\em reference-bases} of the
-compound {\em reference-expressions}.
-They are selected from among the {\em reference-function-declarations}
-in the current context by the type of the reference pointer,
-the {\em member-name} if any, and the number and types of any {\em indices}.
-\end{itemize}
-
-See the Reference Functions section\pagnote{REFERENCE-FUNCTION-DECLARATIONS}
-for details on {\em reference-function} declarations.
 
 {\em Reference-expressions} compute a
 \key{reference pointer}\label{REFERENCE-POINTER} which consists of:
@@ -2844,9 +2816,17 @@ can be used to load its target value or store a value into its target.
 If clear, the pointer part
 itself is the value of the {\em reference-expression}, and can cannot
 be used to load from or store into its target.
-\item A \key{declaration}.  May be (usually is) missing.  If present
-this is the declaration of a reference function that must be used to 
-load a value from or store a value into the target of the pointer part.
+\item A \key{call part}.  May be (usually is) missing.  If present
+this is the declaration of a reference function plus values of any
+indices used by that function.  This function must be called with
+the pointer part and indices to 
+load a value from or store a value into the target of the reference pointer.
+If present the dereference flag must be set.
+
+A call part plus pointer part define a kind of virtual
+location.  The reference function called must be a {\tt load}
+reference function to load a value or a
+{\tt store} reference function to store a value: see below.
 \end{enumerate}
 
 A {\em reference-expression} is one of the following:
@@ -2860,8 +2840,7 @@ a compile error.
 All other {\em reference-expressions}.
 \end{itemize}
 
-A {\em reference-expression} is one of the following
-(for the definiting of reference pointer see \pagref{REFERENCE-POINTER}):
+A {\em reference-expression} is one of the following:
 \begin{itemize}
 \item \key{Storing {\em Reference-Expression}} ~~
 The {\em reference-expression} is an
@@ -2883,6 +2862,54 @@ The {\em reference-expression} must \underline{not} be an
 The pointer part of the reference pointer is the value of the
 {\em reference-expression}.
 \end{itemize}
+
+{\em Reference-expressions} can call reference functions to perform
+all or some of their computations.  Reference functions are either:
+\begin{itemize}
+\item\key{Function Variables}:~~
+These functions
+are invoked by {\em function-variable-names} that are syntactically
+like {\em variable-names} and can be {\em simple-reference-expressions} and
+roots of compound {\em reference-expressions}.
+{\em Function-variable-names} are in the same symbol table as
+other {\em variable-names}, and their functions are called when they are
+used at the beginning
+of a {\em reference-expression}.  They can\underline{not}
+be used with `{\tt next}'.
+
+\item\key{Function Offsets}:~~
+These functions are invoked by {\em reference-offsets} in
+compound {\em reference-expressions}
+that act like postfix operators on
+reference pointers produced by the {\em reference-bases} of the
+compound {\em reference-expressions}.
+They are selected from among the {\em reference-function-declarations}
+in the current context by the type of the reference pointer,
+the {\em member-name} if any, and the number {\em indices} ({\em index}
+types are ignored).
+\end{itemize}
+
+A reference function is one of the following:
+\begin{itemize}
+\item \key{Store Reference Function} ~~
+The function stores a value.  If the function is invoked by a
+{\em reference-offset}, it uses the reference pointer and indices as
+arguments.
+\item \key{Load Reference Function} ~~
+The function loads the value referenced.  If the function is invoked by a
+{\em reference-offset}, it uses the reference pointer and indices as
+arguments.
+\item \key{Point Reference Function} ~~
+The function loads a new reference pointer whose pointer part value is
+the result of the function execution, and whose dereference flag is
+clear.
+If the function is invoked by a
+{\em reference-offset}, it uses the reference pointer and indices as
+arguments.
+\end{itemize}
+
+See the Reference Functions section\pagnote{REFERENCE-FUNCTION-DECLARATIONS}
+for details on {\em reference-function-declarations}.
 
 Run-time and compile-time {\em reference-expressions} are described
 separately in the following sections.
@@ -2940,8 +2967,7 @@ the entire {\em reference-expression} has pointer part $P'$ and dereference
 flag $D'$ where:
 \begin{itemize}
 \item If $D$ is clear and $P$ points at a non-pointer value,
-$P'=P$ and $D'=$~set.  Then as long as {\tt $P'$..point} exists,
-apply {\tt $P'$ = $P'$..point} (see \pagref{..POINT}).
+$P'=P$ and $D'=$~set.
 \item If $D$ is clear and $P$ points at a pointer value,
 $P'=$the pointer value pointed at by $P$ and $D'=$~clear.
 \item If $D$ is set, it is a compile error.
