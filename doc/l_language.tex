@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 20, 2024
+April 21, 2024
 
 \bigskip
 
@@ -2712,12 +2712,7 @@ with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
 \label{REFERENCE-EXPRESSIONS}
 
 A \emkey{reference-expression} computes a
-\key{reference pointer}\label{REFERENCE-POINTER} to a location.
-A reference pointer consists of a pointer and a
-\key{dereference flag}.  If the dereference flag is clear, the value of
-the {\em reference-expression} is the pointer.  If the dereference flag
-is set, the value of the {\em reference-expression} is the target of
-the pointer -- that is, the dereferenced pointer.
+reference pointer (described in detail below) to a location.
 
 Syntactically {\em reference-expressions} are simple or compound.
 A \key{simple} {\em reference-expression} is
@@ -2789,7 +2784,7 @@ preceded by a {\em module-abbreviation}
 (see \pagref{MA-SYNTACTIC-SUGAR} for more information about this last case)
 \end{enumerate}
 \item In a {\em reference-expression},
-{\em module-abbreviation} may appear as part of a
+a {\em module-abbreviation} may appear as part of a
 ({\em function-}){\em variable-name}, but may \underline{not} appear
 elsewhere.
 A ({\em function-}){\em variable-name} with a {\em module-abbreviation}
@@ -2799,7 +2794,8 @@ name without the {\em module-abbreviation}.
 One dimensional indexing can be used with \TT{av} and \TT{fv} pointers,
 and with user defined pointer types that convert to \TT{av} or \TT{fv}
 pointers.
-Multi-dimensional indexing can be used with {\em member-names}
+Multi-dimensional indexing (of which one dimensional is a special
+case) can be used with {\em member-names}
 of multi-dimensional fields and subfields.  Multi-dimensional indexing
 can also be used with {\em reference-offsets} defined by
 {\em reference-functions}: see Reference Function Declarations,
@@ -2815,25 +2811,81 @@ all or some of their computations.  There are two kinds of
 \item\key{Function Variables}:~~
 These functions
 are invoked by {\em function-variable-names} that are syntactically
-like {\em variable-names} which are {\em simple-reference-expressions} and
-possibly the roots of compound {\em reference-expressions}.
+like {\em variable-names} and can be {\em simple-reference-expressions} and
+roots of compound {\em reference-expressions}.
+{\em Function-variable-names} are in the same symbol table as
+other {\em variable-names}, and their functions are called when they are
+used at the beginning
+of a {\em reference-expression}.  They can\underline{not}
+be used with `{\tt next}'.
 \item\key{Function Offsets}:~~
 These functions are invoked by {\em reference-offsets} in
 compound {\em reference-expressions}
 that act like postfix operators on
-real reference pointers produced by the bases of the
+reference pointers produced by the {\em reference-bases} of the
 compound {\em reference-expressions}.
+They are selected from among the {\em reference-function-declarations}
+in the current context by the type of the reference pointer,
+the {\em member-name} if any, and the number and types of any {\em indices}.
 \end{itemize}
 
-For details on calls to {\em reference-functions}
-see Reference Functions\pagnote{REFERENCE-FUNCTION-DECLARATIONS}.
-The rest of this section applies to {\em reference-expressions}
-that do \underline{not} make these calls.
+See the Reference Functions section\pagnote{REFERENCE-FUNCTION-DECLARATIONS}
+for details on {\em reference-function} declarations.
 
-{\em Reference-expressions} whose root is a non-{\tt const} value are
-run-time, and {\em reference-expres\-sions}
-whose root is a {\tt const} value are compile-time.
-We describe these separately.
+{\em Reference-expressions} compute a
+\key{reference pointer}\label{REFERENCE-POINTER} which consists of:
+\begin{enumerate}
+\item A \key{pointer part}.
+This may be a regular run-time pointer, or may be a similar pointer that
+points into a local or global
+stack, or may be something else, as is described below.
+\item A \key{dereference flag}.  If set, the pointer part
+can be used to load its target value or store a value into its target.
+If clear, the pointer part
+itself is the value of the {\em reference-expression}, and can cannot
+be used to load from or store into its target.
+\item A \key{declaration}.  May be (usually is) missing.  If present
+this is the declaration of a reference function that must be used to 
+load a value from or store a value into the target of the pointer part.
+\end{enumerate}
+
+A {\em reference-expression} is one of the following:
+\begin{itemize}
+\item \key{Compile-Time {\em Reference-expression}} ~~
+The root has a {\tt const} value.  In this
+case all indices must be
+{\em constant-expressions}\pagnote{CONSTANT-EXPRESSION}, else it is
+a compile error.
+\item \key{Run-Time {\em Reference-expression}} ~~
+All other {\em reference-expressions}.
+\end{itemize}
+
+A {\em reference-expression} is one of the following
+(for the definiting of reference pointer see \pagref{REFERENCE-POINTER}):
+\begin{itemize}
+\item \key{Storing {\em Reference-Expression}} ~~
+The {\em reference-expression} is an
+{\em assignment-re\-sult}\pagnote{ASSIGNMENT-RESULT}.
+The {\em reference-expression} must compute a reference pointer with its
+dereference flag set.
+Values are stored into the location specified by the reference pointer.
+\item \key{Loading {\em Reference-Expression}} ~~
+The {\em reference-expression} is \underline{not} an
+{\em assignment-result}, and the reference pointer it computes has the
+dereference flag set.
+Values are loaded from the
+location specified by the {\em reference-expression}.
+\item \key{Pointing {\em Reference-Expression}} ~~
+The reference pointer computed by the {\em reference-expression}
+has its dereference flag clear.
+The {\em reference-expression} must \underline{not} be an
+{\em assignment-result}, else it is a compile error.
+The pointer part of the reference pointer is the value of the
+{\em reference-expression}.
+\end{itemize}
+
+Run-time and compile-time {\em reference-expressions} are described
+separately in the following sections.
 
 \subsubsection{Run-Time Reference Expressions}
 \label{RUN-TIME-REFERENCE-EXPRESSIONS}
