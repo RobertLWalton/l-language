@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 21, 2024
+April 22, 2024
 
 \bigskip
 
@@ -2845,22 +2845,22 @@ A {\em reference-expression} is one of the following:
 \item \key{Storing {\em Reference-Expression}} ~~
 The {\em reference-expression} is an
 {\em assignment-re\-sult}\pagnote{ASSIGNMENT-RESULT}.
-The {\em reference-expression} must compute a reference pointer with its
-dereference flag set.
-Values are stored into the location specified by the reference pointer.
+Then the {\em reference-expression} must compute a reference pointer with its
+dereference flag set, and values
+are stored into the (possibly virtual)
+location specified by the reference pointer.
 \item \key{Loading {\em Reference-Expression}} ~~
 The {\em reference-expression} is \underline{not} an
-{\em assignment-result}, and the reference pointer it computes has the
-dereference flag set.
-Values are loaded from the
-location specified by the {\em reference-expression}.
-\item \key{Pointing {\em Reference-Expression}} ~~
-The reference pointer computed by the {\em reference-expression}
-has its dereference flag clear.
-The {\em reference-expression} must \underline{not} be an
-{\em assignment-result}, else it is a compile error.
-The pointer part of the reference pointer is the value of the
-{\em reference-expression}.
+{\em assignment-result}.
+Then either the reference pointer it computes has the
+dereference flag set and values are loaded from the
+(possibly virtual) location specified by the reference pointer,
+or the reference pointer it computes
+has its dereference flag clear and the pointer part of the reference pointer
+is the value of the {\em reference-expression}.
+
+Note that in a compound {\em reference-expression} the {\em reference-base}
+is always a loading {\em reference-expression}.
 \end{itemize}
 
 {\em Reference-expressions} can call reference functions to perform
@@ -3008,11 +3008,37 @@ As another example, if {\tt @@@p} is a {\em pointer-variable},
 \end{tabular}
 \end{center}
 
-A run-time {\em reference-offset} operates on the pointer part $P$
-of the {\em reference-base}, leaving the dereference flag
-alone.  There are various cases, for computing the
-pointer part of the reference pointer of the entire
-{\em reference-expression}:\label{FIELD-SELECTION}
+We proceed to specify how the reference pointer of a run-time
+{\em reference-expression} is computed, beginning with the root:
+\begin{enumerate}
+\item If the root is a {\em variable-name} or
+`\TT{next} {\em variable-name}', then the pointer part of the root's
+reference pointer is
+an {\tt ap} pointer into the local or global stack,
+the dereference flag is set, and the call part does not exist.
+\item If the root is the {\em function-variable-name} of a
+{\tt point} reference function, then the pointer part of the root's
+reference pointer is the result of executing the function, the
+dereference flag is clear, and the call part does not exist.
+\item If the root is the {\em function-variable-name} of a
+{\tt store} reference function and the root is storing
+(so the root must be the \underline{entire} {\em reference-expression}),
+then the pointer part of the root's
+reference pointer does not exist,
+the dereference flag is set, and the call part consists of the
+declaration of the {\tt store} reference function without any indices.
+\item If the root is the {\em function-variable-name} of a
+{\tt load} reference function
+and the root is loading,
+then the pointer part of the root's
+reference pointer does not exist,
+the dereference flag is set, and the call part consists of the
+declaration of the {\tt load} reference function without any indices.
+\end{enumerate}
+
+In a compound run-time {\em reference-expression}, the
+{\em reference-offset} operates on the reference pointer
+computed by the {\em reference-base} as follows:\label{FIELD-SELECTION}
 \begin{enumerate}
 
 \item If $P$ points at a user defined type and the
