@@ -2924,11 +2924,25 @@ of a reference pointer may point
 into the global or local stacks provided the dereference flag is set.
 
 If the entire {\em reference-expression} computes a reference pointer
-with dereference flag set, the pointer part of that reference pointer
+with dereference flag set, the pointer part of that reference pointer,
+in conjunction with the call part of the reference pointer if that exists,
 can be used to load its target value or store a value into its target.
 If on the other hand the dereference flag is clear, the pointer part
 itself is the value of the {\em reference-expression}, can cannot
 be used to load from or store into its target.
+
+The type of a reference pointer is defined to be the type of the value
+that is loaded or stored by the reference pointer.  More specifically:
+\begin{itemize}
+\item If the dereference flag is clear, the type of the reference pointer
+is the type of its pointer part.
+\item If the dereference flag is set and there is no call part,
+the type of the reference pointer is the target type of its pointer part.
+\item If the dereference flag is set and there is a call part,
+the type of the reference pointer is the result type of a {\tt load}
+reference function declared in the call part or the input type of a {\tt store}
+function declared in the call part.
+\end{itemize}
 
 Examples of run-time reference pointers are:
 \begin{indpar}\small\begin{verbatim}
@@ -2966,11 +2980,12 @@ is the dereference flag part, then the reference pointer computed by
 the entire {\em reference-expression} has pointer part $P'$ and dereference
 flag $D'$ where:
 \begin{itemize}
-\item If $D$ is clear and $P$ points at a non-pointer value,
+\item If $D$ is clear,
 $P'=P$ and $D'=$~set.
-\item If $D$ is clear and $P$ points at a pointer value,
-$P'=$the pointer value pointed at by $P$ and $D'=$~clear.
-\item If $D$ is set, it is a compile error.
+\item If $D$ is set and $P$ points at a pointer value,
+$P'=$the pointer value pointed at by $P$ and $D'=$~set.
+\item If $D$ is set and $P$ points at a non-pointer value,
+it is a compile error.
 \end{itemize}
 
 Dropping an `\TT{@}' from the beginning of a pointer variable name
