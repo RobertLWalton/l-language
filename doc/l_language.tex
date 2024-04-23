@@ -2258,10 +2258,6 @@ rules below):
 \hspace*{0.2in}\begin{tabular}{rp{4in}}
 \ttkey{T\$} & name is assigned a {\em type-name} \\
 \ttkey{P\$} & name is assigned a {\em pointer-type-name} \\
-\ttkey{PS\$} & name is assigned a possibly empty
-               sequence of {\em pointer-type-names}
-	       and {\em qualifiers} beginning and ending with
-	       a {\em pointer-type-name} \\
 \ttkey{PST\$} & name is assigned a possibly empty
                sequence of {\em pointer-type-names}
 	       and {\em qualifiers} beginning with
@@ -3038,10 +3034,36 @@ declaration of the {\tt load} reference function without any indices.
 
 In a compound run-time {\em reference-expression}, the
 {\em reference-offset} operates on the reference pointer
-computed by the {\em reference-base} as follows:\label{FIELD-SELECTION}
+computed by the {\em reference-base}.  Let the reference pointer
+computed by the {\em reference-base} have pointer part $P$ (which
+may be missing), dereference flag $D$, and call part $C$ (which
+may be missing).  Let the reference pointer that is the result of
+the operation have pointer part $P'$,
+dereference flag $D'$, can call part $C'$.  Then the computation is
+as follows:\label{FIELD-SELECTION}
 \begin{enumerate}
 
-\item If $P$ points at a user defined type and the
+\item Search for {\em reference-function-declarations}%
+\pagnote{REFERENCE-FUNCTION-DECLARATIONS} that match the type of
+the {\em reference-base}, the {\em member-name} or absence of such,
+and the number (but not the types) if indices.  For a storing
+{\em reference-expression}, exclude {\tt load} declarations, and
+for a loading {\em reference-expression}, exclude {\tt store}
+declarations.  See
+\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+
+If a declaration is found:
+\begin{enumerate}
+\item
+If the declaration is a {\tt point} declaration, call the declared
+reference function with $P$ and the index values as arguments,
+and set $P'$ = result of call, $D' = D$, $C'$ = missing.
+\item
+If the declaration is a {\tt load} or {\tt store} declaration,
+set $P' = P$, $D'$ = set, and $C'$ to the declaration and index values.
+It is a compile error if $D$ = set.
+\end{enumerate}
+\item If $P$ is an {\tt ap} pointer pointing at a user defined type and the
 {\em member-offset} has the form
 `\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
 \underline{no} {\em index-list}:
@@ -3059,7 +3081,7 @@ dimension, an {\tt fp} pointer pointing at the
 field or subfield value.
 \end{enumerate}
 
-\item If $P$ points at a user defined type and the
+\item If $P$ is an {\tt ap} pointer pointing at a user defined type and the
 {\em member-offset} has the form
 `\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
 an {\em index-list}, and the designated field or subfield
