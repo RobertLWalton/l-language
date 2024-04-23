@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 22, 2024
+April 23, 2024
 
 \bigskip
 
@@ -3005,7 +3005,16 @@ As another example, if {\tt @@@p} is a {\em pointer-variable},
 \end{center}
 
 We proceed to specify how the reference pointer of a run-time
-{\em reference-expression} is computed, beginning with the root:
+{\em reference-expression} is computed.
+This computation proceeds partly at compile-time and partly at
+run-time.  Specifically, for a reference pointer the pointer part
+value is run-time but its type is compile-time, the dereference flag
+is compile-time, the declaration in any call part is compile time,
+the number of indices is both compile-time and run-time, the target
+types of the indices are compile-time, and the values of the indices
+are run-time.
+
+We begin with the root:
 \begin{enumerate}
 \item If the root is a {\em variable-name} or
 `\TT{next} {\em variable-name}', then the pointer part of the root's
@@ -3063,41 +3072,58 @@ If the declaration is a {\tt load} or {\tt store} declaration,
 set $P' = P$, $D'$ = set, and $C'$ to the declaration and index values.
 It is a compile error if $D$ = set.
 \end{enumerate}
+\item If $P$ is a {\tt dp} pointer pointing at a user defined type and the
+{\em reference-offset} has the form `\TT{.}{\em field-label}\,'
+possibly followed by an {\em index-list} such that the number of
+{\em indices} equals the number of field dimensions:
+\begin{enumerate}
+\item For a {\em field-label} of an aligned field with no
+dimensions, $P'$ = a {\tt dp} pointer pointing at the field value.
+\item For a {\em field-label} of an aligned field with dimensions,
+$P'$ = a {\tt dp} pointer pointing
+at the field array element value designated by the indices.
+\end{enumerate}
+In both cases $D'=D$ and $C'$ = missing.
 \item If $P$ is an {\tt ap} pointer pointing at a user defined type and the
-{\em member-offset} has the form
+{\em reference-offset} has the form
 `\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
 \underline{no} {\em index-list}:
 \begin{enumerate}
 \item For a {\em field-label} of an aligned field with no
-dimensions, an {\tt ap} pointer pointing at the field value.
+dimensions, $P'$ = an {\tt ap} pointer pointing at the field value.
 \item For a {\em field-label} of an aligned field with \underline{one}
-dimension, an {\tt av} pointer pointing at the vector of field values.
+dimension, $P'$ = an {\tt av} pointer pointing at the vector of field values.
 \item For a {\em field-label} of an unaligned aligned field with no
-dimensions, or a {\em subfield-label}, an {\tt fp} pointer pointing at the
+dimensions, or a {\em subfield-label},
+$P'$ = an {\tt fp} pointer pointing at the
 field or subfield value.
 \item For a {\em field-label} of an unaligned aligned field with \underline{one}
 dimension, or a {\em subfield-label} of a subfield with \underline{one}
-dimension, an {\tt fp} pointer pointing at the
-field or subfield value.
+dimension in a field with no dimensions,
+$P'$ = an {\tt fv} pointer pointing at the vector of
+field or subfield values.
 \end{enumerate}
+In all cases $D'=D$ and $C'$ = missing.
 
 \item If $P$ is an {\tt ap} pointer pointing at a user defined type and the
-{\em member-offset} has the form
+{\em reference-offset} has the form
 `\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
-an {\em index-list}, and the designated field or subfield
-as a number of dimensions equal to the number of indices in the
-{\em index-list}:
+an {\em index-list}, and the number of dimensions of
+the designated field, or the sum of the numbers of dimensions of the
+designated subfield and its containing field,
+equals to the number of indices in the {\em index-list}:
 \begin{enumerate}
 \item For a {\em field-label} of an aligned field,
-an {\tt ap} pointer pointing at the field array element value
+$P'$ = an {\tt ap} pointer pointing at the field array element value
 designated by the indices.
 \item For a {\em field-label} of an unaligned aligned field,
-or a {\em subfield-label}, an {\tt fp} pointer pointing at the
+or a {\em subfield-label}, $P'$ = an {\tt fp} pointer pointing at the
 field or subfield array element value designated by the indices.
 \end{enumerate}
+In both cases $D'=D$ and $C'$ = missing.
 
 \item If $P$ is an {\tt av} or {\tt fv} pointer and the
-{\em member-offset} is an
+{\em reference-offset} is an
 {\em index-list} with \underline{one} index:
 \begin{enumerate}
 \item For an {\tt av} pointer,
@@ -3107,6 +3133,7 @@ designated by the index.
 an {\tt fp} pointer pointing at the array element value
 designated by the index.
 \end{enumerate}
+In both cases $D'=D$ and $C'$ = missing.
 
 \item All other cases are compile errors.
 
@@ -3117,7 +3144,7 @@ A run-time {\em reference-expression} of the form
 where the {\em constant-expression} evaluates to the {\tt const}
 string $S$, is equivalent to `{\em reference-base}\TT{.}$S$'.
 
-Run-time {\em member-offset} indices have the target type {\tt int}.
+Run-time {\em reference-offset} indices have the target type {\tt int}.
 
 
 When a {\em member-name} {\em reference-offset} specifying a field
