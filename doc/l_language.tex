@@ -3071,6 +3071,8 @@ and set $P'$ = result of call, $D' = D$, $C'$ = missing.
 If the declaration is a {\tt load} or {\tt store} declaration,
 set $P' = P$, $D'$ = set, and $C'$ to the declaration and index values.
 It is a compile error if $D$ = set.
+\item
+In either case the declaration specifies the target types of any indices.
 \end{enumerate}
 \item If $P$ is a {\tt dp} pointer pointing at a user defined type and the
 {\em reference-offset} has the form `\TT{.}{\em field-label}\,'
@@ -3082,6 +3084,7 @@ dimensions, $P'$ = a {\tt dp} pointer pointing at the field value.
 \item For a {\em field-label} of an aligned field with dimensions,
 $P'$ = a {\tt dp} pointer pointing
 at the field array element value designated by the indices.
+The target type of the indices is {\tt int}.
 \end{enumerate}
 In both cases $D'=D$ and $C'$ = missing.
 \item If $P$ is an {\tt ap} pointer pointing at a user defined type and the
@@ -3120,7 +3123,8 @@ designated by the indices.
 or a {\em subfield-label}, $P'$ = an {\tt fp} pointer pointing at the
 field or subfield array element value designated by the indices.
 \end{enumerate}
-In both cases $D'=D$ and $C'$ = missing.
+In both cases $D'=D$, $C'$ = missing, and the target type of all indices
+is {\tt int}.
 
 \item If $P$ is an {\tt av} or {\tt fv} pointer and the
 {\em reference-offset} is an
@@ -3133,7 +3137,8 @@ designated by the index.
 an {\tt fp} pointer pointing at the array element value
 designated by the index.
 \end{enumerate}
-In both cases $D'=D$ and $C'$ = missing.
+In both cases $D'=D$ and $C'$ = missing, and the target type of the index
+is {\tt int}.
 
 \item All other cases are compile errors.
 
