@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 23, 2024
+April 24, 2024
 
 \bigskip
 
@@ -2764,9 +2764,10 @@ The full syntax of a {\em reference-expression} is:
 \begin{enumerate}
 \item
 An {\em expression} with no operators that begins
-with a {\em variable-name} or `\TT{next} {\em vari\-able-name}'
-and which is not followed
-by an explicitly or implicitly parenthesized subexpression
+with a {\em variable-name}, `\TT{next} {\em vari\-able-name}',
+or {\em function-variable-name},
+not followed
+by an explicitly or implicitly parenthesized subexpression,
 is a {\em reference-expression}.
 
 Otherwise an {\em expression} with no operators is one of:
@@ -2810,7 +2811,7 @@ stack, or may be something else, as is described below.
 \item A \key{dereference flag}.  If set, the pointer part
 can be used to load its target value or store a value into its target.
 If clear, the pointer part
-itself is the value of the {\em reference-expression}, and can cannot
+itself is the value of the {\em reference-expression}, and cannot
 be used to load from or store into its target.
 \item A \key{call part}.  May be (usually is) missing.  If present
 this is the declaration of a reference function plus values of any
@@ -2924,7 +2925,7 @@ with dereference flag set, the pointer part of that reference pointer,
 in conjunction with the call part of the reference pointer if that exists,
 can be used to load its target value or store a value into its target.
 If on the other hand the dereference flag is clear, the pointer part
-itself is the value of the {\em reference-expression}, can cannot
+itself is the value of the {\em reference-expression}, and cannot
 be used to load from or store into its target.
 
 The type of a reference pointer is defined to be the type of the value
@@ -2995,7 +2996,10 @@ from the above example are:
 \end{tabular}
 \end{center}
 
-As another example, if {\tt @@@p} is a {\em pointer-variable},
+The number of `\TT{@}'s at the beginning of a {\em pointer-variable}
+must equal the number of {\em pointer-type-names} in the type of
+the variable.  Thus given the {\em pointer-variable} {\tt @@@p}
+one has:
 \begin{center}
 \begin{tabular}{r@{~~is equivalent to~~}l}
 \tt @@p & \tt @@@p.* \\
@@ -3071,10 +3075,10 @@ and set $P'$ = result of call, $D' = D$, $C'$ = missing.
 If the declaration is a {\tt load} or {\tt store} declaration,
 set $P' = P$, $D'$ = set, and $C'$ to the declaration and index values.
 It is a compile error if $D$ = set.
-\item
-In either case the declaration specifies the target types of any indices.
 \end{enumerate}
-\item If $P$ is a {\tt dp} pointer pointing at a user defined type and the
+In either case the declaration specifies the target types of any indices.
+\item\label{DP-CASE}
+If $P$ is a {\tt dp} pointer pointing at a user defined type and the
 {\em reference-offset} has the form `\TT{.}{\em field-label}\,'
 possibly followed by an {\em index-list} such that the number of
 {\em indices} equals the number of field dimensions:
@@ -3087,7 +3091,8 @@ at the field array element value designated by the indices.
 The target type of the indices is {\tt int}.
 \end{enumerate}
 In both cases $D'=D$ and $C'$ = missing.
-\item If $P$ is an {\tt ap} pointer pointing at a user defined type and the
+\item\label{AP-NO-INDEX-CASE}
+If $P$ is an {\tt ap} pointer pointing at a user defined type and the
 {\em reference-offset} has the form
 `\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
 \underline{no} {\em index-list}:
@@ -3108,7 +3113,8 @@ field or subfield values.
 \end{enumerate}
 In all cases $D'=D$ and $C'$ = missing.
 
-\item If $P$ is an {\tt ap} pointer pointing at a user defined type and the
+\item\label{AP-INDEX-CASE}
+If $P$ is an {\tt ap} pointer pointing at a user defined type and the
 {\em reference-offset} has the form
 `\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
 an {\em index-list}, and the number of dimensions of
@@ -3126,7 +3132,8 @@ field or subfield array element value designated by the indices.
 In both cases $D'=D$, $C'$ = missing, and the target type of all indices
 is {\tt int}.
 
-\item If $P$ is an {\tt av} or {\tt fv} pointer and the
+\item\label{AV-FV-CASE}
+If $P$ is an {\tt av} or {\tt fv} pointer and the
 {\em reference-offset} is an
 {\em index-list} with \underline{one} index:
 \begin{enumerate}
@@ -3149,12 +3156,12 @@ A run-time {\em reference-expression} of the form
 where the {\em constant-expression} evaluates to the {\tt const}
 string $S$, is equivalent to `{\em reference-base}\TT{.}$S$'.
 
-Run-time {\em reference-offset} indices have the target type {\tt int}.
-
-
 When a {\em member-name} {\em reference-offset} specifying a field
 in a user defined type modifies the pointer part of
-a reference pointer, the qualifiers of the resulting
+a reference pointer
+(as in Cases~\ref{DP-CASE}, \ref{AP-NO-INDEX-CASE}, \ref{AP-INDEX-CASE},
+and \ref{AV-FV-CASE} above),
+the qualifiers of the resulting
 pointer are determined according to
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}.%
 \label{QUALIFIER-COMPUTATION}
@@ -3210,22 +3217,6 @@ and lifetime depth as the base (see \itemref{LIFETIMES}).
 \label{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
 \end{boxedfigure}
 
-The type of the \underline{target} of the
-pointer part of a {\em reference-expression} is called
-the \key{type of the {\em reference-expression}}.
-Computing {\em reference-expressions} types
-is a bottom-up process,
-and is different from computing types of general
-sub-{\em expressions}, which are top-down using a target type
-provided by the {\em statement} containing the sub-{\em expression}.
-Since the type of a {\em reference-expression} does not depend on
-the {\em statement} containing the {\em reference-expression},
-implicit conversion of a
-{\em reference-expression} value to a {\em statement} provided
-target type is allowed, whereas implicit conversion
-of a sub-{\em expression} that is a {\em function-call}
-is \underline{not} allowed.
-
 \subsubsection{Compile-Time Reference Expressions}
 \label{Compile-TIME-REFERENCE-EXPRESSIONS}
 
@@ -3239,7 +3230,12 @@ variable in the compiler local stack.
 second an index that is either an integer or a string.
 \end{itemize}
 The dereference flag part of a compile-time reference pointer is
-always set.
+always set.  The call part may or may not exist.  There are no
+{\tt point} compile-time reference functions.  All indices must
+be {\em constant-expressions}, and the reference pointer of a
+{\em reference-expression} is completely computed at compile-time.
+
+TBD
 
 A {\em reference-offset} of a compile-time compound {\em reference-expression}
 computes the pointer part for the compound {\em reference-expression}
