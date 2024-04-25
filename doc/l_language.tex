@@ -3261,6 +3261,27 @@ always set.  The call part may or may not exist.  There are no
 be {\em constant-expressions}, and the reference pointer of a
 {\em reference-expression} is completely computed at compile-time.
 
+The root has the following cases:
+\begin{enumerate}
+\item If the root is a {\em variable-name} or
+`\TT{next} {\em variable-name}', then the pointer part of the root's
+reference pointer points into the compile-time local or global stack
+and the call part does not exist.
+\item If the root is the {\em function-variable-name} of a
+{\tt store} reference function and the root is storing
+(so the root must be the \underline{entire} {\em reference-expression}),
+then the pointer part of the root's
+reference pointer does not exist
+and the call part consists of the
+declaration of the {\tt store} reference function without any indices.
+\item If the root is the {\em function-variable-name} of a
+{\tt load} reference function
+and the root is loading,
+then the pointer part of the root's
+reference pointer does not exist and the call part consists of the
+declaration of the {\tt load} reference function without any indices.
+\end{enumerate}
+
 TBD
 
 A {\em reference-offset} of a compile-time compound {\em reference-expression}
