@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 24, 2024
+April 25, 2024
 
 \bigskip
 
@@ -3018,7 +3018,7 @@ the number of indices is both compile-time and run-time, the target
 types of the indices are compile-time, and the values of the indices
 are run-time.
 
-We begin with the root, which has the following cases:
+We begin with the run-time root, which has the following cases:
 \begin{enumerate}
 \item If the root is a {\em variable-name} or
 `\TT{next} {\em variable-name}', then the pointer part of the root's
@@ -3052,8 +3052,9 @@ computed by the {\em reference-base} have pointer part $P$ (which
 may \underline{not} be missing), dereference flag $D$, and call part $C$ (which
 may be missing).  Let the reference pointer that is the result of
 the operation have pointer part $P'$,
-dereference flag $D'$, can call part $C'$.  Then the computation has
-the following cases:\label{FIELD-SELECTION}
+dereference flag $D'$, and call part $C'$.  Then the computation has
+the following cases (the first case that
+succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
 \begin{enumerate}
 
 \item\label{OFFSET-CASE}
@@ -3085,7 +3086,7 @@ If the pointer type of $P$ is \underline{not} builtin
 search for a {\em reference-function-declaration}
 whose base has the exactly the type of the pointer part, whose
 {\em member-name} is `\TT{..point}', and which has no indices.
-If found, set $P=P${\tt ..free} and go back to the beginning
+If found, set $P=P${\tt ..point} and go back to the beginning
 of this algorithm (check Case 1 again).
 
 Note that Case~\ref{OFFSET-CASE} has precedence over this case.
@@ -3254,14 +3255,17 @@ variable in the compiler global stack.
 variable in the compiler local stack.
 \item A pair of {\tt const} values, the first a map, and the
 second an index that is either an integer or a string.
+\item A single {\tt const} value, a map.  In this case the call
+part must exist.
 \end{itemize}
 The dereference flag part of a compile-time reference pointer is
-always set.  The call part may or may not exist.  There are no
+always set.  The pointer part may not exist (if there is a call part).
+The call part may not exist (if there is a pointer part).  There are no
 {\tt point} compile-time reference functions.  All indices must
 be {\em constant-expressions}, and the reference pointer of a
 {\em reference-expression} is completely computed at compile-time.
 
-The root has the following cases:
+The compile-time root has the following cases:
 \begin{enumerate}
 \item If the root is a {\em variable-name} or
 `\TT{next} {\em variable-name}', then the pointer part of the root's
@@ -3280,21 +3284,40 @@ and the root is loading,
 then the pointer part of the root's
 reference pointer does not exist and the call part consists of the
 declaration of the {\tt load} reference function without any indices.
+\item Other cases are compile errors.
+For example, a {\em function-variable-name}
+in a storing {\em reference-expression} that has no {\tt store}
+{\em reference-function-declaration}.
 \end{enumerate}
 
-TBD
-
 A {\em reference-offset} of a compile-time compound {\em reference-expression}
-computes the pointer part for the compound {\em reference-expression}
+computes the reference pointer of the {\em reference-expression}
 by first reading the target of the reference pointer of the
-{\em reference-base}, which must be a map, and then computing
-the index part as follows:
+{\em reference-base}, which must be a map.  Then either an index is
+computed and added to the map to make the pointer part
+of a new reference pointer with no call part, or a call part is computed
+and the new reference pointer is given the map by itself as its pointer part.
+The computation has the following cases (the first case that
+succeeds is used):\label{COMPILE-TIME-FIELD-SELECTION}
 \begin{enumerate}
+\item If the {\em reference-offset} has just a {\em member-name}
+(and no indices), search for {\em reference-function-declarations}%
+\pagnote{REFERENCE-FUNCTION-DECLARATIONS} with a {\tt const}
+{\em reference-base}, the given {\em member-name}, and no indices.
+For a storing
+{\em reference-expression}, exclude {\tt load} declarations, and
+for a loading {\em reference-expression}, exclude {\tt store}
+declarations.  See
+\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+
+If a declaration is found its declaration becomes the call part of the
+computed reference pointer.
+
 \item If the {\em reference-offset} is a {\em member-name} `\TT{.}$M$',
 set the index to the {\tt const} string $M$.
 \item If the {\em reference-offset} is an {\em index-list} with one
 index, and the index $I$ is an integer or string {\tt const} value,
-set the index of the reference pointer to $I$.
+set the index to $I$.
 \item If the {\em reference-offset} is a {\em member-name} followed
 by an {\em index-list}, split the {\em reference-offset} into two
 {\em reference-offsets}, one with just the {\em member-name} and one with
@@ -4796,7 +4819,7 @@ having any ancestors with more than one child.}
 
 A field of a value of a user defined type is accessed by prepending
 `\TT{.}' to the {\em field-label} to form a {\em member-name} in
-a {\em reference-expression} (see \pagref{FIELD-SELECTION}).
+a {\em reference-expression} (see \pagref{RUN-TIME-FIELD-SELECTION}).
 An example is:
 
 \begin{indpar}\begin{verbatim}
