@@ -3090,6 +3090,19 @@ of this algorithm (check Case 1 again).
 
 Note that Case~\ref{OFFSET-CASE} has precedence over this case.
 
+\item\label{POINTER-CASE}
+If the target of $P$ is itself a pointer (the type of $P$
+has two or more {\em pointer-names}), set $P$ = the target value of $P$ and
+$D$ = clear, and go back to the beginning
+of this algorithm (check Case 1 again).
+
+Note that Cases~\ref{OFFSET-CASE} and \ref{POINT-CASE}
+have precedence over this case.
+
+Note: you cannot use a {\em reference-offset} to access parts of a
+pointer value, but you can convert the pointer value to its underlying
+data value\pagnote{POINTER-TYPE-DECLARATIONS} and access parts of that.
+
 \item\label{DP-CASE}
 If $P$ is a {\tt dp} pointer pointing at a user defined type and the
 {\em reference-offset} has the form `\TT{.}{\em field-label}\,'
