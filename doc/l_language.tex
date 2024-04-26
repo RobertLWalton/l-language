@@ -3276,13 +3276,13 @@ variable in the compiler local stack.
 \item A pair of {\tt const} values, the first a map, and the
 second an index that is either an integer or a string.
 \item A single {\tt const} value, a map.  In this case the call
-part must exist.
+part must exist, and this pointer part is an argument to the call part
+function.
 \end{itemize}
 The dereference flag part of a compile-time reference pointer is
-always set.  The pointer part may not exist (if there is a call part).
-The call part may not exist (if there is a pointer part).  There are no
-{\tt point} compile-time reference functions.  All indices must
-be {\em constant-expressions}, and the reference pointer of a
+always set.  There are no {\tt point} compile-time reference functions.
+All indices must be {\em constant-expressions} evaluating to non-negative
+integers or to strings.  The reference pointer of a
 {\em reference-expression} is completely computed at compile-time.
 
 The compile-time root has the following cases:
@@ -3290,19 +3290,19 @@ The compile-time root has the following cases:
 \item If the root is a {\em variable-name} or
 `\TT{next} {\em variable-name}', then the pointer part of the root's
 reference pointer points into the compile-time local or global stack
-and the call part does not exist.
+and the call part is missing.
 \item If the root is the {\em function-variable-name} of a
 {\tt store} reference function and the root is storing
 (so the root must be the \underline{entire} {\em reference-expression}),
 then the pointer part of the root's
-reference pointer does not exist
+reference pointer is missing
 and the call part consists of the
 declaration of the {\tt store} reference function without any indices.
 \item If the root is the {\em function-variable-name} of a
 {\tt load} reference function
 and the root is loading,
 then the pointer part of the root's
-reference pointer does not exist and the call part consists of the
+reference pointer is missing and the call part consists of the
 declaration of the {\tt load} reference function without any indices.
 \item Other cases are compile errors.
 For example, a {\em function-variable-name}
@@ -3343,6 +3343,7 @@ by an {\em index-list}, split the {\em reference-offset} into two
 {\em reference-offsets}, one with just the {\em member-name} and one with
 just the {\em index-list}.
 \item All other cases are compile errors.
+Included are cases where a {\em reference-offset} has more than one index.
 \end{enumerate}
 
 Map {\tt const} values are represented internally by pointers to where
