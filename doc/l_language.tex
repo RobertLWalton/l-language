@@ -2935,7 +2935,8 @@ If on the other hand the dereference flag is clear, the pointer part
 itself is the value of the {\em reference-expression}, and cannot
 be used to load from or store into its target.
 
-The type of a reference pointer is defined to be the type of the value
+The type of a reference pointer\label{REFERENCE-POINTER-TYPE}
+is defined to be the type of the value
 that is loaded or stored by the reference pointer.  More specifically:
 \begin{itemize}
 \item If the dereference flag is clear, the type of the reference pointer
@@ -3265,7 +3266,7 @@ qualifiers of the computed reference pointer are determined by
 the {\em reference-function-declaration} involved.
 
 \subsubsection{Compile-Time Reference Expressions}
-\label{Compile-TIME-REFERENCE-EXPRESSIONS}
+\label{COMPILE-TIME-REFERENCE-EXPRESSIONS}
 
 The pointer part of a compile-time reference pointer is one of:
 \begin{itemize}
@@ -5988,41 +5989,6 @@ all the {\em expressions} in the {\em statement} and apply the following
 algorithm with evaluates {\em constant-expressions}, analyzes
 {\em reference-expressions}, and processes macros and inclusions:
 
-A {\em reference-expression} is one of the following:
-\begin{itemize}
-\item \key{Compile-Time {\em Reference-expression}} ~~
-The root has a {\tt const} value.  In this
-case all indices must be
-{\em constant-expressions}\pagnote{CONSTANT-EXPRESSION}, else it is
-a compile error.
-\item \key{Run-Time {\em Reference-expression}} ~~
-All other {\em reference-expressions}.
-\end{itemize}
-
-A run-time {\em reference-expression} is one of the following
-(for the definiting of reference pointer see \pagref{REFERENCE-POINTER}):
-\begin{itemize}
-\item \key{Storing {\em Reference-Expression}} ~~
-The {\em reference-expression} is an
-{\em assignment-re\-sult}\pagnote{ASSIGNMENT-RESULT}.
-The {\em reference-expression} must compute a reference pointer with its
-dereference flag set.
-Values are stored into the location specified by the {\em reference-expression}.
-\item \key{Loading {\em Reference-Expression}} ~~
-The {\em reference-expression} is \underline{not} an
-{\em assignment-result}, and the reference pointer it computes has the
-dereference flag set.
-Values are loaded from the
-location specified by the {\em reference-expression}.
-\item \key{Pointing {\em Reference-Expression}} ~~
-The reference pointer computed by the {\em reference-expression}
-has its dereference flag clear.
-The {\em reference-expression} must \underline{not} be an
-{\em assignment-result}, else it is a compile error.
-The pointer part of the reference pointer is the value of the
-{\em reference-expression}.
-\end{itemize}
-
 \bigskip
 
 \centerline{\bf Bottom-Up Expression Algorithm}
@@ -6031,137 +5997,17 @@ The pointer part of the reference pointer is the value of the
 \item This algorithm is applied to an {\em expression} $E$, and
 terminates after any step that annotates $E$.
 
-When this algorithm searches for a declaration matching an {\em expression},
+When this algorithm searches for a non-reference
+declaration matching an {\em expression},
 it uses the Declaration Search Algorithm below.
 
 \item\label{CONSTANT-STEP}
 If $E$ is a {\em constant}\pagnote{CONSTANTS} other than
 a {\em rational-constant}, evaluate $E$
-to a {\tt const} value $C$, annotate $E$
+to a {\tt const} value $C$, and annotate $E$
 with $C$ and with the type {\tt const}
 ({\em Rational-constants} are evaluated as {\em function-calls} to
 a {\tt constant} function in Step~\ref{CONSTANT-FUNCTION-STEP} below.)
-
-\item\label{REFERENCE-EXPRESSION-STEP}
-If $E$ is a {\em reference-expression}, processing depends upon whether
-the {\em reference-expres\-sion} is compile-time or run-time.
-First we consider the case where there are no
-{\em reference-calls}\pagnote{REFERENCE-CALL} in the
-{\em reference-expression}.
-
-Then the {\em reference-expression} begins with a {\em variable-name}
-(not a {\em function-variable-name}) and is compile time if that
-variable has type {\tt const} and run-time otherwise.
-The according to the rule of
-Reference Expressions, \itemref{REFERENCE-EXPRESSIONS},
-if the {\em reference-expression} is compile time compute its reference pointer
-and annotate $E$ with that, and if run-time compute the type of its
-reference pointer and annotate $E$ with that.  Also for compile-time
-loading {\em reference-expressions}, dereference the reference pointer
-to get a {\tt const} value $C$, and annotate $E$ with $C$.
-
-For compile-time {\em reference-offsets} not involved in {\em reference-calls},
-any index {\em expressions} must have previously been annotated with
-a {\tt const} value, else it is a compile error.
-
-For run-time {\em reference-offsets} not involved in {\em reference-calls},
-any index {\em expressions} are annotated with the \TT{int} target type.
-
-{\em Reference-calls} are handled as follows:
-
-If the {\em reference-expression} $E$ begins with a
-{\em function-variable-name}\label{FUNCTION-VARIABLE-NAME-STEP},
-find the {\em reference-declaration} $D$ associated with
-the {\em function-variable-name}.  If the $E$ is not loading, exclude
-any {\em load} {\em reference-declaration}, and if $E$ is not storing,
-exclude any {\em store} {\em reference-declaration}.  If no
-{\em reference-declaration} is found (e.g., because $E$ is storing
-and there is only a {\tt load} declaration), it is a compile-error.
-Then annotate the root of $E$ with $D$.
-
-For {\tt load} or {\tt store}
-$D$, the root {\em function-variable-name} must be the
-\underline{entire} {\em reference-expression}, else there is a
-compile error.  In this case, annotate a compile-time $E$ with
-a pseudo reference pointer indicating that to load or store one
-must call the function $F$ of $D$, and annotate a run-time $E$ with
-a pseudo virtual reference pointer whose target type is the
-result type of $F$ for {\tt load} $D$ and the input type of $F$
-for {\tt store} $D$.
-\footnote{A virtual reference pointer points
-at a location in the local or global stack or points at a location
-storing a pointer.  A pseudo virtual pointer
-is merely associated with a function to load a value or a function to store
-a value.}
-For compile-time loading $E$, execute $F$
-to get a {\tt const} value $C$ and annotate $E$ with $C$.
-
-For {\tt point} $D$, $E$ must be run-time
-(a {\tt point} $D$ cannot have a {\tt const} type {\em reference-base}
-or result).  Then $E$'s reference pointer
-type is the type of the value returned by the function $F$ of $D$ --
-annotate the root of $E$ with this real reference pointer type.
-
-The other {\em reference-call} case consists of an already processed
-{\em reference-base} with a known reference pointer if compile-time
-or reference pointer type if run-time
-and its following unprocessed {\em reference-offset}.  With this
-information a search is made for a matching
-{\em reference-function-declaration} $D$, and if one is found,
-the {\em reference-offset} it matches becomes processed.
-If the $E$ is loading, $D$ cannot be a {\em store} declaration,
-and if $E$ is storing, $E$ cannot be a {\em load} declaration.  If no
-{\em reference-declaration} is found, it is a compile-error.
-If a {\tt load} or {\tt store} declaration is found and the matching
-{\em reference-offset} is not at the very end of $E$, it is a
-compile error.
-If $D$ is found annotate the {\em reference-call} with $D$,
-and annotate each run-time index {\em expression}
-with the {\tt int} target type.
-If a compile-time index is \underline{not}
-annotated with a {\tt const} value, it is a compile error.
-
-
-Note that to get a match for run-time $E$, the type of the
-{\em reference-base} reference pointer \underline{cannot} be virtual;
-to match it must be the exact type of the {\em reference-pattern-base}
-\pagnote{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}.
-
-For {\tt load} or {\tt store} $D$,
-annotate a compile-time $E$ with
-a pseudo reference pointer indicating that to load or store one
-must call the function $F$ of $D$, and annotate a run-time $E$ with
-a pseudo virtual reference pointer whose target type is the
-result type of $F$ for {\tt load} $D$ and the input type of $F$
-for {\tt store} $D$.
-For compile-time loading $E$, dereference the reference pointer
-for the {\em reference-base} and pass this as an argument to an
-execution of $F$ to get a {\tt const} result $C$, and then
-annotate $E$ with $C$.
-
-For {\tt point} $D$, $E$ must be run-time
-(a {\tt point} $D$ cannot have a {\tt const} type {\em reference-base}
-or result).  Then the processed part of $E$'s reference pointer
-type is the type of the value returned by the function $F$ of $D$ --
-annotate the processed part of $E$ with this real reference pointer type.
-
-For all \underline{run-time}
-{\em reference-expressions}, whether or not they contain
-{\em reference-calls}, the following is true.
-For a pointing {\em reference-expression} the reference pointer it
-computes must be real and its type must have a normal `real' pointer type.
-For a loading or storing {\em reference-expression} the reference
-pointer it computes may be (pseudo) virtual and its type may have a
-`(pseudo) virtual'
-pointer type, but the only thing that matters in this case is the
-type of the value pointed at, which will be a normal `real' type.
-In the case of a loading {\em reference-expression} the reference
-pointer type must allow values to be read (e.g., it cannot have
-the {\tt *INIT*} qualifier), and for a storing
-{\em reference-expression},
-the reference pointer type must allow values to be stored
-(e.g., it cannot have the {\tt co} qualifier), else there is a compile
-error.
 
 \item\label{MODULE-PROPAGATION-STEP}
 If the \underline{entire} {\em expression} $E$ has the form: \\
@@ -6171,6 +6017,20 @@ be implied, move the {\em module-abbreviation}
 to the beginning of the \underline{parsed} {\em subexpression}, and
 repeat this step for the modified {\em expression}.
 See \pagref{MA-SYNTACTIC-SUGAR} for an example.
+
+\item\label{COMPILE-TIME-REFERENCE-EXPRESSION-STEP}
+If $E$ is a compile-time
+{\em reference-expression}\pagnote{COMPILE-TIME-REFERENCE-EXPRESSIONS},
+evaluate $E$ to a reference pointer.  Then if $E$ is storing, annotate
+$E$ with the reference pointer, and if $E$ is loading, load the value $C$
+pointed at and annotate $E$ with $C$ and the {\tt const} type.
+
+\item\label{RUN-TIME-REFERENCE-EXPRESSION-STEP}
+If $E$ is a run-time
+{\em reference-expression}\pagnote{RUN-TIME-REFERENCE-EXPRESSIONS},
+evaluate the type of $E$'s reference pointer and annotate
+$E$ with this type.  Also annote each index subexpression with its
+target type.
 
 \item\label{CONSTANT-FUNCTION-STEP}
 If $E$ is a {\em function-call},
