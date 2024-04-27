@@ -2935,9 +2935,13 @@ If on the other hand the dereference flag is clear, the pointer part
 itself is the value of the {\em reference-expression}, and cannot
 be used to load from or store into its target.
 
-The type of a reference pointer\label{REFERENCE-POINTER-TYPE}
+The \key{type} of a reference pointer
 is defined to be the type of the value
 that is loaded or stored by the reference pointer.  More specifically:
+
+\bigskip
+
+\centerline{\bf Reference Pointer Type}\label{REFERENCE-POINTER-TYPE}
 \begin{itemize}
 \item If the dereference flag is clear, the type of the reference pointer
 is the type of its pointer part.
@@ -2948,6 +2952,13 @@ the type of the reference pointer is the result type of a {\tt load}
 reference function declared in the call part or the input type of a {\tt store}
 function declared in the call part.
 \end{itemize}
+
+The \key{type} of a {\em reference-expression} is the type of the reference
+pointer it computes.  This is \underline{not} affected by the
+within-{\em statement} context in which the {\em reference-expression}
+occurs.  Thus the types of the {\em reference-expressions} in a
+{\em statement} can be computed before {\em function-calls} in the
+{\em statement} are matched to {\em function-declarations}.
 
 Examples of run-time reference pointers are:
 \begin{indpar}\small\begin{verbatim}
