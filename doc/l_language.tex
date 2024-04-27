@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 26, 2024
+April 27, 2024
 
 \bigskip
 
@@ -5887,9 +5887,10 @@ const z = list ( 4, 5 )  // Sets z to { 4, 5 }
 
 A \emkey{constant-expression}\label{CONSTANT-EXPRESSION}
 is an {\em expression} that is either
-a {\em constant}\pagnote{CONSTANT}
+a {\em constant}\pagnote{CONSTANT}, a compile-time
+{\em refer\-ence-expression}\pagnote{COMPILE-TIME-REFERENCE-EXPRESSIONS},
 or a {\em function-call} to a {\tt constant} function
-with arguments that are {\em constant-expressions}.\footnote{
+with arguments that are {\em con\-stant-expressions}.\footnote{
 A {\em rational-constant} is both a {\em constant} and a {\em function-call}
 to a {\tt constant} function whose argument is a ({\em quoted-string})
 {\em constant}.}
@@ -5986,7 +5987,7 @@ with a compile error.
 The first step in processing
 a {\em statement} is to visit in bottom-to-top left-to-right order
 all the {\em expressions} in the {\em statement} and apply the following
-algorithm with evaluates {\em constant-expressions}, analyzes
+algorithm which evaluates {\em constant-expressions}, analyzes
 {\em reference-expressions}, and processes macros and inclusions:
 
 \bigskip
@@ -6001,14 +6002,6 @@ When this algorithm searches for a non-reference
 declaration matching an {\em expression},
 it uses the Declaration Search Algorithm below.
 
-\item\label{CONSTANT-STEP}
-If $E$ is a {\em constant}\pagnote{CONSTANTS} other than
-a {\em rational-constant}, evaluate $E$
-to a {\tt const} value $C$, and annotate $E$
-with $C$ and with the type {\tt const}
-({\em Rational-constants} are evaluated as {\em function-calls} to
-a {\tt constant} function in Step~\ref{CONSTANT-FUNCTION-STEP} below.)
-
 \item\label{MODULE-PROPAGATION-STEP}
 If the \underline{entire} {\em expression} $E$ has the form: \\
 \hspace*{2in}{\em module-abbreviation} \TT{(} {\em subexpression} \TT{)} \\
@@ -6017,6 +6010,14 @@ be implied, move the {\em module-abbreviation}
 to the beginning of the \underline{parsed} {\em subexpression}, and
 repeat this step for the modified {\em expression}.
 See \pagref{MA-SYNTACTIC-SUGAR} for an example.
+
+\item\label{CONSTANT-STEP}
+If $E$ is a {\em constant}\pagnote{CONSTANTS} other than
+a {\em rational-constant}, evaluate $E$
+to a {\tt const} value $C$, and annotate $E$
+with $C$ and with the type {\tt const}
+({\em Rational-constants} are evaluated as {\em function-calls} to
+a {\tt constant} function in Step~\ref{CONSTANT-FUNCTION-STEP} below.)
 
 \item\label{COMPILE-TIME-REFERENCE-EXPRESSION-STEP}
 If $E$ is a compile-time
@@ -6044,11 +6045,8 @@ If $E$ is a {\em function-call},
 Search for \underline{macro} {\em function-declarations}
 matching $E$.  If one is found,
 evaluate the declaration's function to get a {\tt const} value $R$,
-replace $E$ by $R$, and go to Step 1.
-
-Note that macro arguments that are {\em constant-expressions}
-(those annotated with a {\tt const} value) or {\em reference-expressions}
-are processed before this step.
+replace $E$ by $R$, and apply the Bottom-Up Expression Algorithm to $R$
+(re-analyze the subexpressions of $R$).
 
 \item\label{INCLUSION-FUNCTION-STEP}
 If $E$ is a {\em function-call}
@@ -6056,7 +6054,7 @@ that is top level in a {\em call-assignment-statement} $S$,
 search for \underline{inclusion} {\em function-declarations}
 matching $E$.
 
-Otherwise evaluate the declaration's function to {\tt const} return values.
+If one found, evaluate the declaration's function to {\tt const} return values.
 The first return value replaces $S$ (not $E$).
 
 Subsequent return values are assigned to $S$'s {\em assignment-results}
@@ -6068,11 +6066,13 @@ least $N+1$ results (all of which must be {\tt const} values).
 If there are excess results, discard them.  If there are too few,
 it is a compile error.
 
-If $S$ has been replaced, terminate this algorithm.
+If $S$ has been replaced, terminate this algorithm (and begin processing
+the replacement for $S$).
 
 Note that inclusion arguments that are {\em constant-expressions}
-(those annotated with a {\tt const} value), {\em reference-expressions},
-or macros are processed before this step.
+(those annotated with a {\tt const} value), run-time
+{\em reference-expressions},
+and macros are processed before this step.
 
 \end{enumerate}
 
@@ -6094,8 +6094,8 @@ have a result of this type (or results of these types).
 In an {\em expression-assignment-statement}%
 \pagnote{EXPRESSION-ASSIGNMENT-STATEMENTS} each right-side {\em expression}
 has a corresponding left-side {\em assignment-result} which is a
-{\em reference-expression} that is annotated with a reference pointer type
-which when dereferenced gives the right-side {\em expression's} target type.
+{\em reference-expression} that is annotated with its type,
+which is the right-side {\em expression's} target type.
 
 In a {\em call-assignment-statement}%
 \pagnote{CALL-ASSIGNMENT-STATEMENTS} in which $E$ is the {\em function-call}
