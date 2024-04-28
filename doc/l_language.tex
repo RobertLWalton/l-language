@@ -6065,7 +6065,8 @@ that is top level in a {\em call-assignment-statement} $S$,
 search for \underline{inclusion} {\em function-declarations}
 matching $E$.
 
-If one found, evaluate the declaration's function to {\tt const} return values.
+If one found, evaluate the declaration's function to obtain
+{\tt const} return values.
 The first return value replaces $S$ (not $E$).
 
 Subsequent return values are assigned to $S$'s {\em assignment-results}
@@ -6079,11 +6080,6 @@ it is a compile error.
 
 If $S$ has been replaced, terminate this algorithm (and begin processing
 the replacement for $S$).
-
-Note that inclusion arguments that are {\em constant-expressions}
-(those annotated with a {\tt const} value), run-time
-{\em reference-expressions},
-and macros are processed before this step.
 
 \end{enumerate}
 
@@ -6100,19 +6096,15 @@ Bottom-Up Expression Algorithm).
 
 Furthermore in this step each $E$ has a target type $T$ (or types),
 and {\em function-prototypes} that match the expression are required to
-have a result of this type (or results of these types).
+have a result of exactly this type (or results of exactly these types).
 
-In an {\em expression-assignment-statement}%
-\pagnote{EXPRESSION-ASSIGNMENT-STATEMENTS} each right-side {\em expression}
-has a corresponding left-side {\em assignment-result} which is a
-{\em reference-expression} that is annotated with its type,
-which is the right-side {\em expression's} target type.
-
-In a {\em call-assignment-statement}%
-\pagnote{CALL-ASSIGNMENT-STATEMENTS} in which $E$ is the {\em function-call}
-on the statement's right-side, the statement's
-left-side {\em assignment-results} are {\em reference-expressions} that
-taken together give a list of the {\em function-call's} target types.
+After the Bottom-Up Expression Algorithm, {\em assignment-results}
+have a known type, which becomes the target type of expressions that
+set these results.  If an {\em assignment-result} is a variable declaration,
+the declaration specifies the type of the {\em assignment-result}.
+If the {\em assignment-result} is a {\em reference-expression}, the
+Bottom-Up Expression Algorithm
+determines the type of the {\em assignment-result}.
 
 For an {\em expression} that is a {\em function-call} argument,
 the declaration matched to the {\em function-call} specifies the
@@ -6122,8 +6114,10 @@ the declaration matched to `{\tt x +  5}' (the only one with an {\tt int}
 result type) has {\tt int} result
 and argument types, so {\tt int} is the target type of `{\tt x}' and `{\tt 5}'.
 
-For an index of a {\em reference-expression}, the Bottom-Up
-Algorithm above has annotated the index {\em expression} with its target type.
+For an index of a {\em reference-expression}, the
+index {\em expression} is annotated with its target type when its
+containing {\em reference-expression} is analyzed by the Botton-Up
+Expression Algorithm.
 
 As a special case, in a relational expression such as `{\tt x < y + 5}'
 all the operands are assigned the same target type by the following
@@ -6152,10 +6146,10 @@ remember what we found so we do not re-compute the match for
 that target type if it is needed again.  Therefore, when we find a
 {\em function-declaration} $D$ matching $E$ for target type $T$, we annotate
 $E$ with $T\mapsto D$.  These annotations may then be used to compile
-the {\em statement} after this third step is completed.
+the {\em statement} after this second step is completed.
 
-Given all this, when the third step visits an {\em expression} $E$ with
-target type $T$ the third step executes:
+Given all this, when the second step visits an {\em expression} $E$ with
+target type $T$ the second step executes:
 
 
 \bigskip
