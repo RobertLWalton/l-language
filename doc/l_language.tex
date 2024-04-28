@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 27, 2024
+April 28, 2024
 
 \bigskip
 
@@ -6011,7 +6011,7 @@ terminates after any step that annotates $E$.
 
 When this algorithm searches for a non-reference
 declaration matching an {\em expression},
-it uses the Declaration Search Algorithm below.
+it uses the Function Declaration Search Algorithm below.
 
 \item\label{MODULE-PROPAGATION-STEP}
 If the \underline{entire} {\em expression} $E$ has the form: \\
@@ -6164,7 +6164,7 @@ current statement.  It annotates {\em expressions} with maps from
 possible target types to declarations containing code that can execute
 the {\em expressions},
 When this algorithm searches for a declaration matching an {\em expression},
-it uses the Declaration Search Algorithm below.
+it uses the Function Declaration Search Algorithm below.
 
 \item If $E$ already has an annotation $T\mapsto \ldots$,
 terminate this algorithm.  In what follows, processing of $E$ is
@@ -6181,7 +6181,8 @@ or if not found,
 annotate $E$ with $T\mapsto {\tt *FAIL*}$.
 
 \item If $E$ is a
-{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS},
+{\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS}
+of type $T'$,
 annotated with a reference pointer type that points at a value
 of type $T'$,
 then if $T$ equals $T'$ annotate $E$ with $T\mapsto{*EXACT*}$.
@@ -6208,7 +6209,7 @@ more than one {\em assignment-result}, then $T$ is replaced by a list
 $T_1,T_2,\ldots,T_m$ of target types (the types of the
 {\em assignment-results}), and the search for
 {\em function-declarations} is limited to those whose prototypes have
-at least $m$ results with the first $m$ of these being of types
+at least $m$ results with the first $m$ of these being of exactly types
 $T_1,T_2,\ldots,T_m$ respectively.
 
 \end{enumerate}
@@ -6219,25 +6220,21 @@ The search algorithm used by the above is:
 
 \bigskip
 
-\centerline{\bf Declaration Search Algorithm}
+\centerline{\bf Function Declaration Search Algorithm}
 \begin{enumerate}
-\item This algorithm examines all ({\em reference-}){\em function-declarations}
+\item This algorithm examines all {\em function-declarations}
 in the current context\pagnote{CONTEXT} that meet criteria specified by the
-search and applies the
-Call-Declaration Matching Algorithm for
-{\em function-declarations} (see \itemref{INLINE-CALL-DECLARATION-MATCHING})
-of the Reference Call-Declaration Matching Algorithm for
-{\em reference-function-declarations}
-(see \itemref{REFERENCE-CALL-DECLARATION-MATCHING})
-to each.
+search and applies to each the
+Function Declaration Matching Algorithm for
+{\em function-declarations} (see below).
 Search criteria can restrict the search to, for example, {\tt macro}
 {\em function-declarations}, or to give another example,
 to all non-special {\em function-declarations} with a given target type
 (type of their first result).
 \item
 After examining all the appropriate declarations, this algorithm has
-a set of declarations satisfying the (Reference)
-Call-Declaration Matching Algorithm.
+a set of declarations satisfying the
+Function Declaration Matching Algorithm.
 If the set is empty, this algorithm reports failure.  Otherwise all but
 the highest ranking matches are discarded.  If there is only one match
 left, this algorithm reports success along with the single highest
@@ -6248,16 +6245,13 @@ ambiguity failure.
 \end{enumerate}
 
 The matching algorithm used by the above to match a {\em function-call}
-with a {\em function-declara\-tion} is as follows.  For the corresponding
-algorithm matching a {\em reference-call} to a
-{\em reference-function-declaration} see
-\itemref{REFERENCE-FUNCTION-DECLARATIONS}.
+with a {\em function-declara\-tion} is as follows.
 
 \bigskip
 
-\centerline{\bf Call-Declaration Matching Algorithm}
+\centerline{\bf Function Declaration Matching Algorithm}
 \begin{enumerate}
-\item\label{CALL-DECLARATION-MODULE-ABBREVIATION}
+\item\label{FUNCTION-DECLARATION-MODULE-ABBREVIATION}
 If the call begins with a {\em module-abbreviation}
 and the {\em prototype-pattern} in the {\em function-declaration}
 either does not have a preceding {\em module-abbreviation},
@@ -6420,7 +6414,8 @@ types).
 an {\em actual-arguments} and processed left to right.
 
 If a {\em prototype-argument-declaration} $PAD$ is matched
-to an {\em actual-argument} $AA$ and $PAD$ has a wildcard,
+to an {\em actual-argument} $AA$ and $PAD$ has a wildcard not
+assigned in Step~\ref{CALL-DECLARATION-TARGET-MATCHING},
 $AA$ must be {\em reference-expression} or a {\em constant-expression},
 (i.e., annotated with a {\tt const} value by the Bottom-Up Algorithm)
 else the
@@ -6462,7 +6457,7 @@ and acceptable {\em actual-argu\-ment} subexpression target types
 are then checked, except for {\tt macro} arguments (that require
 no run-time typing).  Specifically, if a {\em prototype-argument-declaration}
 specifies a target type $T'$ for an {\em actual-argument} {\em expression} $E'$,
-the Declaration Search Algorithm
+the Top-Down Expression Algorithm
 is applied recursively to $E'$ with target type $T'$ to get
 an annotation $T'\mapsto\ldots$ on $E'$.
 
@@ -6525,12 +6520,12 @@ bool b4 = ( flt64 ( x ) == 5 )
 \label{REFERENCE-FUNCTION-DECLARATIONS}
 
 A \key{reference function} is a function that can be
-called as part of evaluating a {\em reference-expression}.
+called by an initial part of a {\em reference-expression}.
 This part is called a {\em reference-call}\label{REFERENCE-CALL}.
 
 
 A {\em function-variable-name} appearing at the beginning of
-a {\em reference-expression} as the root is a {\em reference-call}.
+a {\em reference-expression} as its root is a {\em reference-call}.
 
 A compound {\em reference-expression} can be a {\em reference-call}.
 
@@ -6603,8 +6598,6 @@ The syntax of a {\em reference-function-declaration} is:
     {\em prototype-result-variable-declaration}
 \\[0.5ex]
 {\em member-name} ::= see \pagref{MEMBER-NAME}
-\\[0.5ex]
-{\em pattern-argument-list} ::= see \pagref{PATTERN-ARGUMENT-LIST}
 \end{indpar}
 \begin{enumerate}
 \item
@@ -6620,6 +6613,9 @@ A {\tt point} {\em reference-function-declaration}
 \item
 A {\em function-variable-name} begins with a {\em module-abbreviation}
 if and only if it is external (just like other {\em variable-names}).
+In the external case the {\em reference-function-declarations} for the
+{\em function-variable-name} must appear in the module (file)
+named.
 \item
 A {\em reference-function-declaration} \underline{not} containing
 a {\em function-variable-name} is external if and only if the
@@ -6628,36 +6624,22 @@ target type of its {\em reference-pattern-base} is external
 the {\em reference-function-declaration} \underline{must} be within
 the same module (file) as the {\em type-declaration} of this target type.
 \item
-The {\em reference-pattern-base} must be
-followed by
-a {\em member-name}\pagnote{MEMBER-NAME} or
-{\em square-bracketed-pattern-argument-list}.
-\item
 Default values, required values, and {\tt macro} arguments
 are not permitted.
-\item
-A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
-is treated in a {\em reference-function-prototype} as a {\em type-name}.
-A wild-card name of the form {\tt P\$\ldots} is treated as a
-{\em pointer-type-name}.
-A wild-card name of the form {\tt Q\ldots\$\ldots} is treated as a
-{\em qualifier-name} and \underline{must not} be combined with
-other {\em qualifier-names} in the same
-{\em prototype-result-variable-declaration}.
 \item At most two {\em reference-function-declarations} in a context
-may have the same {\em function-variable-name}, and in this case,
+may have the same {\em function-variable-name}, and if there are two,
 one must have the {\tt load} {\em reference-function-specifier},
 and the other must have the {\tt store}
 {\em reference-function-specifier}.
 \item At most two {\em reference-function-declarations} in a context
 may have the same {\em reference-pattern-base} argument type and
-{\em member-name}, and in this case,
+{\em member-name}, and if there are two,
 one must have the {\tt load} {\em reference-function-specifier},
 and the other must have the {\tt store}
 {\em reference-function-specifier}.
 \item At most two {\em reference-function-declarations} in a context
 may have the same {\em reference-pattern-base} argument type and
-have a {\em square-bracketed-pattern-argument-list}, and in this case,
+\underline{no} {\em member-name}, and if there are two,
 one must have the {\tt load} {\em reference-function-specifier},
 and the other must have the {\tt store}
 {\em reference-function-specifier}.
@@ -6666,23 +6648,10 @@ and the other must have the {\tt store}
 \subsubsection{Reference Call-Declaration Matching}
 \label{REFERENCE-CALL-DECLARATION-MATCHING}
 
-A {\em reference-expression} is one of three types:
-\begin{itemize}
-\item \key{Loading} ~~ The {\em reference-expression} begins with a
-{\em target-variable} (that does \underline{not} begin with `\TT{@}')
-and is used to load a value from the referenced location.
-\item \key{Storing} ~~ The {\em reference-expression} begins with a
-{\em target-variable} (that does \underline{not} begin with `\TT{@}')
-and is used to store a value into the referenced location.
-\item \key{Pointing} ~~ The {\em reference-expression} begins with a
-{\em pointer-variable} (that begins with `\TT{@}')
-and is used to compute a pointer to the referenced location.
-\end{itemize}
-
 In the case of a {\em function-variable-name} reference call,
 the {\em function-variable-name} is just located in the current
 context just like any other {\em variable-name}, and may be
-a {\em pointer-variable} of a {\em target-variable}.
+a {\em pointer-variable} or a {\em target-variable}.
 The {\em function-variable-name} begins the {\em reference-expression}
 and is the root of the {\em reference-expression}.
 There are two cases:
@@ -6721,7 +6690,32 @@ the reference pointer has already been computed.
 
 \bigskip
 
-\centerline{\bf Reference-Call-Reference-Declaration Matching Algorithm}
+\centerline{\bf Reference Function Declaration Search Algorithm}
+\begin{enumerate}
+\item This algorithm examines all {\em reference-function-declarations}
+in the current context\pagnote{CONTEXT} that meet criteria specified by the
+search and applies to each the
+Refrence Function Declaration Matching Algorithm (below) for
+{\em reference-function-declarations}.
+Search criteria can restrict the search to, for example, {\tt store}
+{\em reference-function-declarations} are excluded for a loading
+{\em reference-expression}.
+\item
+After examining all the appropriate declarations, this algorithm has
+a set of declarations satisfying the
+Reference Function Declaration Matching Algorithm.
+If the set is empty, this algorithm reports failure.  Otherwise all but
+the highest ranking matches are discarded.  If there is only one match
+left, this algorithm reports success along with the single highest
+ranking matching declaration.
+If there are more than one highest ranking match, this algorithm reports
+ambiguity failure.
+
+\end{enumerate}
+
+\bigskip
+
+\centerline{\bf Reference Function Declaration Matching Algorithm}
 \begin{enumerate}
 \item\label{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING}
 The {\em reference-offset} and the {\em  reference-pattern-offset} must
@@ -7591,9 +7585,9 @@ The hiding rules do \underline{not}
 apply to {\em out-of-line-function-names} or {\em function-term-names}.
 {\em Module-abbreviations} may be omitted from {\em function-calls}
 without changing the function called, as long as there is no
-ambiguity (see Step~\ref{CALL-DECLARATION-MODULE-ABBREVIATION}
-of the Call-Declaration Matching Algorithm,
-\pagref{CALL-DECLARATION-MODULE-ABBREVIATION}).
+ambiguity (see Step~\ref{FUNCTION-DECLARATION-MODULE-ABBREVIATION}
+of the Function Declaration Matching Algorithm,
+\pagref{FUNCTION-DECLARATION-MODULE-ABBREVIATION}).
 
 A {\em next-variable-declaration} is allowed
 within the scope of a previous declaration of its {\em variable-name},
@@ -7678,9 +7672,9 @@ More specifically,
 when a function declaration is used, the {\em module-abbreviation}
 beginning the function call may be omitted if the function declaration is
 the only function declaration within scope that matches the usage,
-according to Step~\ref{CALL-DECLARATION-MODULE-ABBREVIATION}
-of the Call-Declaration Matching Algorithm,
-\pagref{CALL-DECLARATION-MODULE-ABBREVIATION}.
+according to Step~\ref{FUNCTION-DECLARATION-MODULE-ABBREVIATION}
+of the Function Declaration Matching Algorithm,
+\pagref{FUNCTION-DECLARATION-MODULE-ABBREVIATION}.
 Thus given:
 \begin{indpar}\begin{verbatim}
 function int32 y = mom my external function ( int32 x ):
