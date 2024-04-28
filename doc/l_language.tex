@@ -6649,37 +6649,21 @@ and the other must have the {\tt store}
 \label{REFERENCE-CALL-DECLARATION-MATCHING}
 
 In the case of a {\em function-variable-name} reference call,
-the {\em function-variable-name} is just located in the current
-context just like any other {\em variable-name}, and may be
-a {\em pointer-variable} or a {\em target-variable}.
+the {\em function-variable-name} is located in the current
+context just like any other {\em variable-name}.
 The {\em function-variable-name} begins the {\em reference-expression}
 and is the root of the {\em reference-expression}.
-There are two cases:
-\begin{itemize}
-\item {\bf Load or Store} ~~
-The {\em reference-function-declarations}
-declaring the {\em function-variable-name} have {\tt load}
-or {\tt store} {\em reference-function-specifiers} (there may be
-two declarations, one {\tt load} and one {\tt store}).
-The {\em function-variable-name} must be
-the entire {\em reference-expression}
-(there can be no {\em reference-offsets}).
-If the {\em reference-expression} is loading (or storing), there
-must be a {\tt load} (or {\tt store}) {\em reference-function-declaration}
-declaring the {\em function-variable-name}, and the declared function will
-be called to load (or store) a value in the referenced location.
-The {\em reference-expression} \underline{cannot} be pointing.
-\item {\bf Point} ~~
-There is only one {\em reference-function-declaration}
-declaring the {\em function-vari\-able-name} and it has the {\tt point}
-{\em reference-function-specifier}.
-The {\em reference-expression} may be loading, or storing, or pointing.
-The declared function is called and its result is the real refererence pointer
-of the {\em reference-expression} root.  The {\em reference-expression}
-may have {\em reference-offsets} that modify this reference pointer.
-A {\tt point} {\em reference-function-declaration} \underline{cannot}
-be compile-time.
-\end{itemize}
+The {\em function-variable-name} can have at most two
+{\em reference-function-declarations}, and if it has two, one must
+be {\tt load} and one must be {\tt store}.  One of these is excluded
+by context.  If the root is the entire {\em reference-expression} and
+that is storing, then {\tt load} is excluded.  Otherwise {\tt store}
+is excluded.  So the {\em function-variable-name} can have at most
+one {\em reference-function-declaration}, and it is a compile error
+if it has none (e.g. a storing {\em simple-reference-expression}
+has only a {\tt load} {\em reference-function-declaration}).
+
+TBD
 
 In the case of a {\em reference-offset}, the part of the
 {\em reference-expression} before the {\em reference-offset} is
