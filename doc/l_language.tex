@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 28, 2024
+April 29, 2024
 
 \bigskip
 
@@ -5669,7 +5669,7 @@ declared is called a \key{explicit type conversion function}%
 \label{EXPLICIT-TYPE-CONVERSION-FUNCTION}, and a {\em function-call}
 to the function is called an \key{explicit type conversion}%
 \label{EXPLICIT-TYPE-CONVERSION}.
-\item
+\item\label{PROTOTYPE-WILD-CARDS}
 A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
 can only match a {\em type-name}.
 A wild-card name of the form {\tt P\$\ldots} can only match a
@@ -5679,6 +5679,11 @@ possibly empty sequence of {\em qualifier-names}.
 A wild-card name of the form {\tt PST\$\ldots} can only match an
 optional sequence of {\em pointer-type-names} and {\em qualifier-names}
 beginning with a {\em pointer-type-name}, all followed by a {\em type-name}.
+
+Syntactically {\tt T\$\ldots} and {\tt PST\$\ldots} behave as
+a {\em type-name},
+{\tt P\$\ldots} behaves as a {\em pointer-type-name},
+and {\tt Q\ldots\$\ldots} behaves as a qualifier.
 \item
 {\em Function-declarations} with {\em function-specifiers} other
 than {\tt allocation} declare
@@ -6643,6 +6648,15 @@ may have the same {\em reference-pattern-base} argument type and
 one must have the {\tt load} {\em reference-function-specifier},
 and the other must have the {\tt store}
 {\em reference-function-specifier}.
+\item
+Wild-cards may appear in a {\em reference-pattern-base}.
+Wild-cards appearing elsewhere in the {\em reference-function-prototype}
+must also appear in its {\em reference-pattern-base}.
+
+Syntactically {\tt T\$\ldots} and {\tt PST\$\ldots} behave as
+a {\em type-name},
+{\tt P\$\ldots} behaves as a {\em pointer-type-name},
+and {\tt Q\ldots\$\ldots} behaves as a qualifier.
 \end{enumerate}
 
 \subsubsection{Reference Call-Declaration Matching}
