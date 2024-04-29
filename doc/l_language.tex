@@ -6673,24 +6673,29 @@ is used to find a {\em reference-function-declaration} matching the
 {\em reference-base} and one of the possible following
 {\em reference-offsets}:
 
-TBD
-
 \bigskip
 
 \centerline{\bf Reference Function Declaration Search Algorithm}
 \begin{enumerate}
 \item This algorithm examines all {\em reference-function-declarations}
-in the current context\pagnote{CONTEXT} that meet criteria specified by the
-search and applies to each the
-Refrence Function Declaration Matching Algorithm (below) for
-{\em reference-function-declarations}.
-Search criteria can restrict the search to, for example, {\tt store}
-{\em reference-function-declarations} are excluded for a loading
-{\em reference-expression}.
+in the current context\pagnote{CONTEXT} that meet criteria specified in
+the following, and applies applies the Reference Function Declaration Matching
+Algorithm to each.
+\item If the {\em reference-base} is followed by a {\em member-name}
+that is followed by an {\em index-list}, this algorithm is applied first
+to a {\em reference-offset} consisting of both the {\em member-name}
+and the {\em index-list}.  If no declarations are found, this algorithm
+is reapplied to a {\em reference-offset} consisting of just the
+{\em member-list}.
+\item If the compound {\em reference-expression} consisting of the
+{\em reference-base} followed by the {\em reference-offset} is loading,
+{\tt store} {\em reference-function-declarations} are excluded from
+the search, and
+if instead it is storing, {\tt load} {\em reference-function-declarations}
+are excluded.
 \item
 After examining all the appropriate declarations, this algorithm has
-a set of declarations satisfying the
-Reference Function Declaration Matching Algorithm.
+a set of declarations satisfying the above criteria.
 If the set is empty, this algorithm reports failure.  Otherwise all but
 the highest ranking matches are discarded.  If there is only one match
 left, this algorithm reports success along with the single highest
@@ -6733,13 +6738,11 @@ the call-declaration match fails.
 
 \item\label{REFERENCE-CALL-DECLARATION-RANK-COMPUTATION}
 If the call-declaration match has been successful, it is assigned
-a \key{rank} that is the sum of:
+a \key{rank} that is:
 \begin{itemize}
-\item the negative of the number of {\tt T\$\ldots} wildcards
+\item the negative of the number of wildcards
 the prototype has; a wildcard name appearing more than once in
 the prototype is counted only once
-\item a very large number if the match {\em reference-offset} has
-both a {\em member-name} and an {\em index-list}
 \end{itemize}
 
 \end{enumerate}
@@ -6750,14 +6753,22 @@ Example:
 \begin{indpar}\label{REFERENCE-FUNCTION-EXAMPLE}\begin{verbatim}
 // The *UNCHECKED* function used below is a builtin function
 // that performs a variety of conversions which violate type
-// checking.  Here it has the prototype:
+// checking.
 //
-//    av Q$ T$ @r = std *UNCHECKED*
-//        ( ap Q$ T$ @p, int offset, int lower, int upper )
+// For one of these uses *UNCHECKED* has the prototype:
 //
-// that takes the ap @p, adds the offset argument to the
+//    av Q$ PST$ @r = std *UNCHECKED*
+//        ( ap Q$ PST$ @p, int offset, int lower, int upper )
+//
+// This takes the ap @p, adds the offset argument to the
 // pointer offset, and returns this as an av with bounds
 // lower and upper.
+//
+// For another of these uses *UNCHECKED* has the prototype:
+//
+//    av Q$1 PST$1 @r = std *UNCHECKED* ( ap Q$1 PST$2 @p )
+//
+// and simply changes the type of value pointed at by an ap.
 
 // In my vector X, a vector with flt64 elements is located
 // at X.offset from the address of X and allows index range
@@ -6779,6 +6790,10 @@ point reference function ap Q$1 flt64 @x =
 type my data:
     *INCLUDE* my vector
     flt64[2]
+
+point reference function ap Q$1 my vector @x =
+    ( ap Q$1 my data @y ) ..point:
+    @x = *UNCHECKED* ( @y )
 
 ap *READ-WRITE* my data @D:    // `@= local' is implied
     D.offset = D.first / 8     // 8 converts bits to bytes.
