@@ -6906,7 +6906,8 @@ However, any {\tt .separator} and the following must be included:
 \end{tabular}
 \end{center}
 
-In the above example, {\tt com *SUBBLOCK*} evaluates to the
+In the example at the beginning of this section,
+{\tt com *SUBBLOCK*} evaluates to the
 subblock in the `{\tt for \ldots}' statement, and this subblock
 has {\tt ".initiator" = ":"} and {\tt ".terminator" = *INDENTED-PARA\-GRAPH*},
 which are the necessary annotations that are carried over into
@@ -6958,7 +6959,9 @@ the {\em include-argument} list is spliced into the instance containing
 list.  However any {\em include-argument} dictionary entries are
 discarded.
 \\[0.5ex]
-Thus if {\tt X = \{"A", "B", ".separator" = ","\}} then \\
+For example, let {\tt X} be an {\em include-argument}.
+\\[0.5ex]
+If {\tt X = \{"A", "B", ".separator" = ","\}} then \\
 \hspace*{2em}{ \tt
 "Y", "=", \{ "X", "C" \} {\rm becomes} "Y", "=", \{ "A", "B", "C" \}
 } \\
@@ -6977,31 +6980,54 @@ If {\tt X = \{\}} then \\
 } \\
 If you do not want a list valued {\em include-argument} to be spliced in,
 use {\tt (~)} parentheses around the instance being substituted.
-Thus if {\tt X = \{"A", "*",  "B"\}} then \\
+Thus if {\tt X = \{ \{ "A" \}, "*",  \{ "B" \} \}} then \\
 \hspace*{2em}%
      \begin{tabular}{l}
-     \tt "Y", "=", \{ ("X"), "+", 1 \} \\
+     \tt "Y", "=", \{ ("X"), "+", \{ 1 \} \} \\
      becomes \\
-     \tt "Y", "=", \{ ("A", "*", "B"), "+", 1 \}
+     \tt "Y", "=", \{ ( \{ "A" \}, "*", \{ "B" \} ), "+", \{ 1 \} \}
      \end{tabular}
 
 \item Otherwise the non-list value of the {\em include-argument} replaces the
 instance in the parsed {\em statement}.
 Thus if {\tt X = "A"} then \\
 \hspace*{2em}{\tt
-"Y", "=", \{ "X", "*", 2 \} {\rm becomes} "Y", "=", \{ "A", "*", 2 \}
+\{ "Y", "X" \}, "=", \{ 2 \} {\rm becomes} \{ "Y", "A" \}, "=", \{ 2 \}
 }
 \end{itemize}
 
-So the above example {\tt for} inclusion could have written as:
+So in the example at the beginning of this section,
+{\tt for} inclusion could have written as:
 \begin{indpar}[1em]\begin{verbatim}
-function inclusion r = for ( macro V, macro LIMIT ):
+inclusion function const r = for ( macro V, macro LIMIT ):
     const P = com *SUBBLOCK*
     r = *INCLUDE* ( V, LIMIT, P ):
         int V = 0
         while V < LIMIT:
             P
             next V += 1
+\end{verbatim}\end{indpar}
+
+TBD
+
+The following is a second example of an inclusion function:
+\begin{indpar}[1em]\begin{verbatim}
+inclusion function const r = my vector ( macro NAME ):
+    const P = com *SUBBLOCK*
+    r = *INCLUDE* ( NAME, P ):
+        type NAME:
+            int offset     // Offset of first element in bytes.
+            int length     // Number of elements.
+            align 64
+            *LABEL* first  // Offset of first element in bits.
+            P              // User specified fields
+
+        point reference function ap Q$1 flt64 @x =
+                ( ap Q$1 NAME @v ) [ int index ]:
+            av Q$1 flt64 @p = *UNCHECKED*
+                    ( @v, v.offset, 0, v.length )
+                // See *UNCHECKED* above.
+            @x = @p[index]
 \end{verbatim}\end{indpar}
 
 
