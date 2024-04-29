@@ -6663,14 +6663,17 @@ one {\em reference-function-declaration}, and it is a compile error
 if it has none (e.g. a storing {\em simple-reference-expression}
 has only a {\tt load} {\em reference-function-declaration}).
 
-TBD
+In the case of a compound {\em reference-expression}, we have a
+{\em reference-base} and a following {\em reference-offset}, and the type
+of the {\em reference-base} has already been computed at compile-time.
+In some situations, the {\em reference-offset} can be either a
+{\em member-name} followed by an {\em index-list}, or it can be just
+the {\em member-name} by itself.  Regardless, the following algorithm
+is used to find a {\em reference-function-declaration} matching the
+{\em reference-base} and one of the possible following
+{\em reference-offsets}:
 
-In the case of a {\em reference-offset}, the part of the
-{\em reference-expression} before the {\em reference-offset} is
-the {\em reference-base} matched to the {\em reference-pattern-base}.
-At compile time the type of the reference pointer produced by the
-{\em reference-base} has been computed by recursion, and at run-time
-the reference pointer has already been computed.
+TBD
 
 \bigskip
 
