@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 29, 2024
+April 30, 2024
 
 \bigskip
 
@@ -7027,13 +7027,13 @@ inclusion function const r =
                 // See *UNCHECKED* above.
             @x = @p[index]
 
-	allocator function ap Q$1 TYPE-NAME @r =
-	        (uns length, uns alignment )
-	        new TYPE-NAME [uns count]:
-	    @r = ( length + count + ELEMENT-TYPE..size,
-	           alignment ) allocate
-	    r.offset = r.first/8
-	    r.length = count
+        allocator function ap Q$1 TYPE-NAME @r =
+                (uns length, uns alignment )
+                new TYPE-NAME [uns count]:
+            @r = ( length + count + ELEMENT-TYPE..size,
+                   alignment ) allocate
+            r.offset = r.first/8
+            r.length = count
 
 \end{verbatim}\end{indpar}
 
