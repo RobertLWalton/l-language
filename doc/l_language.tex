@@ -7008,26 +7008,33 @@ inclusion function const r = for ( macro V, macro LIMIT ):
             next V += 1
 \end{verbatim}\end{indpar}
 
-TBD
-
 The following is a second example of an inclusion function:
 \begin{indpar}[1em]\begin{verbatim}
-inclusion function const r = my vector ( macro NAME ):
-    const P = com *SUBBLOCK*
-    r = *INCLUDE* ( NAME, P ):
-        type NAME:
+inclusion function const r =
+        my vector ( macro TYPE-NAME, macro ELEMENT-TYPE ):
+    const ALIGNMENT = ELEMENT-TYPE..alignment
+    r = *INCLUDE* ( TYPE-NAME, ALIGNMENT ):
+        type TYPE-NAME:
             int offset     // Offset of first element in bytes.
             int length     // Number of elements.
-            align 64
+            align ALIGNMENT
             *LABEL* first  // Offset of first element in bits.
-            P              // User specified fields
 
-        point reference function ap Q$1 flt64 @x =
-                ( ap Q$1 NAME @v ) [ int index ]:
-            av Q$1 flt64 @p = *UNCHECKED*
+        point reference function ap Q$1 ELEMENT-TYPE @x =
+                ( ap Q$1 TYPE-NAME @v ) [ int index ]:
+            av Q$1 ELEMENT-TYPE @p = *UNCHECKED*
                     ( @v, v.offset, 0, v.length )
                 // See *UNCHECKED* above.
             @x = @p[index]
+
+	allocator function ap Q$1 TYPE-NAME @r =
+	        (uns length, uns alignment )
+	        new TYPE-NAME [uns count]:
+	    @r = ( length + count + ELEMENT-TYPE..size,
+	           alignment ) allocate
+	    r.offset = r.first/8
+	    r.length = count
+
 \end{verbatim}\end{indpar}
 
 
