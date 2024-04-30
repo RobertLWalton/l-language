@@ -223,7 +223,7 @@ initialized it is not writable.
 
 The following is another example:
 \begin{indpar}\begin{verbatim}
-av *READ-WRITE* uns8 @bp @= local[81]
+av *READ-WRITE* uns8 @bp @= allocate[81]
 av uns8 @cp = "Hello!"
 int i = 0
 while i < cp.upper:
@@ -232,7 +232,7 @@ while i < cp.upper:
 bp[cp.upper] = 0
 \end{verbatim}\end{indpar}
 
-Here `{\tt local[81]}' creates an aligned vector of
+Here `{\tt allocate[81]}' creates an aligned vector of
 81 {\tt uns8} (8-bit unsigned) numbers in the local stack
 and returns an aligned vector pointer, or {\tt av}, to
 the vector, marking the vector elements as {\tt *READ-WRITE*}.
@@ -334,7 +334,7 @@ For example:
 
 \begin{indpar}\begin{verbatim}
 int X = 5
-ap *READ-WRITE* int @Y   // `@= local' is implied
+ap *READ-WRITE* int @Y   // `@= allocate' is implied
 Y = X + 2                // Now Y == 7
 Y = Y - 4                // Now Y == 3
 X = X + 1                // Illegal!  X is co
@@ -343,7 +343,7 @@ ap ro int @Z = @Y        // Copies pointer value @Y.
                          // to ro is legal.
 \end{verbatim}\end{indpar}
 
-Here the implied `{\tt @= local}' allocates an {\tt int} to the local
+Here the implied `{\tt @= allocate}' allocates an {\tt int} to the local
 stack, zeros it, and returns an `{\tt ap *READ-WRITE* int}'
 pointer to its location.
 
@@ -437,7 +437,7 @@ my type X:
     X.des = 3
 uns op = X.op code      // Now op == 5
 int d = X.des           // Now d == 3
-ap *READ-WRITE* my type @Y    // `@= local' is implied
+ap *READ-WRITE* my type @Y    // `@= allocate' is implied
 Y.op code = 129
 fp *READ-WRITE* int @C = @Y.constant
 ap *READ-WRITE* uns8 @OP = @Y.op code
@@ -3665,10 +3665,9 @@ For such a {\em pointer-variable} it is the
 associated {\em target-variable} that is set by the {\em assignment-statement}.
 \item For an {\em isolated-declaration-statement} declaring a
 {\em pointer-variable} with no {\em alloca\-tion-call},
-`{\tt @= local}' is implied if the {\em pointer-variable}
-has no lifetime qualifier (is `undeclared'\pagnote{UNDECLARED}), and
-`{\tt @= global}' is implied if the {\em pointer-variable}
-has the {\tt *GLOBAL*} qualifier.
+`{\tt @= allocate}' is implied.  If the pointer has the {\tt *GLOBAL*}
+target qualifier, this will allocate to the global stack, and if
+the pointer has no lifetime qualifier, this will allocate to the local stack.
 \item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
 is implied unless the declaration is of a {\tt *READ-WRITE*}
 {\em pointer-variable}.
@@ -3759,7 +3758,7 @@ and alignment, but instead a vector of {\tt N} such blocks, with zero padding
 between the blocks if necessary to obtain proper alignment for each
 block.  However,
 this is by convention and is not a builtin requirement of the L-Language.
-The convention is followed by the builtin allocators (e.g., {\tt local}).
+The convention is followed by the builtin allocators (e.g., {\tt allocate}).
 
 In a {\em block-assignment-statement},
 variables declared by {\em block-variable-declarations}
@@ -3847,16 +3846,17 @@ For loops\label{LOOP-ALLOCATION},
 4 copies of the variables allocated by an iteration
 are allocated to the local stack,
 and the loop cycles among these copies.
-A call to `{\tt local}' inside a loop stores a pointer value in
+A call to `{\tt allocate}' to a local pointer (i.e., a pointer with no
+lifetime qualifiers) inside a loop stores a pointer value in
 one of these 4 copies.  If such a pointer is already
 allocated by a previous loop iteration, its memory is reused, or
 doubled in size and reallocated.  This means that the total memory allocated
-to a pointer inside a loop copy by `{\tt local}' will never be more than
+to a pointer inside a loop copy by `{\tt allocate}' will never be more than
 4 times the size of the maximum memory needed for any single loop
 iteration.  As there can be 4 copies of the iteration variables,
-a call to `{\tt local}' inside a loop
+a call to `{\tt allocate}' inside a loop
 may allocate to the stack at most 4x4 = 16 times as much
-memory as any single iteration call to `{\tt local}'.
+memory as any single iteration call to `{\tt allocate}'.
 
 
 \subsection{Expression Assignment Statements}
@@ -4110,7 +4110,8 @@ is `used' if and only if its
 prototype matches a {\em function-call}.\footnote{Stack space for every
 stack variable that might be used by an out-of-line function is
 allocated when the out-of-line function is called.  Space allocated
-by the \TT{local} function is treated differently:  see
+to the local stack
+by the \TT{allocate} function is treated differently:  see
 \pagref{OUT-OF-LINE-LOCALS}.}
 
 There is an exception to the last paragraph for {\em exception-subblocks}.
@@ -4883,8 +4884,8 @@ type list element:
 
 // Make circular list.
 //
-ap list element @Y      // `@= local = *DEFERRED*' is implied
-ap list element @X:     // `@= local' is implied
+ap list element @Y      // `@= allocate = *DEFERRED*' is implied
+ap list element @X:     // `@= allocate' is implied
     X.value = 1
     X.@successor = @Y
 ap list element @Y:
@@ -4905,13 +4906,13 @@ An example is:
 
 \begin{indpar}\begin{verbatim}
 type my type: *DEFERRED*
-ap *READ-WRITE* my type @X    // `@= local' is implied
+ap *READ-WRITE* my type @X    // `@= allocate' is implied
                     // Legal, my type members need not be declared.
                     // Size and alignment of my type values is
                     // computed at load time.  The allocated value
                     // will be zeroed.
 ap ro my type @Y = @X  // Legal, only ap copied.
-ap my type @Z:      // Legal, `@= local' is implied
+ap my type @Z:      // Legal, `@= allocate' is implied
     Z = X           // Legal, the value at @X is copied to
                     // the value at @Z.  However in this
                     // case the value is completely zero.
@@ -5363,8 +5364,8 @@ An example implementing a new pointer type is:
 type file:
     *READ-WRITE* av uns8 @name
     . . . . .
-av *GLOBAL* *READ-WRITE* file @files @= global [1000]
-ap *GLOBAL* *READ-WRITE* int @number of files @= global
+av *GLOBAL* *READ-WRITE* file @files @= allocate [1000]
+ap *GLOBAL* *READ-WRITE* int @number of files @= allocate
 
 // Implement a file descriptor (fd) that addresses a file
 // in files.  The fd contains an index and addresses
@@ -5502,7 +5503,7 @@ The syntax of a function declaration is:
     \end{tabular}
 \\[2ex]
 \emkey{function-specializer}\label{FUNCTION-SPECIALIZER} ::=
-	\TT{macro} $|$ \TT{constant} $|$ \TT{inclusion} $|$ \TT{allocation}
+	\TT{macro} $|$ \TT{constant} $|$ \TT{inclusion} $|$ \TT{allocator}
 \\[2ex]
 \emkey{prototype-result-list}\label{PROTOTYPE-RESULT-LIST} ::= \\
 \hspace*{0.5in}
@@ -5686,7 +5687,7 @@ a {\em type-name},
 and {\tt Q\ldots\$\ldots} behaves as a qualifier.
 \item
 {\em Function-declarations} with {\em function-specifiers} other
-than {\tt allocation} declare
+than {\tt allocator} declare
 \skey{special-function}s.  These may not compile run-time code,
 and all their {\em prototype-result-variable-declarations}
 must be of the form `{\tt const} {\em target-variable}.
@@ -6809,7 +6810,7 @@ point reference function ap Q$1 my vector @x =
     ( ap Q$1 my data @y ) ..point:
     @x = *UNCHECKED* ( @y )
 
-ap *READ-WRITE* my data @D:    // `@= local' is implied
+ap *READ-WRITE* my data @D:    // `@= allocate' is implied
     D.offset = D.first / 8     // 8 converts bits to bytes.
     D.length = 2
 
@@ -7764,7 +7765,8 @@ The possible variable lifetimes are:
 	Global variables are \underline{external} variables created by
 	a {\em result-variable-declaration} or {\em next-variable-declaration}
 	of an {\em assignment-state\-ment}, or by an {\em allocation-call}
-	to the {\tt global} allocator function.
+	to the {\tt allocate} allocator function to set a {\tt *GLOBAL*}
+	pointer.
 
 \\[1ex]
 \key{local} &
@@ -7782,7 +7784,7 @@ The possible variable lifetimes are:
 	{\em prototype-argument-variable-declaration} during a
 	function call,
 	or by an {\em allocation-call}
-	to the {\tt local} allocator function.
+	to the {\tt allocate} allocator function to set an undeclared pointer.
 \\[1ex]
 \key{heap} &
 	The variable is stored in the heap (i.e., garbage collectible memory).
@@ -7936,15 +7938,15 @@ type list element:
         // When in the global stack, @successor has *GLOBAL*
         // lifetime qualifer implied by (L6).
 
-// In the following, `@= global' is implied because the pointers
-// are *GLOBAL*.
+// In the following, `@= allocate' allocating the global stack
+// is implied because the pointers are *GLOBAL*.
 
 ap *GLOBAL* list element @list empty @= null
     // $list empty is now a global pointer
 
 // Circular list:
 //
-ap *GLOBAL* list element @last:  // `@= global' is implied
+ap *GLOBAL* list element @last:  // `@= allocate' is implied
     last.@successor = @list empty
     // Last element is pointed at by last.@successor
     // First element is pointed at by last.successor.@successor
@@ -7952,8 +7954,8 @@ ap *GLOBAL* list element @last:  // `@= global' is implied
 
 // Put two elements in list.
 //
-ap *GLOBAL* list element @X  // `@= global = *DEFERRED*' is implied
-ap *GLOBAL* list element @Y  // `@= global = *DEFERRED*' is implied
+ap *GLOBAL* list element @X  // `@= allocate = *DEFERRED*' is implied
+ap *GLOBAL* list element @Y  // `@= allocate = *DEFERRED*' is implied
 
 ap *GLOBAL* list element @X:
     // Put X on empty list
@@ -8034,12 +8036,12 @@ type list element:
 ap list element @list empty @= null
     // Depth 1 null value.
 
-// In the following, `@= local' is implied because the pointers
-// are (lifetime) undeclared.
+// In the following, `@= allocate' to the local stack is implied
+// because the pointers are (lifetime) undeclared.
 
 // Circular list:
 //
-ap list element @last:  // `@= local' is implied
+ap list element @last:  // `@= allocate' is implied
     last.@successor = @list empty
     // Last element is pointed at by last.@successor
     // First element is pointed at by last.successor.@successor
@@ -8047,8 +8049,8 @@ ap list element @last:  // `@= local' is implied
 
 // Put two elements in list.
 //
-ap list element @X  // `@= local = *DEFERRED*' is implied
-ap list element @Y  // `@= local = *DEFERRED*' is implied
+ap list element @X  // `@= allocate = *DEFERRED*' is implied
+ap list element @Y  // `@= allocate = *DEFERRED*' is implied
 
 // Note: @last, @X, @Y, last.@successor, X.@successor, etc.
 // all have depth 1
@@ -8172,12 +8174,12 @@ type list element:
 ap *READ-WRITE* list element @list empty @= null
     // Depth 1 null value.
 
-// In the following, `@= local' is implied because the pointers
-// are (lifetime) undeclared.
+// In the following, `@= allocate' to the local stack is implied
+// because the pointers are (lifetime) undeclared.
 
 // Circular list:
 //
-ap *READ-WRITE* list element @last:  // `@= local' is implied
+ap *READ-WRITE* list element @last:  // `@= allocate' is implied
     last.@successor = @list empty
     // Last element is pointed at by last.@successor
     // First element is pointed at by last.successor.@successor
@@ -8185,8 +8187,10 @@ ap *READ-WRITE* list element @last:  // `@= local' is implied
 
 // Put two elements in list.
 //
-ap *READ-WRITE* list element @X  // `@= local = *DEFERRED*' is implied
-ap *READ-WRITE* list element @Y  // `@= local = *DEFERRED*' is implied
+ap *READ-WRITE* list element @X
+    // `@= allocate = *DEFERRED*' is implied
+ap *READ-WRITE* list element @Y
+    // `@= allocate = *DEFERRED*' is implied
 
 // Note: @last, @X, @Y, last.@successor, X.@successor, etc.
 // all have depth 1
@@ -8495,12 +8499,14 @@ local stack to hold
 its local {\tt co} variables.  All the variables are allocated
 at the beginning of the call execution, so this block does not vary
 in size or layout during the function call execution.  Executions
-of `{\tt @= local}' during the function call will add a block to the
+of `{\tt @= allocate}' to an undeclared pointer
+during the function call will add a block to the
 local stack if the allocated memory size cannot be determined at
 compile time.  At the end of the out-of-line function call, all
 the blocks it allocated to the local stack are deallocated.
 
-In the case of a statement containing `{@= local}' in a
+In the case of a statement containing `{@= allocate}' to an undeclared
+pointer in a
 loop iteration, execution of the statement will re-use the block
 allocated by the last execution of that statement, unless that block
 is too small, in which case a new block of at least twice the size
@@ -8519,7 +8525,8 @@ a block holding the external variables of each module is
 allocated to the global stack\label{GLOBAL-MEMORY}.  This allows addresses of
 external variables to be computed at load time.
 
-Statements containing {\tt @= global} can be executed anytime
+Statements containing {\tt @= allocate} to a {\tt *GLOBAL*} pointer
+can be executed anytime
 and allocate blocks to the global stack.
 
 Blocks in the global stack are never deallocated.
@@ -10251,10 +10258,10 @@ See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
 {\tt function ap QU\$1  PST\$1 r = \\
-\hspace*{1in}std ( uns length, uns alignment ) local}%
+\hspace*{1in}std ( uns length, uns alignment ) allocate}%
 \label{LOCAL} \\
 {\tt function av QU\$1  PST\$1 r = \\
-\hspace*{1in}std ( uns length, uns alignment ) local [ uns count ]}
+\hspace*{1in}std ( uns length, uns alignment ) allocate [ uns count ]}
 \begin{indpar}
 These functions allocate a value of type {\tt PST\$1}
 (or {\tt count} values of type {\tt PST\$1}) to local
@@ -10268,10 +10275,10 @@ See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
 {\tt function ap QU\$1 *GLOBAL* PST\$1 r = \\
-\hspace*{1in}std ( uns length, uns alignment ) global}%
+\hspace*{1in}std ( uns length, uns alignment ) allocate}%
 \label{GLOBAL} \\
 {\tt function av QU\$1 *GLOBAL* PST\$1 r = \\
-\hspace*{1in}std ( uns length, uns alignment ) global [ uns count ]}
+\hspace*{1in}std ( uns length, uns alignment ) allocate [ uns count ]}
 \begin{indpar}
 These functions allocate a value of type {\tt PST\$1}
 (or {\tt count} values of type {\tt PST\$1}) to global
