@@ -7305,8 +7305,8 @@ A {\em module-declaration} may only appear as the first statement
 of a module file.
 
 \item
-In a {\em module-declaration} all {\em module-abbreviations} must be
-distinct, and all {\em module-names} must be distinct.
+In a {\em module-declaration}, all {\em module-abbreviations} must be
+distinct (but the {\em module-names} need not be).
 \end{enumerate}
 \end{indpar}
 
@@ -7355,10 +7355,10 @@ A {\em body-declaration} may only appear as the first statement
 of a body file.
 
 \item
-In a {\em body-declaration} the {\em module-abbreviations} of imported
-modules must be distinct and must be different from the
-{\em module-abbreviation} used by the body's module,
-and all {\em module-names} and {\em body-names} must be distinct.
+In a {\em body-declaration}, the {\em module-abbreviations} of imported
+modules must be distinct (but the imported {\em module-names} need not be).
+However no imported module may have the 
+{\em module-abbreviation} or {\em module-name} of the body's module.
 \end{enumerate}
 
 \end{indpar}
