@@ -2803,6 +2803,25 @@ reference functions: see Reference Function Declarations,
 \end{enumerate}
 \end{indpar}
 
+Most {\em variable-names} are declared by
+{\em assignment-statements}\pagnote{ASSIGNMENT-STATEMENTS}, but
+the following other declarations create {\tt co} variables
+with various contents:
+\begin{center}
+\begin{tabular}{l@{~~~~}l@{~~~~}l}
+\bf Declaration & \bf Variable Name &
+\\\hline
+\\[1ex]
+{\em type-declaration} & {\em type-name} & \pagref{TYPE-DECLARATIONS} \\
+{\em pointer-type-declaration} & {\em pointer-type-name}
+                               & \pagref{POINTER-TYPE-DECLARATIONS} \\
+{\em function-type-declaration} & {\em function-type-name}
+                               & \pagref{FUNCTION-TYPE-DECLARATIONS} \\
+{\em function-constant-declaration} & {\em function-constant-name}
+                               & \pagref{FUNCTION-CONSTANT-DECLARATION} \\
+\end{tabular}
+\end{center}
+
 {\em Reference-expressions} compute a
 \key{reference pointer}\label{REFERENCE-POINTER} which consists of:
 \begin{enumerate}
@@ -7208,8 +7227,6 @@ A function constant can be declared by:
 \\[0.5ex]
 \emkey{function-constant-name} ::= see \pagref{FUNCTION-CONSTANT-NAME}
 \\[0.5ex]
-{\em target-variable} ::= see \pagref{TARGET-VARIABLE}
-\\[0.5ex]
 {\em foreign-function-name} ::= see \pagref{FOREIGN-FUNCTION-NAME}
 \begin{enumerate}
 \item
@@ -7229,17 +7246,16 @@ replacing the {\tt ()} by the {\em function-constant-name}
 \end{enumerate}
 However, a {\em function-constant-name} is not an
 {\em out-of-line-function-name} and cannot be used in a
-{\em function-call} to call the function.  Instead it is a
-{\em variable-name} that names a {\tt co} constant valued variable
+{\em function-call} to call the function.  Instead it is the
+{\em variable-name} of a {\tt co} variable
 that must be used in a {\em call-expression} to call the function.
 \end{enumerate}
 \end{indpar}
 
 
 The {\em function-constant-name} is declared as a run-time {\tt co}
-variable whose
-value has the type named by the {\em function-type-name}.
-Internally, this value is a run-time pointer to the out-of-line function.
+variable of type named by the {\em function-type-name} with a
+value that is a run-time pointer to the declared out-of-line function.
 
 Functions accessed by function type values must be called by:
 \begin{indpar}
