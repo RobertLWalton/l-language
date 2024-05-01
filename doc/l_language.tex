@@ -2186,14 +2186,16 @@ rules below):
 	[\ref{TYPE-NAME-RULE}] \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     \MA{} {\em basic-name} \\
-\emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
-    {\em variable-name} \\
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
     {\em variable-name} whose {\em basic-name} begins with one or more
     `\TT{@}'s \\
 \emkey{target-variable}\label{TARGET-VARIABLE} ::=
     {\em variable-name} whose {\em basic-name} does \underline{not}
     begin with an \TT{@} \\
+\emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
+    {\em variable-name} \\
+\emkey{function-constant-name}\label{FUNCTION-CONSTANT-NAME} ::=
+    {\em target-name} \\
 \emkey{statement-label} ::= {\em basic-name}
     \label{STATEMENT-LABEL} not containing `\TT{@}'s
 \\[1ex]
@@ -7117,7 +7119,7 @@ their associated {\em out-of-line-function-name}.
 \item
 Arguments and results of foreign C and C++ functions cannot
 have user defined types or user defined pointer types,
-but may builtin pointer types ({\tt dp}, {\tt ap}, {\tt fp}, etc.)
+but may have builtin pointer types ({\tt dp}, {\tt ap}, {\tt fp}, etc.)
 pointing at builtin or user defined target types.
 \item
 The rules for inline `{\tt *DEFERRED*}'
@@ -7130,7 +7132,7 @@ and their companions.
 \end{enumerate}
 \end{indpar}
 
-An out-of-line functions can be called with a normal
+An out-of-line function can be called with a normal
 {\em function-call}\pagnote{FUNCTION-CALL}.
 
 Unlike inline functions, an out-of-line function can
@@ -7201,10 +7203,10 @@ A function constant can be declared by:
 	& \TT{~~~~~}{\em statement}\PLUS{} \\
     $|$ &  {\em function-type-name} \\
         &  \TT{~~~~~}{\em function-constant-name} \TT{:}
-    	   \TT{*DEFERRED*} {\em foreign-function-name} \\
+    	   \TT{*DEFERRED*} {\em foreign-function-name}\QMARK{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{function-constant-name} ::= {\em target-variable}
+\emkey{function-constant-name} ::= see \pagref{FUNCTION-CONSTANT-NAME}
 \\[0.5ex]
 {\em target-variable} ::= see \pagref{TARGET-VARIABLE}
 \\[0.5ex]
@@ -7225,7 +7227,11 @@ by the {\em function-type-prototype} specified by the
 \item
 replacing the {\tt ()} by the {\em function-constant-name}
 \end{enumerate}
-\item Non-foreign {\tt *DEFERRED*} function constants are not allowed.
+However, a {\em function-constant-name} is not an
+{\em out-of-line-function-name} and cannot be used in a
+{\em function-call} to call the function.  Instead it is a
+{\em variable-name} that names a {\tt co} constant valued variable
+that must be used in a {\em call-expression} to call the function.
 \end{enumerate}
 \end{indpar}
 
@@ -7234,10 +7240,8 @@ The {\em function-constant-name} is declared as a run-time {\tt co}
 variable whose
 value has the type named by the {\em function-type-name}.
 Internally, this value is a run-time pointer to the out-of-line function.
-In the \TT{*DEFERRED*} case this value is a pointer to the named
-foreign function.
 
-Functions accessed by function type pointers must be called by:
+Functions accessed by function type values must be called by:
 \begin{indpar}
 \emkey{call-expression}\label{CALL-EXPRESSION} ::= \\
 \hspace*{0.25in}
