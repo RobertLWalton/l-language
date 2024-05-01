@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-April 30, 2024
+May 1, 2024
 
 \bigskip
 
@@ -3647,7 +3647,9 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 {\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
 \\[0.5ex]
-\emkey{allocation-call}\label{ALLOCATION-CALL} ::= {\em function-call}
+\emkey{allocation-call}\label{ALLOCATION-CALL} ::=
+    {\em function-call} to
+    an {\tt allocator} function\pagnote{ALLOCATOR-FUNCTION}
 \\[2ex]
 where
 \begin{enumerate}
@@ -5696,6 +5698,12 @@ These functions are referred to as \skey{macro function}s,
 \item
 A {\tt *DEFERRED*} {\em function-declaration} may \underline{not} be
 a special function.
+\item
+An {\tt allocator} function\label{ALLOCATOR-FUNCTION}
+is just like any other inline function
+except that it can only be called in
+an {\em allocation-call}\pagnote{ALLOCATION-CALL}
+or from inside another {\tt allocator} function.
 
 \end{enumerate}
 
@@ -7030,12 +7038,19 @@ inclusion function const r =
 
         allocator function ap Q$1 TYPE-NAME @r =
                 (uns length, uns alignment )
-                new TYPE-NAME [uns count]:
-            @r = ( length + count + ELEMENT-TYPE..size,
-                   alignment ) allocate
+                allocate [uns count]:
+            @r = std ( length + count * ELEMENT-TYPE..size,
+                       alignment ) allocate
             r.offset = r.first/8
             r.length = count
 
+my vector ( my data, flt )
+ap my data @D @= allocate [2]
+    D[0] = 100
+    D[1] = 200
+flt x0 = D[0]
+flt x1 = D[1]
+flt x2 = D[2]  // Run-time error: index too large
 \end{verbatim}\end{indpar}
 
 
