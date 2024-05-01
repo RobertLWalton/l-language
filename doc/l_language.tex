@@ -7421,8 +7421,26 @@ name {\em word} followed by a {\em quoted-string}.
 For a logical line, the parser produces a list with the
 annotations: \\
 \hspace*{0.5in}{\tt ".initiator" => *LOGICAL-LINE*, ".terminator" => "<LF>"} \\
-The list elements are strings and numbers representing lexemes, and
-lists representing subexpressions.
+The list elements are strings and numbers representing non-{\em quoted-string}
+lexemes, and lists representing subexpressions and {\em quoted-string} lexemes.
+
+Quoted strings are represented by a list with the string as a single element
+and a {\tt .type} annotation equal to {\tt "<Q>"}
+(recall that {\tt <Q>} in a quoted string represents the double quote~{\tt "}).
+Thus the lexeme {\tt "Hello"} becomes: \\
+\centerline{\tt \{ "Hello", ".type" => "<Q>" \} }
+
+For an explicitly bracketed subexpression the parser produces a list which has
+the annotations: \\
+\hspace*{0.5in}{\tt ".initiator" => "(", ".terminator" => ")"} \\
+or \\
+\hspace*{0.5in}{\tt ".initiator" => "[", ".terminator" => "]"} \\
+The list elements are strings and numbers representing non-{\em quoted-string}
+lexemes, and lists representing subexpressions and {\em quoted-string} lexemes.
+
+For an implicitly bracketed subexpression the parser produces a similar
+list which has
+\underline{no} {\tt .initiator} or {\tt .terminator} annotations.
 
 Recall that an indented paragraph may appear at the end of a logical line.
 
@@ -7432,22 +7450,9 @@ which has the annotations: \\
                     ".terminator" => *INDENTED-PARAGRAPH*} \\
 The list elements are logical lines.
 
-For an explicitly bracketed subexpression the parser produces a list which has
-the annotations: \\
-\hspace*{0.5in}{\tt ".initiator" => "(", ".terminator" => ")"} \\
-or \\
-\hspace*{0.5in}{\tt ".initiator" => "[", ".terminator" => "]"} \\
-The list elements are strings and numbers representing lexemes, and
-lists representing subexpressions.
-
-For an implicitly bracketed subexpression the parser produces a list which has
-\underline{no} {\tt .initiator} and {\tt .terminator} annotations.
-The list elements are strings and numbers representing lexemes, and
-lists representing subexpressions.
-
 The parser does \underline{not} introduce implied brackets where there
 are explict or implied brackets, but will introduce implied brackets
-surrouding quoted strings.  For example,
+surrounding quoted strings.  For example,
 \begin{indpar}
 {\tt x + y} parses as {\tt \{ \{ "x" \}, "+", \{ "y" \} \}} \\
 {\tt ( x ) + y} \begin{tabular}[t]{@{}l@{}}
@@ -7473,12 +7478,6 @@ of a list, but become a \ttkey{.separator} annotation of the list.  Thus,
 		\tt ~~".terminator" => ")" \} \\
                 \end{tabular}
 \end{indpar}
-
-Quoted strings become a list with the string as a single element
-and a {\tt .type} annotation equal to {\tt "<Q>"}
-(recall that {\tt <Q>} in a quoted string represents the double quote {\tt "}).
-Thus the lexeme {\tt "Hello"} becomes: \\
-\centerline{\tt \{ "Hello", ".type" => "<Q>" \} }
 
 Operator operands become lists in parser output;
 for example, the statement `{\tt X = Y}' outputs
