@@ -7655,14 +7655,17 @@ that end with the {\tt *EXTERNAL*} sub-declaration\pagnote{*EXTERNAL*}
 and companions of deferred
 {\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
 
-If two difference declarations of a {\em variable-name} have overlapping
+If two difference declarations of a {\em variable-name},
+{\em function-variable-name}, or {\em function-con\-stant-name}
+have overlapping
 scope, one of these must necessarily include the other,
 and the declaration with the smaller scope is said to
 `\key{hide}'\label{HIDE} the other declaration.
+It is a compile error if one of these declarations hides another.
 
-The same applies to {\em type-names}, {\em pointer-type-names},
-{\em function-type-names}, {\em function-variable-names}, and
-{\em function-constant-names}, except that hiding does not
+The same applies to declarations of {\em type-names},
+{\em pointer-type-names}, and {\em function-type-names},
+except that hiding does not
 apply to {\em type-declarations} that expand previous
 {\em type-declarations}.
 
