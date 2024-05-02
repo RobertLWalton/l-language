@@ -7674,9 +7674,9 @@ is \underline{not} the same name as that name with the {\em module-abbreviation}
 dropped.  E.g., `{\tt mom X}' is not the same name as `{\tt X}' if
 {\tt mom} is a {\em module-abbreviation}.
 
-The hiding rules do \underline{not}
+The hiding rule does \underline{not}
 apply to {\em out-of-line-function-names} or {\em function-term-names}.
-{\em Module-abbreviations} may be omitted from {\em function-calls}
+{\em Mod\-ule-abbreviations} may be omitted from {\em function-calls}
 without changing the function called, as long as there is no
 ambiguity (see Step~\ref{FUNCTION-DECLARATION-MODULE-ABBREVIATION}
 of the Function Declaration Matching Algorithm,
@@ -7684,7 +7684,7 @@ of the Function Declaration Matching Algorithm,
 
 A {\em next-variable-declaration} is allowed
 within the scope of a previous declaration of its {\em variable-name},
-including {\em next-variable-declaration} of the same {\em variable-name},
+including a {\em next-variable-declaration} of this {\em variable-name},
 if it is not within a smaller block than the previous declaration.
 Note that a {\em next-variable-declaration} has
 the same syntax as a particular kind of {\em reference-expression}, and its use
