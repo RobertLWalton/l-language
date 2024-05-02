@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-May 1, 2024
+May 2, 2024
 
 \bigskip
 
@@ -6652,12 +6652,12 @@ In the external case the {\em reference-function-declarations} for the
 {\em function-variable-name} must appear in the module (file)
 named.
 \item
-A {\em reference-function-declaration} \underline{not} containing
-a {\em function-variable-name} is external if and only if the
-target type of its {\em reference-pattern-base} is external
-(the full type is a pointer type to the target type).  In this case
-the {\em reference-function-declaration} \underline{must} be within
-the same module (file) as the {\em type-declaration} of this target type.
+A {\em reference-function-declaration} containing a
+{\em reference-pattern-base} is external if and only if
+all the {\em pointer-type-names}
+and {\em type-names} in its {\em reference-pattern-base} are external or
+are wildcards, and at least one that is external is in the
+module containing the declaration.
 \item
 Default values, required values, and {\tt macro} arguments
 are not permitted.
@@ -7540,7 +7540,7 @@ Parser Output:
 \section{Scope}
 \label{SCOPE}
 
-A {\em declaration} has a \key{scope},
+A {\em declaration} has a \key{scope}
 that is the set of statements in which any
 names or prototypes defined by the {\em declaration}
 are recognized.
@@ -7565,19 +7565,14 @@ to include each body file of the module.
 
 Some {\em declarations} are \key{external}\label{EXTERNAL}.
 These must be top-level declarations in a module (and \underline{not}
-in a body).
+in a body), and must contain a {\em module-abbreviation} naming this
+module.
 The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
 
-A {\em result-variable-declaration} or
-{\em block-variable-declaration}
+A {\em block-variable-declaration}
 is external if the {variable-name} declared begins with a
-{\em module-abbreviation}.
-
-A {\em reference-function-declaration} containing a
-{\em function-variable-name}
-is external if the {func\-tion-variable-name} begins with a
 {\em module-abbreviation}.
 
 A {\em next-variable-declaration}
@@ -7594,6 +7589,11 @@ or {\em function-type-name}
 declared begins with a
 {\em module-abbrev\-i\-a\-tion}.
 
+A {\em function-constant-declaration}
+is external if the {\em function-contstant-name}
+declared begins with a
+{\em module-abbrev\-i\-a\-tion}.
+
 A {\em function-declaration}
 or {\em out-of-line-function-declar\-a\-tion}
 is external\label{EXTERNAL-FUNCTION}
@@ -7601,9 +7601,15 @@ if the {\em prototype-pattern} in the {\em declaration}
 is immediately preceded by a {\em module-abbreviation}.
 
 A {\em reference-function-declaration} containing a
-{\em prototype-reference-base}
-is external if the target type of the {prototype-reference-base} is
-external.
+{\em function-variable-name}
+is external if the {\em func\-tion-variable-name} begins with a
+{\em module-abbreviation}.
+A {\em reference-function-declaration} containing a
+{\em reference-pattern-base} is external if and only if
+all the {\em pointer-type-names}
+and {\em type-names} in its {\em reference-pattern-base} are external or
+are wildcards, and at least one that is external is in the
+module containing the declaration.
 
 {\em Prototype-result-declaration} and {\em prototype-argument-declaration}
 {\em variable-names} cannot begin with a {\em module-abbreviation},
