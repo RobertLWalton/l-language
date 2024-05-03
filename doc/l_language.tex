@@ -8119,9 +8119,7 @@ must be anywhere pointers.  The rules are:
 
 \begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L12)}	& If a global or heap pointer is stored in an
-                  undeclared local non-target pointer variable
-		  (specifically including {\em out-of-line}
-		  argument undeclared pointer variables),
+                  undeclared local non-target pointer variable,
 		  the value stored becomes an anywhere pointer,
 		  and the compiler
 		  annotes the pointer variable as holding
@@ -8129,10 +8127,17 @@ must be anywhere pointers.  The rules are:
 \end{tabular}
 
 \begin{tabular}{p{0.5in}p{5.0in}}
-\key{(L13)}	& If an anywhere pointer is stored in an
-                  undeclared local non-target pointer variable
-		  (specifically including {\em out-of-line}
-		  argument undeclared pointer variables),
+\key{(L13)}	& If \underline{any} pointer is stored in an
+                  undeclared {\em out-of-line} function argument variable,
+		  the value stored becomes an anywhere pointer,
+		  and the compiler
+		  annotes the argument variable as holding
+		  an anywhere pointer.
+\end{tabular}
+
+\begin{tabular}{p{0.5in}p{5.0in}}
+\key{(L14)}	& If an anywhere pointer is stored in an
+                  undeclared local non-target pointer variable,
 		  the value stored becomes an anywhere pointer,
 		  and the compiler
 		  annotes the pointer variable as holding
@@ -8140,7 +8145,7 @@ must be anywhere pointers.  The rules are:
 \end{tabular}
 
 \begin{tabular}{p{0.5in}p{5.0in}}
-\key{(L14)}	& A pointer value read from an
+\key{(L15)}	& A pointer value read from an
 		  an undeclared non-target target pointer variable
 		  that is annotated as holding an anywhere pointer
 		  is an anywhere pointer.
