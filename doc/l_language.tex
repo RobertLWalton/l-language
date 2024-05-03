@@ -9149,7 +9149,7 @@ labelled {\tt s} in the map {\tt m} can be written if it is
 read-write and the whole map is separately read-write.
 
 When a value is first written at a label, the label is created
-for the map and set to read-write.
+for the map and set to read-only.
 
 In addition, the compiler will mark some map labels as \key{protected}.
 Such entries are read-only to the code being compiled, and may either be
@@ -9175,9 +9175,9 @@ The {\em dictionary-labels} are strings.  The list may be empty.
 \end{indpar}
 
 
-{\tt constant reference function const r = std}
+{\tt load reference function const r =}
     {\tt ( const m ) [ const s ?=~NONE ]} \\
-{\tt constant reference function std}
+{\tt store reference function}
     {\tt ( const m ) [ const s ?=~NONE ] = const v}
 \begin{indpar}
 Here {\tt m} is map and {\tt m[s]} is used to reference a
@@ -9292,7 +9292,7 @@ then the elements of {\tt v} are pushed
 into the sequence, and then non-existant elements are deleted.
 
 So if {\tt i >= \# m} and {\tt n >= 0} then the elements of {\tt v}
-are appended to {\tt m}, and if {\tt i = -1} and {\tt n <= 0}, the
+are appended to {\tt m}, and if {\tt i = 0} and {\tt n < 0}, the
 elements of {\tt v} are prepended to {\tt m}.
 
 The edited map {\tt m} is returned.
