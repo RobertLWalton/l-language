@@ -9351,7 +9351,7 @@ in {\tt m}, the returned vector will have only {\tt \# m} elements.
 Types, fields, subfields, and pointer types are described
 at compile-time by {\tt const} map values which
 user code can access.
-These are read-write as a whole, but some of their
+These are read-write as a whole, but some of their dictionary entry
 labels are protected.  The following sections describe protected labels
 provided by the compiler.  Unless otherwise specified,
 these have values that do not change during compilation.
@@ -9368,8 +9368,10 @@ consisting of a sequence of one or more {\em words}
 and {\em natural-numbers}, separated
 by single spaces, and beginning with a {\em word}.
 {\em Natural-numbers} are represented
-by strings of 1 to 9 decimal digits with no high-order
+by strings of 1 to 15 decimal digits with no high-order
 zeros (zero is represented by `{\tt 0}').
+Lexical {\em names}\pagnote{NAME} not containing quoted words, marks, or
+separators can be represented naturally by name strings.
 Name strings are used to represent type, field, and subfield
 names.
 
@@ -9381,6 +9383,8 @@ the abbreviation for the {\tt std} module.
 These compiler module abbreviations are specific to the
 entire compilation and are not dependent on which
 module or body a definition appears in.
+Two code {\em module-abbreviations} designating the same
+module will be replaced by the same compiler module abbreviation.
 
 {\tt com module dictionary}
 \begin{indpar}
@@ -9398,7 +9402,7 @@ For example,
 \label{TYPE-MAPS}
 
 At compile-time a {\em type-name} can be used as a {\tt const} type
-{\em variable-name} that names a read-only variable with a map value
+{\em variable-name} that names a {\tt co} variable with a map value
 called a \key{type map}.
 
 The compiler defined attributes of a type map are:
@@ -9444,12 +9448,12 @@ compilation.
 \ttkey{.fields}
 \begin{indpar}
 A map listing field maps\pagnote{FIELD-MAPS} for the fields of the type.
-The dictionary entries list named fields by name.
+The dictionary entries list named fields by name (which is a name string).
 The vector entries list unnamed fields
 (which have subfields).
 
 Fields may be added during compilation of type expansions.
-Will be empty if a type has no fields, or if the type is
+This map be empty if a type has no fields, or if the type is
 currently {\tt *DEFERRED*} and not yet defined by the
 compilation.
 \end{indpar}
@@ -9473,7 +9477,7 @@ Not defined for non-integer and unsigned integer types.
 
 The \key{indefinite integer}\label{INDEFINITE-INTEGER} is returned by
 some operations, e.g. {\tt round},
-when they return a correct integer value.%
+when they cannot return a correct integer value.%
 \footnote{See documentation of the intel IA-64 FIST instruction.}
 
 The value is typically $-2^{S-1}$ where $S$ is the size of $I$ in bits.
@@ -9499,6 +9503,27 @@ int64 = { .type => "type",
           .max => X#"7FFFFFFFFFFFFFFF",
           .indefinite => -X#"8000000000000000" }
 \end{verbatim}\end{indpar}
+
+\subsubsection{Pointer Type Maps}
+\label{POINTER-TYPE-MAPS}
+
+At compile-time a {\em pointer-type-name} can be used as a {\tt const} type
+{\em variable-name} that names a read-only variable with a map value
+called a \key{pointer type map}.
+
+The compiler defined attributes of a pointer type map are:
+
+{\tt \ttkey{.type} => "pointer type"}
+
+\ttkey{.name}
+\begin{indpar}
+The name of the pointer type as a name string.
+\end{indpar}
+
+\ttkey{.data type}
+\begin{indpar}
+Type map for the data type of the pointer type.
+\end{indpar}
 
 \subsubsection{Field Maps}
 \label{FIELD-MAPS}
@@ -9644,27 +9669,6 @@ This is always a {\tt std} number type or {\tt std bool}.
 \begin{indpar}
 List of strictly positive integers,
 the dimensions of the subfield, or {\tt NONE} if no dimensions.
-\end{indpar}
-
-\subsubsection{Pointer Type Maps}
-\label{POINTER-TYPE-MAPS}
-
-At compile-time a {\em pointer-type-name} can be used as a {\tt const} type
-{\em variable-name} that names a read-only variable with a map value
-called a \key{pointer type map}.
-
-The compiler defined attributes of a pointer type map are:
-
-{\tt \ttkey{.type} => "pointer type"}
-
-\ttkey{.name}
-\begin{indpar}
-The name of the pointer type as a name string.
-\end{indpar}
-
-\ttkey{.data type}
-\begin{indpar}
-Type map for the data type of the pointer type.
 \end{indpar}
 
 \subsection{Compile Time Compilation Functions}
