@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-May 2, 2024
+May 3, 2024
 
 \bigskip
 
@@ -1670,11 +1670,11 @@ Operator & Meaning & Fixity & Format & Precedence \\
        \end{tabular}} & & & &
 \\\cline{1-1}\cline{3-3}
 \ttkey{function} & & right & &
-\\\cline{1-1}
+\\\cline{1-1}\cline{3-3}
 \ttkey{\begin{tabular}[t]{@{}l@{}}
        reference\\
        ~~function
-       \end{tabular}} & & & &
+       \end{tabular}} & & infix & &
 \\\cline{1-1}\cline{3-4}
 \ttkey{is type} & & afix & (none) &
 \\\cline{1-1}
@@ -8549,7 +8549,7 @@ at the beginning of the call execution, so this block does not vary
 in size or layout during the function call execution.  Executions
 of `{\tt @= allocate}' to an undeclared pointer
 during the function call will add a block to the
-local stack if the allocated memory size cannot be determined at
+local stack if the allocated memory size can\underline{not} be determined at
 compile time.  At the end of the out-of-line function call, all
 the blocks it allocated to the local stack are deallocated.
 
@@ -8581,7 +8581,7 @@ Blocks in the global stack are never deallocated.
 
 \section{Non-Function Operators}
 
-Some operators map onto functions.  For example, \\
+Many operators map onto {\em function-calls}.  For example, \\
 \centerline{{\tt x + y} maps onto {\tt x "+" y}}
 
 However the following operators do \underline{not} map onto functions:
@@ -8589,13 +8589,8 @@ However the following operators do \underline{not} map onto functions:
 \begin{itemlist}[0.2in]
 \item[prefix \TT{type}]
 \item[prefix \TT{pointer type}] \vspace*{-0.15in}
-\item[prefix \TT{function}] \vspace*{-0.15in}
-\item[prefix \TT{macro function}] \vspace*{-0.15in}
-\item[prefix \TT{constant function}] \vspace*{-0.15in}
-\item[prefix \TT{inclusion function}] \vspace*{-0.15in}
-\item[prefix \TT{load reference function}] \vspace*{-0.15in}
-\item[prefix \TT{store reference function}] \vspace*{-0.15in}
-\item[prefix \TT{point reference function}] \vspace*{-0.15in}
+\item[right \TT{function}] \vspace*{-0.15in}
+\item[infix \TT{reference function}] \vspace*{-0.15in}
 \item[prefix \TT{out-of-line function}] \vspace*{-0.15in}
 \item[afix infix \TT{is type}] \vspace*{-0.15in}
 \item[afix infix \TT{is function}] \vspace*{-0.15in} ~\\
@@ -8607,7 +8602,8 @@ See Call-Expression\pagnote{CALL-EXPRESSION}
 \item[prefix \TT{if}]
 \item[prefix \TT{else if}] \vspace*{-0.15in}
 \item[initial \TT{else}] \vspace*{-0.15in}
-\item[afix right \TT{:}] \vspace*{-0.15in} ~\\
+\item[afix right \TT{:} \hspace*{1in} (the colon operator)]%
+	\vspace*{-0.15in} ~\\
 See Conditional Statements\pagnote{CONDITIONAL-STATEMENTS}.
 
 \item[afix subblock]
@@ -8618,8 +8614,9 @@ and Conditional Statements\pagnote{CONDITIONAL-STATEMENTS}.
 \item[prefix \TT{loop}]
 \item[prefix \TT{while}] \vspace*{-0.15in}
 \item[prefix \TT{until}] \vspace*{-0.15in}
-\item[prefix \TT{exactly} \ldots{}~\TT{times}] \vspace*{-0.15in}
-\item[prefix \TT{at most} \ldots{}~\TT{times}] \vspace*{-0.15in} ~\\
+\item[prefix \TT{exactly}] \vspace*{-0.15in}
+\item[prefix \TT{at most}] \vspace*{-0.15in}
+\item[afix \TT{times}] \vspace*{-0.15in} ~\\
 See {\em iteration-control}\pagnote{ITERATION-CONTROL}.
 
 \item[infix \TT{=}] ~\\
@@ -8649,7 +8646,7 @@ See Allocation Call\pagnote{ALLOCATION-CALL}.
 \item[infix \TT{-{}-{}-{}>}] ~\\
 See Abbreviation Statements\pagnote{ABBREVIATION-STATEMENT}.
 
-\item[nofix \TT{,}] ~\\
+\item[nofix \TT{,} \hspace*{1in} (comma)] ~\\
 Becomes a {\tt .separator} annotation on a list.  See
 the operator separator format\pagnote{SEPARATOR-FORMAT}.
 
@@ -8702,7 +8699,7 @@ is evaluated and returned.
 calls, but not for data types, pointer types, or variables used
 as global constants, such as \TT{true} or \TT{false}.
 In order to avoid having to
-input a {\em module-abbreviation} with every type name,
+input a {\em module-abbreviation} with every use of these names,
 {\em abbreviation-statements} are used (\pagref{ABBREVIATION-STATEMENT}).
 The following are the builtin abbreviations:
 \begin{center}
@@ -8716,7 +8713,9 @@ int16		& \ABV & std int16 \\
 int32		& \ABV & std int32 \\
 int64		& \ABV & std int64 \\
 int128		& \ABV & std int128
+\end{tabular}
 \\[1ex]
+\begin{tabular}{rcl}
 uns		& \ABV & std uns \\
 unsd		& \ABV & std unsd \\
 unsq		& \ABV & std unsq \\
@@ -8725,18 +8724,24 @@ uns16		& \ABV & std uns16 \\
 uns32		& \ABV & std uns32 \\
 uns64		& \ABV & std uns64 \\
 uns128		& \ABV & std uns128
+\end{tabular}
 \\[1ex]
+\begin{tabular}{rcl}
 bool		& \ABV & std bool \\
 true		& \ABV & std true \\
 false		& \ABV & std false
+\end{tabular}
 \\[1ex]
+\begin{tabular}{rcl}
 TRUE		& \ABV & std TRUE \\
 FALSE		& \ABV & std FALSE \\
 NONE		& \ABV & std NONE \\
 UNDEF		& \ABV & std UNDEF \\
 *LOGICAL-LINE*		& \ABV & std *LOGICAL-LINE* \\
 *INDENTED-PARAGRAPH*	& \ABV & std *INDENTED-PARAGRAPH* \\
+\end{tabular}
 \\[1ex]
+\begin{tabular}{rcl}
 flt		& \ABV & std flt \\
 fltd		& \ABV & std fltd \\
 fltq		& \ABV & std fltq \\
@@ -8744,7 +8749,9 @@ flt8		& \ABV & std flt8 \\
 flt16		& \ABV & std flt16 \\
 flt32		& \ABV & std flt32 \\
 flt64		& \ABV & std flt64 \\
+\end{tabular}
 \\[1ex]
+\begin{tabular}{rcl}
 dp		& \ABV & std dp \\
 ap		& \ABV & std ap \\
 fp		& \ABV & std fp \\
@@ -8761,7 +8768,7 @@ The functions described in the
 following sections are builtin constant functions.
 
 Some compilation related functions and
-constants are in the `{\tt compiler}' module,
+constants are in the {\tt "compiler"} module,
 which is abbreviated here as `{\tt com}'.
 
 Unless stated otherwise, builtin constant functions
@@ -8780,22 +8787,39 @@ a compiler error message.
 If a result or argument is said to be an integer, it may
 be either a {\tt number} with an integral value, or a
 {\tt rational} with denominator {\tt 1}.
-\item
+\item\label{NUMBER-RULE}
 A \ttkey{number} is a {\tt const} value representable by a
 {\em number-constant}.\pagnote{NUMBER-CONSTANT}.
 
 A function (e.g., {\tt "+"} or {\tt "=="})
-with at least one {\tt number} argument will
+with at least one non-integer {\tt number} argument will
 convert all {\tt rational} arguments to {\tt numbers}
 before using them, will do all internal calculations with
 {\tt numbers} and not {\tt rationals},
 and will return any numeric results as {\tt numbers}.
+If there is an error {\tt NaN} will be returned and there will
+be a compile error message.
 
+A function with at least one {\tt ratonal} argument and
+\underline{no} non-integer {\em number} arguments will
+convert all integer {\tt numbers} to {\tt rationals}
+before using them, will do all internal calculations with
+{\tt rationals}, and will return any numeric results as {\tt ratonals}.
+If there is an error {\tt UNDEF} will be returned and there will
+be a compile error message.
+
+\item
 {\tt Number} values too positive or negative to store
 are converted to {\tt +Inf} or {\tt -Inf}.
 {\tt Number} values too small to store
 are converted to {\tt +0} or {\tt -0}, preserving the
-sign of the value.
+sign of the value.  There will be \underline{no} compile
+error message if these conversions are necessary.
+
+\item
+Arguments out of range (e.g., a non-integer where an integer is required)
+produce an {\tt UNDEF} result of {\tt rationals} or a {\tt NaN} result
+for {\tt numbers} plus a compile error message.
 \end{enumerate}
 
 \subsection{Compile Time General Functions}
@@ -8803,10 +8827,9 @@ sign of the value.
 {\tt constant function const r = std (const v1) \ttkey{"=="} ( const v2 )} \\
 {\tt constant function const r = std (const v1) \ttkey{"!="} ( const v2 )}
 \begin{indpar}
-If any argument is a number and the other is rational,
-the rational is converted to a number before the comparison.
-Otherwise comparisons of {\tt const} values of different types treat
-the values as unequal.
+Comparisons of {\tt const} values of different types treat
+the values as unequal, except in the case that one argument is a {\tt number}
+and the other a {\tt rational}.
 \end{indpar}
 
 {\tt constant function const r = std \ttkey{type} ( const v1 )}
@@ -8818,11 +8841,6 @@ Returns the type of {\tt v1} as one of the strings: \\
 
 
 \subsection{Compile Time Numeric Functions}
-
-Unless specified otherwise,
-if one argument is a number and the others are rational,
-the rational arguments are converted to numbers before
-the function executes.
 
 {\tt constant function const r = std \ttkey{number} ( const v1 )} \\
 {\tt constant function const r = std \ttkey{rational} ( const v1 )}
@@ -8874,9 +8892,7 @@ compiler error message.
 Standard bitwise operators on integers {\tt i1} and {\tt i2}
 that are treated as two's complement.  For the shift operators
 {\tt "<{}<}" and {\tt ">{}>"}, {\tt i2}, the amount of the shift,
-must not be negative.  Overflows for number {\tt <{}<} shift
-produce an {\tt UNDEF} result and a compiler error message,
-as do non-integer arguments.
+must not be negative.
 \end{indpar}
 
 {\tt constant function const r = std (const n1) \ttkey{"=="} ( const n2 )} \\
@@ -8892,7 +8908,7 @@ larger than any real number: e.g., if {\tt x} is not a {\tt NaN},
 `{\tt x <= +Inf}' is always
 {\tt TRUE} and `{\tt x == +Inf}' is {\tt TRUE} iff {\tt x} is {\tt +Inf}.
 If an argument is a {\tt NaN}, all comparisons return {\tt FALSE}
-except {\tt !=} which returns {\tt TRUE}, but there is \underline{no} compiler
+except {\tt !=} which returns {\tt TRUE}, and there is a compiler
 error message.
 \end{indpar}
 
@@ -8912,11 +8928,9 @@ rounds towards positive infinity, {\tt truncate} rounds toward
 zero, and {\tt round} rounds to the nearest integer, or to the
 even integer if there are two nearest integers.
 
-If an argument is a number, return {\tt NaN}s if the divisor is
-zero, an argument is a {\tt NaN}, or {\tt n1} is an infinity, but
-do \underline{not} output a compiler error message.  If both
-arguments are rationals and the divisor is zero, return
-{\tt UNDEF} and output a compiler error message.
+Both {\tt number} and {\tt rational} computation is supported.
+Dividing by zero is produces {\tt NaN}s or {\tt UNDEF}s and an
+error message.
 \end{indpar}
 
 {\tt constant function const r = std} \ttkey{numerator} {\tt ( const r1 )} \\
@@ -8929,13 +8943,18 @@ Both numerator and denominator are integer {\tt rationals}.
 
 {\tt constant function const r = std} \ttkey{is nan} {\tt ( const v1 )} \\
 {\tt constant function const r = std} \ttkey{is infinite} {\tt ( const v1 )} \\
-{\tt constant function const r = std} \ttkey{is finite} {\tt ( const v1 )}
+{\tt constant function const r = std} \ttkey{is finite} {\tt ( const v1 )} \\
+{\tt constant function const r = std} \ttkey{is rational} {\tt ( const v1 )} \\
+{\tt constant function const r = std} \ttkey{is numeric} {\tt ( const v1 )}
 \begin{indpar}
-Return {\tt TRUE} if {\tt v1} is a NaN number ({\tt is nan}),
-is {\tt +Inf} or {\tt -Inf} ({\tt is infinite}), or
-is a number that is neither of these ({\tt is finite}), and {\tt FALSE}
-otherwise.  {\tt v1} must be a number or a rational;
-if it is a rational, it is converted to a number before it is tested.
+Return {\tt TRUE} if {\tt v1} is a NaN {\tt number} ({\tt is nan}),
+is a {\tt +Inf} or {\tt -Inf} {\tt number} ({\tt is infinite}),
+is a {\tt number} that is neither of these ({\tt is finite}),
+is a {\tt rational} ({\tt is rational}),
+or is either a {\tt number} or a {\tt rational} ({\tt is numeric}),
+and {\tt FALSE}
+otherwise.  Returns {\tt FALSE} if {\tt v1} is neither a {\tt number}
+or a {\tt rational}.
 \end{indpar}
 
 \subsection{Compile Time String Functions}
