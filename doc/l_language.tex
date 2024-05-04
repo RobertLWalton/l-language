@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-May 3, 2024
+May 4, 2024
 
 \bigskip
 
@@ -8973,7 +8973,7 @@ Returns the concatenation of string {\tt s1}
 and string {\tt s2}.
 \end{indpar}
 
-{\tt constant function const r = std} \ttkey{sprintf}
+{\tt constant function const r = std} \ttkey{sprintf}\label{SPRINTF}
     {\tt ( \begin{tabular}[t]{@{}l}
             const format, const a1 = "", \\
 	    const a2 = "", const a3 = "", \\
@@ -9712,34 +9712,25 @@ the dimensions of the subfield, or {\tt NONE} if no dimensions.
 \subsection{Compile Time Compilation Functions}
 \label{COMPILE-TIME-COMPILATION-FUNCTIONS}
 
-These functions are principally of use in {\tt macro} or
-{\tt inclusion} functions, but can be used in any inline function.
+The following functions can be called by any inline function:
 
-{\tt load reference function const r = com \ttkey{*STATEMENT*} }%
-\label{COM-STATEMENT}
+{\tt function com \ttkey{compile error} ( const message )}%
+	\label{COMPILE-ERROR} \\
+{\tt function com \ttkey{compile errorf}
+     ( \begin{tabular}[t]{@{}l}
+	const format, const a1 = "", \\
+	const a2 = "", const a3 = "", \\
+	const a4 = "", const a5 = "" )
+	\end{tabular} }
 \begin{indpar}
-This {\em function-variable-name} returns the parsed {\em statement}
-containing the {\tt inclusion} function
-currently executing at compile-time.
-\end{indpar}
+This function outputs a compiler error message.  The expression calling
+the inline function that executes a call to this function is also
+identified in the message.
 
-{\tt load reference function const r = com \ttkey{*SUBBLOCK*} }%
-\label{COM-SUBBLOCK}
-\begin{indpar}
-This {\em function-variable-name} returns the subblock at the end
-of the parsed {\em statement}
-containing the {\tt inclusion} function currently executing at compile-time.
-This is annotated with {\tt ".initiator" = ":"} and
-{\tt ".terminator" = *INDENTED-PARAGRAPH*}.
+In the first form {\tt message} is a string.  The second form
+calls {\tt sprintf}\pagnote{SPRINTF} on the arguments to produce
+the message string.
 
-If instead of ending with a subblock, the statement ends with the
-{\tt ":"} operator followed by a {\em restricted-statement} $S$,
-this function returns: \\
-\hspace*{0.3in}{\tt \{ $S$, ".initiator" = ":",
-                        ".terminator" = *INDENTED-PARAGRAPH* \} }
-
-In other words, this function packages $S$ in the form of a 1-{\em statement}
-subblock.
 \end{indpar}
 
 {\tt load reference function const r = com \ttkey{new variable name} }%
@@ -9749,7 +9740,36 @@ This function returns a {\em variable-name} of the form {\tt "V\$\ldots"}
 that is unique and distinct from any other variable name in the current
 compilation.  In particular, the function does not return the same
 {\em variable-name} twice.
+\end{indpar}
 
+The following functions are can be called by {\tt macro} and/or
+{\tt inclusion} functions:
+
+{\tt load reference function const r = com \ttkey{*STATEMENT*} }%
+\label{COM-STATEMENT}
+\begin{indpar}
+This {\em function-variable-name} returns the parsed {\em statement}
+containing an {\tt inclusion} function
+currently executing at compile-time.
+\end{indpar}
+
+{\tt load reference function const r = com \ttkey{*SUBBLOCK*} }%
+\label{COM-SUBBLOCK}
+\begin{indpar}
+This {\em function-variable-name} returns the subblock at the end
+of the parsed {\em statement}
+containing an {\tt inclusion} function currently executing at compile-time.
+This is annotated with {\tt ".initiator" = ":"} and
+{\tt ".terminator" = *INDENTED-PARAGRAPH*}.
+
+If instead of ending with a subblock, the {\em statement} ends with the
+{\tt ":"} operator followed by a {\em restricted-statement} $S$,
+this function returns: \\
+\hspace*{0.3in}{\tt \{ $S$, ".initiator" = ":",
+                        ".terminator" = *INDENTED-PARAGRAPH* \} }
+
+In other words, this function packages $S$ in the form of a 1-{\em statement}
+subblock.
 \end{indpar}
 
 {\tt constant function const r = com \ttkey{name of} ( const variable name )}
@@ -9762,13 +9782,13 @@ The type of the variable
 in this {\em proto\-type-argument-declaration} \underline{cannot}
 be {\tt const}.
 
-This function returns a {\em variable-name} of the form {\tt V\$\ldots}
-created by calling {\tt com new variable name}
-that can be used inside run-time code produced by the inline or inclusion
+This function returns a {\em variable-name} of the form
+{\tt V\$\ldots}~created by calling {\tt com new variable name}
+that can be used inside run-time code produced by the macro or inclusion
 function to reference the value of the actual argument associated with
 the {\em prototype-argument-declaration} of the `{\tt variable name}'.
 More explicitly,
-if the {\em prototype-argument-declara\-tion} has the form `$TTT$ $V$'
+if the {\em proto\-type-argument-declaration} has the form `$TTT$ $V$'
 where $TTT$ consists of runtime types and qualifiers and $V$ is a
 {\em variable-name}, and if \\
 \hspace*{1in}{\tt $W$ = name of ( "$V$" )}, \\
@@ -9789,7 +9809,7 @@ ap *READ-WRITE* int @x:
     x = 5
 inc ( x, 10 ) // Same as:
               //     int V$1 = 10
-              //     {{"x"}, "+=", {V$1}}.
+              //     {{"x"}, "+=", {"V$1"}}.
     // Now x == 15.
 \end{verbatim}\end{indpar}
 
