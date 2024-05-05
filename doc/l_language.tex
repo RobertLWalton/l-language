@@ -10099,7 +10099,7 @@ or UTF32 strings).
 These convert the string {\tt s} to the number {\tt r}, where the
 string is formatted as in Section \itemref{RATIONAL-CONSTANTS}.
 
-Error flags are set in {\tt f} (see \pagref{FP-FLAGS}).
+Error flags are set in {\tt f} (see \pagref{FP-FLAGS-DATA}).
 If there are no errors, no flags are set.
 If {\tt s} does not have the proper format, or {\tt N} is an integer type
 and the value cannot be stored in that type,
@@ -10147,7 +10147,7 @@ significand bits zero but the high order bit which is one, and has
 the sign bit set.}
 \begin{enumerate}
 \item A floating point operation result is a finite number, an infinity,
-of a floating point indefinite, provided that all operands to the operation
+or a floating point indefinite, provided that all operands to the operation
 are finite numbers, infinities, or floating point indefinites.  If such
 an operation has a floating point indefinite operand, its results will be
 floating point indefinites.
@@ -10156,7 +10156,8 @@ a floating point indefinite.  In particular {\tt nan}, {\tt +nan},
 and {\tt -nan} all represent the same value.
 \item There is one floating point indefinite value for each floating point
 number size, and when floating point values are converted to a different
-size, a floating point indefinite converts to another floating point indefinite.
+size, a floating point indefinite converts to the floating point indefinite
+of the target size.
 \end{enumerate}
 
 {\tt function F r = std \ttkey{"+"} ( F v1 )} \\
@@ -10185,6 +10186,11 @@ Floating point operations may set the following floating point flags:
 	     \tt +0 / +0 & \tt +0 / -0 \\
 	     \tt -0 / +0 & \tt -0 / -0 \\
 	     \end{tabular}
+\\[1ex]
+Also set when an operand is a signalling NaN, in which case the
+results are quiet NaNs that may not be floating point indefinite NaNs.%
+\footnote{See Table 4-7: Rules for Handling NaNs, of section 4.8.3.5,
+of {\em Intel 64 and IA-32 Architectures Software Developer's Manual}.}
 \item[Divide by Zero]  Set when a non-zero value is divided by a zero value.
 Returns {\tt +Inf} or {\tt -Inf} with sign determined by the signs
 of the zero and non-zero values in the usual way.
@@ -10260,7 +10266,7 @@ both return {\tt false}, and returns {\tt false} otherwise.
 \end{indpar}
 
 {\tt
-type~std~\ttkey{FP flags}:\label{FP-FLAGS} \\
+type~std~\ttkey{FP flags data}:\label{FP-FLAGS-DATA} \\
 \begin{tabular}[t]{@{~~~~~}l}
 \tt uns flags \\
 \tt [\ldots] bool invalid (operand for a given operation) \\
@@ -10270,20 +10276,21 @@ type~std~\ttkey{FP flags}:\label{FP-FLAGS} \\
 \tt [\ldots] bool inexact \\
 \end{tabular} \\
 }
-{\tt load reference function std FP flags r = std} \ttkey{FP flags register} \\
+{\tt load reference function std FP flags data r = std}
+    \ttkey{FP flags register} \\
 {\tt store reference function std}
-    \ttkey{FP flags register} {\tt = std FP flags v}
+    \ttkey{FP flags register} {\tt = std FP flags data v}
 \begin{indpar}
 The hardware floating point flags can be read into a datum of type
 {\tt FP flags} and an {\tt FP flags} datum can be written
 to the hardware floating point flags by using the {\tt FP flags register}
 reference functions.  The exact bits in the data that contain the flags
 are implementation dependent, and are here represented by `{\tt \ldots{}}'.
-\end{indpar}
 
 If a memory space has more than one process (a.k.a., thread - i.e., local
 stack\pagnote{LOCAL-STACK}), each process has its own
 {\tt std FP flags register}.
+\end{indpar}
 
 \subsection{Builtin Integer Operations}
 \label{BUILTIN-INTEGER-OPERATIONS}
@@ -10331,7 +10338,7 @@ Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
 	\tt int  int128 int64  int32  int16 \\
 	\end{tabular}
-\\[1ex]
+\\
 and {\tt U} is one of:
 	\begin{tabular}[t]{l}
 	\tt uns  uns64  uns32 \\
@@ -10355,7 +10362,7 @@ Where {\tt I} is one of:
 	\begin{tabular}[t]{l}
 	\tt int  int128 int64  int32  int16 \\
 	\end{tabular}
-\\[1ex]
+\\
 and {\tt U} is one of:
 	\begin{tabular}[t]{l}
 	\tt uns  uns64  uns32 \\
