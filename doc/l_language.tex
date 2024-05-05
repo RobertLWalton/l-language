@@ -9965,6 +9965,17 @@ in the following cases:
 \end{tabular}
 \end{center}
 
+In addition an implicit conversion from a {\tt const} value
+to each run-time numeric type {\tt N} is defined:
+\begin{indpar} \tt
+function N r = std \ttkey{*IMPLICIT* *CONVERSION*} ( const v )
+\end{indpar}
+This will result in a compile error if {\tt v} is not a number
+or rational or has a value that cannot be represented
+exactly in a value of type {\tt N}.
+For example, converting {\tt 5.5} to an {\tt int} will be a compile
+error, while converting {\tt 5.0} to an {\tt int} will not be.
+
 \subsubsection{Pointer Implicit Conversions}
 \label{POINTER-IMPLICIT-CONVERSIONS}
 
