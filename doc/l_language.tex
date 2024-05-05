@@ -10139,9 +10139,25 @@ the {\tt lower} and {\tt upper} arguments.
 \subsection{Builtin Floating Point Operations}
 \label{BUILTIN-FLOATING-POINT-OPERATIONS}
 
-A floating point {\tt NaN}
-is a quiet NaN with zero significand bits, except for the
-highest order bit which is one (to indicate that the NaN is quiet).
+A floating point operation produces a finite number, infinity,
+or NaN.  One particular NaN is special:
+the \key{floating point indefinite}:\footnote{
+For INTEL X64 processors, the floating point indefinite NaN has all
+significand bits zero but the high order bit which is one, and has
+the sign bit set.}
+\begin{enumerate}
+\item A floating point operation result is a finite number, an infinity,
+of a floating point indefinite, provided that all operands to the operation
+are finite numbers, infinities, or floating point indefinites.  If such
+an operation has a floating point indefinite operand, its results will be
+floating point indefinites.
+\item {\em Numeric-word} lexemes that represent NaNs all represent
+a floating point indefinite.  In particular {\tt nan}, {\tt +nan},
+and {\tt -nan} all represent the same value.
+\item There is one floating point indefinite value for each floating point
+number size, and when floating point values are converted to a different
+size, a floating point indefinite converts to another floating point indefinite.
+\end{enumerate}
 
 {\tt function F r = std \ttkey{"+"} ( F v1 )} \\
 {\tt function F r = std \ttkey{"-"} ( F v1 )} \\
