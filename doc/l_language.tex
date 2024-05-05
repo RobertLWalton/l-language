@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-May 4, 2024
+May 5, 2024
 
 \bigskip
 
@@ -2227,17 +2227,30 @@ rules below):
 	 \ref{QUALIFIER-RULE}] \\
 \\[1ex]
 \emkey{qualifier-name}\label{QUALIFIER-NAME}
-    \begin{tabular}[t]{rl}
-    ::= & \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE}
-                     $|$ \ttakey{WRITE-ONLY} \\
-    $|$ & \ttakey{GLOBAL} $|$ \ttakey{HEAP} $|$ \ttakey{INIT} \\
-    \end{tabular}
+    ::= {\em access-qualifier} $|$ {\em lifetime-qualifier}
+\begin{indpar}
+A list of qualifiers may have at most one {\em access-qualifier}
+and one {\em lifetime-qualifier}, and if both are present their
+order never matters (e.g., if two lists are compared, both lists
+are effectively sorted before the comparison).
+\end{indpar}
+
+\emkey{access-qualifier}\label{ACCESS-QUALIFIER}
+    ::= \ttkey{co} $|$ \ttkey{ro} $|$ \ttakey{READ-WRITE}
+                   $|$ \ttakey{WRITE-ONLY} $|$ \ttakey{INIT}
 \begin{indpar}
 {\tt co} abbreviates `constant' meaning `never changes' \\
 {\tt ro} abbreviates `read-only' meaning `other code may change' \\
+{\tt *INIT*} forces write-only during initialization
+\end{indpar}
+
+\emkey{lifetime-qualifier}\label{LIFETIME-QUALIFIER}
+    ::= \ttakey{GLOBAL} $|$ \ttakey{HEAP}
+\begin{indpar}
 {\tt *GLOBAL*} has global (forever) lifetime \\
 {\tt *HEAP*} has lifetime managed by a garbage collector \\
-{\tt *INIT*} forces write-only during initialization
+Absence of a lifetime qualifier indicates the lifetime of a pointer target \\
+may only be as long as the lifetime of the pointer.
 \end{indpar}
 \emkey{operator-word}
     \begin{tabular}[t]{rl}
@@ -2272,7 +2285,7 @@ rules below):
 
 \emkey{qualifier-wild-card-flag}\label{QUALIFIER-WILD-FLAG} :::= one of: \\
 \hspace*{0.2in}\begin{tabular}{rl}
-\ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} \\
+\ttkey{R} & readable, excludes {\tt *WRITE-ONLY*} and {\tt *INIT*} \\
 \ttkey{W} & writable, excludes {\tt ro} and {\tt co} \\
 \ttkey{U} & excludes \TT{*GLOBAL*} ~and \TT{*HEAP*} (a.k.a., undeclared) \\
           & (e.g., {\tt QU\$1} requires undeclared - a.k.a., local) \\
@@ -6809,7 +6822,7 @@ Example:
 //
 // For another of these uses *UNCHECKED* has the prototype:
 //
-//    av Q$1 PST$1 @r = std *UNCHECKED* ( ap Q$1 PST$2 @p )
+//    ap Q$1 PST$1 @r = std *UNCHECKED* ( ap Q$1 PST$2 @p )
 //
 // and simply changes the type of value pointed at by an ap.
 
@@ -7925,6 +7938,8 @@ The following rules prevent a pointer to a target with a given lifetime
 from being stored in a variable with a longer lifetime.
 The first of these rules govern global and heap pointers and
 pointer variables and are:
+\newcommand{\GlobalToHeap}{(L3)}
+\newcommand{\UndeclaredToGlobalOrHeap}{(L6)}
 \begin{indpar}[0.2in]
 \begin{tabular}{p{0.5in}p{5.0in}}
 \key{(L1)}	& A global pointer value
@@ -7937,7 +7952,7 @@ pointer variables and are:
 \end{tabular}
 
 \begin{tabular}{p{0.5in}p{5.0in}}
-\key{(L3)}
+\key{\GlobalToHeap}
 		& A global pointer value
                   can be stored in any heap pointer variable.
 \\[1ex]
@@ -7959,7 +7974,8 @@ pointer variables and are:
 \end{tabular}
 
 \begin{tabular}{p{0.5in}p{5.0in}}
-\key{(L6)}	& Undeclared pointer variables that are in the target
+\key{\UndeclaredToGlobalOrHeap}
+		& Undeclared pointer variables that are in the target
                   of a global pointer are global pointer variables.
 \\[1ex]
 		& Undeclared pointer variables that are in the target
@@ -8114,10 +8130,13 @@ The last kind of pointer is the \key{anywhere pointer}.
 {\em Out-of-line} argument undeclared pointer variables
 must be anywhere pointers.  The rules are:
 
+\newcommand{\GlobalOrHeapToUndeclared}{(L12)}
+\newcommand{\AnyToOutOfLineUndeclared}{(L13)}
 \begin{indpar}[0.2in]
 
 \begin{tabular}{p{0.5in}p{5.0in}}
-\key{(L12)}	& If a global or heap pointer is stored in an
+\key{\GlobalOrHeapToUndeclared}
+		& If a global or heap pointer is stored in an
                   undeclared local non-target pointer variable,
 		  the value stored becomes an anywhere pointer,
 		  and the compiler
@@ -8126,7 +8145,8 @@ must be anywhere pointers.  The rules are:
 \end{tabular}
 
 \begin{tabular}{p{0.5in}p{5.0in}}
-\key{(L13)}	& If \underline{any} pointer is stored in an
+\key{\AnyToOutOfLineUndeclared}
+		& If \underline{any} pointer is stored in an
                   undeclared {\em out-of-line} function argument variable,
 		  the value stored becomes an anywhere pointer,
 		  and the compiler
@@ -8151,12 +8171,13 @@ must be anywhere pointers.  The rules are:
 \end{tabular}
 
 \begin{tabular}{p{0.5in}p{5.0in}}
-\key{(L15)}	& A pointer value read from an
+\key{(L16)}	& A pointer value read from an
 		  an undeclared target pointer variable
 		  in the target of an anywhere pointer
 		  is an anywhere pointer.
 \\[1ex]
-		& Note that because of (L6) the pointer value may actually
+		& Note that because of \UndeclaredToGlobalOrHeap{}
+		  the pointer value may actually
 		  point at the global stack or the heap.
 \\[1ex]
 		& Note that because of (L11) the pointer value may actually
@@ -9982,8 +10003,8 @@ error, while converting {\tt 5.0} to an {\tt int} will not be.
 An aligned pointer may be implicitly converted to a direct pointer:
 
 \begin{indpar}
-{\tt function dp Q\$ T\$ @r =
-    std \ttkey{*IMPLICIT* *CONVERSION} ( ap Q\$ T\$ @p )}
+{\tt function dp Q\$ PST\$ @r =
+    std \ttkey{*IMPLICIT* *CONVERSION} ( ap Q\$ PST\$ @p )}
 \begin{indpar}
 The base address of {\tt @p} is added to the offset of {\tt @p} to
 produce the value of {\tt @r}.
@@ -10001,8 +10022,13 @@ The following are qualifier conversions:
 \item {\tt co} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
-\item Lifetime qualifiers can be converted when pointers are read or
-stored: see (L3), (L6), (L12), (L14), (L15) of \itemref{LIFETIMES}.
+\item Lifetime qualifiers can sometimes be converted when pointers are read or
+stored: see specifically
+\GlobalToHeap,
+\UndeclaredToGlobalOrHeap,
+\GlobalOrHeapToUndeclared,
+\AnyToOutOfLineUndeclared{}
+of Section~\itemref{LIFETIMES}.
 
 \end{enumerate}
 \end{indpar}
@@ -10061,9 +10087,9 @@ two's complement sign extension) and
 then truncate it to the length of {\tt I1}.
 \end{indpar}
 
-{\tt function N r, std FP flags f = std \ttkey{D\#} ( ap ro C s )} \\
-{\tt function N r, std FP flags f = std \ttkey{B\#} ( ap ro C s )} \\
-{\tt function N r, std FP flags f = std \ttkey{X\#} ( ap ro C s )}
+{\tt function N r, std FP flags f = std \ttkey{D\#} ( ap QR\$1 C s )} \\
+{\tt function N r, std FP flags f = std \ttkey{B\#} ( ap QR\$1 C s )} \\
+{\tt function N r, std FP flags f = std \ttkey{X\#} ( ap QR\$1 C s )}
 \label{RUN-TIME-STRING-TO-NUMBER-CONVERSIONS}
 \begin{indpar}
 Where {\tt N} is any number type
@@ -10075,30 +10101,34 @@ string is formatted as in Section \itemref{RATIONAL-CONSTANTS}.
 
 Error flags are set in {\tt f} (see \pagref{FP-FLAGS}).
 If there are no errors, no flags are set.
-If {\tt s} does not have the proper format,
-or its value is negative and {\tt N} is an unsigned integer,
+If {\tt s} does not have the proper format, or {\tt N} is an integer type
+and the value cannot be stored in that type,
 the {\tt Invalid} flag is set, {\tt NaN} is returned for floating point types,
 and the indefinite integer\pagnote{INDEFINITE-INTEGER}
 is returned for integer types.
-If the value is to large to store, the
-{\tt Overflow} flag is set,
-{\tt $\pm$Inf} is returned for floating point types,
-and the most positive or negative storable value is returned
-for integer types.  If the value must be rounded when it is stored,
+If the value is to large to store and {\tt N} is a floating point type, the
+{\tt Overflow} flag is set and {\tt $\pm$Inf} is returned.
+If the value must be rounded when it is stored,
 the {\tt Inexact} flag is set.
 \end{indpar}
 
 \subsubsection{Pointer Explicit Conversions}
 
-{\tt function ap Q\$ T\$ @r = std \ttkey{*UNCHECKED*} ( dp Q\$ T\$ @p )}
+{\tt function P\$ Q\$ PST\$1 @r = std \ttkey{*UNCHECKED*} ( P\$ Q\$ PST\$2 @p )}
+\begin{indpar}
+This just copies the pointer, in effect changing the type of its
+target.
+\end{indpar}
+
+{\tt function ap Q\$ PST\$ @r = std \ttkey{*UNCHECKED*} ( dp Q\$ PST\$ @p )}
 \begin{indpar}
 The base pointer of {\tt r} is set to point at a location that is
 always {\tt 0} and the offset of {\tt r} is set to point to the
 address stored as the value of {\tt p}.
 \end{indpar}
 
-{\tt function av Q\$ T\$ r = std \ttkey{*UNCHECKED*} \\
-\hspace*{0.2in}( ap Q\$ T\$ p, int offset, int lower, int upper )}
+{\tt function av Q\$ PST\$ r = std \ttkey{*UNCHECKED*} \\
+\hspace*{0.2in}( ap Q\$ PST\$ p, int offset, int lower, int upper )}
 \begin{indpar}
 The base pointer of {\tt @r} is set to the base pointer of {\tt @p},
 the offset of {\tt @r} is set to the sum of the offset of {\tt @p}
@@ -10597,7 +10627,7 @@ or process of part of the memory being read.
 \end{indpar}
 
 {\tt function std bool r =
-	atomic compare and set ( ap QRW\$1 A p, A vr, A vw )}
+	atomic compare and set ( ap Q\$1 A p, A vr, A vw )}
 \begin{indpar}
 For {\tt A} an atomic type,
 read the location pointed at by {\tt p} and compare it to {\tt vr}.
