@@ -10433,21 +10433,17 @@ Standard comparison operators on integers {\tt v1} and {\tt v2}.
 \subsection{Builtin Pointer Operations}
 \label{BUILTIN-POINTER-OPERATIONS}
 
-{\tt function ap Q\$1  T\$1 r = \\
+{\tt allocator function ap Q\$1  PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) null}%
 \label{NULL} \\
-{\tt function av Q\$1  T\$1 r = \\
+{\tt allocator function av Q\$1  PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) null [ uns count ]}
 \begin{indpar}
-These functions allocate a value of type {\tt T\$1}
-(or {\tt count} values of type {\tt T\$1}) to null
+These functions allocate a value of type {\tt PST\$1}
+(or {\tt count} values of type {\tt PST\$1}) to null
 memory (memory in inaccessible virtual pages that memory fault if
 accessed)
 and return a pointer to the value(s).
-\\[1ex]
-These functions can only be called by an
-{\tt allocation-call}\pagnote{ALLOCATION-CALL}.
-See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
 {\tt function ap QU\$1  PST\$1 r = \\
@@ -10461,10 +10457,6 @@ These functions allocate a value of type {\tt PST\$1}
 memory (the current out-of-line function execution's frame in the local stack:
 see \pagref{OUT-OF-LINE-LOCALS})
 and return a pointer to the value(s).
-\\[1ex]
-These functions can only be called by an
-{\tt allocation-call}\pagnote{ALLOCATION-CALL}.
-See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
 {\tt function ap QU\$1 *GLOBAL* PST\$1 r = \\
@@ -10477,10 +10469,6 @@ These functions allocate a value of type {\tt PST\$1}
 (or {\tt count} values of type {\tt PST\$1}) to global
 memory (the global stack: see \pagref{GLOBAL-MEMORY})
 and return a pointer to the value(s).
-\\[1ex]
-These functions can only be called by an
-{\tt allocation-call}\pagnote{ALLOCATION-CALL}.
-See \pagref{ALLOCATION-CALLS}.
 \end{indpar}
 
 \subsection{Builtin Exception and Trace Support Operations}
@@ -10513,29 +10501,31 @@ type~std~\ttkey{exception data}: \\
 \end{tabular} \\
 }
 {\tt load reference function std exception data r = std}
-    \ttkey{current exception data} \\
-{\tt store reference function std} \ttkey{current exception data}
+    \ttkey{exception register} \\
+{\tt store reference function std} \ttkey{exception register}
     {\tt = std exception data v}
 \begin{indpar}
-The current exception data contain the exception ID and program counter
+Read and write the current exception data which is stored in the
+{\tt std exception register}.
+The exception data contain the exception ID and program counter
 of the last exception.  These are set by
 a {\em throw-statement}\pagnote{THROW-STATEMENT} that
 gives an exception ID.   A {\em throw-statement} without an exception ID
-coes not change the current exception data.
-\end{indpar}
+coes not change the exception register.
 
 If a memory space has more than one process (a.k.a., thread - i.e., local
 stack\pagnote{LOCAL-STACK}), each process has its own
-{\tt std current exception data}.
+{\tt std exception register}.
+\end{indpar}
 
 A program fault executes the equivalent of a {\em throw-statement}
 with one of the following exception IDs:
 
-{\tt std divide exception = std new exception ID ( "DIVIDE" )} \\
+{\tt const std \ttkey{divide exception} = std new exception ID ( "DIVIDE" )} \\
 \hspace*{1in}{\tt // Integer divide by zero.} \\
-{\tt std inaccessible exception = std new exception ID ( "INACCESSIBLE" )} \\
+{\tt const std \ttkey{inaccessible exception} = std new exception ID ( "INACCESSIBLE" )} \\
 \hspace*{1in}{\tt // Read or write of inaccessible memory location.}  \\
-{\tt std write exception = std new exception ID ( "WRITE" )} \\
+{\tt const std \ttkey{write exception} = std new exception ID ( "WRITE" )} \\
 \hspace*{1in}{\tt // Write of accessible but write-protected
                   memory location.}
 
@@ -10546,11 +10536,12 @@ for the {\tt std new exception ID} function.
 A mask determining which {\em trace-statements} are active
 is recorded in the following:
 
-{\tt load reference function uns64 r = std} \ttkey{current trace mask}%
+{\tt load reference function uns64 r = std} \ttkey{trace mask register}%
 \label{CURRENT-TRACE-MASK} \\
-{\tt store reference function std} \ttkey{current trace mask} {\tt = uns64 v}
+{\tt store reference function std} \ttkey{trace mask register} {\tt = uns64 v}
 \begin{indpar}
-Read and write the current trace mask.
+Read and write the current trace mask which is stored in the
+{\tt trace mask register}.
 A {\em trace-statement}\pagnote{TRACE-STATEMENT} with trace ID X
 will be executed if the current trace mask has bit {\tt 1 <{}< X}
 on, and will be a no-operation otherwise.
@@ -10558,14 +10549,12 @@ on, and will be a no-operation otherwise.
 
 If a memory space has more than one process (a.k.a., thread - i.e., local
 stack\pagnote{LOCAL-STACK}), each process has its own
-{\tt std current trace mask}.
+{\tt std trace mask register}.
 
 The following is an example trace mask:
 \begin{indpar}\begin{verbatim}
 uns64 trace file errors = 1 << std new trace ID ( "FILE ERRORS" )
-    // Note: 1 << X is an exact integer in the IEEE floating point
-    //       format used for const numbers even when X is
-    //       a large integer.
+    // Note: 1 << X is an exact rational integer.
 \end{verbatim}\end{indpar}
 
 See Compile Time Exception and Trace Support
