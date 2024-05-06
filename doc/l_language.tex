@@ -10581,7 +10581,7 @@ When a process executes a program, the process may move
 memory reads and writes around so they are no longer
 done in the order that they would be done were the program
 statements executed in strict sequential order.  The
-execution does this if the effect of the program is not
+process does this if the effect of the process is not
 changed, under the assumption that the process is the
 only user of the RAM memory.  But if there are multiple CPUs,
 or a multi-tasking system asynchronously switching one CPU
@@ -10612,10 +10612,7 @@ are done before this atomic operation.
 This atomic operation's action on RAM
 cannot be interrupted by another atomic operation's action on RAM,
 where the other atomic operation is executed by a different CPU
-or process,
-if this operation reads a location
-and the other operation writes the location, or if this operation writes
-a location and the other operation reads the location.
+or process, unless both operations just read memory.
 
 Note that this applies only to RAM memory, and not to input/ouput
 device memory.
@@ -10632,7 +10629,7 @@ always atomic types.
 \begin{indpar}
 For {\tt A} an atomic type,
 perform an atomic operation that reads the location
-pointed at by {\tt p} and returns the value read.
+pointed at by {\tt p} and return the value read.
 \end{indpar}
 
 {\tt function std atomic write ( ap QW\$1 A p, A v )}
@@ -10647,8 +10644,8 @@ into the location pointed at by {\tt p}.
 \begin{indpar}
 For {\tt A} an atomic type,
 perform an atomic operation that first reads a value from the location
-pointed at by {\tt p}, then compares the value to {\tt vr}, and lastly
-if and only if the compared values are equal writes {\tt wv} into the
+pointed at by {\tt p}, then compares the value to {\tt vr}, and lastly,
+if and only if the compared values are equal, writes {\tt wv} into the
 location.
 \end{indpar}
 
@@ -10657,19 +10654,26 @@ Example 1:
 A device has registers in global memory which are shared between the
 device and a process.  The registers are either owned by the process
 and the device is inactive, or the registers are owned by the device
-which is executing an operation.  There is a register with a GO bit
-which is turned on by the process to activate the device, and another
+which is actively executing an operation.  There is a register with a GO bit
+which is turned on by the process to activate the device and start a
+device operation, and another
 register with a READY bit which is set by the device when its current
-operation is done.
+operation is done and the device is no longer active.
 
-The GO bit is set by an atomic write, which guarentees that all reads from
-and writes to registers in the code before the GO bit is set are actually done
-before the GO bit is set.
+When the device is inactive, parameters for the next device operation
+are written into device registers by the process.  Then
+the GO bit is set by an atomic write to start the operation.
+The atomic nature of this write guarentees that all process reads from
+and writes to device registers that are in the code before the GO bit
+is set are actually done before the GO bit is set.
 
-The READY bit is read by an atomic read, which guarentees that all reads from
-and writes to registers in the code after the READY bit has been
-read as being on
-are actually done after the READY bit has been read as being on.
+When the device is active, the
+READY bit is read by an atomic read until the read reads an on READY bit
+indicating the device has become inactive.  Then device operation
+results are read from device registers.  The atomic nature of the
+READY bit read guarentees the all process reads from and
+and writes to device registers that are in the code after the READY
+bit was read as on are actually after the READY bit come on.
 \end{indpar}
 
 Example 2:
