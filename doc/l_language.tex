@@ -277,9 +277,9 @@ the code block in which the pointer was first calculated is no
 longer executing.  Typically pointer variables are default-undeclared,
 as in the example.  The {\tt "Hello!"} constant in the example is
 a {\tt *GLOBAL*} pointer, meaning that the pointer is valid during the
-entire program execution, but such pointers are implicitly convertable
+entire program execution, but such pointers are implicitly convertible
 to undeclared pointers, as in the example.  {\tt *HEAP*} pointers
-point at garbage collectable values and obey special rules that we
+point at garbage collectible values and obey special rules that we
 shall not discuss here.
 
 Variables in local and global memory
@@ -803,7 +803,7 @@ const w = max ( x, max( y, z ) )
 \end{verbatim}\end{indpar}
 
 A `{\tt constant}' function is just an inline function that
-is guarenteed to not generate any run-time code.
+is guaranteed to not generate any run-time code.
 Thus it can be executed at compile time to compute with
 {\tt const} values.
 
@@ -1355,7 +1355,7 @@ lexeme that cannot be an {\em indent}, {\em line-break}, or
 
 Lexemes are organized into \skey{logical line}s.\footnote{
 L-Language lexemes logical lines and indented paragraphs are
-layered system brcketed subexpression recognition pass
+layered system bracketed subexpression recognition pass
 logical lines and paragraphs.}
 A logical line
 begins immediately after an {\em indent} lexeme, and the
@@ -3492,7 +3492,7 @@ and {\em call-argument-lists}.  Note that {\em function-term-names} cannot
 contain `\TT{.}'s and therefore cannot be {\em member-names},
 which are reserved for {\em reference-calls}\pagnote{REFERENCE-CALL}.
 Also any \TT{[~]} bracketed {\em call-argument-lists} must be preceded by
-a {\em paraenthesized-call-argument-list},
+a {\em parenthesized-call-argument-list},
 a syntactic distinction to their use in {\em reference-calls}.
 
 {\em Function-calls} are matched to {\em function-prototypes} in
@@ -3807,7 +3807,7 @@ variables declared by {\em block-variable-declarations}
 are given the qualifier {\tt *INIT*} in {\em statements}
 of the {\em block-assignment-statement} and {\tt co} after the
 {\em block-assignment-statement}.
-The {\tt *INIT*} qualifer is equivalent to {\tt *WRITE-\EOL ONLY*}
+The {\tt *INIT*} qualifier is equivalent to {\tt *WRITE-\EOL ONLY*}
 except that it forces fields and elements of the value to also
 be {\tt *INIT*}\pagnote{INIT-FORCING}.
 
@@ -3879,7 +3879,7 @@ or the {\em block-variable-declaration} list of a
 A {\em deferred-assignment-statement}
 behaves like a {\em block-assignment-statement} with an empty block,
 but in addition allows each of its variables to be redeclared in a subsequent
-`companion' {\em block-variable-delcaration} which does not
+`companion' {\em block-variable-declaration} which does not
 reallocate the variable (there may be separate companions for different
 variables).
 
@@ -4238,7 +4238,7 @@ For code within the scope of a companion the
 variable qualifier will be changed to {\tt co}.
 
 
-For pointers allocated by a {\em deferred-assignment-statment},
+For pointers allocated by a {\em deferred-assignment-statement},
 the target value will be zeroed and
 the pointer target will be given the {\tt ro} qualifier, except for
 code within the scope of the pointer's companion,
@@ -4819,7 +4819,7 @@ the {\em defined-type-name} is said to be \key{expandable}.
 
 Each {\em type-declaration} in an \key{external expansion tree}
 must end with the {\tt *EXTERNAL*}\label{*EXTERNAL*} sub-declaration.
-The {\em defined-type-name} is expandable whereever it is defined
+The {\em defined-type-name} is expandable wherever it is defined
 (i.e., within the scope of the tree root).
 
 The final size and alignment of an expandable {\em defined-type-name}
@@ -4839,9 +4839,9 @@ can be used as the target of a pointer type used as a variable type or
 field type.
 
 The full extent of an expansion tree may not be known until load-time.
-When code requiring an {\em defined-type-name} to be non-expandible is
+When code requiring an {\em defined-type-name} to be non-expandable is
 compiled, the compiler assumes that the {\em defined-type-name} is in fact
-non-expandible at the point of the code,
+non-expandable at the point of the code,
 and associates the {\em defined-type-name} with the
 {\em type-declaration} that must be a linear leaf if the {\em defined-type-name}
 is non-expandable at that point.
@@ -5147,7 +5147,7 @@ A {\em function-declaration} $d$ of the form
 \begin{indpar} \tt
 function T2 r = {\em ma}\QMARK{} *IMPLICIT* *CONVERSION* ( T1 v )
 \end{indpar}
-creats an edge labeled $d$ in this graph from node {\tt T2} to node
+creates an edge labeled $d$ in this graph from node {\tt T2} to node
 {\tt T1}.
 This graph \underline{must} be
 acyclic.  A path $d_1,d_2,\ldots,d_n$ in this graph denotes a chain
@@ -5485,7 +5485,7 @@ where {\em ma} is the same module as that of the
 {\tt *POINTER* *IMPLICIT* *CONVERSION*} function, if any.
 
 Similarly one can define an {\tt *UNCHECKED*} function to convert
-$P1$ values to $P2$ values.  As a convience, this can be
+$P1$ values to $P2$ values.  As a convenience, this can be
 done by defining:
 \begin{indpar} \tt
 function $D2$ d2 = {\em ma}\QMARK{}  \ttkey{*POINTER* *UNCHECKED* *CONVERSION*}
@@ -5688,7 +5688,7 @@ If there are \underline{no} {\em parenthesized-pattern-argument-lists}
 \underline{before} the first {\em pattern-term} of a
 {\em prototype-pattern}, there must be a
 {\em parenthesized-pattern-argument-list}
-immedately after the {\em function-term-name} in that {\em pattern-term},
+immediately after the {\em function-term-name} in that {\em pattern-term},
 and the first {\em prototype-argument-declaration} in that
 {\em parenthesized-pattern-argument-list}
 must \underline{not} have a {\em default-value}
@@ -6094,7 +6094,7 @@ pointed at and annotate $E$ with $C$ and the {\tt const} type.
 If $E$ is a run-time
 {\em reference-expression}\pagnote{RUN-TIME-REFERENCE-EXPRESSIONS},
 evaluate the type of $E$'s reference pointer and annotate
-$E$ with this type.  Also annote each index subexpression with its
+$E$ with this type.  Also annotate each index subexpression with its
 target type.
 
 \item\label{CONSTANT-FUNCTION-STEP}
@@ -6169,7 +6169,7 @@ and argument types, so {\tt int} is the target type of `{\tt x}' and `{\tt 5}'.
 
 For an index of a {\em reference-expression}, the
 index {\em expression} is annotated with its target type when its
-containing {\em reference-expression} is analyzed by the Botton-Up
+containing {\em reference-expression} is analyzed by the Bottom-Up
 Expression Algorithm.
 
 As a special case, in a relational expression such as `{\tt x < y + 5}'
@@ -7469,7 +7469,7 @@ which has the annotations: \\
 The list elements are logical lines.
 
 The parser does \underline{not} introduce implied brackets where there
-are explict or implied brackets, but will introduce implied brackets
+are explicit or implied brackets, but will introduce implied brackets
 surrounding quoted strings.  For example,
 \begin{indpar}
 {\tt x + y} parses as {\tt \{ \{ "x" \}, "+", \{ "y" \} \}} \\
@@ -7608,7 +7608,7 @@ declared begins with a
 {\em module-abbrev\-i\-a\-tion}.
 
 A {\em function-constant-declaration}
-is external if the {\em function-contstant-name}
+is external if the {\em function-constant-name}
 declared begins with a
 {\em module-abbrev\-i\-a\-tion}.
 
@@ -7662,7 +7662,7 @@ of \itemref{DEFINED-TYPE-EXPANSIONS}.
 The scope of a {\tt *LABEL*} {\em type-subdeclaration}
 consists of the {\em type-subdeclarations} following it in its
 {\em type-declaration} and of the entirety of all
-{\em type-declarations} that are descendents
+{\em type-declarations} that are descendants
 of its {\em type-declaration} in the {\em defined-type-name}'s
 expansion tree.
 
@@ -8056,7 +8056,7 @@ Details, including how to handle inline function calls, are below.
 		  that is \underline{not} an {\tt out-of-line}
 		  function argument variable (it may be an inline
 		  function argument variable).  The compiler
-		  then annotes the pointer variable as holding a local
+		  then annotates the pointer variable as holding a local
 		  pointer of depth $D$.
 \end{tabular}
 
@@ -8146,7 +8146,7 @@ must be anywhere pointers.  The rules are:
                   undeclared local non-target pointer variable,
 		  the value stored becomes an anywhere pointer,
 		  and the compiler
-		  annotes the pointer variable as holding
+		  annotates the pointer variable as holding
 		  an anywhere pointer.
 \end{tabular}
 
@@ -8156,7 +8156,7 @@ must be anywhere pointers.  The rules are:
                   undeclared {\em out-of-line} function argument variable,
 		  the value stored becomes an anywhere pointer,
 		  and the compiler
-		  annotes the argument variable as holding
+		  annotates the argument variable as holding
 		  an anywhere pointer.
 \end{tabular}
 
@@ -8165,7 +8165,7 @@ must be anywhere pointers.  The rules are:
                   undeclared local non-target pointer variable,
 		  the value stored becomes an anywhere pointer,
 		  and the compiler
-		  annotes the pointer variable as holding
+		  annotates the pointer variable as holding
 		  an anywhere pointer.
 \end{tabular}
 
@@ -8826,11 +8826,11 @@ and will return any numeric results as {\tt numbers}.
 If there is an error {\tt NaN} will be returned and there will
 be a compile error message.
 
-A function with at least one {\tt ratonal} argument and
+A function with at least one {\tt rational} argument and
 \underline{no} non-integer {\em number} arguments will
 convert all integer {\tt numbers} to {\tt rationals}
 before using them, will do all internal calculations with
-{\tt rationals}, and will return any numeric results as {\tt ratonals}.
+{\tt rationals}, and will return any numeric results as {\tt rationals}.
 If there is an error {\tt UNDEF} will be returned and there will
 be a compile error message.
 
@@ -9171,7 +9171,7 @@ changed by the following:
 \begin{indpar}
 Makes the map label {\tt s} (a string) of the map {\tt m}
 read-write or read-only, and returns {\tt m}.  The dictionary entry
-labelled {\tt s} in the map {\tt m} can be written if it is
+labeled {\tt s} in the map {\tt m} can be written if it is
 read-write and the whole map is separately read-write.
 
 When a value is first written at a label, the label is created
@@ -9313,9 +9313,9 @@ If {\tt n < 0} the elements replaced are
 The elements being replaced need not (all) exist.  {\tt m} is thought
 of as an infinite sequence of existing and non-existing elements indexed
 by integers, including negative integers.  The members of
-{\tt m} to be removed are made non-existant,
+{\tt m} to be removed are made non-existent,
 then the elements of {\tt v} are pushed
-into the sequence, and then non-existant elements are deleted.
+into the sequence, and then non-existent elements are deleted.
 
 So if {\tt i >= \# m} and {\tt n >= 0} then the elements of {\tt v}
 are appended to {\tt m}, and if {\tt i = 0} and {\tt n < 0}, the
@@ -10195,7 +10195,7 @@ Floating point operations may set the following floating point flags:
 	     \tt -0 / +0 & \tt -0 / -0 \\
 	     \end{tabular}
 \\[1ex]
-Also set when an operand is a signalling NaN, in which case the
+Also set when an operand is a signaling NaN, in which case the
 results are quiet NaNs that may not be floating point indefinite NaNs.%
 \footnote{See Table 4-7: Rules for Handling NaNs, of section 4.8.3.5,
 of {\em Intel 64 and IA-32 Architectures Software Developer's Manual}.}
@@ -10519,7 +10519,7 @@ The exception data contain the exception ID and program counter
 of the last exception.  These are set by
 a {\em throw-statement}\pagnote{THROW-STATEMENT} that
 gives an exception ID.   A {\em throw-statement} without an exception ID
-coes not change the exception register.
+does not change the exception register.
 
 If a memory space has more than one process (a.k.a., thread - i.e., local
 stack\pagnote{LOCAL-STACK}), each process has its own
@@ -10614,7 +10614,7 @@ cannot be interrupted by another atomic operation's action on RAM,
 where the other atomic operation is executed by a different CPU
 or process, unless both operations just read memory.
 
-Note that this applies only to RAM memory, and not to input/ouput
+Note that this applies only to RAM memory, and not to input/output
 device memory.
 \end{enumerate}
 \end{indpar}
@@ -10663,7 +10663,7 @@ operation is done and the device is no longer active.
 When the device is inactive, parameters for the next device operation
 are written into device registers by the process.  Then
 the GO bit is set by an atomic write to start the operation.
-The atomic nature of this write guarentees that all process reads from
+The atomic nature of this write guarantees that all process reads from
 and writes to device registers that are in the code before the GO bit
 is set are actually done before the GO bit is set.
 
@@ -10671,7 +10671,7 @@ When the device is active, the
 READY bit is read by an atomic read until the read reads an on READY bit
 indicating the device has become inactive.  Then device operation
 results are read from device registers.  The atomic nature of the
-READY bit read guarentees the all process reads from and
+READY bit read guarantees the all process reads from and
 and writes to device registers that are in the code after the READY
 bit was read as on are actually after the READY bit turned on.
 \end{indpar}
@@ -10686,7 +10686,7 @@ contents.
 
 We assume the device is inactive and the process writes A and then
 reads or writes D.  If either the write on A or the operation on D
-is atomic, it is guarenteed that A will be written before D is read or
+is atomic, it is guaranteed that A will be written before D is read or
 written.
 \end{indpar}
 
