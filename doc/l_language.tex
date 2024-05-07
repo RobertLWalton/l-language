@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1b)
 \\[0.5ex]
 Robert L. Walton\\
-May 6, 2024
+May 7, 2024
 
 \bigskip
 
@@ -10698,15 +10698,20 @@ memory locations: B (before) and A (after).  When the structure is
 not being written, B == A.  A writer first increments B, then
 updates the structure, and then increments A.
 
-To get a write lock, the writer reads A atomically and then does
-an atomic compare-and-set on B that checks that B == A and if so writes
+To get a write lock, the writer reads A atomically and saves the value V,
+and then does
+an atomic compare-and-set on B that checks that B == V and if so writes
 B+1 to B and acquires the lock.  Because the compare-and-set is atomic,
-A will be read before the compare-and-set, and all reads an writes
+A will be read before the compare-and-set, and all reads and writes
 after the compare-and-set in the code will execute after the compare-and-set.
 Because the reads of A and B are atomic, data read 
-will not be corrupted by simultaneous writes by another CPU.
+will not be corrupted by simultaneous atomic writes by another CPU.
 Because the write of B is atomic, another CPU using an atomic read of B
-will not see data corrupted by the write of B.
+will not see data corrupted by the atomic write of B.
+
+To release the lock, the writing process just atomically
+writes the value of B into A.  Because the write is atomic, all reads and
+writes before it in the code are executed before it.
 
 To read, the reader reads A atomically and saves the value V,
 then reads data from the structure, then reads B atomically and
@@ -10718,7 +10723,8 @@ but can read B atomically and check the value against V
 at any time to see if the data read so far is uncorrupted.
 Because the reads of A and B are atomic, reads of the structure that
 are between the reads of A and B in the code will execute between
-the atomic reads of A and B.
+the atomic reads of A and B, and also the values read will not be
+corrupted by atomic writes done by another CPU.
 
 \end{indpar}
 
