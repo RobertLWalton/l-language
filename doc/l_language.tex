@@ -10673,7 +10673,7 @@ indicating the device has become inactive.  Then device operation
 results are read from device registers.  The atomic nature of the
 READY bit read guarentees the all process reads from and
 and writes to device registers that are in the code after the READY
-bit was read as on are actually after the READY bit come on.
+bit was read as on are actually after the READY bit turned on.
 \end{indpar}
 
 Example 2:
@@ -10684,15 +10684,10 @@ a location in device memory, and D holds the contents of that location:
 reading D reads the location contents, and writing D writes the location
 contents.
 
-Register A is set by an atomic write and then register D
-is read by an atomic read.  Because atomic operations execute in the
-same order as they appear in the code, the read will be done after the
-write.
-
-However, we assume that during the interval beginning with the write of A
-and ending with the read of D, no other process reads or writes the registers
-or memory of the device, and the device itself does not read or write
-its registers or memory.
+We assume the device is inactive and the process writes A and then
+reads or writes D.  If either the write on A or the operation on D
+is atomic, it is guarenteed that A will be written before D is read or
+written.
 \end{indpar}
 
 Example 3:
@@ -10705,9 +10700,13 @@ updates the structure, and then increments A.
 
 To get a write lock, the writer reads A atomically and then does
 an atomic compare-and-set on B that checks that B == A and if so writes
-B+1 to B and acquires the lock.  The atomic rules guarantee that
-the read of B is done after the read of A, and all reads and writes
-of the data structure are done after the compare-and-set.
+B+1 to B and acquires the lock.  Because the compare-and-set is atomic,
+A will be read before the compare-and-set, and all reads an writes
+after the compare-and-set in the code will execute after the compare-and-set.
+Because the reads of A and B are atomic, data read 
+will not be corrupted by simultaneous writes by another CPU.
+Because the write of B is atomic, another CPU using an atomic read of B
+will not see data corrupted by the write of B.
 
 To read, the reader reads A atomically and saves the value V,
 then reads data from the structure, then reads B atomically and
@@ -10717,10 +10716,9 @@ If the check fails, the data may be corrupted.  The reader must be
 sure corrupted data does not destroy the integrity of the reader's execution,
 but can read B atomically and check the value against V
 at any time to see if the data read so far is uncorrupted.
-
-The atomic rules guarantee that all reads of the data structure
-by the current process
-are done after the read of A and before the read of B.
+Because the reads of A and B are atomic, reads of the structure that
+are between the reads of A and B in the code will execute between
+the atomic reads of A and B.
 
 \end{indpar}
 
