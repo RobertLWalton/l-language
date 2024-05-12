@@ -10707,7 +10707,7 @@ reading D reads the location contents, and writing D writes the location
 contents.
 
 We assume the device is inactive and the process writes A and then
-reads or writes D.  If either the write on A or the operation on D
+reads or writes D.  If either the write to A or the operation on D
 is atomic, it is guaranteed that A will be written before D is read or
 written.  It may happen that A has an atomic type but D does not,
 in which case A should be written atomically.
@@ -10724,19 +10724,19 @@ updates the structure, and then increments A.
 To get a write lock, the writer reads A atomically and saves the value V,
 and then does
 an atomic compare-and-set on B that checks that B == V and if so writes
-B+1 to B and acquires the lock.  Because the compare-and-set is atomic,
+V+1 (= B+1) to B and acquires the lock.  Because the compare-and-set is atomic,
 A will be read before the compare-and-set, and all reads and writes
 after the compare-and-set in the code will execute after the compare-and-set.
 Because the reads of A and B are atomic, data read 
 will not be corrupted by simultaneous atomic writes by another CPU.
-Because the write of B is atomic, another CPU using an atomic read of B
-will not see data corrupted by the atomic write of B.
+Because the write to B is atomic, another CPU using an atomic read of B
+will not see data corrupted by the atomic write to B.
 
 If two CPUs attempt to get the write lock simultaneously, both read the same
 value V from A, and the first to execute the compare-and-set gets the lock.
 
 To release the lock, the writing process just atomically
-writes the value of B into A.  Because the write is atomic, all reads and
+writes the V+1 (= B) into A.  Because the write is atomic, all reads and
 writes before it in the code are executed before it.
 
 To read, the reader reads A atomically and saves the value V,
