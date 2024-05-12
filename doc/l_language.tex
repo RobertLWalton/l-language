@@ -10625,6 +10625,8 @@ This atomic operation's action on a regular RAM location
 cannot be interrupted by another atomic operation's action on that location,
 where the other atomic operation is executed by a different CPU
 or process, unless both operations just read memory.
+The action may include both a read and a write, with the other CPUs
+operation not allowed to interrupt the interval between the read and write.
 \end{itemize}
 \end{indpar}
 
@@ -10685,7 +10687,7 @@ are written into device registers by the process.  Then
 the GO bit is set by an atomic write to start the operation.
 The atomic nature of this write guarantees that all process reads from
 and writes to device registers that are in the code before the GO bit
-is set are actually done before the GO bit is set.
+is set are actually executed before the GO bit is set.
 
 When the device is active, the
 READY bit is read by an atomic read until the read reads an on READY bit
@@ -10693,7 +10695,7 @@ indicating the device has become inactive.  Then device operation
 results are read from device registers.  The atomic nature of the
 READY bit read guarantees the all process reads from and
 and writes to device registers that are in the code after the READY
-bit was read as on are actually after the READY bit turned on.
+bit was read as on are actually executed after the READY bit turned on.
 \end{indpar}
 
 Example 2:
@@ -10707,13 +10709,14 @@ contents.
 We assume the device is inactive and the process writes A and then
 reads or writes D.  If either the write on A or the operation on D
 is atomic, it is guaranteed that A will be written before D is read or
-written.
+written.  It may happen that A has an atomic type but D does not,
+in which case A should be written atomically.
 \end{indpar}
 
 Example 3:
 \begin{indpar}
 A data structure which is shared among processes perhaps executing
-on different CPUs is guarded by a lock consisting of two integer
+on different CPUs is guarded by a lock consisting of two atomic integer
 memory locations: B (before) and A (after).  When the structure is
 not being written, B == A.  A writer first increments B, then
 updates the structure, and then increments A.
@@ -10729,6 +10732,9 @@ will not be corrupted by simultaneous atomic writes by another CPU.
 Because the write of B is atomic, another CPU using an atomic read of B
 will not see data corrupted by the atomic write of B.
 
+If two CPUs attempt to get the write lock simultaneously, both read the same
+value V from A, and the first to execute the compare-and-set gets the lock.
+
 To release the lock, the writing process just atomically
 writes the value of B into A.  Because the write is atomic, all reads and
 writes before it in the code are executed before it.
@@ -10743,7 +10749,7 @@ but can read B atomically and check the value against V
 at any time to see if the data read so far is uncorrupted.
 Because the reads of A and B are atomic, reads of the structure that
 are between the reads of A and B in the code will execute between
-the atomic reads of A and B, and also the values read will not be
+the atomic reads of A and B, and also the values read from A and B will not be
 corrupted by atomic writes done by another CPU.
 
 \end{indpar}
