@@ -160,10 +160,10 @@ L-LANGUAGE
 \end{center}
 \begin{center}
 \large \bf
-(Draft 1b)
+(Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-May 12, 2024
+August 20, 2024
 
 \bigskip
 
@@ -282,7 +282,7 @@ to undeclared pointers, as in the example.  {\tt *HEAP*} pointers
 point at garbage collectible values and obey special rules that we
 shall not discuss here.
 
-Variables in local and global memory
+Variables allocated directly to local or global memory
 have names, like {\tt X}, {\tt Y}, and {\tt Z}, and values
 that are constants.
 These values most frequently
@@ -291,7 +291,8 @@ word size of the computer (typically 32 or 64 bits), or
 several times that size: {\tt intd} is a two word (double) integer
 and {\tt intq} is a four word (quad) integer.
 Although the value of a variable is constant, the value may point
-at a memory location that is read-write.
+at a memory location that is read-write, and that memory location
+may be in local or global memory.
 
 An aligned vector pointer {\tt av} is a
 quad integer ({\tt intq}) containing:
@@ -315,7 +316,7 @@ value of the index {\tt int} plus 1.
 
 There are other types of pointer.  An {\tt fv}, or `field vector',
 is like an {\tt av} aligned
-vector except that the offset {\tt int} has a bit address in its
+vector except that the offset {\tt int} has a bit offset in its
 high order part and a field size in bits in its low order part.
 The {\tt ap} (`aligned pointer') and {\tt fp} (`field pointer')  types are
 similar but do not have the bounds and cannot be indexed.  Lastly
@@ -599,7 +600,7 @@ and denominators; for example,
 Number constants
 can be converted to run-time numbers during compilation.
 However it is a compile error
-if the result will not fit into the runtime number.
+if the result will not fit into a run-time integer.
 This happens, for example, if {\tt 1.1}, {\tt 1e20}, or {\tt D\#"1/3"}
 is converted to an {\tt int32}.
 
@@ -714,7 +715,6 @@ bool b3 = ( x + 3 < int ( 5 ) )
     // becomes the target type of "5".  Because int (...) is
     // an explicit type conversion, int is also the target
     // type of x + 5.
-    //
 \end{verbatim}\end{indpar}
 
 Integer arithmetic ignores overflows (as in C and C++); for example,
@@ -843,7 +843,7 @@ can also be a wild card named by a single word beginning with
 
 \begin{indpar}\begin{verbatim}
 out-of-line function
-    uns r = strlen ( dp Q$s uns8 @s ) : *DEFERED* "strlen"
+    uns r = strlen ( dp Q$s uns8 @s ) : *DEFERRED* "strlen"
     // External function in C library.
 function uns r = strlen ( P$s Q$s uns8 @s ):
     // Inline wrapper.
@@ -1097,7 +1097,7 @@ warning messages.
 	::= & {\em numeric-word} $|$ {\em word} $|$
 	      {\em natural} $|$ {\em number} $|$ {\em numeric} \\
 	$|$ & {\em mark} $|$ {\em separator} $|$ {\em quoted-string} \\
-	$|$ & {\em indent} $|${\em line-break} $|$
+	$|$ & {\em indent} $|$ {\em line-break} $|$
 	      {\em comment} $|$ {\em end-of-file}
 	\end{tabular}
 \label{LEXEME}
@@ -1162,7 +1162,7 @@ warning messages.
 \\[0.5ex]
 \emkey{natural}\label{NATURAL}
 	\begin{tabular}[t]{@{}rl@{}}
-	:::= & {\em decimal-digit}\PLUS{} not beginning with \TT{0} $|$
+	:::= & {\em ASCII-digit}\PLUS{} not beginning with \TT{0} $|$
 	       \TT{0} \\
 	\multicolumn{2}{l}{[but lexical type may be changed;
 	                    see \pagref{LEXEME-TYPE-CONVERSION}]} \\
@@ -1181,13 +1181,13 @@ warning messages.
 	\end{tabular}
 \\[0.5ex]
 \begin{tabular}[t]{@{}l@{\hspace{0.6in}}l@{}}
-\emkey{integer-part} :::= {\em decimal-digit}\PLUS{}
+\emkey{integer-part} :::= {\em ASCII-digit}\PLUS{}
 &
-\emkey{fraction-part} :::= \TT{.} {\em decimal-digit}\PLUS{}
+\emkey{fraction-part} :::= \TT{.} {\em ASCII-digit}\PLUS{}
 \end{tabular}
 \\[0.5ex]
 \emkey{exponent-part} :::= {\em exponent-indicator} {\em sign}\QMARK{}
-                           {\em decimal-digit}\PLUS{}
+                           {\em ASCII-digit}\PLUS{}
 \\[0.5ex]
 \begin{tabular}[t]{@{}l@{\hspace{1in}}l@{}}
 \emkey{sign} :::= \TT{+} $|$ \TT{-}
@@ -2291,6 +2291,7 @@ may only be as long as the lifetime of the pointer.
 \ttkey{U} & excludes \TT{*GLOBAL*} ~and \TT{*HEAP*} (a.k.a., undeclared) \\
           & (e.g., {\tt QU\$1} requires undeclared - a.k.a., local) \\
           & (e.g., {\tt QU\$1 *GLOBAL*} requires {\tt *GLOBAL*}) \\
+\ttkey{L} & excludes \underline{all but} \TT{*GLOBAL*} ~and \TT{*HEAP*} \\
 \end{tabular}
 \end{indpar}
 
@@ -9819,14 +9820,14 @@ function to reference the value of the actual argument associated with
 the {\em prototype-argument-declaration} of the `{\tt variable name}'.
 More explicitly,
 if the {\em proto\-type-argument-declaration} has the form `$TTT$ $V$'
-where $TTT$ consists of runtime types and qualifiers and $V$ is a
+where $TTT$ consists of run-time types and qualifiers and $V$ is a
 {\em variable-name}, and if \\
 \hspace*{1in}{\tt $W$ = name of ( "$V$" )}, \\
 is executed in the inline function,
 and if {\tt "V\$\ldots"} is returned as the value of $W$,
 then code of the form: \\
 \hspace*{1in}{\tt $TTT$ V\$\ldots = {\em actual-argument}} \\
-is executed at runtime just before the {\em statement} containing
+is executed at run-time just before the {\em statement} containing
 the executing inline function.
 \end{indpar}
 
@@ -10122,6 +10123,16 @@ the {\tt Inexact} flag is set.
 \end{indpar}
 
 \subsubsection{Pointer Explicit Conversions}
+
+{\tt function P\$ ro QL\$ PST\$1 @r =
+	std \ttkey{ro} ( P\$ QR\$ PST\$2 @p )} \\
+{\tt function P\$ *WRITE-ONLY* QL\$ PST\$1 @r = \\
+\hspace*{1in}std \ttkey{*WRITE-ONLY*} ( P\$ QW\$ PST\$2 @p )}
+\begin{indpar}
+These just copy the pointer changing its target access qualifier to {\tt ro}
+or {\tt *WRITE-ONLY*} (but note that an {\tt *INIT*} qualifier cannot be changed
+to {\tt *WRITE-ONLY*}).
+\end{indpar}
 
 {\tt function P\$ Q\$ PST\$1 @r = std \ttkey{*UNCHECKED*} ( P\$ Q\$ PST\$2 @p )}
 \begin{indpar}
