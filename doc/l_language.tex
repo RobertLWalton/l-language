@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-August 20, 2024
+August 21, 2024
 
 \bigskip
 
@@ -1347,7 +1347,7 @@ lexeme that cannot be an {\em indent}, {\em line-break}, or
 {\em end-of-file}.
 
 Lexemes are organized into \skey{logical line}s.\footnote{
-L-Language lexemes logical lines and indented paragraphs are
+L-Language logical lines and indented paragraphs are
 layered system bracketed subexpression recognition pass
 logical lines and paragraphs.}
 A logical line
@@ -1877,7 +1877,7 @@ and `operand' to mean {\em (P+1)-expression}:
 \begin{tabular}{p{1in}p{5.0in}}
 \ttkey{declaration}
     & The expression must consist of an operator followed by
-      an operand (that may contain {\tt =} and {\tt ,}) followed sometimes
+      an operand (that may contain {\tt =} and {\tt ,}) followed optionally
       by a subblock operator.
 \end{tabular}
 \\[0.5ex]
@@ -2188,7 +2188,7 @@ rules below):
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
     {\em variable-name} \\
 \emkey{function-constant-name}\label{FUNCTION-CONSTANT-NAME} ::=
-    {\em target-name} \\
+    {\em target-variable} \\
 \emkey{statement-label} ::= {\em basic-name}
     \label{STATEMENT-LABEL} not containing `\TT{@}'s
 \\[1ex]
@@ -2266,11 +2266,10 @@ may only be as long as the lifetime of the pointer.
 \hspace*{0.2in}\begin{tabular}{rp{4in}}
 \ttkey{T\$} & name is assigned a {\em type-name} \\
 \ttkey{P\$} & name is assigned a {\em pointer-type-name} \\
-\ttkey{PST\$} & name is assigned a possibly empty
-               sequence of {\em pointer-type-names}
-	       and {\em qualifiers} beginning with
-	       a {\em pointer-type-name} and followed by a single
-	       {\em type-name} \\
+\ttkey{PST\$} & name is assigned a {\em type-name} preceeded by a
+		possibly empty sequence of {\em pointer-type-names}
+	        and {\em qualifiers} beginning with
+	        a {\em pointer-type-name} \\
 \ttkey{Q\ldots\$} & {\em qualifier-wild-card}; name is assigned a
                     list of {\em qualifier-names} subject to
 		    {\em qualifier-wild-card-flags} `\ldots'\\
@@ -2284,7 +2283,9 @@ may only be as long as the lifetime of the pointer.
 \ttkey{U} & excludes \TT{*GLOBAL*} ~and \TT{*HEAP*} (a.k.a., undeclared) \\
           & (e.g., {\tt QU\$1} requires undeclared - a.k.a., local) \\
           & (e.g., {\tt QU\$1 *GLOBAL*} requires {\tt *GLOBAL*}) \\
-\ttkey{L} & excludes \underline{all but} \TT{*GLOBAL*} ~and \TT{*HEAP*} \\
+\ttkey{L} & excludes {\em access-qualifiers} \\
+          & (allows only {\em lifetime-qualifiers}) \\
+          & (e.g., {\tt QL\$1 ro} requires {\tt ro}) \\
 \end{tabular}
 \end{indpar}
 
@@ -2363,7 +2364,7 @@ target-member-name
 The {\em abbreviating-name} will be of the same kind as the
 {\em abbreviated-name}, and must follow the syntax rules of that
 kind.  For example, if the {\em abbreviated-name}
-is a {\em target-name}, the {\em abbreviating-name} cannot begin with
+is a {\em target-variable}, the {\em abbreviating-name} cannot begin with
 `\TT{@}', and if the {\em abbreviated-name} begins with $N>0$ `\TT{@}'s,
 the {\em abbreviating-name} must begin with exactly $N$ `\TT{@}'s.
 
