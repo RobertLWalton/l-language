@@ -742,20 +742,13 @@ the result is an indefinite integer, which is
 a particular value of type {\tt I} analogous to {\tt NaN}
 for floating point.
 
-The {\tt ro} qualifier name can be used by itself as a
-conversion function name to convert
-{\tt co} or {\tt *READ-WRITE*} qualifiers to {\tt ro} qualifiers.
-This can handle cases where a function returns a {\tt *READ-WRITE*}
-pointer to set an {\tt ro} pointer.
+Although function results cannot in general be implicitly converted,
+implicit conversions of qualifiers are allowed.  For example:
 
 \begin{indpar}\begin{verbatim}
 function ap *READ-WRITE* int r = foo ( ... )
-ap ro int @p = ro ( foo ( ... ) )
+ap ro int @p = foo ( ... )   // Implicitly converts *READ-WRITE* to ro.
 \end{verbatim}\end{indpar}
-
-Although function results cannot be implicitly converted, variables
-can be, and implicit conversion of {\tt co} or {\tt *READ-WRITE*} to
-{\tt ro} is defined for pointer-valued variables.
 
 In addition to using target types to select which overloaded
 function is being called, the types of implicitly convertible
@@ -10032,12 +10025,10 @@ The following are qualifier conversions:
 \item {\tt co} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt ro}
 \item {\tt *READ-WRITE*} may be replaced by {\tt *WRITE-ONLY*}
-\item Lifetime qualifiers can sometimes be converted when pointers are read or
-stored: see specifically
-\GlobalToHeap,
-\UndeclaredToGlobalOrHeap,
-\GlobalOrHeapToUndeclared,
-\AnyToOutOfLineUndeclared{}
+\item {\tt *GLOBAL*} may be replaced by {\tt *HEAP*} (See [L3] in
+Section~\itemref{LIFETIMES})
+\item {\tt *GLOBAL*} and {\tt *HEAP*} qualifiers may be deleted
+when storing a value in certain locations: see [L12] and [L13]
 of Section~\itemref{LIFETIMES}.
 
 \end{enumerate}
@@ -10123,16 +10114,6 @@ the {\tt Inexact} flag is set.
 \end{indpar}
 
 \subsubsection{Pointer Explicit Conversions}
-
-{\tt function P\$ ro QL\$ PST\$1 @r =
-	std \ttkey{ro} ( P\$ QR\$ PST\$2 @p )} \\
-{\tt function P\$ *WRITE-ONLY* QL\$ PST\$1 @r = \\
-\hspace*{1in}std \ttkey{*WRITE-ONLY*} ( P\$ QW\$ PST\$2 @p )}
-\begin{indpar}
-These just copy the pointer changing its target access qualifier to {\tt ro}
-or {\tt *WRITE-ONLY*} (but note that an {\tt *INIT*} qualifier cannot be changed
-to {\tt *WRITE-ONLY*}).
-\end{indpar}
 
 {\tt function P\$ Q\$ PST\$1 @r = std \ttkey{*UNCHECKED*} ( P\$ Q\$ PST\$2 @p )}
 \begin{indpar}
