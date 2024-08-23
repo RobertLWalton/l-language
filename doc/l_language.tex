@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-August 21, 2024
+August 23, 2024
 
 \bigskip
 
@@ -2791,15 +2791,19 @@ other than a {\em rational-constant}, or
 \item
 a (non-reference) {\em function-call}\pagnote{FUNCTION-CALL}, or
 \item
+an explicitly bracketed subexpression or an implicitly
+parenthesized subexpression, or
+\item
 an explicitly parenthesized subexpression
 preceded by a {\em module-abbreviation}
 (see \pagref{MA-SYNTACTIC-SUGAR} for more information about this last case)
 \end{enumerate}
 \item In a {\em reference-expression},
 a {\em module-abbreviation} may appear as part of a
-({\em function-}){\em variable-name}, but may \underline{not} appear
-elsewhere.
-A ({\em function-}){\em variable-name} with a {\em module-abbreviation}
+{\em variable-name} or {\em function-variable-name},
+but may \underline{not} appear elsewhere.
+A {\em variable-name} or {\em function-variable-name}
+with a {\em module-abbreviation}
 names a different variable or reference function than does the same
 name without the {\em module-abbreviation}.
 \item
@@ -2929,7 +2933,7 @@ They are selected from among the {\em reference-function-declarations}
 in the current context by the type of the reference pointer,
 the {\em member-name} if any, and the number of {\em indices} ({\em index}
 types are ignored).
-They use the reference pointer and index values as arguments.
+They use the {\em reference-base} pointer and index values as arguments.
 \end{itemize}
 
 A reference function is one of the following:
@@ -3118,7 +3122,7 @@ succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
 If $C$ is missing, search for {\em reference-function-declarations}%
 \pagnote{REFERENCE-FUNCTION-DECLARATIONS} that match the type of
 the {\em reference-base}, the {\em member-name} or absence of such,
-and the number (but not the types) if indices.  For a storing
+and the number (but not the types) of indices.  For a storing
 {\em reference-expression}, exclude {\tt load} declarations, and
 for a loading {\em reference-expression}, exclude {\tt store}
 declarations.  See
@@ -3365,13 +3369,16 @@ by first reading the target of the reference pointer of the
 computed and added to the map to make the pointer part
 of a new reference pointer with no call part, or a call part is computed
 and the new reference pointer is given the map by itself as its pointer part.
+
 The computation has the following cases (the first case that
 succeeds is used):\label{COMPILE-TIME-FIELD-SELECTION}
 \begin{enumerate}
-\item If the {\em reference-offset} has just a {\em member-name}
-(and no indices), search for {\em reference-function-declarations}%
+\item If the {\em reference-offset} has a {\em member-name},
+search for {\em reference-function-declarations}%
 \pagnote{REFERENCE-FUNCTION-DECLARATIONS} with a {\tt const}
-{\em reference-base}, the given {\em member-name}, and no indices.
+{\em reference-base}, the given {\em member-name}, and the same number
+of indices as the {\em reference-offset} (this is zero if indices
+are missing).
 For a storing
 {\em reference-expression}, exclude {\tt load} declarations, and
 for a loading {\em reference-expression}, exclude {\tt store}
@@ -3379,13 +3386,18 @@ declarations.  See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
 If a declaration is found its declaration becomes the call part of the
-computed reference pointer.
+computed reference pointer along with the values of any indices
+in the {\em reference-offset}
 
 \item If the {\em reference-offset} is a {\em member-name} `\TT{.}$M$',
-set the index to the {\tt const} string $M$.
+set the pointer part index to the {\tt const} string $M$.
 \item If the {\em reference-offset} is an {\em index-list} with one
-index, and the index $I$ is an integer or string {\tt const} value,
-set the index to $I$.
+index, and the evaluated index $I$ is an integer or string {\tt const} value,
+set the pointer part index to $I$.
+\item If the {\em reference-offset} is an {\em index-list} with more than
+one index, split the {\em reference-offset} into two
+{\em reference-offsets}, one with just the first index and one with
+the remaining indices.
 \item If the {\em reference-offset} is a {\em member-name} followed
 by an {\em index-list}, split the {\em reference-offset} into two
 {\em reference-offsets}, one with just the {\em member-name} and one with
@@ -3468,6 +3480,8 @@ The syntax of function calls is:
 \emkey{actual-argument} ::= {\em expression}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
+\\[0.5ex]
+{\em module-abbreviation} ::= see \pagref{MODULE-ABBREVIATION}
 \begin{enumerate}
 \item {\em Call-term-names} cannot be abbreviated.
 \item {\em Call-terms} of the form `{\tt no x}' and `{\tt not x}' are
