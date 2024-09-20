@@ -99,6 +99,7 @@
 \newcommand{\ttkey}[1]{{\tt \bfseries #1}}
 \newcommand{\emkey}[1]{{\em \bfseries #1}}
 \newcommand{\skey}[2]{{\rm \bfseries #1#2}}
+\newcommand{\emskey}[2]{{\em \bfseries #1#2}}
 \newcommand{\tttkey}[1]{{\tt \bfseries <#1>}}
 \newcommand{\ttakey}[1]{{\tt \bfseries *#1*}}
 \newcommand{\ttdkey}[1]{{\tt \bfseries .#1}}
@@ -4632,7 +4633,7 @@ The syntax of a type declaration is:
 \emkey{field-without-subfields-declaration} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
         & {\em qualifier-name}\STAR{} {\em field-type-name}~
-          {\em target-label}~ {\em field-dimensions}\QMARK{} \\
+          {\em non-pointer-label}~ {\em field-dimensions}\QMARK{} \\
     $|$ & {\em qualifier-name}\STAR{} {\em pointer-type-name} \\
         & ~~~~~ \{ {\em qualifier-name}\STAR{} {\em pointer-type-name}
 	        \}\STAR{} \\
@@ -4651,8 +4652,10 @@ The syntax of a type declaration is:
     beginning with zero or more `\TT{.}'s \\
     followed by one or more `\TT{@}'s \\
     \end{tabular} \\
-\emkey{target-label}\label{TARGET-LABEL} ::=
+\emkey{non-pointer-label}\label{NON-POINTER-LABEL} ::=
     {\em field-label} that is \underline{not} a {\em pointer-label} \\
+\emkey{target-label}\label{TARGET-LABEL} ::=  {\em field-label}
+    ~~~~~ [see text below] \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
 \emkey{field-dimensions} ::=
@@ -4664,7 +4667,7 @@ The syntax of a type declaration is:
 \emkey{field-with-subfields-declaration} ::= \\
 \hspace*{0.5in}
     {\em qualifier-name}\STAR{}
-    \TT{std}\QMARK{} {\em number-type-name}~ {\em target-label}\QMARK{}
+    \TT{std}\QMARK{} {\em number-type-name}~ {\em non-pointer-label}\QMARK{}
                 {\em field-dimension}\STAR{} \\
 \hspace*{0.5in}
     {\em subfield-declaration}\PLUS{}
@@ -4685,7 +4688,7 @@ The syntax of a type declaration is:
     		{\em subfield-dimensions}\QMARK{} \\
 \emkey{subfield-type-name}\label{SUBFIELD-TYPE-NAME} ::=
     {\em number-type-name} $|$ \TT{bool} \\
-\emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em target-label} \\
+\emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em non-pointer-label} \\
 \emkey{subfield-dimensions} ::=
     \TT{[} {\em dimension-size} \{ \TT{,} {\em dimension-size} \}\STAR{} \TT{]}
 \\[2ex]
@@ -4709,7 +4712,15 @@ where
 \begin{enumerate}
 \item If a {\em field-without-subfields-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-label}
-it declares must begin with exactly $N$ `\TT{@}'s.
+it declares must begin with zero or more `\TT{.}'s followed by
+exactly $N$ `\TT{@}'s.
+\item
+A {\em pointer-label} has associated \emskey{target-label}s
+made by removing one or more `\TT{@}'s from the beginning of the
+{\em pointer-label} (after any `\TT{.}'s).  A {\em target-label}
+names the value pointed at by dereferencing the associated
+{\em pointer-label} field value as many times as there are removed
+`\TT{@}'s.
 \end{enumerate}
 \end{indpar}
 
@@ -4732,7 +4743,7 @@ to make the offset an exact multiple of the field's type's alignment.
 The alignment of a number type is its size in bits.  The alignment
 of a defined type is the least common multiple of the alignment of
 any of its fields, which, since all alignments are powers of two,
-is the same as the largest alignment of any of the fields.
+is the same as the largest alignment of any of its fields.
 
 A value of {\tt bool} type has a size of 1 bit and an alignment
 of 8 bits.  When it is stored in 8 bits, the value is encoded
@@ -4932,9 +4943,10 @@ uns8 kind = X.kind
 flt weight = X.weight
 \end{verbatim}\end{indpar}
 
-If a {\em field-label} is a {\em pointer-label}, an
-associated {\em target-label} is declared consisting of the
-{\em pointer-label} minus its first `{\tt @}'.  The {\em target-label}
+If a {\em field-label} is a {\em pointer-label},
+associated \emkey{target-labels} are declared consisting of the
+{\em pointer-label} minus some of its first `{\tt @}'s.
+A {\em target-label}
 references a virtual field consisting of the target value stored
 at the location pointed at by the {\em pointer-label} field's pointer value.
 An example\footnote{As `{\tt next}' is a keyword, we use `{\tt successor}'
@@ -9645,7 +9657,7 @@ a type map.  The compiler defined attributes of a field map are:
 
 \ttkey{.name}
 \begin{indpar}
-The name of the field ({\em target-label} or {\em pointer-label})
+The name of the field ({\em field-label})
 as a name string.  May be {\tt NONE} for a field with subfields.
 \end{indpar}
 
@@ -9736,7 +9748,7 @@ a field map.  The compiler defined attributes of a subfield map are:
 
 \ttkey{.name}
 \begin{indpar}
-The name of the subfield ({\em target-label})
+The name of the subfield ({\em non-pointer-label})
 as a name string.
 \end{indpar}
 
