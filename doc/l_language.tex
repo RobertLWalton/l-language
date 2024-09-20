@@ -4864,23 +4864,16 @@ can allocate a datum of an expandable {\em defined-type-name}
 and return a pointer to the datum.
 
 A {\em defined-type-name} \underline{must be non-expandable} if it is used as
-a {\em type-name} in a variable declaration, or as a {\em field-type-name}
-in a {\em type-subdeclaration}, or as a {\em defined-type-name} in an
-{\tt *INCLUDE*} {\em type-subdeclaration}.  However an expandable
+a {\em type-name} in a non-pointer variable declaration
+or as a {\em field-type-name}
+in a {\em type-subdeclaration}.
+However an expandable
 {\em defined-type-name}
 can be used as the target of a pointer type used as a variable type or
-field type.
-
-The full extent of an expansion tree may not be known until load-time.
-When code requiring an {\em defined-type-name} to be non-expandable is
-compiled, the compiler assumes that the {\em defined-type-name} is in fact
-non-expandable at the point of the code,
-and associates the {\em defined-type-name} with the
-{\em type-declaration} that must be a linear leaf if the {\em defined-type-name}
-is non-expandable at that point.
-If the compiler or loader discovers later that the
-{\em type-declaration} is not in fact a linear leaf, an error message
-is issued.
+field type,
+or as a {\em defined-type-name} in an
+{\tt *INCLUDE*} {\em type-subdeclaration}
+(only the subfields in the current scope are included).
 
 The scope of a {\em type-subdeclaration} consists of
 the {\em type-subdeclarations} following it within its
@@ -5011,6 +5004,7 @@ type my type:       // Expansion of my type
     *OFFSET* origin // Offset set to 0.
     int32 K1        // Overlays I at offset 0.
     int32 K2        // Overlays J at offset 32.
+        // No ***, so this expansion is a linear leaf.
 
 // Now X.K1 == X.I == 55; X.K2 == X.J == 66; but you must know
 // how offsets are assigned to believe this.
