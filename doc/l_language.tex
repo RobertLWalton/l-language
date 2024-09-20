@@ -163,7 +163,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-August 23, 2024
+September 20, 2024
 
 \bigskip
 
@@ -2182,13 +2182,17 @@ rules below):
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
     {\em variable-name} whose {\em basic-name} begins with one or more
     `\TT{@}'s \\
-\emkey{target-variable}\label{TARGET-VARIABLE} ::=
+\emkey{non-pointer-variable}\label{NON-POINTER-VARIABLE} ::=
     {\em variable-name} whose {\em basic-name} does \underline{not}
     begin with an \TT{@} \\
+\emkey{target-variable}\label{TARGET-VARIABLE} ::=
+    {\em variable-name} ~~~~~~~~~~~~~~~~~~~ [see text below] \\
+\emkey{primary-target-variable}\label{PRIMARY-TARGET-VARIABLE} ::=
+    {\em target-variable} ~~~~~ [see text below] \\
 \emkey{function-variable-name}\label{FUNCTION-VARIABLE-NAME} ::=
     {\em variable-name} \\
 \emkey{function-constant-name}\label{FUNCTION-CONSTANT-NAME} ::=
-    {\em target-variable} \\
+    {\em variable-name} \\
 \emkey{statement-label} ::= {\em basic-name}
     \label{STATEMENT-LABEL} not containing `\TT{@}'s
 \\[1ex]
@@ -2289,6 +2293,16 @@ may only be as long as the lifetime of the pointer.
 \end{tabular}
 \end{indpar}
 
+A {\em pointer-variable} has associated \emkey{target-variables}
+made by removing one or more `\TT{@}'s from the beginning of the
+{\em pointer-variable}.  A {\em target-variable}
+names the value pointed at by dereferencing the associated
+{\em pointer-variable}
+value as many times as there are removed `\TT{@}'s.  The
+\emkey{primary-target-variable} associated with a {\em pointer-variable}
+is the associated {\em target-variable} made by removing
+a \underline{single} `\TT{@}',
+
 The name resolver treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
@@ -2356,7 +2370,7 @@ pointer-type-name \\
 type-name \\
 qualifier-name \\
 pointer-variable \\
-target-variable \\
+non-pointer-variable \\
 statement-label \\
 pointer-member-name \\
 target-member-name
@@ -2364,7 +2378,7 @@ target-member-name
 The {\em abbreviating-name} will be of the same kind as the
 {\em abbreviated-name}, and must follow the syntax rules of that
 kind.  For example, if the {\em abbreviated-name}
-is a {\em target-variable}, the {\em abbreviating-name} cannot begin with
+is a {\em non-pointer-variable}, the {\em abbreviating-name} cannot begin with
 `\TT{@}', and if the {\em abbreviated-name} begins with $N>0$ `\TT{@}'s,
 the {\em abbreviating-name} must begin with exactly $N$ `\TT{@}'s.
 
@@ -3550,8 +3564,8 @@ that the {\em expression} is parsed before the {\em ma} is moved inside the
 `{\tt mom ( x + y * z )}' is syntactic sugar for \\
 \centerline{\tt ( mom x "+" ( y "*" z ) )}
 in which the parenthesis pair surrounding `{\tt y "*" z}' is implied.
-This allows the {\em module-abbre\-via\-tion} to be applied to the outermost
-operator in the {\em expression}.
+This allows the {\em module-abbre\-via\-tion} to be applied to the
+\underline{outermost} operator in the {\em expression}.
 
 \section{Assignment Statements}
 \label{ASSIGNMENT-STATEMENTS}
@@ -3666,20 +3680,17 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
-	    & {\em type-name} {\em target-variable} \\
+	    & {\em type-name} {\em non-pointer-variable} \\
 	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{} \\
 	    & ~~~~~~~~ \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
 	               \}\STAR{} {\em type-name} \\
-	    & ~~~~~~~~ {\em pointer-variable} \\
-	$|$ & {\em pointer-type-name}
-	      {\em qualifier-name}\STAR{} {\em type-name} \\
 	    & ~~~~~~~~ {\em pointer-variable}
 	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
 \emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION} \\
 \hspace*{0.5in}\begin{tabular}{rl}
-      ::= & \ttkey{next} {\em target-variable} \\
+      ::= & \ttkey{next} {\em non-pointer-variable} \\
       $|$ & \ttkey{next} {\em pointer-variable}
 	      ~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
       \end{tabular}
@@ -3692,7 +3703,7 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 {\em variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
-{\em target-variable} ::= see \pagref{TARGET-VARIABLE}
+{\em non-pointer-variable} ::= see \pagref{NON-POINTER-VARIABLE}
 \\[0.5ex]
 {\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
 \\[0.5ex]
@@ -3705,15 +3716,13 @@ where
 \item If a {\em result-variable-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
 it declares must begin with exactly $N$ `\TT{@}'s.
-\item {\em Result-variable-declarations}
-with $N>1$ {\em pointer-type-names} can\underline{not} have
-{\em alloca\-tion-calls}.
 \item For a {\em pointer-variable} with an {\em allocation-call},
-the {\em allocation-call} allocates and zeros memory for the
-associated {\em target-variable}, and returns a pointer to the
+the {\em allocation-call} allocates and zeros memory for the value of the
+associated {\em primary-target-variable}, and returns a pointer to the
 allocated memory that is stored in the {\em pointer-variable}.
 For such a {\em pointer-variable} it is the
-associated {\em target-variable} that is set by the {\em assignment-statement}.
+associated {\em primary-target-variable}
+that is set by the {\em assignment-statement}.
 \item For an {\em isolated-declaration-statement} declaring a
 {\em pointer-variable} with no {\em alloca\-tion-call},
 `{\tt @= allocate}' is implied.  If the pointer has the {\tt *GLOBAL*}
@@ -3796,8 +3805,8 @@ the argument names may be different.
 The called function must allocate a block of
 memory with the required number of bytes and alignment and zero that
 block.  The prototype must have
-exactly one result variable whose type is identical to the
-the pointer type of the {\em pointer-variable} being set (but the
+exactly one result variable whose type is identical to
+the type of the {\em pointer-variable} being set (but the
 prototype result type may contain wildcards).
 
 As a general rule, allocator functions that return a value of
@@ -3844,10 +3853,9 @@ Non-{\tt next} variables are allocated only at the start of the
 throughout all iterations.
 
 If a {\em declaration} declares a {\em pointer-variable},
-an associated {\em target-variable} is implicitly declared at the same time
-whose name is the {\em pointer-name} with the initial `{\tt @}' removed.
-The {\em target-variable} is not itself allocated to memory,
-but instead references the value the {\em pointer-variable}
+the associated {\em target-variables} are implicitly declared at the same time.
+The {\em target-variables} themselves are not allocated to memory,
+but instead reference the values the {\em pointer-variable}
 points at.
 
 Note that a variable declaration does not allow
@@ -3855,8 +3863,9 @@ qualifiers on anything but the target of a pointer.  The implicit
 qualifier of a declared variable is {\tt co} after the
 {\em assignment-statements} meaning that
 the value of the variable once initially set is never changed.
-The qualifiers of a {\em target-variable} associated with a
-{\em pointer-variable} are {\tt *INIT*} in the subblock {\em statements}
+The qualifiers of a {\em primary-target-variable} associated with a
+{\em pointer-variable} allocated by an {\em allocation-call}
+are {\tt *INIT*} in the subblock {\em statements}
 of a {\em block/loop-assignment-statement} and those of the target of
 its associated pointer after the
 {\em block/loop-assignment-statement}.
@@ -3880,7 +3889,7 @@ before a {\em block-assignment-statement} or current
 
 Under some circumstances `{\tt next v}' will
 be implicitly added to the {\em assignment-result}
-list of a {\em call-statement} (see \pagref{CALL-NEXT-PROMOTION}),
+list of a {\em call-assignment-statement} (see \pagref{CALL-NEXT-PROMOTION}),
 the {\em block-variable-declaration} list
 of a {\em block-assignment-statement} (see \pagref{BLOCK-NEXT-PROMOTION}),
 or the {\em block-variable-declaration} list of a
@@ -3899,7 +3908,7 @@ are allocated to the local stack,
 and the loop cycles among these copies.
 A call to `{\tt allocate}' to a local pointer (i.e., a pointer with no
 lifetime qualifiers) inside a loop stores a pointer value in
-one of these 4 copies.  If such a pointer is already
+one of these 4 copies.  If a pointer in one of the copies is already
 allocated by a previous loop iteration, its memory is reused, or
 doubled in size and reallocated.  This means that the total memory allocated
 to a pointer inside a loop copy by `{\tt allocate}' will never be more than
@@ -5572,7 +5581,7 @@ The syntax of a function declaration is:
 \emkey{prototype-result-variable-declaration}%
     \label{PROTOTYPE-RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
-	    & {\em type-name} {\em target-variable} \\
+	    & {\em type-name} {\em non-pointer-variable} \\
 	$|$ & {\em pointer-type-name}
               \{ {\em qualifier-name}\STAR{} {\em pointer-type-name}
 	      \}\STAR{} \\
@@ -5588,7 +5597,7 @@ The syntax of a function declaration is:
 \\[0.5ex]
 {\em variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
-{\em target-variable} ::= see \pagref{TARGET-VARIABLE}
+{\em non-pointer-variable} ::= see \pagref{NON-POINTER-VARIABLE}
 \\[0.5ex]
 {\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
 \\[0.5ex]
@@ -5741,7 +5750,7 @@ and {\tt Q\ldots\$\ldots} behaves as a qualifier.
 than {\tt allocator} declare
 \skey{special-function}s.  These may not compile run-time code,
 and all their {\em prototype-result-variable-declarations}
-must be of the form `{\tt const} {\em target-variable}.
+must be of the form `{\tt const} {\em non-pointer-variable}.
 These functions are referred to as \skey{macro function}s,
 \skey{constant function}s, and \skey{inclusion function}s, respectively.
 \item
@@ -6979,10 +6988,10 @@ of parsed {\em statements}:
 \emkey{include-assignment-statement}\label{INCLUDE-ASSIGNMENT-STATEMENT} ::= \\
 \hspace*{0.3in}
     \begin{tabular}[t]{rl}
-    & \TT{const} {\em target-variable} \TT{=} \TT{*INCLUDE*}
+    & \TT{const} {\em non-pointer-variable} \TT{=} \TT{*INCLUDE*}
     	{\em include-argument-list}\QMARK{} \TT{:} \\
     & \TT{~~~~}{\em statement}\STAR{} \\
-    $|$ & \TT{const} {\em target-variable} \TT{=} \\
+    $|$ & \TT{const} {\em non-pointer-variable} \TT{=} \\
     & ~~~~~~~~\TT{*INCLUDE*}
     	{\em include-argument-list}\QMARK{} \TT{:}
 	{\em restricted-statement} \\
@@ -6995,6 +7004,8 @@ of parsed {\em statements}:
 \emkey{include-argument} ::= {\em word} beginning with a capital {\em letter}
 \\[0.5ex]
 \emkey{restricted-statement} ::= see \pagref{RESTRICTED-STATEMENT}
+\\[0.5ex]
+{\em non-pointer-variable} ::= see \pagref{NON-POINTER-VARIABLE}
 
 \end{indpar}
 
