@@ -867,14 +867,26 @@ read-only {\tt uns32} location {\tt cr}.
 
 Pointer types can be cascades: e.g., one can have a pointer to a pointer
 to a pointer.  If the cascade has $N$ pointer type names the pointer
-variable name must begin with exactly $N$ `\TT{@}'s.  An example is:
+variable name typically begins with exactly $N$ `\TT{@}'s.  However
+it is possible that the name begins with fewer that $N$ `\TT{@}'s,
+including none at all.  For example:\label{POINTER-DEREFERENCE-EXAMPLE}
 \begin{indpar}\begin{verbatim}
 ap ap *READ-WRITE* ap int @@@x = ...
     // Now @@@x is a pointer with 3 cascaded pointer type names.
     // Now @@x is @@@x dereferenced once.
     // Now @x is @@x dereferenced once or @@@x dereferenced twice.
     // Now x is @x dereferenced once or @@@x dereferenced three times.
+ap ap *READ-WRITE* ap int @y = ...
+    // Now @y is a pointer with 3 cascaded pointer type names.
+    // But it can only be dereference once using y.
+ap ap *READ-WRITE* ap int z = ...
+    // Now z is a pointer with 3 cascaded pointer type names.
+    // But it cannot be dereferenced at all.  However,
+    // it could be copied to a variable with a different
+    // name beginning with 3 @'s, and that variable could be
+    // dereferenced up to three times.
 \end{verbatim}\end{indpar}
+
 
 An {\tt inclusion} function can create new code that replaces
 the statement calling the {\tt inclu\-sion} function.  For example:
@@ -2181,8 +2193,10 @@ rules below):
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     \MA{} {\em basic-name} \\
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
-    {\em variable-name} whose {\em basic-name} begins with one or more
-    `\TT{@}'s \\
+    \begin{tabular}[t]{@{}l@{}}
+    {\em variable-name} whose {\em basic-name} may, but need not, \\
+    begin with `\TT{@}'s  ~~~~~ [see text below] \\
+    \end{tabular} \\
 \emkey{non-pointer-variable}\label{NON-POINTER-VARIABLE} ::=
     {\em variable-name} whose {\em basic-name} does \underline{not}
     begin with an \TT{@} \\
@@ -2209,8 +2223,10 @@ rules below):
 			 the beginning of the {\em name})
 			\end{tabular} \\
 \emkey{pointer-member-name}\label{POINTER-MEMBER-NAME} ::=
-    {\em member-name} with one or more `\TT{@}'s
-    following the initial `\TT{.}'s \\
+    \begin{tabular}[t]{@{}l@{}}
+    {\em member-name} that may, but need not, have `\TT{@}'s \\
+    immediately following the initial `\TT{.}'s \\
+    \end{tabular} \\
 \emkey{target-member-name}\label{TARGET-MEMBER-NAME} ::=
     {\em member-name} that is \underline{not} a {\em pointer-member-name}
 \\[1ex]
@@ -2292,17 +2308,30 @@ may only be as long as the lifetime of the pointer.
           & (allows only {\em lifetime-qualifiers}) \\
           & (e.g., {\tt QL\$1 ro} requires {\tt ro}) \\
 \end{tabular}
-\end{indpar}
 
-A {\em pointer-variable} has associated \emkey{target-variables}
+\begin{enumerate}
+\item
+Pointer types can be cascades: e.g., one can have a pointer to a pointer
+to a pointer.  If the cascade has $N$ pointer type names, a
+{\em pointer-variable}
+with this type typically begins with exactly $N$ `\TT{@}'s.
+It may have fewer `\TT{@}'s, including none, but may not have more.
+See the example on \pagref{POINTER-DEREFERENCE-EXAMPLE}.
+
+\item
+A {\em pointer-variable} beginning with `\TT{@}'s
+has associated \emkey{target-variables}
 made by removing one or more `\TT{@}'s from the beginning of the
 {\em pointer-variable}.  A {\em target-variable}
 names the value pointed at by dereferencing the associated
 {\em pointer-variable}
 value as many times as there are removed `\TT{@}'s.  The
 \emkey{primary-target-variable} associated with a {\em pointer-variable}
+beginning with `\TT{@}'s
 is the associated {\em target-variable} made by removing
 a \underline{single} `\TT{@}',
+\end{enumerate}
+\end{indpar}
 
 The name resolver treats a sequence of
 names in certain contexts as having the form:
@@ -2370,18 +2399,19 @@ which must be one of the following kinds:
 pointer-type-name \\
 type-name \\
 qualifier-name \\
-pointer-variable \\
-non-pointer-variable \\
+variable-name \\
 statement-label \\
-pointer-member-name \\
-target-member-name
+member-name
 \end{center}
 The {\em abbreviating-name} will be of the same kind as the
 {\em abbreviated-name}, and must follow the syntax rules of that
 kind.  For example, if the {\em abbreviated-name}
-is a {\em non-pointer-variable}, the {\em abbreviating-name} cannot begin with
-`\TT{@}', and if the {\em abbreviated-name} begins with $N>0$ `\TT{@}'s,
-the {\em abbreviating-name} must begin with exactly $N$ `\TT{@}'s.
+is a {\em variable-name} for a non-pointer variable value,
+the {\em abbreviating-name} must be a {\em non-pointer-variable},
+and if the {\em abbreviated-name} names a variable whose type has
+$N>0$ cascaded pointer types,
+the {\em abbreviating-name} must be a {\em pointer-variable}
+that may begin with up to $N$ `\TT{@}'s, but not more.
 
 Note that {\em function-term-names} used in {\em function-calls}
 cannot be abbreviated.
@@ -3170,7 +3200,7 @@ Note that Case~\ref{OFFSET-CASE} has precedence over this case.
 \item\label{POINTER-CASE}
 If $D$ is set and the type of the reference pointer $P$/$D$/$C$
 is itself a pointer (e.g., $P$ is not missing and the type of $P$
-has two or more {\em pointer-names}), set $P$ = the target value of
+has two or more {\em pointer-type-names}), set $P$ = the target value of
 the reference pointer $P$/$D$/$C$, $D$ = clear, $C$ = missing, and
 and go back to the beginning of this algorithm (check Case 1 again).
 
@@ -3716,7 +3746,7 @@ where
 \begin{enumerate}
 \item If a {\em result-variable-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
-it declares must begin with exactly $N$ `\TT{@}'s.
+it declares may begin with up to $N$ `\TT{@}'s.
 \item For a {\em pointer-variable} with an {\em allocation-call},
 the {\em allocation-call} allocates and zeros memory for the value of the
 associated {\em primary-target-variable}, and returns a pointer to the
@@ -4647,13 +4677,13 @@ The syntax of a type declaration is:
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[2ex]
 \emkey{field-label}\label{FIELD-LABEL} ::=  {\em data-label} \\
-\emkey{pointer-label}\label{POINTER-LABEL} ::= {\em field-label}
+\emkey{pointer-label}\label{POINTER-LABEL} ::=
     \begin{tabular}[t]{@{}l}
-    beginning with zero or more `\TT{.}'s \\
-    followed by one or more `\TT{@}'s \\
+    {\em field-label} beginning with zero or more `\TT{.}'s \\
+    followed by zero or more `\TT{@}'s ~~~~~ [see text below] \\
     \end{tabular} \\
 \emkey{non-pointer-label}\label{NON-POINTER-LABEL} ::=
-    {\em field-label} that is \underline{not} a {\em pointer-label} \\
+    {\em field-label} that has no `\TT{@}'s after any beginning `\TT{.}'s \\
 \emkey{target-label}\label{TARGET-LABEL} ::=  {\em field-label}
     ~~~~~ [see text below] \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
@@ -4712,8 +4742,9 @@ where
 \begin{enumerate}
 \item If a {\em field-without-subfields-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-label}
-it declares must begin with zero or more `\TT{.}'s followed by
-exactly $N$ `\TT{@}'s.
+it declares typically has with exactly $N$ `\TT{@}'s after
+any initial `\TT{.}'s.
+It may have fewer `\TT{@}'s, including none, but may not have more.
 \item
 A {\em pointer-label} has associated \emskey{target-label}s
 made by removing one or more `\TT{@}'s from the beginning of the
@@ -5697,7 +5728,8 @@ must be a {\em reference-expression} that
 does not have the form `{\tt next} {\em variable-name}'.
 \item If a {\em prototype-result-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
-it declares must begin with exactly $N$ `\TT{@}'s.
+it declares typically begins with exactly $N$ `\TT{@}'s.
+It may have fewer `\TT{@}'s, including none, but may not have more.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must
