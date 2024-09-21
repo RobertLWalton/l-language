@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-September 20, 2024
+September 21, 2024
 
 \bigskip
 
@@ -5024,7 +5024,9 @@ the high order bits added when the value is read by adding 0 bits
 for unsigned integers or copies of the highest order bit for signed integers.
 For floating types, the value is missing low order mantissa bits, which
 are added as zeros.  If a value outside the representable range is stored,
-it is not an error.  Unsigned and two's complement
+it is not an error unless the value is a {\tt const} value (in which
+case it is a compile-time error).
+Unsigned and two's complement
 integer values are truncated, and IEEE floating values
 have low order mantissa bits dropped (there is no rounding).  However, it is
 a compile error to have a floating type whose sign and exponent parts plus
@@ -5049,8 +5051,8 @@ my type X:
         // Also sets animal bit and clears vegetable bit.
     X.weight = 152.34
 uns8 kind = X.kind
-bool animal = X.animal
-bool vegetable = X.vegetable
+bool animal = X.animal         // == true
+bool vegetable = X.vegetable   // == false
 flt weight = X.weight
 \end{verbatim}\end{indpar}
 
@@ -5075,8 +5077,8 @@ character attributes X:
     while i < 128:
         X.is graphic[i] = 32 < i && i < 127
         next i = i + 1
-bool line feed is graphic = X.is graphic [C#"<LF>"]
-bool A is graphic = X.is graphic [C#"A"]
+bool line feed is graphic = X.is graphic [C#"<LF>"]  // == false
+bool A is graphic = X.is graphic [C#"A"]             // == true
 \end{verbatim}\end{indpar}
 
 A {\em field-declaration} with two {\em dimension-sizes}
