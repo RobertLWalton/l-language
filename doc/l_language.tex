@@ -2318,6 +2318,10 @@ with this type typically begins with exactly $N$ `\TT{@}'s.
 It may have fewer `\TT{@}'s, including none, but may not have more.
 See the example on \pagref{POINTER-DEREFERENCE-EXAMPLE}.
 
+The usual reason for having fewer then $N$ `\TT{@}'s is that
+the pointer type contains \TT{PST\$\ldots} and therefore the number of
+{\em pointer-type-names} in the pointer type is unknown.
+
 \item
 A {\em pointer-variable} beginning with `\TT{@}'s
 has associated \emkey{target-variables}
@@ -2336,11 +2340,8 @@ a \underline{single} `\TT{@}',
 The name resolver treats a sequence of
 names in certain contexts as having the form:
 \begin{center}
-\begin{tabular}{l}
-\{ {\em qualifier-name}\STAR{} ~ {\em pointer-type-name}\}\STAR{} \\
-\hspace*{0.5in}{\em qualifier-name}\STAR{} ~
+\{ {\em pointer-type-name} ~ {\em qualifier-name}\STAR{} \}\STAR{}
 {\em type-name} ~ {\em variable-name}
-\end{tabular}
 \end{center}
 where any {\em pointer-type-name}, {\em type-name}, or {\em variable-name}
 may begin with a {\em module-abbre\-via\-tion}.
@@ -3712,10 +3713,9 @@ The forms of an {\em assignment-statement} are:
 \emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em non-pointer-variable} \\
-	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{} \\
-	    & ~~~~~~~~ \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	               \}\STAR{} {\em type-name} \\
-	    & ~~~~~~~~ {\em pointer-variable}
+	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      \}\PLUS{} \\
+	    & ~~~~~~~~ {\em type-name} {\em pointer-variable}
 	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
@@ -4664,10 +4664,10 @@ The syntax of a type declaration is:
 \hspace*{0.5in}\begin{tabular}{rl}
         & {\em qualifier-name}\STAR{} {\em field-type-name}~
           {\em non-pointer-label}~ {\em field-dimensions}\QMARK{} \\
-    $|$ & {\em qualifier-name}\STAR{} {\em pointer-type-name} \\
-        & ~~~~~ \{ {\em qualifier-name}\STAR{} {\em pointer-type-name}
-	        \}\STAR{} \\
-        & ~~~~~ {\em qualifier-name}\STAR{} {\em field-type-name}~
+    $|$ & {\em qualifier-name}\STAR{}
+                \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	        \}\PLUS{} \\
+        & ~~~~~ {\em field-type-name}~
                 {\em pointer-label}~ {\em field-dimensions}\QMARK{}
 	\end{tabular}
 \\[2ex]
@@ -5458,8 +5458,6 @@ function std data for dp r = std *POINTER* *ACCESS* *CONVERSION*
     r = ddp
 \end{verbatim}\end{indpar}
 
-TBD
-
 An example implementing a new pointer type is:
 
 \begin{indpar}\begin{verbatim}
@@ -5483,7 +5481,7 @@ point reference function ap Q$1 file @r = ( fd Q$1 file @p ) ..point:
     ap file *READ_WRITE* @f = @files[d.index]
     @r = @f  // Implicitly converts *READ-WRITE* to Q$1
 
-function fd *READ-WRITE* file @r = allocate fd:
+allocator function fd *READ-WRITE* file @r = allocate fd:
     data for fd d:
         d.index = number of files
     @r = *UNCHECKED* ( d )
@@ -5539,7 +5537,8 @@ function $P2$ Q\$1 PST\$1 @p2 = \\
 \hspace*{1in}{\em ma}\QMARK{} *IMPLICIT* *CONVERSION*
 			( $P1$ Q\$1 PST\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
-\hspace*{0.3in}$D2$ d2 = *POINTER* *IMPLICIT* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}$D2$ d2 =
+    {\em ma}\QMARK{} *POINTER* *IMPLICIT* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
 \end{indpar}
 where {\em ma} is the same module as that of the
@@ -5557,7 +5556,8 @@ which implicitly defines the function:
 function $P2$ Q\$1 PST\$1 @p2 = {\em ma}\QMARK{} \ttkey{*UNCHECKED*}
 	( $P1$ Q\$1 PST\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
-\hspace*{0.3in}$D2$ d2 = *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
+\hspace*{0.3in}$D2$ d2 =
+    {\em ma}\QMARK{} *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
 \end{indpar}
 
@@ -5624,11 +5624,9 @@ The syntax of a function declaration is:
     \label{PROTOTYPE-RESULT-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em non-pointer-variable} \\
-	$|$ & {\em pointer-type-name}
-              \{ {\em qualifier-name}\STAR{} {\em pointer-type-name}
-	      \}\STAR{} \\
-	& ~~~~~ {\em qualifier-name}\STAR{}
-	        {\em type-name} {\em pointer-variable}
+	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      \}\PLUS{}
+	{\em type-name} {\em pointer-variable}
 	\end{tabular}
 \\[0.5ex]
 {\em type-name} ::= see \pagref{TYPE-NAME}
@@ -9643,11 +9641,8 @@ Same as for type maps: see \pagref{SIZE-AND-ALIGNMENT}
 A \key{pointer value type} is a type of a pointer value.
 Textually it is:
 \begin{center}
-\begin{tabular}{l}
-{\em pointer-type-name} {\em qualifier-name}\STAR{}
-\{ {\em pointer-type-name} {\em qualifier-name}\STAR{} \}\STAR{} \\
-\hspace*{0.5in}\{ {\em type-name} $|$ {\em function-type-name} \} \\
-\end{tabular}
+\{ {\em pointer-type-name} {\em qualifier-name}\STAR{} \}\PLUS{}
+\{ {\em type-name} $|$ {\em function-type-name} \}
 \end{center}
 
 {\tt \ttkey{.type} => "pointer value type"}
