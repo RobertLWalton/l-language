@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-September 21, 2024
+September 22, 2024
 
 \bigskip
 
@@ -5652,7 +5652,7 @@ The syntax of a function declaration is:
     $|$ & \TT{macro} {\em variable-name}
           \{ \TT{?=} {\em default-value} \}\QMARK{} \\
     $|$ & {\em prototype-result-variable-declaration}
-          \TT{!=} {\em required-value} \\
+          \TT{*=*} {\em required-value} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{default-value} ::= {\em expression}
@@ -5715,6 +5715,16 @@ page~\pageref{PARENTHESIZED-ARGUMENT-LIST-RULE}.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must not begin with a {\em module-abbreviation}.
+\item If a {\em prototype-result-declaration}
+contains $N>0$ {\em pointer-type-names}, then the {\em pointer-\EOL variable}
+it declares typically begins with exactly $N$ `\TT{@}'s.
+It may have fewer `\TT{@}'s, including none, but may not have more.
+
+If the declaration contains a {\tt PST\$\ldots} wildcard
+that is resolved into a list with {\em pointer-type-names},
+the {\em prototype-result-declaration} \underline{after}
+wildcard substitution will necessarily have fewer
+`\TT{@}'s than {\em pointer-type-names}.
 \item
 \label{PROTOTYPE-NEXT-RESULT}
 For a {\em prototype-result-declaration} of the form `\TT{next} $v$',
@@ -5724,10 +5734,6 @@ any actual argument associated to the {\em prototype-argument-declaration}
 by some {\em function-call}
 must be a {\em reference-expression} that
 does not have the form `{\tt next} {\em variable-name}'.
-\item If a {\em prototype-result-declaration}
-has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
-it declares typically begins with exactly $N$ `\TT{@}'s.
-It may have fewer `\TT{@}'s, including none, but may not have more.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must
@@ -5785,7 +5791,7 @@ beginning with a {\em pointer-type-name}, all followed by a {\em type-name}.
 Syntactically {\tt T\$\ldots} and {\tt PST\$\ldots} behave as
 a {\em type-name},
 {\tt P\$\ldots} behaves as a {\em pointer-type-name},
-and {\tt Q\ldots\$\ldots} behaves as a qualifier.
+and {\tt Q\ldots\$\ldots} behaves as a {\em qualifier-name}.
 \item
 {\em Function-declarations} with {\em function-specifiers} other
 than {\tt allocator} declare
@@ -5808,9 +5814,10 @@ or from inside another {\tt allocator} function.
 
 An example of an inline function declaration and an inline function call is:
 \begin{indpar}\begin{verbatim}
-function F ( int x ?= 5 ) G ( int y ) H ( int z ?= 7 ) I ( int w ):
+function F ( int x ) G ( int y ) H ( int z ?= 7 ) I ( int w ):
     . . . . . . . . . .
-F I ( 8 ) G ( 6 )    // Equivalent to F ( 5 ) G ( 6 ) H ( 7 ) I ( 8 )
+F ( 10 ) I ( 8 ) G ( 6 )
+    // Equivalent to F ( 10 ) G ( 6 ) H ( 7 ) I ( 8 )
 \end{verbatim}\end{indpar}
 
 The {\em function-term-names} in the declaration are matched to those
@@ -5823,8 +5830,8 @@ call, but all its arguments have {\em default-values},
 the {\em pattern-term} with its
 {\em default-values} will be inserted into the call
 (here {\tt H ( 7 )} is inserted).
-Similarly with an {\em argument-list} that is omitted
-(here {\tt ( 5 )} is inserted).
+However note that the first declaration argument list (here {\tt ( int x )})
+may \underline{not} have a default value.
 
 For an argument
 list in the prototype to match an argument list in the call, both
@@ -5848,10 +5855,10 @@ Note that {\em quoted-marks} and {\em quoted-separators}
 in {\em function-term-names} may appear with or without quotes in
 {\em call-term-names}.\pagnote{CALL-TERM-NAME}  Thus we have the example:
 \begin{indpar}\begin{verbatim}
-function int z = ( int x ) "@@" ( int y ):
+function int z = ( int x ) "%%" ( int y ):
     . . . . . . . . . .
-int v = 5 @@ 6       // Legal
-int w = 5 "@@" 6     // Legal
+int v = 5 %% 6       // Legal
+int w = 5 "%%" 6     // Legal
 \end{verbatim}\end{indpar}
 
 However, quoting an operator will cause it to be not recognized as
@@ -5942,7 +5949,7 @@ Matches to prototypes with more {\em required-values}
 are preferred over matches to prototypes with less {\em required-values}.
 Thus the example:
 \begin{indpar}\begin{verbatim}
-function F ( int x ) G ( int y != 5 ):  // First F declaration
+function F ( int x ) G ( int y *=* 5 ):  // First F declaration
     . . . . . . . . . .
 function F ( int x ) G ( int y ?= 5 ):  // Second F declaration
     . . . . . . . . . .
