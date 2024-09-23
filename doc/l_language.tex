@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-September 22, 2024
+September 23, 2024
 
 \bigskip
 
@@ -893,18 +893,18 @@ the statement calling the {\tt inclu\-sion} function.  For example:
 \begin{indpar}[0.1in]\begin{verbatim}
 inclusion function const r = max add ( macro V, macro I, macro LIMIT ):
     r = *INCLUDE* (V, I, LIMIT):
-        int V += I
-        int V = max ( V, LIMIT )
+        next V += I
+        next V = max ( V, LIMIT )
 max add ( my sum, my increment, z + 100 )
     // This statement is replaced by
-    //     int my sum += my increment
-    //     int my sum = max ( my sum, z + 100 )
+    //     next my sum += my increment
+    //     next my sum = max ( my sum, z + 100 )
     // or more specifically:
     //     V = { "my", "sum" }
     //     I = { "my", "increment" }
     //     LIMIT = { { "z" }, "+", { 100 } }
-    //     r = { { { "int", "my", "sum" }, "+=", { "my", "increment" } },
-    //           { { "int", "my", "sum" }, "="
+    //     r = { { { "next", "my", "sum" }, "+=", { "my", "increment" } },
+    //           { { "next", "my", "sum" }, "="
     //             { "max", { { "my", "sum" }, { { "z" }, "+", { 100 } },
     //                        ".initiator" => "(",
     //                        ".terminator" => ")",
@@ -6020,13 +6020,16 @@ A \emkey{constant-expression}\label{CONSTANT-EXPRESSION}
 is an {\em expression} that is either
 a {\em constant}\pagnote{CONSTANT}, a compile-time
 {\em refer\-ence-expression}\pagnote{COMPILE-TIME-REFERENCE-EXPRESSIONS},
-or a {\em function-call} to a {\tt constant} function
-with arguments that are {\em con\-stant-expressions}.\footnote{
+or a {\em function-call} to a {\tt constant} function.\footnote{
 A {\em rational-constant} is both a {\em constant} and a {\em function-call}
-to a {\tt constant} function whose argument is a ({\em quoted-string})
-{\em constant}.}
+to a {\tt constant} function.}
 {\em Constant-expressions} are used to compute parameters that must be
 known at compile-time.
+
+Arguments to special functions (such as {\tt constant} functions)
+\underline{need not} have the {\tt const}
+type.  The values of such arguments cannot be accessed by the functions,
+but their types, which are {\tt const} values, can be.
 
 An \key{inclusion function} declaration can only be matched to
 a {\em function-call} at statement level (i.e., outside explicit or implicit
@@ -6035,10 +6038,6 @@ When an \key{inclusion function} is called it must return a {\tt const} result
 that is a parsed list of {\em statements} that replaces
 the {\em call-assignment-statement}.
 See Section~\itemref{INCLUSIONS} for examples.
-
-Arguments to special functions \underline{need not} have the {\tt const}
-type.  The values of the arguments cannot be accessed by the functions,
-but their types can be.
 
 A `{\tt *DEFERRED*}' {\em function-declaration} permits
 inline functions defined between it and a later
@@ -6139,7 +6138,7 @@ If the \underline{entire} {\em expression} $E$ has the form: \\
 where the parentheses may \underline{not}
 be implied, move the {\em module-abbreviation}
 to the beginning of the \underline{parsed} {\em subexpression}, and
-repeat this step for the modified {\em expression}.
+continue to the next step with the modified {\em expression}.
 See \pagref{MA-SYNTACTIC-SUGAR} for an example.
 
 \item\label{CONSTANT-STEP}
@@ -6302,8 +6301,6 @@ annotate $E$ with $T\mapsto {\tt *FAIL*}$.
 
 \item If $E$ is a
 {\em reference-expression}\pagnote{REFERENCE-EXPRESSIONS}
-of type $T'$,
-annotated with a reference pointer type that points at a value
 of type $T'$,
 then if $T$ equals $T'$ annotate $E$ with $T\mapsto{*EXACT*}$.
 Otherwise search the implicit conversion
@@ -6570,8 +6567,6 @@ maps, the maps must be identical (they are compared as pointers and
 not as lists of elements).
 
 \item\label{CALL-DECLARATION-ARGUMENT-TYPING}
-This section is skipped for special functions.
-
 Matches between {\em prototype-argument-declaration} types
 and acceptable {\em actual-argu\-ment} subexpression target types
 are then checked, except for {\tt macro} arguments (that require
@@ -6788,8 +6783,9 @@ be {\tt load} and one must be {\tt store}.  One of these is excluded
 by context.  If the root is the entire {\em reference-expression} and
 that is storing, then {\tt load} is excluded.  Otherwise {\tt store}
 is excluded.  So the {\em function-variable-name} can have at most
-one {\em reference-function-declaration}, and it is a compile error
-if it has none (e.g. a storing {\em simple-reference-expression}
+one non-excluded {\em reference-function-declaration},
+and it is a compile error
+if it has none (e.g., if a storing {\em simple-reference-expression}
 has only a {\tt load} {\em reference-function-declaration}).
 
 In the case of a compound {\em reference-expression}, we have a
@@ -6809,13 +6805,13 @@ is used to find a {\em reference-function-declaration} matching the
 \item This algorithm examines all {\em reference-function-declarations}
 in the current context\pagnote{CONTEXT} that meet criteria specified in
 the following, and applies applies the Reference Function Declaration Matching
-Algorithm to each.
+Algorithm (below) to each.
 \item If the {\em reference-base} is followed by a {\em member-name}
 that is followed by an {\em index-list}, this algorithm is applied first
 to a {\em reference-offset} consisting of both the {\em member-name}
 and the {\em index-list}.  If no declarations are found, this algorithm
 is reapplied to a {\em reference-offset} consisting of just the
-{\em member-list}.
+{\em member-name}.
 \item If the compound {\em reference-expression} consisting of the
 {\em reference-base} followed by the {\em reference-offset} is loading,
 {\tt store} {\em reference-function-declarations} are excluded from
@@ -6853,10 +6849,10 @@ else the call-declaration match fails
 \end{enumerate}
 
 \item\label{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}
-The {\em reference-base} in the call is matched to the
-{\em reference-pattern-base} in the declaration.
+The type of the {\em reference-base} in the call is matched to the
+type of the {\em reference-pattern-base} in the declaration.
 If the latter has wildcards, the wildcards are assigned
-information in the {\em reference-bases}'s type.
+information from the {\em reference-bases}'s type.
 
 If one wildcard is assigned two or more different values, or zero values,
 the call-declaration match fails.
@@ -6954,7 +6950,7 @@ An example of an inclusion is:
 //     int V = 0
 //     while V < LIMIT:
 //         STATEMENTS*
-//         V += 1
+//         next V += 1
 //
 inclusion function const r = for ( macro V, macro LIMIT ):
     r = { { { "int" } + V, "=", { 0 } },
@@ -8726,9 +8722,9 @@ See Assignment Statements\pagnote{ASSIGNMENT-STATEMENTS}.
 \item[infix \TT{\textasciicircum=}] \vspace*{-0.15in}
 \item[infix \TT{<{}<{}=}] \vspace*{-0.15in}
 \item[infix \TT{>{}>{}=}] \vspace*{-0.15in} ~\\
-The statement `{\tt x += y}' is syntactic sugar for `{\tt next x = x + y}'
-if {\tt x} is a local {\tt co} variable, and for
-`{\tt x = x + y}' otherwise.
+The statement `{\tt next x += y}' is syntactic sugar for `{\tt next x = x + y}',
+while `{\tt x = x + y}' is syntactic sugar for.
+`{\tt x = x + y}'.
 
 Similarly for the other operators of the form `\TT{$B$=}'
 where $B$ is a binary operator,
@@ -9899,12 +9895,12 @@ For example:
 \begin{indpar}[1em]\begin{verbatim}
 function macro r = inc ( macro v, int w ):
     const W = name of ( "w" )
-    return { v, "+=", { W } }
+    return { { {"next"} + v }, "+=", { W } }
 ap *READ-WRITE* int @x:
     x = 5
 inc ( x, 10 ) // Same as:
               //     int V$1 = 10
-              //     {{"x"}, "+=", {"V$1"}}.
+              //     next x += V$1
     // Now x == 15.
 \end{verbatim}\end{indpar}
 
