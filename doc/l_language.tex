@@ -4056,8 +4056,14 @@ A {\em call-assignment-statement} with {\em assignment-results}
 follows the same general rules
 as {\em expres\-sion-assignment-state\-ments} except that its right
 side is a single {\em function-call} or the functionally similar
-{\em call-expression} and the result values of the call are stored
-in the {\em assignment-results} proceeding left-to-right.
+{\em call-expression} and the result values of the call,
+excluding any results with `\TT{next} $v$'
+{\em prototype-next-variable-declarations}%
+\pagnote{PROTOTYPE-NEXT-VARIABLE-DECLARATION},
+are stored
+in the {\em assignment-results} proceeding left-to-right
+(see item \ref{CALL-DECLARATION-TARGET-MATCHING},
+\pagref{CALL-DECLARATION-TARGET-MATCHING}).
 Excess call results are discarded.  There must be an least as many
 call results as there are {\em assignment-results}.
 
@@ -4065,18 +4071,32 @@ The types of the function prototype results \underline{cannot}
 be implicitly converted to the types of the {\em assignment-results}.
 
 \label{CALL-NEXT-PROMOTION}
-The right side of a {\em call-assignment-statement} may have
-an implied `\TT{next} $v$' if the {\em function-prototype} has
-a `\TT{next} $w$' {\em prototype-result-declaration}
-and a {\em prototype-argument-declaration} of the
-form `\dots{} {\em type-name} $w$', and $v$ is a {\em variable-name}
-that by itself is the actual argument matched to $w$
-(see \pagref{PROTOTYPE-NEXT-RESULT}).  An example is:
+The right side of a {\em call-assignment-statement} will have
+an implied {\em assignment-result} for every
+{\em prototype-next-variable-declaration}%
+\pagnote{PROTOTYPE-NEXT-VARIABLE-DECLARATION}%
+of the
+{\em function-prototype}.  Every such
+{\em prototype-next-variable-declaration} `\TT{next} $w$'
+must have a corresponding 
+a {\em prototype-argument-declaration} `{\TT{\ldots}~$w$}',
+and the call {\em actual-argument}
+matched to this must be either
+a {\tt co} {\em variable} $v$ for which `\TT{next} $v$' is legal,
+or a readable and writable {\em reference-expression} $e$
+(see item \ref{PROTOTYPE-NEXT-RESULT}, \pagref{PROTOTYPE-NEXT-RESULT},
+and also item \ref{CALL-DECLARATION-NEXT-ARGUMENTS},
+\pagref{CALL-DECLARATION-NEXT-ARGUMENTS}).
+The implied right side result
+is then either `\TT{next} $v$' or $e$.  An example is:
 \begin{indpar}\begin{verbatim}
 function next w = inc ( int w ):
     next w = w + 1
 int v = 5
 inc ( v )    // Equivalent to `next v = v + 1'.
+ap *READ-WRITE* int @e:
+    e = 5
+inc ( e )    // Equivalent to `e = e + 1'.
 \end{verbatim}\end{indpar}
 
 \subsection{Block Assignment Statements}
@@ -5733,11 +5753,7 @@ wildcard substitution will necessarily have fewer
 \label{PROTOTYPE-NEXT-RESULT}
 For a {\em prototype-result-declaration} of the form `\TT{next} $v$',
 $v$ must be the {\em vari\-able-name} in a {\em prototype-argument-declaration}
-of the form `\dots{} {\em type-name} $v$', and
-any actual argument associated to the {\em prototype-argument-declaration}
-by some {\em function-call}
-must be a {\em reference-expression} that
-does not have the form `{\tt next} {\em variable-name}'.
+of the form `\dots{} {\em type-name} $v$'.
 \item
 Result and argument {\em variable-names}
 in a {\em function-prototype} must
@@ -6525,6 +6541,9 @@ are filled in from the corresponding target type, left-to-right.
 If a wildcard gets more
 than one value from this process, the call-declaration match fails.
 
+Note that {\em prototype-next-variable-declarations} are ignored
+during this matching.
+
 Then if any prototype result type is not identical to its corresponding
 assignment target type, the call-declaration match fails
 (i.e., there is \underline{no} implicit conversion of function result
@@ -6587,6 +6606,16 @@ If any is mapped to {\tt *EXACT*}, the call-prototype map is
 marked as \key{conversion proficient}.  Note that only a single
 argument needs to be {\tt *EXACT*} in order for the entire
 call-declaration match to be marked conversion proficient.
+
+\item\label{CALL-DECLARATION-NEXT-ARGUMENTS}
+Some {\em prototype-argument-declarations} may correspond to
+{\em prototype-next-variable-de\-clar\-ations} and for these
+the {\em actual-arguments} must be either a {\tt co} {\em variable} $v$
+for which `\TT{next} $v$' is legal, or a readable and writable
+{\em reference-expression}.  However no checks are done on these
+requirements during the Function Declaration Matching Algorithm.
+These requirements are checked a final call-declaration
+match is found, and any requirement failure becomes a compile error.
 
 \item\label{CALL-DECLARATION-RANK-COMPUTATION}
 If the call-declaration match has been successful, it is assigned
