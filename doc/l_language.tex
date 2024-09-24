@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-September 23, 2024
+September 24, 2024
 
 \bigskip
 
@@ -903,9 +903,11 @@ max add ( my sum, my increment, z + 100 )
     //     V = { "my", "sum" }
     //     I = { "my", "increment" }
     //     LIMIT = { { "z" }, "+", { 100 } }
-    //     r = { { { "next", "my", "sum" }, "+=", { "my", "increment" } },
+    //     r = { { { "next", "my", "sum" }, "+=",
+    //             { "my", "increment" } },
     //           { { "next", "my", "sum" }, "="
-    //             { "max", { { "my", "sum" }, { { "z" }, "+", { 100 } },
+    //             { "max", { { "my", "sum" },
+    //                        { { "z" }, "+", { 100 } },
     //                        ".initiator" => "(",
     //                        ".terminator" => ")",
     //                        ".separator" => "," } } } }
@@ -2057,7 +2059,9 @@ but the following examples give an idea of some of this semantics:
        {\tt x ** -1 \TT{==} 1/x} for all {\tt x}.
 
 \hspace*{-0.2in}{\tt x \TT{+=} y} \\
-	Means `{\tt x \TT{=} x + y}', where {\tt x} must be {\tt *READ-WRITE*}.
+	Means `{\tt x \TT{=} x + y}' if {\tt x} is {\tt *READ-WRITE*}
+	and `{\tt next x \TT{=} x + y}' if {\tt x} is {\tt co}
+	and `{\tt next x}' is defined.
 
 \hspace*{-0.2in}{\tt next x \TT{+=} y} \\
 	Means `{\tt next x = x + y}'.  `{\tt next x}' must be defined.
@@ -7140,7 +7144,7 @@ inclusion function const r =
                 // See *UNCHECKED* above.
             @x = @p[index]
 
-        allocator function ap Q$1 TYPE-NAME @r =
+        allocator function ap QW$1 TYPE-NAME @r =
                 (uns length, uns alignment )
                 allocate [uns count]:
             @r = std ( length + count * ELEMENT-TYPE..size,
@@ -8723,8 +8727,8 @@ See Assignment Statements\pagnote{ASSIGNMENT-STATEMENTS}.
 \item[infix \TT{<{}<{}=}] \vspace*{-0.15in}
 \item[infix \TT{>{}>{}=}] \vspace*{-0.15in} ~\\
 The statement `{\tt next x += y}' is syntactic sugar for `{\tt next x = x + y}',
-while `{\tt x = x + y}' is syntactic sugar for.
-`{\tt x = x + y}'.
+if {\tt x} is {\tt co} and `{\tt next x}' is defined, or for
+`{\tt x = x + y}' if {\tt x} is {\tt *READ-WRITE*}.
 
 Similarly for the other operators of the form `\TT{$B$=}'
 where $B$ is a binary operator,
@@ -9895,12 +9899,12 @@ For example:
 \begin{indpar}[1em]\begin{verbatim}
 function macro r = inc ( macro v, int w ):
     const W = name of ( "w" )
-    return { { {"next"} + v }, "+=", { W } }
+    return { { v }, "+=", { W } }
 ap *READ-WRITE* int @x:
     x = 5
 inc ( x, 10 ) // Same as:
               //     int V$1 = 10
-              //     next x += V$1
+              //     x += V$1
     // Now x == 15.
 \end{verbatim}\end{indpar}
 
