@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-September 24, 2024
+September 25, 2024
 
 \bigskip
 
@@ -7219,7 +7219,7 @@ The syntax of an out-of-line function declaration is:
 \hspace*{0.25in} \ttkey{out-of-line function}~
           \{ {\em prototype-result-list}~ \TT{=}~ \}\QMARK{} \\
 \hspace*{0.5in}{\em out-of-line-function-name}~
-	      {\em parenthesized-pattern-argument-list}\QMARK{}
+	      {\em parenthesized-pattern-argument-list}\PLUS{}
 \\[0.5ex]
 \emkey{out-of-line-function-name} ::=
     {\em module-abbreviation}\QMARK{} {\em basic-name}
@@ -7308,7 +7308,7 @@ functions may be declared by:
 	\label{FUNCTION-TYPE-PROTOTYPE} ::= \\
 \hspace*{0.25in} \ttkey{function}~
         \{ {\em prototype-result-list}~ \TT{=} \}\QMARK{}~
-	\TT{()}~ {\em parenthesized-pattern-argument-list}\QMARK{}
+	\TT{()}~ {\em parenthesized-pattern-argument-list}\PLUS{}
 \begin{enumerate}
 \item
 {\em Function-type-declarations} must be top level; they
@@ -7378,7 +7378,7 @@ Functions accessed by function type values must be called by:
 \emkey{call-expression}\label{CALL-EXPRESSION} ::= \\
 \hspace*{0.25in}
 	\ttkey{call}~ {\em function-expression}~
-	     {\em parenthesized-call-argument-list}\QMARK{}
+	     {\em parenthesized-call-argument-list}\PLUS{}
 \\[0.5ex]
 \emkey{function-expression} ::= {\em reference-expression}
 \\[0.5ex]
@@ -7390,6 +7390,11 @@ Functions accessed by function type values must be called by:
 \item
 The {\em function-expression} must evaluate to
 a function-type value.
+\item
+The {\em parenthesized-call-argument-list} and the function type's
+{\em parenthesized-pattern-argument-list} must match
+as if they were part of an out-of-line {\em function-call}
+and {\em out-of-line-function-prototype}.
 \end{enumerate}
 \end{indpar}
 
@@ -8755,7 +8760,7 @@ See Assignment Statements\pagnote{ASSIGNMENT-STATEMENTS}.
 \item[infix \TT{\textasciicircum=}] \vspace*{-0.15in}
 \item[infix \TT{<{}<{}=}] \vspace*{-0.15in}
 \item[infix \TT{>{}>{}=}] \vspace*{-0.15in} ~\\
-The statement `{\tt next x += y}' is syntactic sugar for `{\tt next x = x + y}',
+The statement `{\tt x += y}' is syntactic sugar for `{\tt next x = x + y}',
 if {\tt x} is {\tt co} and `{\tt next x}' is defined, or for
 `{\tt x = x + y}' if {\tt x} is {\tt *READ-WRITE*}.
 
