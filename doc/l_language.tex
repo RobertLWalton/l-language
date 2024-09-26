@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-September 25, 2024
+September 26, 2024
 
 \bigskip
 
@@ -7668,8 +7668,8 @@ are recognized.
 
 Generally the scope of a {\em declaration} includes the {\em statements}
 in any {\em block} at the end of the {\em statement}
-containing the {\em declaration} (recall that a {\em statement} is a
-logical line that can end in a {\em block}), and
+containing the {\em declaration} (a {\em statement} is a
+logical line which can end in a {\em block}), and
 all {\em statements} following the {\em statement} containing
 the {\em declaration} up to the end of the smallest {\em block}
 containing the {\em declaration}.
@@ -7686,13 +7686,17 @@ to include each body file of the module.
 
 Some {\em declarations} are \key{external}\label{EXTERNAL}.
 These must be top-level declarations in a module (and \underline{not}
-in a body), and must contain a {\em module-abbreviation} naming this
-module.
+in a body), and must contain a {\em module-abbreviation}.
+This {\em module-abbreviation} must name the module containing
+the top-level {\em declaration}, except for
+{\em type-declarations} that are expansions of an
+external {\em type-declaration}, and companions of external deferred
+{\em out-of-line-function-declarations} (see below).
 The scope of an external
 {\em declaration} is extended to include all modules and bodies that
 import the module containing the {\em declaration}.
 
-A {\em block-variable-declaration}
+A {\em result-variable-declaration}
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.
 
@@ -7736,26 +7740,33 @@ module containing the declaration.
 {\em variable-names} cannot begin with a {\em module-abbreviation},
 and therefore these {\em declarations} can never be external.
 
-In general, a deferred declaration
-in a module may have a companion in that module
-or in a body of that module, but not in modules or bodies that import
-the declaration's module.
-As one exception, a deferred external {\em out-of-line-function-declaration}
+A {\em module-abbreviation} that makes a {\em declaration} external
+must abbreviate the module in which the {\em declaration} occurs,
+with the exception of expansions of {\em type-declar\-ations}
+that end with the {\tt *EXTERNAL*} sub-declaration\pagnote{*EXTERNAL*}
+and companions of deferred
+{\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
+
+The companion of a deferred {\em declaration} must be in the same file as the
+deferred {\em declaration},
+except that if the deferred {\em declaration} is in a module,
+its companion may be
+in a body of the module (but \underline{not} in modules or bodies that
+merely import the module).  If the deferred {\em declaration} is external
+and its companion is in a body of its module, files that import the
+module are within the scope of the deferred {\em declaration}
+but \underline{not} the scope of its companion.
+As an exception to the rules just stated,
+a deferred external {\em out-of-line-function-declaration}
 may have its companion
 anywhere within the scope of the original declaration.
-As a second exception, a deferred {\em type-declaration} must have its
-companion in the same file as the deferred {\em type-declaration}.
-Note that a deferred {\em type-declaration} may have only one
-companion, but the companion may have many expansions in the
-scope of the companion (the companion is the root of its expansion tree:
-see \itemref{DEFINED-TYPE-EXPANSIONS}).
 
 {\em Type-declarations} that end with the {\tt *EXTERNAL*}
-sub-declaration must have external {\em type-names}
+sub-declaration must have external {\em defined-type-names}
 (beginning with a {\em module-abbreviation}).
 Expansions of such a {\em type-declaration} may appear
 anywhere within scope of the initial root {\em type-declaration}\pagnote{ROOT},
-but must have a {\em type-name} that references the same module
+but must have a {\em defined-type-name} that references the same module
 as the {\em type-declaration} they are expanding (they need not use the same
 {\em module-abbreviation} to do so).
 
@@ -7764,24 +7775,18 @@ have overlapping scope, they must follow the expansion tree rules
 of \itemref{DEFINED-TYPE-EXPANSIONS}.
 The scope of a {\tt *LABEL*} {\em type-subdeclaration}
 consists of the {\em type-subdeclarations} following it in its
-{\em type-declaration} and of the entirety of all
+{\em type-declaration} and the entirety of all
 {\em type-declarations} that are descendants
 of its {\em type-declaration} in the {\em defined-type-name}'s
 expansion tree.
 
-A {\em module-abbreviation} that makes a {\em declaration} external
-must abbreviate the module in which the {\em declaration} occurs,
-with the exception of expansions of {\em type-declar\-ations}
-that end with the {\tt *EXTERNAL*} sub-declaration\pagnote{*EXTERNAL*}
-and companions of deferred
-{\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
-
-If two difference declarations of a {\em variable-name},
+If two different {\em declarations} of a {\em variable-name},
 {\em function-variable-name}, or {\em function-con\-stant-name}
 have overlapping
 scope, one of these must necessarily include the other,
 and the declaration with the smaller scope is said to
-`\key{hide}'\label{HIDE} the other declaration.
+`\key{hide}'\label{HIDE} the other declaration,
+unless one {\em declaration} is deferred and the other is its companion.
 It is a compile error if one of these declarations hides another.
 
 The same applies to declarations of {\em type-names},
@@ -7795,25 +7800,11 @@ is \underline{not} the same name as that name with the {\em module-abbreviation}
 dropped.  E.g., `{\tt mom X}' is not the same name as `{\tt X}' if
 {\tt mom} is a {\em module-abbreviation}.
 
-The hiding rule does \underline{not}
-apply to {\em out-of-line-function-names} or {\em function-term-names}.
-{\em Mod\-ule-abbreviations} may be omitted from {\em function-calls}
-without changing the function called, as long as there is no
-ambiguity (see Step~\ref{FUNCTION-DECLARATION-MODULE-ABBREVIATION}
-of the Function Declaration Matching Algorithm,
-\pagref{FUNCTION-DECLARATION-MODULE-ABBREVIATION}).
-
 A {\em next-variable-declaration} is allowed
 within the scope of a previous declaration of its {\em variable-name},
 including a {\em next-variable-declaration} of this {\em variable-name},
 if it is not within a smaller block than the previous declaration.
-Note that a {\em next-variable-declaration} has
-the same syntax as a particular kind of {\em reference-expression}, and its use
-as an implicitly {\tt *INIT*}\pagnote{INIT-FORCING} {\em reference-expression}
-is allowed within a subblock of the {\em block-assignment-state\-ment}
-or {\em loop-assignment-statement} that assigns a value to the
-declared {\tt next} variable.
-Also note that {\em next-variable-declarations} can be implied
+Note that {\em next-variable-declarations} can be implied
 in {\em block-assignment-statements}\pagnote{BLOCK-NEXT-PROMOTION}
 and {\em loop-assignment-statements}\pagnote{LOOP-NEXT-PROMOTION}.
 
@@ -7830,16 +7821,16 @@ error if {\em statement-labels} hide each other.
 
 When a {\em function-call} to an inline function is expanded,
 the context of the expansion is \underline{not} the current context but
-rather the context of the inline {\em function-declaration}
+is rather the context of the inline {\em function-declaration}
 that provided the {\em statements} executed by the call.
 Also the context in which any {\em default-value} expression
 provided by a {\em function-declaration} is compiled\label{DEFAULT-CONTEXT}
 is the \underline{not} the current context but
-rather the context of that {\em function-declaration}.
+is rather the context of that {\em function-declaration}.
 
 Similarly when a {\em reference-call} to a reference function is expanded,
 the context of the expansion is \underline{not} the current context but
-rather the context of the inline {\em reference-function-declaration}
+is rather the context of the {\em reference-function-declaration}
 that provided the {\em statements} executed by the call.
 
 Code produced by inclusions during {\em statement} compilation
