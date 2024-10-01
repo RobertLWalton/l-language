@@ -8446,9 +8446,9 @@ must also be able to find them.
 \section{Memory Management}
 \label{MEMORY-MANAGEMENT}
 
-Space for variables allocated by {\em variable-declarations}
+Space for local variables allocated by {\em variable-declarations}
 is allocated to the currently executing out-of-line function
-frame or to the stack after this frame: see
+frame or by calls to `{\tt allocate} to the stack after this frame: see
 \pagref{VARIABLE-ALLOCATION} and \pagref{LOOP-ALLOCATION}
 for details.
 
@@ -8471,7 +8471,7 @@ Specifically, the compiler recognizes the following options:
 
 \ttkey{copying-gc}, \ttkey{marking-gc}, \ttkey{counting-gc}, or \ttkey{no-gc}
 \begin{indpar}
-These options specify garbage collection (\key{GC})
+These options specify the kind of garbage collection (\key{GC})
 algorithm being used.
 With {\tt no-gc}, there is no heap and no garbage collection.
 The garbage collection algorithms are described below.
@@ -8500,7 +8500,7 @@ of GC below.
 \begin{indpar}
 These are sub-options of GC, indicating whether a datum body can be
 deallocated without the datum being garbage collected.  With the
-{\tt separate-stub} option, the pointer to the body merely points
+{\tt separate-stub} option, the pointer to a deallocated body merely points
 at inaccessible memory.  With the {\tt integrated-stub} option, the
 {\tt copying-gc} option allows the datum to consist of just a forwarding
 pointer pointing at inaccessible memory, but other {\tt \ldots-gc}
@@ -8509,17 +8509,17 @@ options do not support deallocation without the datum being garbage collected.
 
 \end{indpar}
 
-All kinds of GC run interleaved with non-GC execution.
-These compiler options control default inline functions that do the
+GC runs interleaved with non-GC execution.
+The above compiler options control default inline functions that do the
 following during non-GC execution:
 \begin{itemize}
 \item Read a non-pointer from a heap datum.
-\item Read a pointer from a heap datum.
-\item Write a pointer to a heap datum.
+\item Read a heap pointer from a heap datum.
+\item Write a heap pointer to a heap datum.
 \item Write a non-pointer to a heap datum.
-\item Write a pointer to a non-loop iteration stack variable.
-\item Write a pointer to a loop iteration stack variable.
-\item Deallocate a location that contains a pointer.
+\item Write a heap pointer to a non-loop iteration stack variable.
+\item Write a heap pointer to a loop iteration stack variable.
+\item Deallocate a location that contains a heap pointer.
 \end{itemize}
 
 The three kinds of GC are discussed in detail in the following sub-sections.
