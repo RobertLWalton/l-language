@@ -8101,7 +8101,7 @@ type list element:
 // In the following, `@= allocate' allocating the global stack
 // is implied because the pointers are *GLOBAL*.
 
-// Circular list:
+// FIFO implemented as a circular list:
 //
 ap *GLOBAL* list element @last:  // `@= allocate' is implied
     last.@next = @last
@@ -8125,6 +8125,21 @@ ap *GLOBAL* list element @Y:
     last.next.@next = @Y
     last.@next = @Y
     // List now consists of (X, Y)
+
+. . . . . . . . . .
+
+ap *READ-WRITE* ap *GLOBAL* list element @@Z:
+                        // `@= allocate' is implied.
+    // Set @Z to beginning of list and delete it.
+    // If list empty, set @Z == @last.
+    //
+    @Z = last.next.@next    // Also works if last.@next == @last
+    if last@next == @last:  // List is empty
+        // Do nothing
+    else if Z.@next == @Z:  // List has only one element
+        last.@next = @last
+    else:
+        last.next.@next = Z.@next
 \end{verbatim}\end{indpar}
 
 A local pointer is tagged automatically by the compiler with the
@@ -8193,7 +8208,7 @@ type list element:
 // In the following, `@= allocate' to the local stack is implied
 // because the pointers are (lifetime) undeclared.
 
-// Circular list:
+// FIFO implemented as a circular list:
 //
 ap list element @last:  // `@= allocate' is implied
     last.@next = @last
@@ -8220,6 +8235,21 @@ ap list element @Y:
     last.next.@next = @Y
     last.@next = @Y
     // List now consists of (X, Y)
+
+. . . . . . . . . .
+
+ap *READ-WRITE* ap list element @@Z:
+                        // `@= allocate' is implied.
+    // Set @Z to beginning of list and delete it.
+    // If list empty, set @Z == @last.
+    //
+    @Z = last.next.@next    // Also works if last.@next == @last
+    if last@next == @last:  // List is empty
+        // Do nothing
+    else if Z.@next == @Z:  // List has only one element
+        last.@next = @last
+    else:
+        last.next.@next = Z.@next
 \end{verbatim}\end{indpar}
 
 The last kind of pointer is the \key{anywhere pointer}.
@@ -8338,7 +8368,7 @@ type list element:
 // In the following, `@= allocate' to the local stack is implied
 // because the pointers are (lifetime) undeclared.
 
-// Circular list:
+// FIFO implemented as circular list:
 //
 ap *READ-WRITE* list element @last:  // `@= allocate' is implied
     last.@next = @last
@@ -8371,6 +8401,25 @@ function add ( ap *READ-WRITE* list element @element ):
 //
 add ( @X )           // X is first element
 add ( @Y )           // Y is second element
+
+. . . . . . . . . .
+
+// Remove an element from the beginning of the circular
+// list and return it
+//
+function ap *READ-WRITE* list element @r =
+        remove ( ap *READ-WRITE* list element @last ):
+    @r = last.next.@next    // Also works if last.@next == @last
+    if last@next == @last:  // List is empty
+        // Do nothing
+    else if r.@next == @r:  // List has only one element
+        last.@next = @last
+    else:
+        last.next.@next = r.@next
+
+// Take element off list.
+//
+ap *READ-WRITE* list element @Z = remove ( @last ) 
 \end{verbatim}\end{indpar}
 
 A {\em reference-expression} with \underline{no} {\em reference-calls}
