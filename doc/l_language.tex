@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-September 30, 2024
+November 25, 2024
 
 \bigskip
 
@@ -9130,7 +9130,8 @@ be above $2^{48}$ while
 Note that {\tt \#} is a prefix operator.
 \end{indpar}
 
-{\tt constant function const r = std} (const s1) \ttkey{"+"} {\tt ( const s2 )}
+{\tt constant function const r = std}
+    ( const s1 ) \ttkey{"+"} {\tt ( const s2 )}
 \begin{indpar}
 Returns the concatenation of string {\tt s1}
 and string {\tt s2}.
@@ -9230,7 +9231,7 @@ containing the list of lexemes in {\tt s}.  Brackets and
 operators are not specially recognized and are returned
 as strings.  Quoted strings inside {\tt s} are returned
 as vector elements that are maps of the form: \\
-\hspace*{0.2in}{ \tt \{~{\rm \em represented-string},
+\hspace*{0.2in}{ \tt \{~"{\rm \em represented-string}",
 	         ".type" => "<Q>" \}}
 
 Syntax errors produce compiler error messages and
@@ -9252,7 +9253,7 @@ return {\tt UNDEF}.
 	( const v, const f ?= "\%0.16g"  )
 \begin{indpar}
 Inverse of {\tt parse brackets}.  Return a string $S$ such
-that {\tt ` "$S$" '} equals {\tt v} with numeric rounding differences.
+that {\tt `$S$'} equals {\tt v} with numeric rounding differences.
 Numbers are printed in $S$ using {\tt f} as a printf format.
 \end{indpar}
 
