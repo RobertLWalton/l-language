@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-November 25, 2024
+November 26, 2024
 
 \bigskip
 
@@ -9508,6 +9508,19 @@ in {\tt m}, the returned vector will have only {\tt \# m} elements.
 {\tt i} must be a non-rational, non-negative integer.
 \end{indpar}
 
+{\tt constant function const r = std}
+	{\tt ( const m1 )} \ttkey{"+"} {\tt ( const m2 )}
+\begin{indpar}
+Concatenates the maps {\tt m1} and {\tt m2}.  Specifically,
+{\tt r} has the vector elements of {\tt m1} followed by the
+vector elements of {\tt m2}, and the dictionary elements
+of both {\tt m1} and {\tt m2}.  It is a compile error if
+{\tt m1} and {\tt m2} have conflicting dictionary elements,
+that is, there is a label such that each map has a dictionary
+element with that label but the values of these two elements
+are not {\tt ==}.
+\end{indpar}
+
 \subsection{Type, Field, Subfield, and Pointer Type Maps}
 \label{TYPE-FIELD-SUBFIELD-MAPS}
 
@@ -9535,7 +9548,7 @@ by strings of 1 to 15 decimal digits with no high-order
 zeros (zero is represented by `{\tt 0}').
 Lexical {\em names}\pagnote{NAME} not containing quoted words, marks, or
 separators can be represented naturally by name strings.
-Name strings are used to represent type, field, and subfield
+Name strings are used in this section to represent type, field, and subfield
 names.
 
 {\em Module abbreviations} in a name string are
@@ -9549,15 +9562,21 @@ module or body a definition appears in.
 Two code {\em module-abbreviations} designating the same
 module will be replaced by the same compiler module abbreviation.
 
+Abbrevations (e.g., {\tt int -{}-{}-{}> std int})
+do \underline{not} apply to name strings.  Thus {\tt "int"} is
+not used; {\tt "M\$0 int"} is used instead.
+
 {\tt com module dictionary}
 \begin{indpar}
 A dictionary mapping compiler module abbreviation numbers
 to strings that are {\em mod\-ule-names}.  Specifically:
+if {\tt M\$$n$ \rm{maps to} $N$} then both
 {\tt com module dictionary[$n$] == "$N$"}
-means {\tt M\$$n$ \rm{maps to} $N$}.
+and {\tt com module dictionary["M\$$n$"] == "$N$"}.
 For example,
 \\[0.5ex]
-\hspace*{1.5in}{\tt com module dictionary[0] == "standard"}
+\hspace*{1.0in}{\tt com module dictionary[0] == "standard"} \\
+\hspace*{1.0in}{\tt com module dictionary["M\$0"] == "standard"}
 
 \end{indpar}
 
