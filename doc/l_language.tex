@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-November 29, 2024
+November 30, 2024
 
 \bigskip
 
@@ -2763,7 +2763,8 @@ with map values.  These map values are partly read-only,
 with the read-only part including elements with labels like
 {\tt .size} for the size in bits of run-time values of the type.
 Users can add their own elements if these do not conflict
-with the names of the read-only elements.  See \pagref{TYPE-MAPS}.
+with the names of the read-only elements.
+See \pagref{TYPE-FIELD-SUBFIELD-MAPS}.
 
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
@@ -4851,7 +4852,10 @@ A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
 A \ttkey{*EXTERNAL*} sub-declaration sets the external/private switch
 to `external'.  This is allowed only if the {\em defined-type-name}
-of the {\em type-declaration} is external.
+of the {\em type-declaration} is external
+\underline{and}
+the current {\em type-declaration} is in the same module as the
+root of the {\em defined-type-name}.
 
 A \ttkey{*PRIVATE*} sub-declaration sets the external/private switch
 to `private'.
@@ -4875,6 +4879,9 @@ sub-declarations may use the {\em defined-type-name} as a pointer target type.
 
 The root of a defined type with a {\tt *DEFERRED*} {\em type-declaration}
 must be within the scope of the {\tt *DEFERRED*} {\em type-declaration}.
+If the {\tt *DEFERRED*} {\em type-declaration} is external, the root
+must be in the same module as the {\tt *DEFERRED*} {\em type-declaration},
+or in one of the bodies of that module.
 
 A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
 given {\em origin-label} and provides the {\em origin-label}
@@ -7430,15 +7437,16 @@ line of the {\em body-declaration}.
 
 A body implicitly imports the module it extends.  Within the
 body that module has the same {\em module-abbreviation} that it
-had in the module's own file.  The other modules imported in the
-module's own file are \underline{not} implicitly imported
-to the body.  The body must import whatever other modules it uses
-explicitly.
+had in the module's own file.
 
 The {\em after-clauses} name other bodies, not necessarily in
 the same module,
 and determine the order in which bodies are initialized:
 see \itemref{PROGRAM-INITIALIZATION}.
+
+If a module or body imports another module, it also implicitly
+imports\label{IMPLICIT-IMPORTS} all modules imported
+(explicitly or implicitly) by that other module.
 
 \subsubsection{Program Initialization}
 \label{PROGRAM-INITIALIZATION}
@@ -7626,12 +7634,12 @@ These must be top-level declarations in a module (and \underline{not}
 in a body), and must contain a {\em module-abbreviation}.
 This {\em module-abbreviation} must name the module containing
 the top-level {\em declaration}, except for
-{\em type-declarations} that are expansions of an
-external {\em type-declaration}, and companions of external deferred
+companions of external deferred
 {\em out-of-line-function-declarations} (see below).
 The scope of an external
 {\em declaration} is extended to include all modules and bodies that
-import the module containing the {\em declaration}.
+import, explicitly or implicitly\pagnote{IMPLICIT-IMPORTS},
+the module containing the {\em declaration}.
 
 A {\em result-variable-declaration}
 is external if the {variable-name} declared begins with a
@@ -7649,7 +7657,9 @@ A {\em type-declaration}, {\em pointer-type-declaration}, or
 is external if the {\em type-name}, {\em pointer-type-name},
 or {\em function-type-name}
 declared begins with a
-{\em module-abbrev\-i\-a\-tion}.
+{\em module-abbrev\-i\-a\-tion}, except that {\em type-declarations}
+or not external if they are expansions of a {\em type-declaration}
+appearing in another module.
 
 A {\em function-constant-declaration}
 is external if the {\em function-constant-name}
@@ -7677,13 +7687,6 @@ module containing the declaration.
 {\em variable-names} cannot begin with a {\em module-abbreviation},
 and therefore these {\em declarations} can never be external.
 
-A {\em module-abbreviation} that makes a {\em declaration} external
-must abbreviate the module in which the {\em declaration} occurs,
-with the exception of expansions of {\em type-declar\-ations}
-that end with the {\tt *EXTERNAL*} sub-declaration\pagnote{*EXTERNAL*}
-and companions of deferred
-{\em out-of-line-function-declarations}.\pagnote{OUT-OF-LINE-EXTERNAL-COMPANION}
-
 The companion of a deferred {\em declaration} must be in the same file as the
 deferred {\em declaration},
 except that if the deferred {\em declaration} is in a module,
@@ -7698,24 +7701,9 @@ a deferred external {\em out-of-line-function-declaration}
 may have its companion
 anywhere within the scope of the original declaration.
 
-{\em Type-declarations} that end with the {\tt *EXTERNAL*}
-sub-declaration must have external {\em defined-type-names}
-(beginning with a {\em module-abbreviation}).
-Expansions of such a {\em type-declaration} may appear
-anywhere within scope of the initial root {\em type-declaration}\pagnote{ROOT},
-but must have a {\em defined-type-name} that references the same module
-as the {\em type-declaration} they are expanding (they need not use the same
-{\em module-abbreviation} to do so).
-
-If two {\em type-declarations} declaring the same {\em defined-type-name}
-have overlapping scope, they must follow the expansion tree rules
-of \itemref{DEFINED-TYPE-EXPANSIONS}.
-The scope of a {\tt *LABEL*} {\em type-subdeclaration}
-consists of the {\em type-subdeclarations} following it in its
-{\em type-declaration} and the entirety of all
-{\em type-declarations} that are descendants
-of its {\em type-declaration} in the {\em defined-type-name}'s
-expansion tree.
+A {\em type-declaration} that ends with the {\tt ***}
+may have expansions anywhere within the scope of the
+{\em type-declaration}.
 
 If two different {\em declarations} of a {\em variable-name},
 {\em function-variable-name}, or {\em function-con\-stant-name}
@@ -7726,7 +7714,7 @@ and the declaration with the smaller scope is said to
 unless one {\em declaration} is deferred and the other is its companion.
 It is a compile error if one of these declarations hides another.
 
-The same applies to declarations of {\em type-names},
+The same applies to declarations of {\em defined-type-names},
 {\em pointer-type-names}, and {\em function-type-names},
 except that hiding does not
 apply to {\em type-declarations} that expand previous
@@ -9514,16 +9502,16 @@ For example,
 
 \end{indpar}
 
-\subsubsection{Type Maps}
-\label{TYPE-MAPS}
+\subsubsection{Number Type Maps}
+\label{NUMBER-TYPE-MAPS}
 
-At compile-time a {\em type-name} can be used as a
+At compile-time a {\em number-type-name} can be used as a
 {\em variable-name} that names a {\tt co} {\tt const} variable
-with a map value called a \key{type map}.
+with a map value called a \key{number type map}.
 
-The compiler defined attributes of a type map are:
+The compiler defined attributes of a number type map are:
 
-{\tt \ttkey{.type} => "type"}
+{\tt \ttkey{.kind} => "number"}
 
 \ttkey{.name}
 \begin{indpar}
@@ -9539,46 +9527,13 @@ The {\tt .alignment} is the alignment in bits
 of an aligned value of the given type at
 run-time.
 \\ E.g., {\tt int64..size == 64, int64..alignment == 64}.
-
-These may increase during compilation of type expansions, and will be
-{\tt UNDEF} for {\tt *DEFERRED*} types not yet defined by the
-compilation.
-\end{indpar}
-
-\ttkey{.expandable} \\
-\ttkey{.external}
-\begin{indpar}
-The {\tt .expandable} attribute is {\tt TRUE} if the
-current list of type subdeclarations ends with
-{\tt ***} \underline{or} {\tt *EXTERNAL*},
-and {\tt FALSE} otherwise.
-The {\tt .external} attribute is {\tt TRUE} if the current
-list of type subdeclarations ends with
-{\tt *EXTERNAL*}, and {\tt FALSE} otherwise.
-
-These may change during compilation of type expansions, and are
-{\tt UNDEF} for {\tt *DEFER\-RED*} types not yet defined by the
-compilation.
-\end{indpar}
-
-\ttkey{.fields}
-\begin{indpar}
-A map listing field maps\pagnote{FIELD-MAPS} for the fields of the type.
-The dictionary entries list named fields by name (which is a name string).
-The vector entries list unnamed fields
-(which have subfields).
-
-Fields may be added during compilation of type expansions.
-This map be empty if a type has no fields, or if the type is
-currently {\tt *DEFERRED*} and not yet defined by the
-compilation.
 \end{indpar}
 
 \ttkey{.min} \\
 \ttkey{.max}
 \begin{indpar}
-The minimum and maximum values of a number type $N$.  Not defined for
-non-number types.  These are {\tt const} values which must be
+The minimum and maximum values of a number type $N$.
+These are {\tt const} values which must be
 converted to the run-time type $N$ before being used
 (e.g., by the expression `$N$($N$..max)').  These values are exact;
 for some $N$, these values can be {\em number-constants}, but
@@ -9608,8 +9563,8 @@ for others it must be a {\em rational-constant}
 
 Example:
 \begin{indpar}\begin{verbatim}
-int64 = { .type => "type",
-          .name => "int",
+int64 = { .kind => "number",
+          .name => "M$0 int",
           .size => 64,
           .alignment => 64,
           .expandable => FALSE,
@@ -9629,7 +9584,7 @@ with a map value called a \key{pointer type map}.
 
 The compiler defined attributes of a pointer type map are:
 
-{\tt \ttkey{.type} => "pointer type"}
+{\tt \ttkey{.kind} => "pointer"}
 
 \ttkey{.name}
 \begin{indpar}
@@ -9638,7 +9593,7 @@ The name of the pointer type as a name string.
 
 \ttkey{.data type}
 \begin{indpar}
-Type map for the data type of the pointer type.
+The type map of the data type of the pointer type.
 \end{indpar}
 
 \subsubsection{Function Type Maps}
@@ -9650,7 +9605,7 @@ with a map value called a \key{function type map}.
 
 The compiler defined attributes of a function type map are:
 
-{\tt \ttkey{.type} => "function type"}
+{\tt \ttkey{.kind} => "function"}
 
 \ttkey{.name}
 \begin{indpar}
@@ -9660,7 +9615,7 @@ The name of the function type as a name string.
 \ttkey{.size} \\
 \ttkey{.alignment}
 \begin{indpar}
-Same as for type maps: see \pagref{SIZE-AND-ALIGNMENT}
+Same as for number type maps: see \pagref{SIZE-AND-ALIGNMENT}
 \end{indpar}
 
 \subsubsection{Pointer Value Type Maps}
@@ -9668,33 +9623,87 @@ Same as for type maps: see \pagref{SIZE-AND-ALIGNMENT}
 
 A \key{pointer value type} is a type of a pointer value.
 Textually it is:
-\begin{center}
-\{ {\em pointer-type-name} {\em qualifier-name}\STAR{} \}\PLUS{}
-\{ {\em type-name} $|$ {\em function-type-name} \}
-\end{center}
 
-{\tt \ttkey{.type} => "pointer value type"}
+\hspace*{1in}\{ {\em pointer-type-name} {\em qualifier-name}\STAR{} \}\PLUS{} \\
+\hspace*{1.4in}\{ {\em number-type-name} $|$ {\em function-type-name}
+			  $|$ {\em defined-type-name} \}
 
-\ttkey{.pointer-type}
+{\tt \ttkey{.kind} => "pointer value"}
+
+\ttkey{.pointer type}
 \begin{indpar}
-Pointer type map for the first {\em pointer-type-name}
-of the pointer value type.
+The pointer type map of the first {\em pointer-type-name}
+of the pointer value type as.
 \end{indpar}
 
-\ttkey{.target-qualifiers}
+\ttkey{.target qualifiers}
 \begin{indpar}
 The first list of {\em qualifiers} of the pointer value type.
 List of strings, each a {\em word} naming a qualifier.
 May be empty list.
 \end{indpar}
 
-\ttkey{.target-type}
+\ttkey{.target type}
 \begin{indpar}
 The remainder of the pointer value type, after the initial
 \begin{center}
 {\em pointer-type-name} {\em qualifier-name}\STAR{}
 \end{center}
-Can be a type map, a pointer value type map, or a function type map.
+This is a type map (for number, function, pointer, pointer value).
+\end{indpar}
+
+\subsubsection{Defined Type Maps}
+\label{DEFINED-TYPE-MAPS}
+
+At compile-time a {\em defined-type-name} can be used as a
+{\em variable-name} that names a {\tt co} {\tt const} variable
+with a map value called a \key{defined type map}.
+
+The compiler defined attributes of a defined type map are:
+
+{\tt \ttkey{.kind} => "defined type"}
+
+\ttkey{.name}
+\begin{indpar}
+The {\em defined-type-name} of the defined type as a name string.
+\end{indpar}
+
+\ttkey{.size} \\
+\ttkey{.alignment}
+\begin{indpar}
+Same as for number type maps: see \pagref{SIZE-AND-ALIGNMENT}
+\end{indpar}
+
+\ttkey{.expandable}
+\begin{indpar}
+The {\tt .expandable} attribute is {\tt TRUE} if the
+defined type definition allows expansions, and is {\tt FALSE}
+otherwise.  An expansion not ending in {\tt ***} will set
+this {\tt FALSE}.
+\end{indpar}
+
+\ttkey{.final}
+\begin{indpar}
+The {\tt .final} attribute is {\tt TRUE} if a {\em type-declaration}
+for this defined type has been encountered that has no
+ending {\tt ***} and that is in the same module or body as
+the root of the defined type.  Otherwise the attribute is
+{\tt FALSE}.
+
+This must be {\tt TRUE} if the {\em defined-type-name} is to be
+used as a field name or {\tt *INCLUDE*} name.
+\end{indpar}
+
+\ttkey{.components}
+\begin{indpar}
+A dictionary map mapping the {\em data-labels} of the defined type
+components (fields, subfields, labels) to their definitions
+(field maps, subfield maps, and label maps).
+
+Components may be added during compilation of type expansions.
+This map be empty if a type has no components, or if the type is
+currently {\tt *DEFERRED*} and not yet defined by the
+compilation.
 \end{indpar}
 
 \subsubsection{Field Maps}
@@ -9704,7 +9713,7 @@ Each field of a type has a {\tt const} map value called
 a \key{field map} which is in the {\tt .fields} dictionary of
 a type map.  The compiler defined attributes of a field map are:
 
-{\tt \ttkey{.type} => "field"}
+{\tt \ttkey{.kind} => "field"}
 
 \ttkey{.name}
 \begin{indpar}
@@ -9714,7 +9723,7 @@ as a name string.  May be {\tt NONE} for a field with subfields.
 
 \ttkey{.parent}
 \begin{indpar}
-Type map of the type of containing this field.
+The defined type map of the type of containing this field.
 \end{indpar}
 
 \ttkey{.offset}
@@ -9724,7 +9733,7 @@ Offset in bits of the field within a value of its parent type.
 
 \ttkey{.field type}
 \begin{indpar}
-The type of the field.  May be a type map, function type map,
+The type of the field.  May be a defined type map, function type map,
 or pointer value type map.
 \end{indpar}
 
@@ -9754,35 +9763,38 @@ type my type:
     av *READ-WRITE* flt @Y
 
 // The value of the global const variable `my type' is:
-{ .type => "type",
+{ .kind => "type",
   .name => "my type",
   .size => 128,
   .alignment => 64,
   .expandable => FALSE,
-  .external => FALSE,
-  .fields => {
-      { .type => "field",
-        .name => "X",
-        .parent => my type, // Note absence of quotes
-        .offset => 0,
-        .qualifiers => {},
-        .field type => int32, // Note absence of quotes
-        .dimensions => {4, 3},
-        .subfields => {}
-      },
-      { .type => "field",
-        .name => "@Y",
-        .parent => my type,  // Note absence of quotes
-        .offset => 384,      // 12 * 32
-        .qualifiers => {},
-        .field type =>
-            { .type => "pointer value type",
-              .target qualifiers => { "*READ-WRITE*" },
-              .target type => flt  // Note absence of quotes
-            },
-        .dimensions => {},
-        .subfields => {}
-      }
+  .final => TRUE,
+  .components => {
+      "X" => { .kind => "field",
+               .name => "X",
+               .parent => my type, // Note absence of quotes
+               .offset => 0,
+               .qualifiers => {},
+               .field type => int32, // Note absence of quotes
+               .dimensions => {4, 3},
+               .subfields => {}
+             },
+      "@Y" => { .kind => "field",
+                .name => "@Y",
+                .parent => my type,  // Note absence of quotes
+                .offset => 384,      // 12 * 32
+                .qualifiers => {},
+                .field type =>
+                    { .kind => "pointer value",
+                      .pointer type => ap
+                          // Note absence of quotes
+                      .target qualifiers => { "*READ-WRITE*" },
+                      .target type => flt
+                          // Note absence of quotes
+                    },
+                .dimensions => {},
+                .subfields => {}
+              }
   }
 }
 
@@ -9795,7 +9807,7 @@ Each subfield of a field has a {\tt const} map value called
 a \key{subfield map} which is in the {\tt .subfields} dictionary of
 a field map.  The compiler defined attributes of a subfield map are:
 
-{\tt \ttkey{.type} => "subfield"}
+{\tt \ttkey{.kind} => "subfield"}
 
 \ttkey{.name}
 \begin{indpar}
