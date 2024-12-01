@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-November 30, 2024
+December 1, 2024
 
 \bigskip
 
@@ -423,12 +423,12 @@ An example is:
 \begin{indpar}\begin{verbatim}
 type my type:
     uns32                             // Container for:
-    [31-24]  uns8 op code             //   Operation
+    [31:24]  uns8 op code             //   Operation
     [31]     bool has constant        //   Format indicator
-    [23-0]   int constant             //   Constant
-    [23-16]  uns8 src1                //   Source Register
-    [15-8]   uns8 src2                //   Source Register
-    [7-0]    uns8 des                 //   Destination Register
+    [23:0]   int constant             //   Constant
+    [23:16]  uns8 src1                //   Source Register
+    [15:8]   uns8 src2                //   Source Register
+    [7:0]    uns8 des                 //   Destination Register
 
 . . . . . . . . . . . .
 
@@ -461,7 +461,7 @@ In this example there is one field in a {\tt my type} value,
 an unlabeled {\tt uns32} integer.
 Inside this unlabeled field there are 6 subfields, the first of which is
 an {\tt uns8} integer occupying the highest order 8
-bits of the unlabeled field, bits 31-24,
+bits of the unlabeled field, bits 31:24,
 where bits are numbered 0, 1, 2, \ldots{} from
 low to high order.  The second subfield is a 1-bit {\tt bool}
 value that occupies the high order bit, bit 31, of the unlabeled field.
@@ -474,7 +474,7 @@ the location of {\tt OP} is an {\tt ap} aligned pointer.  Although
 the {\tt constant} subfield is on a byte boundary, it is
 shorter than an {\tt int}, and therefore the
 location of {\tt C} must be an {\tt fp} field pointer.
-If `{\tt op code}' were in bits 30-23 instead of 31-24, it would
+If `{\tt op code}' were in bits 30:23 instead of 31:24, it would
 not be on a byte boundary and the location of {\tt OP} would
 also have to be an {\tt fp} field pointer.
 
@@ -4752,11 +4752,11 @@ The syntax of a type declaration is:
     \begin{tabular}[t]{@{}rl}
     ::= &  \TT{[} {\em onlybit} \TT{]} \\
     $|$ &  \TT{[} {\em highlowbits} \TT{]} \\
-    $|$ &  \TT{[} {\em highbit} \TT{-} {\em lowbit} \TT{]}
+    $|$ &  \TT{[} {\em highbit} \TT{:} {\em lowbit} \TT{]}
     \end{tabular} \\
 \emkey{onlybit} ::= {\tt constant-expression}
 		    with non-negative integer value \\
-\emkey{highlowbits} :::= {\em dit}+ \TT{-} {\em dit}+
+\emkey{highlowbits} :::= {\em dit}+ \TT{:} {\em dit}+
            ~~~~~ [this is a single lexeme] \\
 \emkey{highbit} ::= {\tt constant-expression}
 		    with non-negative integer value \\
@@ -4768,7 +4768,7 @@ where
 \begin{enumerate}
 \item If a {\em field-without-subfields-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-label}
-it declares typically has with exactly $N$ `\TT{@}'s after
+it declares typically has exactly $N$ `\TT{@}'s after
 any initial `\TT{.}'s.
 It may have fewer `\TT{@}'s, including none, but may not have more.
 \item
@@ -4820,19 +4820,21 @@ If the align/pack switch is in the \key{pack} position and the
 next {\em type-subdeclaration} is a {\em field-declaration}, the
 current offset will become the offset of the field being declared.
 
-When a field is declared, the current offset is incremented by the
+When a field is declared, the current offset is set to the offset of
+the field plus the
 size of the field, which must be known.  There is also a current
 size which is the maximum of all the values of the current offset
 computed so far.
 
 If the external/private switch is in the \key{external} position a
-{\em field-label} or {\em subfield-lable} declared by the
+{\em field-label} or {\em subfield-label} declared by the
 next {\em type-subdeclaration} will be visible throughout the scope
 of the {\em type-declaration}'s {\em defined-type-name}, which must
-itself be external.  
+itself be external.  Also the {\em field-type-name} of an external field
+{\em type-subdeclaration} must be external.
 
 If the external/private switch is in the \key{private} position a
-{\em field-label} or {\em subfield-lable} declared by the
+{\em field-label} or {\em subfield-label} declared by the
 next {\em type-subdeclaration} will be only be visible in the
 module or body containing the {\em type-subdeclaration}, and if
 that is a module, also in the bodies of that module.
@@ -5102,7 +5104,7 @@ For example:
 \begin{indpar}\begin{verbatim}
 type hex digits:
     uns32 container
-    [3-0] uns hex digit [8]
+    [3:0] uns hex digit [8]
         // hex digit[i] is stored in bits [4*i+3, 4*i]
 
 hex digits X:
