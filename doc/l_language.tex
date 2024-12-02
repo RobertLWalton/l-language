@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-December 1, 2024
+December 2, 2024
 
 \bigskip
 
@@ -2235,7 +2235,7 @@ rules below):
     {\em member-name} that is \underline{not} a {\em pointer-member-name}
 \\[1ex]
 \emkey{data-label}\label{DATA-LABEL} ::=
-    {\em basic-name} $|$ {\em member-name}
+    {\em basic-name} $|$ {\em member-name} not containing a {\em quoted-mark}
 \\[1ex]
 \emkey{function-term-name} ::= {\em name} not containing a `\TT{.}'
     \label{FUNCTION-TERM-NAME}
@@ -4852,7 +4852,8 @@ align/pack switch to `align'.
 
 A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
-A \ttkey{*EXTERNAL*} sub-declaration sets the external/private switch
+A \ttkey{*EXTERNAL*}\label{EXTERNAL-SWITCH}
+sub-declaration sets the external/private switch
 to `external'.  This is allowed only if the {\em defined-type-name}
 of the {\em type-declaration} is external
 \underline{and}
@@ -7663,6 +7664,17 @@ declared begins with a
 or not external if they are expansions of a {\em type-declaration}
 appearing in another module.
 
+A body may import two different definitions of a defined type,
+one from the module containing the root of the type, and one
+from the body's own module which is an expansion of the
+first definition.  The unexpanded definition is ignored and the
+expanded definition is used.
+
+Components of a {\em type-declaration} (fields, subfields, labels)
+are external if they are compiled when their defined type's
+external switch\pagnote{EXTERNAL-SWITCH} is on.
+The {\em field-type-names} of an external field must be external.
+
 A {\em function-constant-declaration}
 is external if the {\em function-constant-name}
 declared begins with a
@@ -7688,6 +7700,10 @@ module containing the declaration.
 {\em Prototype-result-declaration} and {\em prototype-argument-declaration}
 {\em variable-names} cannot begin with a {\em module-abbreviation},
 and therefore these {\em declarations} can never be external.
+
+However, the prototype argument and result types of an external function
+or reference function
+must be external.
 
 The companion of a deferred {\em declaration} must be in the same file as the
 deferred {\em declaration},
@@ -9473,7 +9489,7 @@ zeros (zero is represented by `{\tt 0}').
 Lexical {\em names}\pagnote{NAME} not containing quoted words, marks, or
 separators can be represented naturally by name strings.
 Name strings are used in this section to represent type, field, and subfield
-names.
+names and origin labels.
 
 {\em Module abbreviations} in a name string are
 replaced by \key{compiler module abbreviations}
@@ -9492,7 +9508,7 @@ not used; {\tt "M\$0 int"} is used instead.
 
 {\tt com module dictionary}
 \begin{indpar}
-A dictionary mapping compiler module abbreviation numbers
+A dictionary mapping compiler module abbreviations
 to strings that are {\em mod\-ule-names}.  Specifically:
 if {\tt M\$$n$ \rm{maps to} $N$} then both
 {\tt com module dictionary[$n$] == "$N$"}
@@ -9566,12 +9582,9 @@ for others it must be a {\em rational-constant}
 Example:
 \begin{indpar}\begin{verbatim}
 int64 = { .kind => "number",
-          .name => "M$0 int",
+          .name => "M$0 int64",
           .size => 64,
           .alignment => 64,
-          .expandable => FALSE,
-          .external => FALSE,
-          .fields => {},
           .min => -X#"8000000000000000",
           .max => X#"7FFFFFFFFFFFFFFF",
           .indefinite => -X#"8000000000000000" }
@@ -9597,6 +9610,42 @@ The name of the pointer type as a name string.
 \begin{indpar}
 The type map of the data type of the pointer type.
 \end{indpar}
+
+Example:
+\begin{indpar}\begin{verbatim}
+ap = { .kind => "pointer",
+       .name => "M$0 ap",
+       .data type => M$0 ap data }
+
+M$0 ap data = { .kind => "defined type",
+                .name => "M$0 ap data",
+                .size => 128,   // Assumes int..size == 64
+                .alignment => 64,
+                .expandable => FALSE,
+                .final => TRUE,
+                .components => {
+                    base => { .kind => "field",
+                              .name => "base",
+                              .parent => M$0 ap data,
+                                  // Note absence of quotes
+                              .offset => 0,
+                              .field type => int,
+                                  // Note absence of quotes
+                              .qualifiers => {},
+                              .dimensions => {},
+                              .subfields => {} },
+                    offset => { .kind => "field",
+                                .name => "offset",
+                                .parent => M$0 ap data,
+                                    // Note absence of quotes
+                                .offset => 64,
+                                .field type => int,
+                                    // Note absence of quotes
+                                .qualifiers => {},
+                                .dimensions => {},
+                                .subfields => {} } } }
+
+\end{verbatim}\end{indpar}
 
 \subsubsection{Function Type Maps}
 \label{FUNCTION-TYPE-MAPS}
@@ -9626,9 +9675,11 @@ Same as for number type maps: see \pagref{SIZE-AND-ALIGNMENT}
 A \key{pointer value type} is a type of a pointer value.
 Textually it is:
 
-\hspace*{1in}\{ {\em pointer-type-name} {\em qualifier-name}\STAR{} \}\PLUS{} \\
-\hspace*{1.4in}\{ {\em number-type-name} $|$ {\em function-type-name}
-			  $|$ {\em defined-type-name} \}
+\hspace*{0.2in}\{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
+               \}\PLUS{} \\
+\hspace*{0.4in}\{ {\em number-type-name} $|$ {\em function-type-name}
+			  $|$ {\em defined-type-name}
+			  $|$ {\em pointer-type-name} \}
 
 {\tt \ttkey{.kind} => "pointer value"}
 
@@ -9651,7 +9702,9 @@ The remainder of the pointer value type, after the initial
 \begin{center}
 {\em pointer-type-name} {\em qualifier-name}\STAR{}
 \end{center}
-This is a type map (for number, function, pointer, pointer value).
+This is a type map (for number, function, pointer,
+defined type,
+pointer value).
 \end{indpar}
 
 \subsubsection{Defined Type Maps}
@@ -9686,8 +9739,8 @@ this {\tt FALSE}.
 
 \ttkey{.final}
 \begin{indpar}
-The {\tt .final} attribute is {\tt TRUE} if a {\em type-declaration}
-for this defined type has been encountered that has no
+The {\tt .final} attribute is set {\tt TRUE} by a {\em type-declaration}
+for this defined type that has no
 ending {\tt ***} and that is in the same module or body as
 the root of the defined type.  Otherwise the attribute is
 {\tt FALSE}.
@@ -9706,6 +9759,9 @@ Components may be added during compilation of type expansions.
 This map be empty if a type has no components, or if the type is
 currently {\tt *DEFERRED*} and not yet defined by the
 compilation.
+
+Private components are omitted in the version of this map
+that is imported.
 \end{indpar}
 
 \subsubsection{Field Maps}
@@ -9723,6 +9779,12 @@ The name of the field ({\em field-label})
 as a name string.  May be {\tt NONE} for a field with subfields.
 \end{indpar}
 
+\ttkey{.external}
+\begin{indpar}
+The {\tt .external} attribute is {\tt TRUE} if the field
+is external and {\tt FALSE} if it is private.
+\end{indpar}
+
 \ttkey{.parent}
 \begin{indpar}
 The defined type map of the type of containing this field.
@@ -9735,8 +9797,8 @@ Offset in bits of the field within a value of its parent type.
 
 \ttkey{.field type}
 \begin{indpar}
-The type of the field.  May be a defined type map, function type map,
-or pointer value type map.
+The type of the field.  May be a number type map, function type map,
+pointer type map, defined type map, or pointer value type map.
 \end{indpar}
 
 \ttkey{.qualifiers}
@@ -9756,6 +9818,8 @@ if no dimensions.
 Dictionary of subfield maps for the subfields of the type.  The labels
 of the dictionary entries are the names of the subfields as name strings.
 Empty if there are no subfields.
+
+Subfields are also entries in the parent's {\tt .components}.
 \end{indpar}
 
 Example:
@@ -9765,9 +9829,9 @@ type my type:
     av *READ-WRITE* flt @Y
 
 // The value of the global const variable `my type' is:
-{ .kind => "type",
+{ .kind => "defined type",
   .name => "my type",
-  .size => 128,
+  .size => 640,
   .alignment => 64,
   .expandable => FALSE,
   .final => TRUE,
@@ -9788,7 +9852,7 @@ type my type:
                 .qualifiers => {},
                 .field type =>
                     { .kind => "pointer value",
-                      .pointer type => ap
+                      .pointer type => av
                           // Note absence of quotes
                       .target qualifiers => { "*READ-WRITE*" },
                       .target type => flt
@@ -9796,9 +9860,7 @@ type my type:
                     },
                 .dimensions => {},
                 .subfields => {}
-              }
-  }
-}
+              } } }
 
 \end{verbatim}\end{indpar}
 
@@ -9815,6 +9877,12 @@ a field map.  The compiler defined attributes of a subfield map are:
 \begin{indpar}
 The name of the subfield ({\em non-pointer-label})
 as a name string.
+\end{indpar}
+
+\ttkey{.external}
+\begin{indpar}
+The {\tt .external} attribute is {\tt TRUE} if the subfield
+is external and {\tt FALSE} if it is private.
 \end{indpar}
 
 \ttkey{.parent}
@@ -9838,6 +9906,39 @@ This is always a {\tt std} number type or {\tt std bool}.
 List of strictly positive integers,
 the dimensions of the subfield, or {\tt NONE} if no dimensions.
 \end{indpar}
+
+\subsubsection{Label Map}
+\label{LABEL Map}
+
+Each {\tt *LABEL*} {\em type-subdeclaration} has a {\tt const}
+map value called a \key{label map} which is in the {\tt .components}
+directory of its parent defined type map.  The compiler attributes of
+a label map are:
+
+{\tt \ttkey{.kind} => "label"}
+
+\ttkey{.name}
+\begin{indpar}
+The name of the label ({\em origin-label})
+as a name string.
+\end{indpar}
+
+\ttkey{.external}
+\begin{indpar}
+The {\tt .external} attribute is {\tt TRUE} if the label
+is external and {\tt FALSE} if it is private.
+\end{indpar}
+
+\ttkey{.parent}
+\begin{indpar}
+The defined type map of the type of containing this label.
+\end{indpar}
+
+\ttkey{.offset}
+\begin{indpar}
+Offset in bits assigned to this label.
+\end{indpar}
+
 
 \subsection{Compile Time Compilation Functions}
 \label{COMPILE-TIME-COMPILATION-FUNCTIONS}
