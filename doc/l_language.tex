@@ -288,15 +288,13 @@ have names, like {\tt X}, {\tt Y}, and {\tt Z}, and values
 that are constants.
 These values most frequently
 have a size equal to the natural
-word size of the computer (typically 32 or 64 bits), or
-several times that size: {\tt intd} is a two word (double) integer
-and {\tt intq} is a four word (quad) integer.
+word size of the computer (typically 32 or 64 bits).
 Although the value of a variable is constant, the value may point
 at a memory location that is read-write, and that memory location
 may be in local or global memory.
 
-An aligned vector pointer {\tt av} is a
-quad integer ({\tt intq}) containing:
+An aligned vector pointer {\tt av} is a sequence of 4
+integers ({\tt int}) containing:
 \begin{itemize}
 \item A `base pointer' {\tt int} holding the byte address
 of an {\tt int} in memory
@@ -409,8 +407,6 @@ L-Language has a full set of number types:
 unsigned integer, and floating point respectively.
 The types {\tt int}, {\tt uns}, {\tt flt} are just these
 types for the target machine word size.
-The types {\tt intd}, {\tt intq}, {\tt unsd}, {\tt unsq} are just integer
-types for twice (double) or four times (quad) the target machine word size.
 The {\tt bool} type is a single bit interpreted as true if
 1 and false if 0: it is in essence a 1-bit unsigned integer, but it
 is not considered to be a number type.
@@ -8808,8 +8804,6 @@ The following are the builtin abbreviations:
 \tt
 \begin{tabular}{rcl}
 int		& \ABV & std int \\
-intd		& \ABV & std intd \\
-intq		& \ABV & std intq \\
 int8		& \ABV & std int8 \\
 int16		& \ABV & std int16 \\
 int32		& \ABV & std int32 \\
@@ -8819,8 +8813,6 @@ int128		& \ABV & std int128
 \\[1ex]
 \begin{tabular}{rcl}
 uns		& \ABV & std uns \\
-unsd		& \ABV & std unsd \\
-unsq		& \ABV & std unsq \\
 uns8		& \ABV & std uns8 \\
 uns16		& \ABV & std uns16 \\
 uns32		& \ABV & std uns32 \\
@@ -8845,8 +8837,6 @@ UNDEF		& \ABV & std UNDEF \\
 \\[1ex]
 \begin{tabular}{rcl}
 flt		& \ABV & std flt \\
-fltd		& \ABV & std fltd \\
-fltq		& \ABV & std fltq \\
 flt8		& \ABV & std flt8 \\
 flt16		& \ABV & std flt16 \\
 flt32		& \ABV & std flt32 \\
