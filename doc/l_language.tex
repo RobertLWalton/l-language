@@ -9945,9 +9945,9 @@ Offset in bits assigned to this label.
 
 The following functions can be called by any inline function:
 
-{\tt function com \ttkey{compile error} ( const message )}%
+{\tt constant function com \ttkey{compile error} ( const message )}%
 	\label{COMPILE-ERROR} \\
-{\tt function com \ttkey{compile errorf}
+{\tt constant function com \ttkey{compile errorf}
      ( \begin{tabular}[t]{@{}l}
 	const format, const a1 = "", \\
 	const a2 = "", const a3 = "", \\
@@ -9980,7 +9980,7 @@ The following functions are can be called by {\tt macro} and/or
 \label{COM-STATEMENT}
 \begin{indpar}
 This {\em function-variable-name} returns the parsed {\em statement}
-containing an {\tt inclusion} function
+containing the {\tt inclusion} function call
 currently executing at compile-time.
 \end{indpar}
 
@@ -9989,7 +9989,8 @@ currently executing at compile-time.
 \begin{indpar}
 This {\em function-variable-name} returns the subblock at the end
 of the parsed {\em statement}
-containing an {\tt inclusion} function currently executing at compile-time.
+containing the {\tt inclusion} function call
+currently executing at compile-time.
 This is annotated with {\tt ".initiator" = ":"} and
 {\tt ".terminator" = *INDENTED-PARAGRAPH*}.
 
@@ -10028,7 +10029,13 @@ and if {\tt "V\$\ldots"} is returned as the value of $W$,
 then code of the form: \\
 \hspace*{1in}{\tt $TTT$ V\$\ldots = {\em actual-argument}} \\
 is executed at run-time just before the {\em statement} containing
-the executing inline function.
+the executing macro or inclusion.
+\end{indpar}
+
+{\tt constant function const r = com \ttkey{type of} ( const variable name )}
+\begin{indpar}
+Here {\tt variable name} is the same as in {\tt com name of} and the
+result returned is the type of the named variable.
 \end{indpar}
 
 For example:
