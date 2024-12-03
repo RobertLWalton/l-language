@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1c)
 \\[0.5ex]
 Robert L. Walton\\
-December 2, 2024
+December 3, 2024
 
 \bigskip
 
@@ -10200,9 +10200,10 @@ function N r = std \ttkey{*IMPLICIT* *CONVERSION*} ( const v )
 \end{indpar}
 This will result in a compile error if {\tt v} is not a number
 or rational or has a value that cannot be represented
-exactly in a value of type {\tt N}.
+exactly in a value of an integer type {\tt N}.
 For example, converting {\tt 5.5} to an {\tt int} will be a compile
-error, while converting {\tt 5.0} to an {\tt int} will not be.
+error, while converting {\tt 5.0} to an {\tt int} or {\tt 1e1000}
+to a {\tt flt} will not be (in the latter case the result is {\tt +inf}).
 
 \subsubsection{Pointer Implicit Conversions}
 \label{POINTER-IMPLICIT-CONVERSIONS}
@@ -10651,10 +10652,10 @@ accessed)
 and return a pointer to the value(s).
 \end{indpar}
 
-{\tt function ap QU\$1  PST\$1 r = \\
+{\tt allocator function ap QU\$1  PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) allocate}%
 \label{LOCAL} \\
-{\tt function av QU\$1  PST\$1 r = \\
+{\tt allocator function av QU\$1  PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) allocate [ uns count ]}
 \begin{indpar}
 These functions allocate a value of type {\tt PST\$1}
@@ -10664,10 +10665,10 @@ see \pagref{OUT-OF-LINE-LOCALS})
 and return a pointer to the value(s).
 \end{indpar}
 
-{\tt function ap QU\$1 *GLOBAL* PST\$1 r = \\
+{\tt allocator function ap QU\$1 *GLOBAL* PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) allocate}%
 \label{GLOBAL} \\
-{\tt function av QU\$1 *GLOBAL* PST\$1 r = \\
+{\tt allocator function av QU\$1 *GLOBAL* PST\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) allocate [ uns count ]}
 \begin{indpar}
 These functions allocate a value of type {\tt PST\$1}
@@ -10759,7 +10760,7 @@ stack\pagnote{LOCAL-STACK}), each process has its own
 The following is an example trace mask:
 \begin{indpar}\begin{verbatim}
 uns64 trace file errors = 1 << std new trace ID ( "FILE ERRORS" )
-    // Note: 1 << X is an exact rational integer.
+    // Note: 1 is converted to target type uns64 before being shifted.
 \end{verbatim}\end{indpar}
 
 See Compile Time Exception and Trace Support
@@ -10789,17 +10790,23 @@ what CPU 1 reads will consist partly of the location value
 before CPU 2's write and partly of the location value after
 CPU 2's write.
 
-In general devices cannot execute atomic operations.  Saying that a device
-register is in RAM merely means that the register is addressable using the
-same addressing scheme as is used for regular RAM memory.  Thus RAM is
-divided into regular RAM and device RAM.
-
-Devices may be
+Input/output devices may be
 inactive, meaning that they cannot read or write RAM (device RAM or regular
 RAM), or active, meaning that they may read or write RAM. 
-A device that can execute atomic operations may be treated as if it were
-a CPU and not a device with its device registers being regular RAM and
-not device RAM.
+The registers of an inactive device may be treated as ordinary RAM memory,
+as long as only one CPU tries to access these registers.
+
+A device may have a GO bit in one of its registers which if turned on
+by a write to that register will activate the device.  It is assumed
+that if the value a CPU writes to the register has the same size as the
+register, the register write will complete before the device activates.
+
+Similarly a device may have a READY bit in one of its registers which
+is turned on when the device deactivates itself.  It is assumed that
+if a CPU reads from the register a value of the same size as the register,
+and the READY bit is on in that value, then the device has become inactive
+before the register read (so the rest of the value read will be that of
+an inactive device).
 
 An operation is \key{atomic} if:
 \begin{indpar}
@@ -10858,7 +10865,8 @@ For {\tt A} an atomic type,
 perform an atomic operation that first reads a value from the location
 pointed at by {\tt p}, then compares the value to {\tt vr}, and lastly,
 if and only if the compared values are equal, writes {\tt wv} into the
-location.
+location.  The value {\tt r} returned is {\tt true} is {\tt wv} was
+written and {\tt false} otherwise.
 \end{indpar}
 
 {\tt load reference function std bool r = atomic nop}
@@ -10870,23 +10878,24 @@ obeyed.  It always returns `\TT{true}'.
 Example 1:
 \begin{indpar}
 A device has registers in global memory which are shared between the
-device and a process.  The registers are either owned by the process
+device and a process, and has GO and READY bits as described above.
+The registers are either owned by the process
 and the device is inactive, or the registers are owned by the device
-which is actively executing an operation.  There is a register with a GO bit
-which is turned on by the process to activate the device and start a
-device operation, and another
-register with a READY bit which is set by the device when its current
-operation is done and the device is no longer active.
+which is actively executing an operation.
 
 When the device is inactive, parameters for the next device operation
 are written into device registers by the process.  Then
-the GO bit is set by an atomic write to start the operation.
+the GO bit is set by an atomic write of a value whose size matches
+the size of the register containing the GO bit.
+This activates the device which starts performing the device operation.
 The atomic nature of this write guarantees that all process reads from
 and writes to device registers that are in the code before the GO bit
 is set are actually executed before the GO bit is set.
 
-When the device is active, the
-READY bit is read by an atomic read until the read reads an on READY bit
+When the device is active, the register containing the
+READY bit is read by an atomic read of a value whose size matches
+that of the register containing the READY bit.
+The process may do this more than once, until a read reads an on READY bit
 indicating the device has become inactive.  Then device operation
 results are read from device registers.  The atomic nature of the
 READY bit read guarantees the all process reads from and
@@ -10897,7 +10906,8 @@ bit was read as on are actually executed after the READY bit turned on.
 Example 2:
 \begin{indpar}
 A device has registers as in Example 1.  The device also has a large
-memory accessed via two registers: A and D.  A holds the address of
+memory accessible when the device is inactive via two registers: A and D.
+A holds the address of
 a location in device memory, and D holds the contents of that location:
 reading D reads the location contents, and writing D writes the location
 contents.
@@ -10906,7 +10916,9 @@ We assume the device is inactive and the process writes A and then
 reads or writes D.  If either the write to A or the operation on D
 is atomic, it is guaranteed that A will be written before D is read or
 written.  It may happen that A has an atomic type but D does not,
-in which case A should be written atomically.
+in which case A should be written atomically.  If neither A nor D have
+atomic types, an {\tt atomic nop} can be put between the write of A and
+the operation on D.
 \end{indpar}
 
 Example 3:
