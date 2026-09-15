@@ -161,10 +161,10 @@ L-LANGUAGE
 \end{center}
 \begin{center}
 \large \bf
-(Draft 1c)
+(Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-December 3, 2024
+September 15, 2026
 
 \bigskip
 
@@ -1006,9 +1006,11 @@ but, with some exceptions mentioned just below, is not itself a lexeme:
 
 The following is a special virtual lexeme:
 \begin{indpar}
-\emkey{indent}\label{INDENT} ::=
+\emkey{indent}\label{INDENT} ::= \begin{tabular}[t]{l}
         virtual lexeme inserted just before the first
-	{\em graphic-character} on a line
+	{\em graphic-character} \\
+	on a physical line
+	\end{tabular}
 \end{indpar}
 
 \key{Indent lexemes} have no characters, but
@@ -1539,13 +1541,13 @@ have precedence equal to or greater than P:
     {\em P-final-operator}\QMARK{} \\
     \end{tabular}
 \\[0.5ex]
+\emkey{(H+1)-expression} ::= {\em primary} ~~~ [see \pagref{PRIMARY}]
+\\[0.5ex]
 \emkey{P-initial-operators} ::= {\em P-prefix-operator}\STAR{}
 				{\em P-initial-operator}
 \\[0.5ex]
 \emkey{P-final-operators} ::= {\em P-final-operator}
 				{\em P-postfix-operator}\STAR{}
-\\[0.5ex]
-\emkey{(H+1)-expression} ::= {\em non-operator}\PLUS{}
 \\[0.5ex]
 \emkey{P-operator} ::= operator of precedence P
 \\[0.5ex]
@@ -1573,9 +1575,9 @@ where in a {\em P-expression}: \\
        any operator with an \TT{afix} flag must not be the first
            {\em P-operator} \\
        ~~~~~~~~in a {\em P-expression}; \\
-       no operator may have both a \TT{initial} and a \TT{left} flag; \\
+       no operator may have both an \TT{initial} and a \TT{left} flag; \\
        no operator may have both a \TT{right} and a \TT{final} flag; \\
-       no operator may have both a \TT{initial} and an \TT{afix} flag; \\
+       no operator may have both an \TT{initial} and an \TT{afix} flag; \\
        if there is more than one operator in a
            {\em P-expression-initial-operators}, \\
        ~~~~~~~~implicit `\TT{(}' left parentheses are inserted between
@@ -1600,6 +1602,10 @@ parentheses are inserted to make the {\em P-expression} into a
 also a {\em P-basic-expression}.  As an example of this, if `{\tt -}'
 is a prefix operator, `{\tt - - x}' is converted to the equivalent
 of `{\tt - (- x)}'.
+
+The highest precedence expression, the {\em (H+1)-expression}, contains
+no operators outside brackets, and is thus a primary like `{\tt x}' and
+`{\tt f(y+1)}'.
 
 The operators can have any combination of the following \key{base fixities}:
 
@@ -1726,13 +1732,23 @@ At Top Level or Inside \{* \ldots{} *\}
 \hline
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
-\ttkey{loop} & iterator & prefix & unary & 3000
+\ttkey{do} & iterator & initial & iterator & 3000
 \\\cline{1-1}
 \ttkey{while} &       &        &       &
 \\\cline{1-1}
 \ttkey{until} &       &        &       &
-\\\cline{1-1}\cline{4-4}
-\ttkey{exactly} &       &        & iteration       &
+\\\cline{1-1}
+\ttkey{exactly} &       &        &	&
+\\\cline{1-1}
+\ttkey{at most} &       &        &       &
+\\\cline{1-1}\cline{3-4}
+\ttkey{do} & 	& afix & (none)	&
+\\\cline{1-1}
+\ttkey{while} &       &        &       &
+\\\cline{1-1}
+\ttkey{until} &       &        &       &
+\\\cline{1-1}
+\ttkey{exactly} &       &        &	&
 \\\cline{1-1}
 \ttkey{at most} &       &        &       &
 \\\cline{1-4}
@@ -2069,7 +2085,7 @@ but the following examples give an idea of some of this semantics:
 A \key{primary} is an {\em expression} that has no operators outside
 parentheses or brackets:
 \begin{indpar}
-\emkey{primary}
+\emkey{primary}\label{PRIMARY}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em constant-primary} \\
     $|$ & {\em reference-expression}    & [\pagref{REFERENCE-EXPRESSIONS}] \\
