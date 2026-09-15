@@ -1904,7 +1904,8 @@ and `operand' to mean {\em (P+1)-expression}:
 \begin{tabular}{p{1in}p{5.0in}}
 \ttkey{declaration}
     & The expression must consist of an operator followed by
-      an operand (that may contain {\tt =} and {\tt ,}) followed optionally
+      an operand (that may contain higher precedence operators such as
+      {\tt =} and {\tt ,}) followed optionally
       by a subblock operator.
 \end{tabular}
 \\[0.5ex]
@@ -1918,7 +1919,9 @@ and `operand' to mean {\em (P+1)-expression}:
 \begin{tabular}{p{1in}p{5.0in}}
 \ttkey{assignment}
     & The expression must consist of an operand followed by
-      the operator followed by an \underline{optional} operand.
+      the operator followed by an \underline{optional} operand
+      (in `x =:' the : subblock has lower precedence than =
+      so `x =' becomes a subexpression in which = has no right operand).
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
@@ -1959,9 +1962,10 @@ and `operand' to mean {\em (P+1)-expression}:
       the operator followed by an operand.
 \\[1ex]
 \ttkey{iteration}
-    & The expression must consist of
-      the operator followed by an operand optionally followed
-      by the afix operator `\TT{times}',
+    & The expression must conform to the syntax of
+      an {\em iteration-control}\pagnote{ITERATION-CONTROL},
+      where operands are assumed to be {\em loop-labels},
+      {\em int-expressions}, or {\em bool-expressions}.
 \end{tabular}
 \\[0.5ex]
 \begin{tabular}{p{1in}p{5.0in}}
