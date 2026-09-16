@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-September 15, 2026
+September 16, 2026
 
 \bigskip
 
@@ -1653,11 +1653,11 @@ At Top Level or Inside \{* \ldots{} *\}
 \hline
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
-\ttkey{if} & conditional & prefix & conditional & 0000
+\ttkey{if} & conditional & initial & conditional & 0000
 \\\cline{1-1}
 \ttkey{else if} & & & &
-\\\cline{1-4}
-\ttkey{else} & terminating & initial & terminating & \\
+\\\cline{1-2}\cline{4-4}
+\ttkey{else} & terminating & & terminating & \\
              & conditional & & conditional &
 \\\cline{1-4}
 \ttkey{:} & conditional & afix & (none) & \\
@@ -1670,7 +1670,7 @@ Operator & Meaning & Fixity & Format & Precedence \\
 	       & assignment & postfix & postfix & \\
 	       & or loop    &         &         &
 \\\cline{1-4}
-\ttkey{type} & declaration & prefix & declaration &
+\ttkey{type} & declaration & initial & declaration &
 \\\cline{1-1}
 \ttkey{pointer type} & & & &
 \\\cline{1-1}
@@ -1732,7 +1732,7 @@ At Top Level or Inside \{* \ldots{} *\}
 \hline
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
-\ttkey{do} & iterator & initial & iterator & 3000
+\ttkey{do} & iterator & initial & iterator & 2000
 \\\cline{1-1}
 \ttkey{while} &       &        &       &
 \\\cline{1-1}
@@ -1771,7 +1771,7 @@ May Occur Inside or Outside Parentheses and Brackets
 \hline
 Operator & Meaning & Fixity & Format & Precedence \\
 \hline
-\ttkey{,} & separator & nofix & separator & 2000
+\ttkey{,} & separator & nofix & separator & 3000
 \\\hline
 \ttkey{if} & selector & infix & selector & 10000
 \\\cline{1-1}\cline{3-4}
@@ -2020,7 +2020,7 @@ but the following examples give an idea of some of this semantics:
       error).
 
 \hspace*{-0.2in}{\tt bool v = x \TT{AND} y} \\
-      If either operand evaluates to {\tt FALSE},
+      If either operand evaluates at compile-time to {\tt FALSE},
       compile-time evaluation stops and the statement is replaced by
       `{\tt bool v \TT{=} FALSE}'.
 
@@ -2196,7 +2196,7 @@ rules below):
 \emkey{ma} ::= {\em module-abbreviation} \\
 \emkey{pointer-type-name}\label{POINTER-TYPE-NAME} ::=
     \MA{} {\em simple-name}
-    [\ref{POINTER-TYPE-NAME-RULE}] \\
+    [\ref{TYPE-NAME-RULE},\ref{POINTER-TYPE-NAME-RULE}] \\
 \\[1ex]
 \emkey{basic-name}\label{BASIC-NAME} ::=
 	\begin{tabular}[t]{@{}l}
@@ -2209,7 +2209,7 @@ rules below):
 	\end{tabular} \\
 \emkey{type-name}\label{TYPE-NAME} ::=
     \MA{} {\em basic-name} not containing `\TT{@}'s
-	[\ref{TYPE-NAME-RULE}] \\
+	[\ref{TYPE-NAME-RULE},\ref{POINTER-TYPE-NAME-RULE}] \\
 \emkey{variable-name}\label{VARIABLE-NAME} ::=
     \MA{} {\em basic-name} \\
 \emkey{pointer-variable}\label{POINTER-VARIABLE} ::=
@@ -2286,11 +2286,79 @@ are effectively sorted before the comparison).
 Absence of a lifetime qualifier indicates the lifetime of a pointer target \\
 may only be as long as the lifetime of the pointer.
 \end{indpar}
-\emkey{operator-word}
+
+\emkey{initial-operator}
     \begin{tabular}[t]{rl}
-    ::= & \TT{if} $|$ \TT{else} $|$ \TT{while} $|$ \TT{until}
-                  $|$ \TT{AND} $|$ \TT{OR}
-		  $|$ \TT{NOT} $|$ \TT{BUT}
+    ::= & \TT{if} $|$ \TT{else} $|$ \TT{type} $|$ \TT{pointer type} \\
+    $|$ & \TT{out-of-line function}
+    $|$ \TT{function}
+    $|$ \TT{do}
+    $|$ \TT{repeat} \\
+    $|$ & \TT{while}
+    $|$ \TT{until}
+    $|$ \TT{exactly}
+    $|$ \TT{at most}
+    $|$ \TT{NOT} \\
+    $|$ & \TT{+}
+    $|$ \TT{-}
+    $|$ \TT{-}
+    $|$ \TT{\textasciitilde}
+    $|$ \TT{\#}
+    $|$ \TT{D\#}
+    $|$ \TT{B\#}
+    $|$ \TT{X\#}
+    $|$ \TT{C\#}
+    \end{tabular}
+
+\emkey{middle-operator}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{:}
+    $|$ \TT{function}
+    $|$ \TT{is type}
+    $|$ \TT{do}
+    $|$ \TT{while}
+    $|$ \TT{until}
+    $|$ \TT{exactly} \\
+    $|$ & \TT{at most}
+    $|$ \TT{times}
+    $|$ \TT{if}
+    $|$ \TT{else}
+    $|$ \TT{BUT NOT}
+    $|$ \TT{AND}
+    $|$ \TT{OR} \\
+    $|$ & \TT{-{}-{}-{}>}
+    $|$ \TT{=}
+    $|$ \TT{+=}
+    $|$ \TT{-=}
+    $|$ \TT{*=}
+    $|$ \TT{/=}
+    $|$ \TT{|=}
+    $|$ \TT{\&=}
+    $|$ \TT{\textasciitilde =}
+    $|$ \TT{<{}<=}
+    $|$ \TT{>{}>=} \\
+    $|$ & \TT{@=}
+    $|$ \TT{==}
+    $|$ \TT{!=}
+    $|$ \TT{<}
+    $|$ \TT{<=}
+    $|$ \TT{>}
+    $|$ \TT{>=}
+    $|$ \TT{+}
+    $|$ \TT{-}
+    $|$ \TT{|}
+    $|$ \TT{\&}
+    $|$ \TT{}
+    $|$ \TT{\textasciicircum}
+    $|$ \TT{/}
+    $|$ \TT{*} \\
+    $|$ & \TT{<{}<}
+    $|$ \TT{>{}>}
+    \end{tabular}
+
+\emkey{final-operator}
+    \begin{tabular}[t]{rl}
+    ::= & \TT{times}
     \end{tabular}
 
 \emkey{function-keyword}
@@ -2339,7 +2407,7 @@ It may have fewer `\TT{@}'s, including none, but may not have more.
 See the example on \pagref{POINTER-DEREFERENCE-EXAMPLE}.
 
 The usual reason for having fewer then $N$ `\TT{@}'s is that
-the pointer type contains \TT{PST\$\ldots} and therefore the number of
+the pointer type contains \TT{PST\$\ldots} and therefore the total number of
 {\em pointer-type-names} in the pointer type is unknown.
 
 \item
@@ -2638,9 +2706,16 @@ to a run-time floating type is however
 never a compile error.  If necessary the converted value is
 {\tt +Inf} or {\tt -Inf} or precision is lost.
 
-There are also run-time {\tt D\#}, {\tt B\#}, and {\tt X\#}
-operators (see \pagref{RUN-TIME-STRING-TO-NUMBER-CONVERSIONS}),
-but rationals cannot be stored at run-time.
+{\tt D\#}, {\tt B\#}, and {\tt X\#} are compile-time operators and allow the
+{\em constant-string} may be replace
+by a {\em constant-expression}\pagnote{CONSTANT-EXPRESSION}
+(which, if it contains an operator, will likely have to be
+placed in parentheses).
+
+
+{\tt D\#}, {\tt B\#}, and {\tt X\#} are also run-time operators
+converting strings to run-time number values (which cannot be rationals):
+see \pagref{RUN-TIME-STRING-TO-NUMBER-CONVERSIONS}.
 
 \subsubsection{Map Constants}
 \label{MAP-CONSTANTS}
