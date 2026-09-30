@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-September 29, 2026
+September 30, 2026
 
 \bigskip
 
@@ -3756,8 +3756,8 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{deferred-assignment-statement} ::= \\
 \hspace*{0.5in}
-        {\em result-variable-declaration}
-	    \{ \TT{,} {\em result-variable-declaration} \}\STAR{}
+        {\em initial-variable-declaration}
+	    \{ \TT{,} {\em initial-variable-declaration} \}\STAR{}
 	    \TT{=} \ttkey{*DEFERRED*}
 \\[0.5ex]
 \emkey{loop-assignment-statement} ::= \\
@@ -3774,7 +3774,7 @@ The forms of an {\em assignment-statement} are:
         & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{isolated-declaration-statement} ::= {\em result-variable-declaration}
+\emkey{isolated-declaration-statement} ::= {\em initial-variable-declaration}
 \\[0.5ex]
 \emkey{exit-subblock} ::=
     \begin{tabular}[t]{l}
@@ -3800,11 +3800,11 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{variable-declaration}\label{VARIABLE-DECLARATION}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em result-variable-declaration} \\
+    ::= & {\em initial-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{result-variable-declaration}\label{RESULT-VARIABLE-DECLARATION} ::= \\
+\emkey{initial-variable-declaration}\label{INITIAL-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em non-pointer-variable} \\
 	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
@@ -3838,7 +3838,7 @@ The forms of an {\em assignment-statement} are:
 \\[2ex]
 where
 \begin{enumerate}
-\item If a {\em result-variable-declaration}
+\item If a {\em initial-variable-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
 it declares may begin with up to $N$ `\TT{@}'s.
 \item For a {\em pointer-variable} with an {\em allocation-call},
@@ -4084,7 +4084,7 @@ At run-time {\em expressions} are evaluated in bottom-to-top
 left-to-right order and
 then the {\em expression} values are stored in the {\em assignment-results}.
 
-Variable names declared by {\em result-variable-declarations} that are
+Variable names declared by {\em initial-variable-declarations} that are
 {\em assignment-results} are not visible to the {\em expressions}.
 In particular, if `{\tt next V}' is an {\em assignment-result},
 the name `{\tt V}' in an {\em expression} will refer to the variable
@@ -4329,7 +4329,7 @@ used to test a variable in this case.
 If\label{BLOCK-NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
 {\em block-assignment-statement} that is not within the scope of
-a {\em result-variable-declaration} for the {\em variable-name}
+a {\em initial-variable-declaration} for the {\em variable-name}
 that is also within some {\em statement} of the
 {\em block-assignment-statement},
 then `{\tt next} {\em variable-name}' will be automatically added
@@ -4357,28 +4357,28 @@ The syntax of {\em defer\-red-assignment-state\-ments} is:
 \emkey{deferred-assignment-statement} ::= \\
 \hspace*{0.3in}
     \begin{tabular}[t]{@{}l}
-        {\em result-variable-declaration}
-                \{ \TT{,} {\em result-variable-declaration} \}\STAR{}
+        {\em initial-variable-declaration}
+                \{ \TT{,} {\em initial-variable-declaration} \}\STAR{}
 		     \TT{=} \ttkey{*DEFERRED*} \\
     \end{tabular}
 \\[0.5ex]
-{\em result-variable-declaration} ::=
-    see \pagref{RESULT-VARIABLE-DECLARATION}
+{\em initial-variable-declaration} ::=
+    see \pagref{INITIAL-VARIABLE-DECLARATION}
 \end{indpar}
 
-Each variable declared by a {\em result-variable-declaration}
+Each variable declared by a {\em initial-variable-declaration}
 of a {\em deferred-assignment-statement} must be declared identically,
 except for addition or subtraction of an {\em allocation-call},
-as a {\em result-variable-declaration} of an {\em assignment-statement}
+as a {\em initial-variable-declaration} of an {\em assignment-statement}
 that is within the scope\pagnote{SCOPE} of the
 {\em deferred-assignment-statement}.  The {\em assignment-statement},
-known as the \key{companion} of the {\em result-variable-declaration},
+known as the \key{companion} of the {\em initial-variable-declaration},
 computes the value of the
 declared variable, except in the case of a pointer variable whose value is
 set by an {\em allocation-call} in the {\em deferred-assignment-statement}.
 If a {\em deferred-assignment-statement} is in a module
 (\itemref{MODULE-AND-BODY-DECLARATIONS}), companions
-of its {\em result-variable-declarations}
+of its {\em initial-variable-declarations}
 must be in that module or its bodies.
 
 A pointer variable may have an {\em allocation-call} in either its
@@ -4474,7 +4474,8 @@ A {\em loop-assignment-statement} has the syntax:
     \ttkey{continue} {\em loop-label}\QMARK{}
 \end{indpar}
 
-A {\em loop-assignment-statement} that has no {\em result-variable-declarations}
+A {\em loop-assignment-statement} that has
+no {\em initial-variable-declarations}
 (as opposed to {\em next-variable-declarations})
 is the semantic equivalent of
 a sequence of zero or more copies of the statement with
@@ -4515,7 +4516,7 @@ are discarded, which would not be the case if the compiler
 actually inserted iterations in the source code.
 This only affects debugging.
 
-If there are {\em result-variable-declarations} (i.e., without
+If there are {\em initial-variable-declarations} (i.e., without
 `\TT{next}'), these are
 treated as if they had been moved to an immediately enclosing
 {\em block-assignment-statement}.  For example:
@@ -4544,7 +4545,7 @@ int result:
 
 Another way of putting this is that the variables of
 {\em next-variable-declarations} get allocated anew each
-iteration, but the variables of {\em result-variable-declarations}
+iteration, but the variables of {\em initial-variable-declarations}
 are only allocated once before the first iteration.  As they
 have the {\tt *INIT*} qualifier throughout the
 {\em loop-assignment-statement}, they can only be written
@@ -4570,7 +4571,7 @@ is being exited.
 \label{LOOP-NEXT-PROMOTION}
 As in {\em block-assignment-statements}, if `{\tt next V}' occurs
 as an {\em assignment-result} within the loop {\em statements}
-but is not within the scope of a {\em result-variable-declaration}
+but is not within the scope of a {\em initial-variable-declaration}
 for {\tt V} that is also within the loop {\em statements},
 `{\tt next V}' will be added to the {\em next-variable-declaration}
 list of the {\em loop-assignment-statement}.  Therefore the
@@ -4682,8 +4683,8 @@ The following is a complete list of declarations:
 \begin{indpar}
 \emkey{declaration}\label{DECLARATION}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em result-variable-declaration}
-        & [\pagref{RESULT-VARIABLE-DECLARATION}] \\
+    ::= & {\em initial-variable-declaration}
+        & [\pagref{INITIAL-VARIABLE-DECLARATION}] \\
     $|$ & {\em next-variable-declaration}
         & [\pagref{NEXT-VARIABLE-DECLARATION}] \\
     $|$ & {\em variable-declaration}
@@ -7733,14 +7734,14 @@ The scope of an external
 import, explicitly or implicitly\pagnote{IMPLICIT-IMPORTS},
 the module containing the {\em declaration}.
 
-A {\em result-variable-declaration}
+A {\em initial-variable-declaration}
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.
 
 A {\em next-variable-declaration}
 is external if the {variable-name} declared begins with a
 {\em module-abbreviation}.  However, the {\em next-variable-declaration}
-must be in the same module file as the {\em result-variable-declaration}
+must be in the same module file as the {\em initial-variable-declaration}
 whose variable name it shares.
 
 A {\em type-declaration}, {\em pointer-type-declaration}, or
@@ -7950,7 +7951,7 @@ The possible variable lifetimes are:
 	\\[1ex]
 	&
 	Global variables are \underline{external} variables created by
-	a {\em result-variable-declaration} or {\em next-variable-declaration}
+	a {\em initial-variable-declaration} or {\em next-variable-declaration}
 	of an {\em assignment-state\-ment}, or by an {\em allocation-call}
 	to the {\tt allocate} allocator function to set a {\tt *GLOBAL*}
 	pointer.
@@ -7964,7 +7965,7 @@ The possible variable lifetimes are:
 	\\[1ex]
 	&
 	Local variables are \underline{non}-external variables created by
-	a {\em result-variable-declaration} or
+	a {\em initial-variable-declaration} or
 	{\em next-variable-declaration}
 	of an {\em assignment-state\-ment},
 	or by a {\em prototype-result-variable-declaration}
