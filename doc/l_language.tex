@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-September 16, 2026
+September 29, 2026
 
 \bigskip
 
@@ -2916,30 +2916,28 @@ The full syntax of a {\em reference-expression} is:
 {\em member-name} ::= see \pagref{MEMBER-NAME}
 \begin{enumerate}
 \item
-An {\em expression} with no operators that is not a
-{\em block-variable-declaration} and that begins
+A primary ({\em expression} with no operators outside brackets) that begins
 with a {\em variable-name}, `\TT{next} {\em vari\-able-name}',
 or {\em function-variable-name},
 not followed
 by an explicitly or implicitly parenthesized subexpression,
-is a {\em reference-expression}.
+is a {\em reference-expression}, with the exception that
+`\TT{next} {\em vari\-able-name}' without any following {\em reference-offset}
+can be either a {\em reference-expression}
+or a {\em variable-declaration}.
 
-Otherwise an {\em expression} with no operators is one of:
-\begin{enumerate}
-\item a {\em block-variable-declaration}\pagnote{BLOCK-VARIABLE-DECLARATION},
-or
-\item a {\em constant}\pagnote{CONSTANT}
-other than a {\em rational-constant}, or
-\item
-a (non-reference) {\em function-call}\pagnote{FUNCTION-CALL}, or
-\item
-an explicitly bracketed subexpression or an implicitly
-parenthesized subexpression, or
-\item
-an explicitly parenthesized subexpression
-preceded by a {\em module-abbreviation}
-(see \pagref{MA-SYNTACTIC-SUGAR} for more information about this last case)
-\end{enumerate}
+Note: If a reference function has argument lists, the first such must
+be \TT{[~]} bracketed.  If a non-reference function has argument lists,
+the first such must be \TT{(~)} or implicitly bracketed.
+
+Note: The following is an example of the above exception:
+
+\begin{indpar}\begin{verbatim}
+int v = 5
+next v:                // `next v' is variable-declaration
+    next v = 6         // `next v' is reference-expression
+\end{verbatim}\end{indpar}
+
 \item In a {\em reference-expression},
 a {\em module-abbreviation} may appear as part of a
 {\em variable-name} or {\em function-variable-name},
@@ -3745,8 +3743,8 @@ The forms of an {\em assignment-statement} are:
 \emkey{block-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
-        & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\STAR{} \\
+        & {\em variable-declaration}
+                \{ \TT{,} {\em variable-declaration} \}\STAR{} \\
 	& ~~~~~ \{ \TT{=} \{ \ttkey{do} {\em block-label} \}\QMARK{} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
@@ -3765,8 +3763,8 @@ The forms of an {\em assignment-statement} are:
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
-        & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\STAR{}
+        & {\em variable-declaration}
+                \{ \TT{,} {\em variable-declaration} \}\STAR{}
 		\TT{=} \\
 	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
@@ -3794,13 +3792,13 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 \emkey{assignment-result}\label{ASSIGNMENT-RESULT}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em block-variable-declaration} \\
+    ::= & {\em variable-declaration} \\
     $|$ & {\em reference-expression}
     \end{tabular}
 \\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
 \\[0.5ex]
-\emkey{block-variable-declaration}\label{BLOCK-VARIABLE-DECLARATION}
+\emkey{variable-declaration}\label{VARIABLE-DECLARATION}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em result-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
@@ -3901,7 +3899,7 @@ to the values of the {\em expressions} in the {\em expression-list}.
 {\em Call-assignment-statements} set the values of their result variables
 to the values returned by the {\em function-call}.
 
-A {\em block-variable-declaration}\label{VARIABLE-INITIALIZATION}
+A {\em variable-declaration}\label{VARIABLE-INITIALIZATION}
 initializes its variables
 according to the declaration syntax as follows:
 \begin{indpar}[0.05in]
@@ -3948,8 +3946,8 @@ this is by convention and is not a builtin requirement of the L-Language.
 The convention is followed by the builtin allocators (e.g., {\tt allocate}).
 
 In a {\em block-assignment-statement},
-variables declared by {\em block-variable-declarations}
-\underline{without} {\em allocation-calls}
+variables declared by {\em variable-declarations}
+\underline{without} {\em alloca\-tion-calls}
 are given the qualifier {\tt *INIT*} in {\em statements}
 of the {\em block-assignment-statement} and {\tt co} after the
 {\em block-assignment-statement}.
@@ -3958,7 +3956,7 @@ except that it forces fields and elements of the value to also
 be {\tt *INIT*}\pagnote{INIT-FORCING}.
 
 In a {\em block-assignment-statement},
-{\em pointer-variables} declared by {\em block-variable-declarations}
+{\em pointer-variables} declared by {\em variable-declarations}
 \underline{with} {\em allocation-calls}
 are initialized by the {\em allocation-call}
 (see \pagref{ALLOCATION-CALLS}) and are thereafter
@@ -4017,15 +4015,15 @@ before a {\em block-assignment-statement} or current
 Under some circumstances `{\tt next v}' will
 be implicitly added to the {\em assignment-result}
 list of a {\em call-assignment-statement} (see \pagref{CALL-NEXT-PROMOTION}),
-the {\em block-variable-declaration} list
+the {\em variable-declaration} list
 of a {\em block-assignment-statement} (see \pagref{BLOCK-NEXT-PROMOTION}),
-or the {\em block-variable-declaration} list of a
+or the {\em variable-declaration} list of a
 {\em loop-assignment-statement} (see \pagref{LOOP-NEXT-PROMOTION}).
 
 A {\em deferred-assignment-statement}
 behaves like a {\em block-assignment-statement} with an empty block,
 but in addition allows each of its variables to be redeclared in a subsequent
-`companion' {\em block-variable-declaration} which does not
+`companion' {\em variable-declaration} which does not
 reallocate the variable (there may be separate companions for different
 variables).
 
@@ -4199,8 +4197,8 @@ The syntax of {\em block-assignment-statements} is:
 \begin{indpar}
 \emkey{block-assignment-statement} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{@{}rll}
-        & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\STAR{} \\
+        & {\em variable-declaration}
+                \{ \TT{,} {\em variable-declaration} \}\STAR{} \\
 	& ~~~~~ \{ \TT{=} \{ \ttkey{do} {\em block-label} \}\QMARK{} \}\QMARK{}
 		   \TT{:} \\
         & ~~~~~~~~~~ {\em statement}\STAR{} \\
@@ -4210,8 +4208,8 @@ The syntax of {\em block-assignment-statements} is:
         & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
-{\em block-variable-declaration} ::=
-    see \pagref{BLOCK-VARIABLE-DECLARATION}
+{\em variable-declaration} ::=
+    see \pagref{VARIABLE-DECLARATION}
 \\[0.5ex]
 \emkey{exit-subblock}\label{EXIT-SUBBLOCK} ::=
     \begin{tabular}[t]{l}
@@ -4243,7 +4241,7 @@ in the {\em block-assignment-statement}.
 
 The {\em block-assignment-statement}
 first allocates and initializes memory in the local or global stack
-for the variables declared by the {\em block-variable-declarations}.%
+for the variables declared by the {\em variable-declarations}.%
 \pagnote{VARIABLE-INITIALIZATION}
 
 Then any {\em statements} and
@@ -4335,7 +4333,7 @@ a {\em result-variable-declaration} for the {\em variable-name}
 that is also within some {\em statement} of the
 {\em block-assignment-statement},
 then `{\tt next} {\em variable-name}' will be automatically added
-to the {\em block-variable-declarations}
+to the {\em variable-declarations}
 of the {\em block-assignment-state\-ment},
 if it is not already there.  For example:
 \begin{indpar}\begin{verbatim}
@@ -4429,8 +4427,8 @@ A {\em loop-assignment-statement} has the syntax:
 \emkey{loop-assignment-statement} ::= \\
 \hspace*{0.5in}
     \begin{tabular}[t]{@{}rll}
-        & {\em block-variable-declaration}
-                \{ \TT{,} {\em block-variable-declaration} \}\STAR{}
+        & {\em variable-declaration}
+                \{ \TT{,} {\em variable-declaration} \}\STAR{}
 		\TT{=} \\
 	& ~~~~~~~~~~~~~~~ {\em iteration-control} \TT{:} \\
         & ~~~~~ {\em statement}\STAR{} \\
@@ -4688,8 +4686,8 @@ The following is a complete list of declarations:
         & [\pagref{RESULT-VARIABLE-DECLARATION}] \\
     $|$ & {\em next-variable-declaration}
         & [\pagref{NEXT-VARIABLE-DECLARATION}] \\
-    $|$ & {\em block-variable-declaration}
-        & [\pagref{BLOCK-VARIABLE-DECLARATION}] \\
+    $|$ & {\em variable-declaration}
+        & [\pagref{VARIABLE-DECLARATION}] \\
     $|$ & {\em prototype-result-declaration}
         & [\pagref{PROTOTYPE-RESULT-DECLARATION}] \\
     $|$ & {\em prototype-argument-declaration}
