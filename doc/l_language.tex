@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-September 30, 2026
+October 1, 2026
 
 \bigskip
 
@@ -2856,6 +2856,68 @@ with the read-only part including elements with labels like
 Users can add their own elements if these do not conflict
 with the names of the read-only elements.
 See \pagref{TYPE-FIELD-SUBFIELD-MAPS}.
+
+\subsection{Reference Pointers}
+\label{REFERENCE-POINTERS}
+
+A reference pointer points at a location in memory where a value
+is stored.  At run-time, it can point into the local or global stack or
+into the heap.  At compile-time, it can point into the local or global
+stack or it can point at a map element.
+
+Reference pointers are computed by {\em variable-declarations} and
+{\em reference-expressions}.  A reference pointer consists of:
+
+\bigskip
+
+\centerline{\bf Reference Pointer Components}\label{REFERENCE-POINTER-COMPONENTS}
+\begin{itemize}
+\item A \key{pointer part}.
+At run-time this may be a regular run-time pointer,
+or may be a similar pointer that points into a local or global
+stack.
+At compile-time this may be a pointer into the compiler's local or global
+stack, or it may be a map plus an index of an element in the map.
+
+The pointer part may be missing provided the call part is \underline{not}
+missing.
+\item A \key{dereference flag}.  If set, the pointer part
+can be used to load its target value or store a value into its target.
+If clear, a load operation on the pointer returns the pointer's pointer part,
+and a store operation is not allowed.
+\item A \key{call part}.
+The call part may be missing (usually is) provided the pointer part
+is \underline{not} missing.  The call part must be missing if the dereference
+flag is clear.  The call part provides a function to load or store values
+pointed at by the (virtual) pointer.
+
+The pointer part and the call part cannot both be missing.
+
+The call part
+is the declaration of a reference function plus values of any
+indices used by that function.  This reference function must be called with
+the pointer part (if not missing) and indices to
+load a value from or store a value into the target of the reference pointer.
+
+A call part plus pointer part define a kind of virtual
+location.  The reference function called must be either a {\tt load}
+reference function to load a value or a
+{\tt store} reference function to store a value.  Thus a reference pointer
+with a call part can be use to either load or store a value, but not both.
+
+\end{itemize}
+
+A reference pointer may be a \key{loading reference pointer} that is used
+to load a value from (possibly virtual) memory, or a
+\key{storing reference pointer} that is used
+to store a value into (possibly virtual) memory.  A reference pointer with its
+dereference flag clear is always loading, and the value it loads is exactly the
+reference pointer's pointer part.  A reference pointer with set dereference
+flag may be both loading and storing, but type qualifiers on its pointer
+part target may prohibit loading
+or storing.  Compile-time reference pointers
+and reference pointers with a call part \underline{must} have set
+dereference flags.
 
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
