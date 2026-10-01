@@ -2919,6 +2919,73 @@ or storing.  Compile-time reference pointers
 and reference pointers with a call part \underline{must} have set
 dereference flags.
 
+\subsection{Variable Declarations}
+\label{VARIABLE-DECLARATIONS}
+
+A {\em variable-declaration} creates a reference pointer that
+points into either the local stack or the global stack,
+and gives it a {\em variable-name}.  If a \TT{const} type variable
+is declared, the stack is in compile-time memory; otherwise the
+stack is in run-time memory.
+
+The syntax is:
+
+\begin{indpar}
+\emkey{variable-declaration}\label{VARIABLE-DECLARATION}
+    \begin{tabular}[t]{@{}rll}
+    ::= & {\em initial-variable-declaration} \\
+    $|$ & {\em next-variable-declaration} \\
+    \end{tabular}
+\\[0.5ex]
+\emkey{initial-variable-declaration}\label{INITIAL-VARIABLE-DECLARATION} ::= \\
+\hspace*{0.5in}\begin{tabular}{rl}
+	    & {\em type-name} {\em non-pointer-variable} \\
+	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      \}\PLUS{} \\
+	    & ~~~~~~~~ {\em type-name} {\em pointer-variable}
+	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
+	\end{tabular}
+\\[0.5ex]
+\emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION} \\
+\hspace*{0.5in}\begin{tabular}{rl}
+      ::= & \ttkey{next} {\em non-pointer-variable} \\
+      $|$ & \ttkey{next} {\em pointer-variable}
+	      ~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
+      \end{tabular}
+\\[0.5ex]
+\emkey{isolated-declaration-statement} ::= {\em initial-variable-declaration}
+\\[2ex]
+where
+\begin{enumerate}
+\item As there are no compile-time (non-reference) pointers, there are
+no compile-time {\em pointer-variables}.  A compile-time
+{\em non-pointer-variable} as type (i.e., {\em type-name}) \TT{const}.
+\item If a {\em initial-variable-declaration}
+has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
+it declares must begin with $N$ `\TT{@}'s.  This variable with exactly
+one of the `\TT{@}'s removed is the associated
+{\em primary-target-variable}\pagnote{PRIMARY-TARGET-VARIABLE},
+and names the value the {\em pointer-variable} value points at.
+\item For a {\em pointer-variable} with an {\em allocation-call},
+the {\em allocation-call} allocates and zeros memory for the value of the
+associated {\em primary-target-variable},
+and returns a pointer to the
+allocated memory that is stored in the {\em pointer-variable}.
+\item An {\em isolated-declaration-statement} is a statement that
+consists of nothing but an {\em initial-variable-declaration}.
+\item For an {\em isolated-declaration-statement} declaring a
+{\em pointer-variable} with {\tt *READ-\EOL WRITE*} target and
+with no {\em alloca\-tion-call},
+`{\tt @= allocate}' is implied.  If the pointer has the {\tt *GLOBAL*}
+target qualifier, this will allocate to the global stack, and if
+the pointer has no lifetime qualifier, this will allocate to the local stack.
+See Lifetimes\pagnote{LIFETIMES}.
+\item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
+is implied unless the declaration is of a
+{\em pointer-variable} with {\tt *READ-WRITE*} target.
+\end{enumerate}
+\end{indpar}
+
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
@@ -3860,13 +3927,13 @@ The forms of an {\em assignment-statement} are:
 \\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
 \\[0.5ex]
-\emkey{variable-declaration}\label{VARIABLE-DECLARATION}
+\emkey{variable-declaration}
     \begin{tabular}[t]{@{}rll}
     ::= & {\em initial-variable-declaration} \\
     $|$ & {\em next-variable-declaration} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{initial-variable-declaration}\label{INITIAL-VARIABLE-DECLARATION} ::= \\
+\emkey{initial-variable-declaration} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em non-pointer-variable} \\
 	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
@@ -3875,7 +3942,7 @@ The forms of an {\em assignment-statement} are:
 	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
-\emkey{next-variable-declaration}\label{NEXT-VARIABLE-DECLARATION} \\
+\emkey{next-variable-declaration} \\
 \hspace*{0.5in}\begin{tabular}{rl}
       ::= & \ttkey{next} {\em non-pointer-variable} \\
       $|$ & \ttkey{next} {\em pointer-variable}
