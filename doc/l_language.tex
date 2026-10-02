@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 1, 2026
+October 2, 2026
 
 \bigskip
 
@@ -2975,11 +2975,15 @@ allocated memory that is stored in the {\em pointer-variable}.
 consists of nothing but an {\em initial-variable-declaration}.
 \item For an {\em isolated-declaration-statement} declaring a
 {\em pointer-variable} with {\tt *READ-\EOL WRITE*} target and
-with no {\em alloca\-tion-call},
-`{\tt @= allocate}' is implied.  If the pointer has the {\tt *GLOBAL*}
-target qualifier, this will allocate to the global stack, and if
-the pointer has no lifetime qualifier, this will allocate to the local stack.
-See Lifetimes\pagnote{LIFETIMES}.
+with no {\em alloca\-tion-call}, `{\tt @= allocate}' is implied.
+If the pointer has the {\tt *GLOBAL*} target qualifier, this will
+allocate to the global stack.
+If the pointer has the {\tt *HEAP*} target qualifier, this will
+allocate to the heap.
+Otherwise this will allocate to the local stack.
+It is a compile error to allocate to the local stack when
+the {\em isolated-declaration-statement} is top level:
+see Lifetimes\pagnote{LIFETIMES}.
 \item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
 is implied unless the declaration is of a
 {\em pointer-variable} with {\tt *READ-WRITE*} target.
@@ -3020,6 +3024,17 @@ z = x
     // store that value using the reference pointer computed by
     // the reference expression z.  The loaded value is an int
     // and before it is stored it is converted to a flt.
+const d = 23
+    // Allocates an const variable to the compiler stack and creates
+    // a reference pointer named d to that variable.  Stores 23 into
+    // variable pointed at by d.
+next d = d + 1
+    // Allocates an const variable to the compiler stack and creates
+    // a reference pointer with name d to that variable (const is the
+    // type of d before this statement is compiled).  On the right
+    // side of the =, d names the old reference pointer named d, and
+    // the value pointed at by this, 23, is loaded.  Stores 23 + 1
+    // into the variable newly pointed at by d.
 \end{verbatim}\end{indpar}
 
 \subsection{Reference Expressions}
