@@ -2919,27 +2919,6 @@ or storing.  Compile-time reference pointers
 and reference pointers with a call part \underline{must} have set
 dereference flags.
 
-Examples:
-\begin{indpar}\begin{verbatim}
-// Here the `stack' is global if this code is top-level,
-// and local otherwise.
-
-int x = 5
-    // Allocates an int variable to the run-time stack and creates
-    // a reference pointer named x to that variable.  Stores 5 into
-    // variable pointed at by x.
-int y = x
-    // Allocates an int variable to the run-time stack and creates
-    // a reference pointer named y to that variable.  Loads the value
-    // pointed at by x and stores it into the variable pointed at by y.
-next x = 6
-    // Allocates an int variable to the run-time stack and creates
-    // a reference pointer with name x to that variable (int is the
-    // type of x before this statement is compiled).  The reference
-    // pointer previously named x no longer has a name and cannot
-    // be accessed. Stores 6 into the variable now pointed at by x.
-\end{verbatim}\end{indpar}
-
 \subsection{Variable Declarations}
 \label{VARIABLE-DECLARATIONS}
 
@@ -3006,6 +2985,42 @@ is implied unless the declaration is of a
 {\em pointer-variable} with {\tt *READ-WRITE*} target.
 \end{enumerate}
 \end{indpar}
+
+Examples:
+\begin{indpar}\begin{verbatim}
+// Here the `stack' is global if this code is top-level,
+// and local otherwise.
+
+int x = 5
+    // Allocates an int variable to the run-time stack and creates
+    // a reference pointer named x to that variable.  Stores 5 into
+    // variable pointed at by x.
+int y = x
+    // Allocates an int variable to the run-time stack and creates
+    // a reference pointer named y to that variable.  Loads the value
+    // pointed at by x and stores it into the variable pointed at by y.
+next x = 6
+    // Allocates an int variable to the run-time stack and creates
+    // a reference pointer with name x to that variable (int is the
+    // type of x before this statement is compiled).  The reference
+    // pointer previously named x no longer has a name and cannot
+    // be accessed. Stores 6 into the variable now pointed at by x.
+ap *READ-WRITE* flt @z
+    // Allocates an `ap *READ-WRITE* flt' pointer variable to the
+    // run-time stack and creates a reference pointer named @z to
+    // that variable.  As `@= allocate' is implicit, allocates a
+    // flt variable to the stack, zeroes that variable's value,
+    // and stores a pointer to that variable into the variable
+    // named by @z.  After this, `z' is a reference expression
+    // computing a reference pointer whose pointer-part is the
+    // value pointed at by @z, whose dereference flag is set,
+    // and whose call part is missing.
+z = x
+    // Load from the reference pointer named x a value and then
+    // store that value using the reference pointer computed by
+    // the reference expression z.  The loaded value is an int
+    // and before it is stored it is converted to a flt.
+\end{verbatim}\end{indpar}
 
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
