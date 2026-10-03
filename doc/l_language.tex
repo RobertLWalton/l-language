@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 2, 2026
+October 3, 2026
 
 \bigskip
 
@@ -2960,6 +2960,31 @@ where
 \item As there are no compile-time (non-reference) pointers, there are
 no compile-time {\em pointer-variables}.  A compile-time
 {\em non-pointer-variable} as type (i.e., {\em type-name}) \TT{const}.
+\item An {\em initial-variable-declaration} creates a reference pointer
+and assigns a variable name to it.
+\item A {\em next-variable-declaration} `{\tt next V}'
+creates a new reference pointer and assigns it to {\tt V}.
+At this point {\tt V} has both a new and an old reference pointer;
+the reference expresssion `{\tt next V}' names the new reference pointer;
+and the reference expression `{\tt V}' with no `{\tt next}' names the
+old reference pointer.  When the {\em statement} containing the
+{\em next-variable-declaration} completes, the old reference pointer
+is discarded and the new reference pointer becomes the only reference
+pointer named by `{\tt V}'.
+
+Examples:
+\begin{indpar}\begin{verbatim}
+int V = 5      // V names reference pointer RP1.
+next V = V + 5 // V has a new reference pointer RP2 and
+               // the old reference pointer RP1.
+               // V in `V+5' names RP1.
+// Now V names only RP2.
+next V:        // V has a new reference pointer RP3 and
+               // the old reference pointer RP2.
+    next V = V + 5   // `next V' names RP3.  V in `V+5'
+                     // names to the RP2.
+// Now V names only RP3.
+\end{verbatim}\end{indpar}
 \item If a {\em initial-variable-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
 it declares must begin with $N$ `\TT{@}'s.  This variable with exactly
@@ -3033,16 +3058,14 @@ next d = d + 1
     // a reference pointer with name d to that variable (const is the
     // type of d before this statement is compiled).  On the right
     // side of the =, d names the old reference pointer named d, and
-    // the value pointed at by this, 23, is loaded.  Stores 23 + 1
+    // the value pointed at by this, 23, is loaded.  Stores 23 + 1 = 24
     // into the variable newly pointed at by d.
 \end{verbatim}\end{indpar}
 
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
-A \emkey{reference-expression} computes a
-reference pointer (described in detail below) to a location.
-
+A \emkey{reference-expression} computes a reference pointer.
 Syntactically {\em reference-expressions} are simple or compound.
 A \key{simple} {\em reference-expression} is
 a {\em variable-name}, `\TT{next} {\em variable-name}', or
