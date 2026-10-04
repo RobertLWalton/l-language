@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 3, 2026
+October 4, 2026
 
 \bigskip
 
@@ -2954,14 +2954,42 @@ The syntax is:
       \end{tabular}
 \\[0.5ex]
 \emkey{isolated-declaration-statement} ::= {\em initial-variable-declaration}
+\\[0.5ex]
+{\em type-name} ::= see \pagref{TYPE-NAME}
+\\[0.5ex]
+{\em non-pointer-variable} ::= see \pagref{NON-POINTER-VARIABLE}
+\\[0.5ex]
+{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
+\\[0.5ex]
+{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
+\\[0.5ex]
+{\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
+\\[0.5ex]
+{\em allocation-call} ::= see \pagref{ALLOCATION-CALL}
 \\[2ex]
 where
 \begin{enumerate}
 \item As there are no compile-time (non-reference) pointers, there are
 no compile-time {\em pointer-variables}.  A compile-time
 {\em non-pointer-variable} as type (i.e., {\em type-name}) \TT{const}.
+\item In a {\em variable-declaration},
+a {\em module-abbreviation} may appear as part of a type name or variable
+name.
+A type or variable name with a {\em module-abbreviation}
+names a different type or variable than does the same
+name without the {\em module-abbreviation}.
+\item An {\em initial-variable-declaration} of a variable V cannot
+be within the scope of another
+{\em initial-variable-declaration} of V: see Scope\pagnote{SCOPE}.
 \item An {\em initial-variable-declaration} creates a reference pointer
 and assigns a variable name to it.
+\item The smallest block containing a {\em next-variable-declaration}
+`{\tt next V}' must also contain an {\em initial-variable-declaration}
+of V.  The {\em initial-variable-declaration} of V must preceed the
+`{\tt next V}' declaration in this block.
+
+A `{\tt next V}' expression that does not conform to this rule is
+a {\em reference-expression} and not a {\em variable-declaration}.
 \item A {\em next-variable-declaration} `{\tt next V}'
 creates a new reference pointer and assigns it to {\tt V}.
 At this point {\tt V} has both a new and an old reference pointer;
