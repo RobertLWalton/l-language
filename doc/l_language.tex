@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 4, 2026
+October 5, 2026
 
 \bigskip
 
@@ -2973,8 +2973,8 @@ where
 no compile-time {\em pointer-variables}.  A compile-time
 {\em non-pointer-variable} as type (i.e., {\em type-name}) \TT{const}.
 \item In a {\em variable-declaration},
-a {\em module-abbreviation} may appear as part of a type name or variable
-name.
+a {\em module-abbreviation} may appear as part of
+a {\em type-name} or {\em variable-name}.
 A type or variable name with a {\em module-abbreviation}
 names a different type or variable than does the same
 name without the {\em module-abbreviation}.
@@ -3161,12 +3161,21 @@ Note: If a reference function has argument lists, the first such must
 be \TT{[~]} bracketed.  If a non-reference function has argument lists,
 the first such must be \TT{(~)} or implicitly bracketed.
 
-Note: The following is an example of the above exception:
+\item
+An expression of the form `{\tt next V}' for variable name V is a
+reference expression if and only if the smallest block containing
+the expression does \underline{not} contain an
+{\em initial-variable-declaration}\pagnote{INITIAL-VARIABLE-DECLARATION}
+of V.
+
+Example:
 
 \begin{indpar}\begin{verbatim}
 int v = 5
 next v:                // `next v' is variable-declaration
     next v = 6         // `next v' is reference-expression
+    next v:            // `next v' is a reference-expression
+        next v = 7     // `next v' is reference-expression
 \end{verbatim}\end{indpar}
 
 \item In a {\em reference-expression},
