@@ -3174,8 +3174,8 @@ Example:
 int v = 5
 next v:                // `next v' is variable-declaration
     next v = 6         // `next v' is reference-expression
-    next v:            // `next v' is a reference-expression
-        next v = 7     // `next v' is reference-expression
+    do:
+        next v = v + 2 // `next v' is reference-expression
 \end{verbatim}\end{indpar}
 
 \item In a {\em reference-expression},
