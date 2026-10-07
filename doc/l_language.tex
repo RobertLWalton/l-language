@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 5, 2026
+October 7, 2026
 
 \bigskip
 
@@ -3178,6 +3178,22 @@ next v:                // `next v' is variable-declaration
         next v = v + 2 // `next v' is reference-expression
 \end{verbatim}\end{indpar}
 
+\item
+A {\em reference-expression} is used to store a value if and only
+if it is also an {\em assignment-result}\pagnote{ASSIGNMENT-RESULT}
+(i.e., is on the left side of an = sign in
+an {\em expression-assignment-statement} or
+a {\em call-assignment-statement}).
+
+Otherwise it is used to load a value.
+\item
+A {\em function-variable-name} acts like a {\em variable-name}
+of a virtual variable.  It can, for example, name a pair of
+{\em reference-function-declarations}\pagnote{REFERENCE-FUNCTION-DECLARATIONS},
+one of which is used to store a value
+in the virtual variable, and one of which is used to load a
+value from the virtual variable.
+
 \item In a {\em reference-expression},
 a {\em module-abbreviation} may appear as part of a
 {\em variable-name} or {\em function-variable-name},
@@ -3193,7 +3209,8 @@ pointers.
 Multi-dimensional indexing (of which one dimensional is a special
 case) can be used with {\em member-names}
 of multi-dimensional fields and subfields.  Multi-dimensional indexing
-can also be used with {\em reference-offsets} defined by
+can also be used with {\em function-variable-names} and
+with {\em reference-offsets} defined by
 reference functions: see Reference Function Declarations,
 \itemref{REFERENCE-FUNCTION-DECLARATIONS}.
 
