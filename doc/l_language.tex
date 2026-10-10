@@ -164,7 +164,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 7, 2026
+October 10, 2026
 
 \bigskip
 
@@ -2253,6 +2253,8 @@ rules below):
 \emkey{data-label}\label{DATA-LABEL} ::=
     {\em basic-name} $|$ {\em member-name} not containing a {\em quoted-mark}
 \\[1ex]
+\emkey{function-member-name}\label{FUNCTION-MEMBER-NAME} ::=
+    {\em member-name} \\
 \emkey{function-term-name} ::= {\em name} not containing a `\TT{.}'
     \label{FUNCTION-TERM-NAME}
 	[\ref{MODULE-ABBREVIATION-RULE},
@@ -3090,6 +3092,25 @@ next d = d + 1
     // into the variable newly pointed at by d.
 \end{verbatim}\end{indpar}
 
+Most {\em variable-names} are declared by {\em variable-declarations}
+in {\em assignment-statements}\pagnote{ASSIGNMENT-STATEMENTS}, but
+the following other declarations create {\tt co} variables:
+\begin{center}
+\begin{tabular}{l@{~~~~}l@{~~~~}l@{~~~~}l}
+\bf Declaration & \bf Variable Name & \bf Type &
+\\\hline
+\\[1ex]
+{\em type-declaration} & {\em type-name} & {\tt const} & \pagref{TYPE-DECLARATIONS} \\
+{\em pointer-type-declaration} & {\em pointer-type-name} & {\tt const}
+                               & \pagref{POINTER-TYPE-DECLARATIONS} \\
+{\em function-type-declaration} & {\em function-type-name} & {\tt const}
+                               & \pagref{FUNCTION-TYPE-DECLARATIONS} \\
+{\em function-constant-declaration} & {\em function-constant-name}
+			       & {\em function-type-name}
+                               & \pagref{FUNCTION-CONSTANT-DECLARATION} \\
+\end{tabular}
+\end{center}
+
 \subsection{Reference Expressions}
 \label{REFERENCE-EXPRESSIONS}
 
@@ -3115,24 +3136,27 @@ The full syntax of a {\em reference-expression} is:
 \emkey{reference-expression}\label{REFERENCE-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & {\em simple-reference-expression} \\
-    $|$ & {\em reference-base} ~ {\em reference-offset} \\
+    $|$ & {\em compound-reference-expression} \\
     \end{tabular}
 \\[0.5ex]
 \emkey{simple-reference-expression}\label{SIMPLE-REFERENCE-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
     $|$ & \TT{next}~ {\em variable-name} \\
-    $|$ & {\em function-variable-name} \\
+    $|$ & {\em function-variable-name} ~ {\em index-list}\QMARK \\
     \end{tabular}
+\\[0.5ex]
+\emkey{compound-reference-expression}\label{COMPOUND-REFERENCE-EXPRESSION}
+    ::= {\em reference-base} ~ {\em reference-offset}
 \\[0.5ex]
 \emkey{reference-base}\label{REFERENCE-BASE}
     ::= {\em reference-expression}
 \\[0.5ex]
 \emkey{reference-offset}\label{REFERENCE-OFFSET}
     \begin{tabular}[t]{rl}
-    ::= & {\em member-name} \\
+    ::= & {\em member-name} ~ {\em index-list}\QMARK \\
     $|$ & {\em index-list} \\
-    $|$ & {\em member-name} ~ {\em index-list} \\
+    $|$ & {\em function-member-name} ~ {\em index-list}\QMARK \\
     \end{tabular}
 \\[0.5ex]
 \emkey{index-list} ::= \TT{[} {\em index} \{ \TT{,} {\em index} \}\STAR{} \TT{]}
@@ -3145,6 +3169,8 @@ The full syntax of a {\em reference-expression} is:
 {\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
 \\[0.5ex]
 {\em member-name} ::= see \pagref{MEMBER-NAME}
+\\[0.5ex]
+{\em function-member-name} ::= see \pagref{FUNCTION-MEMBER-NAME}
 \begin{enumerate}
 \item
 A primary ({\em expression} with no operators outside brackets) that begins
@@ -3203,38 +3229,24 @@ with a {\em module-abbreviation}
 names a different variable or reference function than does the same
 name without the {\em module-abbreviation}.
 \item
+An {\em index-list} immediately after a {\em function-variable-name}
+of {\em function-member-name} may be an argument list for the named
+function, or, if the named function takes no arguments, the {\em index-list}
+itself will be a {\em reference-offset} independent of the named function.
+\item
 One dimensional indexing can be used with \TT{av} and \TT{fv} pointers,
 and with user defined pointer types that convert to \TT{av} or \TT{fv}
 pointers.
 Multi-dimensional indexing (of which one dimensional is a special
 case) can be used with {\em member-names}
-of multi-dimensional fields and subfields.  Multi-dimensional indexing
-can also be used with {\em function-variable-names} and
-with {\em reference-offsets} defined by
-reference functions: see Reference Function Declarations,
+of multi-dimensional fields and subfields.
+Multi-dimensional {\em index-lists} can also be defined by
+a reference function declaration whose pattern is a
+{\em reference-pattern-index-list}: see Reference Function Declarations,
 \itemref{REFERENCE-FUNCTION-DECLARATIONS}.
 
 \end{enumerate}
 \end{indpar}
-
-Most {\em variable-names} are declared by
-{\em assignment-statements}\pagnote{ASSIGNMENT-STATEMENTS}, but
-the following other declarations create {\tt co} variables
-with various contents:
-\begin{center}
-\begin{tabular}{l@{~~~~}l@{~~~~}l}
-\bf Declaration & \bf Variable Name &
-\\\hline
-\\[1ex]
-{\em type-declaration} & {\em type-name} & \pagref{TYPE-DECLARATIONS} \\
-{\em pointer-type-declaration} & {\em pointer-type-name}
-                               & \pagref{POINTER-TYPE-DECLARATIONS} \\
-{\em function-type-declaration} & {\em function-type-name}
-                               & \pagref{FUNCTION-TYPE-DECLARATIONS} \\
-{\em function-constant-declaration} & {\em function-constant-name}
-                               & \pagref{FUNCTION-CONSTANT-DECLARATION} \\
-\end{tabular}
-\end{center}
 
 {\em Reference-expressions} compute a
 \key{reference pointer} which consists of:
