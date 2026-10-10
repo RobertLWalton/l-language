@@ -3326,16 +3326,18 @@ ap my type @W:   // The @W reference pointer is an `ap my type' pointer,
 The special member name `\TT{.*}' may be used to dereference
 a run-time reference pointer.  Specifically if `{\em reference-base}\TT{.*}' is
 a {\em reference-expression}, $P$ is the pointer part of the
-reference pointer computed by the {\em reference-base}, and $D$
-is the dereference flag part, then the reference pointer computed by
-the entire {\em reference-expression} has pointer part $P'$ and dereference
-flag $D'$ where:
+reference pointer computed by the {\em reference-base}, $D$
+is the dereference flag part, $C$ is the call part, and $T$ the type,
+then the reference pointer computed by
+the entire {\em reference-expression} has pointer part $P'$, dereference
+flag $D'$, and call part $C'$ where:
 \begin{itemize}
-\item If $D$ is clear,
-$P'=P$ and $D'=$~set.
-\item If $D$ is set and $P$ points at a pointer value,
-$P'=$the pointer value pointed at by $P$ and $D'=$~set.
-\item If $D$ is set and $P$ points at a non-pointer value,
+\item If $D$ is clear (so $C$ must be missing),
+$P'=P$, $D'=$~set, $C'=$~missing.
+\item If $D$ is set $T$ is a run-time pointer type,
+$P'=$the pointer value loaded by the reference pointer, $D'=$~set,
+$C'=$~missing.
+\item If $D$ is set and $T$ is not a run-time pointer type,
 it is a compile error.
 \end{itemize}
 
@@ -3349,6 +3351,8 @@ from the above example are:
 \tt W.Y.X & \tt @W.*.@Y.*.X \\
 \end{tabular}
 \end{center}
+
+TBD
 
 The number of `\TT{@}'s at the beginning of a {\em pointer-variable}
 must equal the number of {\em pointer-type-names} in the type of
