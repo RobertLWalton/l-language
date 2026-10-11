@@ -105,6 +105,7 @@
 \newcommand{\ttdkey}[1]{{\tt \bfseries .#1}}
 
 \newcommand{\itemref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
+\newcommand{\noteref}[1]{\ref{#1}$\,^{p\pageref{#1}}$}
 \newcommand{\pagref}[1]{p\pageref{#1}}
 \newcommand{\pagnote}[1]{$\,^{p\pageref{#1}}$}
 \newcommand{\stack}[1]{\begin{tabular}[t]{@{}l@{}}#1\end{tabular}}
@@ -164,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 10, 2026
+October 11, 2026
 
 \bigskip
 
@@ -2983,7 +2984,8 @@ name without the {\em module-abbreviation}.
 \item An {\em initial-variable-declaration} of a variable V cannot
 be within the scope of another
 {\em initial-variable-declaration} of V: see Scope\pagnote{SCOPE}.
-\item An {\em initial-variable-declaration} creates a reference pointer
+\item \label{INITIAL-REFERENCE-POINTER}
+An {\em initial-variable-declaration} creates a reference pointer
 and assigns a variable name to it.
 \item The smallest block containing a {\em next-variable-declaration}
 `{\tt next V}' must also contain an {\em initial-variable-declaration}
@@ -2992,7 +2994,8 @@ of V.  The {\em initial-variable-declaration} of V must preceed the
 
 A `{\tt next V}' expression that does not conform to this rule is
 a {\em reference-expression} and not a {\em variable-declaration}.
-\item A {\em next-variable-declaration} `{\tt next V}'
+\item \label{NEXT-REFERENCE-POINTER}
+A {\em next-variable-declaration} `{\tt next V}'
 creates a new reference pointer and assigns it to {\tt V}.
 At this point {\tt V} has both a new and an old reference pointer;
 the reference expresssion `{\tt next V}' names the new reference pointer;
@@ -3204,7 +3207,7 @@ next v:                // `next v' is variable-declaration
         next v = v + 2 // `next v' is reference-expression
 \end{verbatim}\end{indpar}
 
-\item
+\item \label{STORING-REFERENCE-FUNCTION}
 A {\em reference-expression} is used to store a value if and only
 if it is also an {\em assignment-result}\pagnote{ASSIGNMENT-RESULT}
 (i.e., is on the left side of an = sign in
@@ -3352,10 +3355,9 @@ from the above example are:
 \end{tabular}
 \end{center}
 
-TBD
-
 The number of `\TT{@}'s at the beginning of a {\em pointer-variable}
-must equal the number of {\em pointer-type-names} in the type of
+must be equal to or less than
+the number of {\em pointer-type-names} in the type of
 the variable.  Given the {\em pointer-variable} {\tt @@@p}
 one has:
 \begin{center}
@@ -3379,7 +3381,10 @@ are run-time.
 We begin with the run-time root, which has the following cases:
 \begin{enumerate}
 \item If the root is a {\em variable-name} or
-`\TT{next} {\em variable-name}', then the pointer part of the root's
+`\TT{next} {\em variable-name}', the reference pointer is that
+associated with the {\em variable-name} by the variable's
+{\em variable-declaration}: see notes \noteref{INITIAL-REFERENCE-POINTER} and
+\noteref{NEXT-REFERENCE-POINTER}.  The pointer part of the root's
 reference pointer is
 an {\tt ap} pointer into the local or global stack,
 the dereference flag is set, and the call part does not exist.
@@ -3388,20 +3393,20 @@ the dereference flag is set, and the call part does not exist.
 reference pointer is the result of executing the function, the
 dereference flag is clear, and the call part does not exist.
 \item If the root is the {\em function-variable-name} of a
-{\tt store} reference function and the root is storing
-(so the root must be the \underline{entire} {\em reference-expression}),
+{\tt store} and/or {\tt load} reference function,
 then the pointer part of the root's
 reference pointer does not exist,
 the dereference flag is set, and the call part consists of the
-declaration of the {\tt store} reference function without any indices.
-\item If the root is the {\em function-variable-name} of a
-{\tt load} reference function
-and the root is loading,
-then the pointer part of the root's
-reference pointer does not exist,
-the dereference flag is set, and the call part consists of the
-declaration of the {\tt load} reference function without any indices.
+reference function declaration with any arguments (which if needed
+are provided by an {\em index-list} after the function name).
+
+If both a {\tt load} and a {\tt store} reference function declaration exist,
+the {\tt store} declaration is chosen if the {\em reference-expression}
+is an {\em assignment-result} and otherwise the {\tt load} declaration
+is chosen.  See Note \noteref{STORING-REFERENCE-FUNCTION}.
 \end{enumerate}
+
+TBD
 
 In a compound run-time {\em reference-expression}, the
 {\em reference-offset} operates on the reference pointer
