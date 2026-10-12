@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 11, 2026
+October 12, 2026
 
 \bigskip
 
@@ -3424,11 +3424,15 @@ succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
 \item\label{OFFSET-CASE}
 If $C$ is missing, search for {\em reference-function-declarations}%
 \pagnote{REFERENCE-FUNCTION-DECLARATIONS} that match the type of
-the {\em reference-base}, the {\em member-name} or absence of such,
-and the number (but not the types) of indices.  For a storing
-{\em reference-expression}, exclude {\tt load} declarations, and
-for a loading {\em reference-expression}, exclude {\tt store}
-declarations.  See
+the {\em reference-base}, and the {\em member-name} or absence of such.
+If the {\em reference-offset} has a {\em member-name} and an
+{\em index-list}, the declaration may have zero indices, in which case
+the {\em index-list} will be split off as a separate {\em reference-offset}.
+Otherwise the declaration must have the same number of indices as the
+{\em reference-offset}.  If the reference expression is storing exclude
+{\tt load} declarations, and if loading, exclude {\tt store} declarations.
+If $D =$~clear, exclude both {\tt load} and {\tt store} declarations.
+See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
 If a declaration is found:
@@ -3440,7 +3444,6 @@ and set $P'$ = result of call, $D' = D$, $C'$ = missing.
 \item
 If the declaration is a {\tt load} or {\tt store} declaration,
 set $P' = P$, $D'$ = set, and $C'$ to the declaration and index values.
-It is a compile error if $D$ = set.
 \end{enumerate}
 In either case the declaration specifies the target types of any indices.
 
