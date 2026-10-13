@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 12, 2026
+October 13, 2026
 
 \bigskip
 
@@ -3213,8 +3213,12 @@ if it is also an {\em assignment-result}\pagnote{ASSIGNMENT-RESULT}
 (i.e., is on the left side of an = sign in
 an {\em expression-assignment-statement} or
 a {\em call-assignment-statement}).
+In this case the {\em reference-expression} is said to be \key{storing}.
 
 Otherwise it is used to load a value.
+In this case the {\em reference-expression} is said to be \key{loading}.
+Note that in {\em compound-reference-expressions} the {\em reference-base}
+is always loading.
 \item
 A {\em function-variable-name} acts like a {\em variable-name}
 of a virtual variable.  It can, for example, name a pair of
@@ -3429,7 +3433,7 @@ If the {\em reference-offset} has a {\em member-name} and an
 {\em index-list}, the declaration may have zero indices, in which case
 the {\em index-list} will be split off as a separate {\em reference-offset}.
 Otherwise the declaration must have the same number of indices as the
-{\em reference-offset}.  If the reference expression is storing exclude
+{\em reference-offset}.  If the {\em reference-expression} is storing exclude
 {\tt load} declarations, and if loading, exclude {\tt store} declarations.
 If $D =$~clear, exclude both {\tt load} and {\tt store} declarations.
 See
@@ -3453,20 +3457,14 @@ If $C$ is missing and the pointer type of $P$ is \underline{not} builtin
 search for a {\em reference-function-declaration}
 whose base has the exactly the type of the pointer part, whose
 {\em member-name} is `\TT{..point}', and which has no indices.
-If found, set $P=P${\tt ..point} and go back to the beginning
-of this algorithm (check Case 1 again).
-
-Note that Case~\ref{OFFSET-CASE} has precedence over this case.
+If found, call the declared reference function with $P$ and no index
+arguments, and set $P'$ = result of call, $D' = D$, $C'$ = missing.
 
 \item\label{POINTER-CASE}
-If $D$ is set and the type of the reference pointer $P$/$D$/$C$
-is itself a pointer (e.g., $P$ is not missing and the type of $P$
-has two or more {\em pointer-type-names}), set $P$ = the target value of
-the reference pointer $P$/$D$/$C$, $D$ = clear, $C$ = missing, and
-and go back to the beginning of this algorithm (check Case 1 again).
-
-Note that Cases~\ref{OFFSET-CASE} and \ref{POINT-CASE}
-have precedence over this case.
+If the {\em reference-offset} has a {\em member-name},
+$D$ is set, and the type of the reference pointer $P$/$D$/$C$
+is itself a pointer, set $P$ = the target value of
+the reference pointer $P$/$D$/$C$, $D$ = clear, $C$ = missing.
 
 Note: you cannot use a {\em reference-offset} to access parts of a
 pointer value, but you can convert the pointer value to its underlying
