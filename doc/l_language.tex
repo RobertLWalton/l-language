@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 13, 2026
+October 14, 2026
 
 \bigskip
 
@@ -2884,14 +2884,10 @@ stack, or it may be a map plus an index of an element in the map.
 
 The pointer part may be missing provided the call part is \underline{not}
 missing.
-\item A \key{dereference flag}.  If set, the pointer part
-can be used to load its target value or store a value into its target.
-If clear, a load operation on the pointer returns the pointer's pointer part,
-and a store operation is not allowed.
 \item A \key{call part}.
 The call part may be missing (usually is) provided the pointer part
-is \underline{not} missing.  The call part must be missing if the dereference
-flag is clear.  The call part provides a function to load or store values
+is \underline{not} missing.
+The call part provides a function to load or store values
 pointed at by the (virtual) pointer.
 
 The pointer part and the call part cannot both be missing.
@@ -2909,18 +2905,6 @@ reference function to load a value or a
 with a call part can be use to either load or store a value, but not both.
 
 \end{itemize}
-
-A reference pointer may be a \key{loading reference pointer} that is used
-to load a value from (possibly virtual) memory, or a
-\key{storing reference pointer} that is used
-to store a value into (possibly virtual) memory.  A reference pointer with its
-dereference flag clear is always loading, and the value it loads is exactly the
-reference pointer's pointer part.  A reference pointer with set dereference
-flag may be both loading and storing, but type qualifiers on its pointer
-part target may prohibit loading
-or storing.  Compile-time reference pointers
-and reference pointers with a call part \underline{must} have set
-dereference flags.
 
 \subsection{Variable Declarations}
 \label{VARIABLE-DECLARATIONS}
@@ -3075,8 +3059,7 @@ ap *READ-WRITE* flt @z
     // and stores a pointer to that variable into the variable
     // named by @z.  After this, `z' is a reference expression
     // computing a reference pointer whose pointer-part is the
-    // value pointed at by @z, whose dereference flag is set,
-    // and whose call part is missing.
+    // value pointed at by @z and whose call part is missing.
 z = x
     // Load from the reference pointer named x a value and then
     // store that value using the reference pointer computed by
@@ -3265,16 +3248,7 @@ The pointer part of a run-time reference pointer is just
 a normal run-time pointer value, except that
 {\tt ap} and {\tt fp} pointers that are the pointer part
 of a reference pointer may point
-into the global or local stacks provided the dereference flag is set.
-
-If the entire {\em reference-expression} computes a reference pointer
-with dereference flag set, the pointer part of that reference pointer,
-if it exists,
-in conjunction with the call part of the reference pointer, if that exists,
-can be used to load its target value or store a value into its target.
-If on the other hand the dereference flag is clear, the pointer part
-itself is the value of the {\em reference-expression}, and cannot
-be used to load from or store into its target.
+into the global or local stacks.
 
 The \key{type} of a reference pointer
 is defined to be the type of the value
@@ -3284,14 +3258,12 @@ that is loaded or stored by the reference pointer.  More specifically:
 
 \centerline{\bf Reference Pointer Type}\label{REFERENCE-POINTER-TYPE}
 \begin{itemize}
-\item If the dereference flag is clear, the type of the reference pointer
-is the type of its pointer part.
-\item If the dereference flag is set and there is no call part,
+\item If there is no call part,
 the type of the reference pointer is the target type of its pointer part.
-\item If the dereference flag is set and there is a call part,
+\item If there is a call part,
 the type of the reference pointer is the result type of a {\tt load}
-reference function declared in the call part or the input type of a {\tt store}
-function declared in the call part.
+reference function declared in the call part or the type of a {\tt store}
+function value input argument declared in the call part.
 \end{itemize}
 
 The \key{type} of a {\em reference-expression} is the type of the reference
@@ -3308,43 +3280,39 @@ type my type:
     ap my type @Y
 
 my type Z:       // The Z reference pointer is an `ap my type' pointer
-                 // to Z in the stack with a set dereference flag.
+                 // to Z in the stack.
     Z.X = 5      // The Z.X reference pointer is an `ap int' pointer
-                 // to Z.X in the stack with a set dereference flag.
+                 // to Z.X in the stack.
 
-ap my type @W:   // The @W reference pointer is an `ap my type' pointer,
-                 // the value of @W, with a clear dereference flag.
+ap my type @W:   // The @W reference pointer is an `ap ap my type'
+                 // pointer to @W in the stack.
     W.X = 5      // The W reference pointer is a `ap my type' pointer,
-                 // the value of @W, with a set dereference flag.
+                 // the value of @W.
                  // The W.X reference pointer is an `ap int' pointer,
-                 // computed from @W and the offset of X in my type,
-                 // with a set dereference flag.
+                 // computed from @W and the offset of X in my type.
     W.@Y = @W    // The W.@Y reference pointer is an `ap ap my type'
-                 // pointer with a set dereference flag.  It is used
+                 // pointer to the member @Y of W.  It is used
                  // to store the value of @W.
     W.Y.X = 6    // The W.Y reference pointer is an `ap my type'
-                 // pointer, the value of W.@Y, with a set deference flag.
+                 // pointer, the target value of W.@Y.
                  // The W.Y.X reference pointer is an `ap int' pointer,
-                 // computed from W.@Y and the offset of X in my type,
-                 // with a set dereference flag.  It is used to store
-                 // the value 6.
+                 // computed from W.@Y and the offset of X in my type.
+                 // It is used to store the value 6.
 \end{verbatim}\end{indpar}
 
 The special member name `\TT{.*}' may be used to dereference
 a run-time reference pointer.  Specifically if `{\em reference-base}\TT{.*}' is
 a {\em reference-expression}, $P$ is the pointer part of the
-reference pointer computed by the {\em reference-base}, $D$
-is the dereference flag part, $C$ is the call part, and $T$ the type,
+reference pointer computed by the {\em reference-base},
+$C$ is the call part, and $T$ the type,
 then the reference pointer computed by
-the entire {\em reference-expression} has pointer part $P'$, dereference
-flag $D'$, and call part $C'$ where:
+the entire {\em reference-expression} has pointer part $P'$,
+and call part $C'$ where:
 \begin{itemize}
-\item If $D$ is clear (so $C$ must be missing),
-$P'=P$, $D'=$~set, $C'=$~missing.
-\item If $D$ is set $T$ is a run-time pointer type,
-$P'=$the pointer value loaded by the reference pointer, $D'=$~set,
+\item If $T$ is a run-time pointer type,
+$P'=$the pointer value loaded by the reference pointer,
 $C'=$~missing.
-\item If $D$ is set and $T$ is not a run-time pointer type,
+\item If $T$ is not a run-time pointer type,
 it is a compile error.
 \end{itemize}
 
@@ -3376,8 +3344,8 @@ We proceed to specify how the reference pointer of a run-time
 {\em reference-expression} is computed.
 This computation proceeds partly at compile-time and partly at
 run-time.  Specifically, for a reference pointer the pointer part
-value is run-time but its type is compile-time, the dereference flag
-is compile-time, the declaration in any call part is compile time,
+value is run-time but its type is compile-time,
+the declaration in any call part is compile time,
 the number of indices is both compile-time and run-time, the target
 types of the indices are compile-time, and the values of the indices
 are run-time.
@@ -3390,24 +3358,21 @@ associated with the {\em variable-name} by the variable's
 {\em variable-declaration}: see notes \noteref{INITIAL-REFERENCE-POINTER} and
 \noteref{NEXT-REFERENCE-POINTER}.  The pointer part of the root's
 reference pointer is
-an {\tt ap} pointer into the local or global stack,
-the dereference flag is set, and the call part does not exist.
-\item If the root is the {\em function-variable-name} of a
-{\tt point} reference function, then the pointer part of the root's
-reference pointer is the result of executing the function, the
-dereference flag is clear, and the call part does not exist.
+an {\tt ap} pointer into the local or global stack
+and the call part is missing.
 \item If the root is the {\em function-variable-name} of a
 {\tt store} and/or {\tt load} reference function,
 then the pointer part of the root's
-reference pointer does not exist,
-the dereference flag is set, and the call part consists of the
+reference pointer does not exist
+and the call part consists of the
 reference function declaration with any arguments (which if needed
 are provided by an {\em index-list} after the function name).
 
 If both a {\tt load} and a {\tt store} reference function declaration exist,
 the {\tt store} declaration is chosen if the {\em reference-expression}
-is an {\em assignment-result} and otherwise the {\tt load} declaration
-is chosen.  See Note \noteref{STORING-REFERENCE-FUNCTION}.
+is storing and the {\tt load} declaration
+is chosen if the {\em reference-expression} is loading.
+See Note \noteref{STORING-REFERENCE-FUNCTION}.
 \end{enumerate}
 
 TBD
@@ -3416,11 +3381,11 @@ In a compound run-time {\em reference-expression}, the
 {\em reference-offset} operates on the reference pointer
 computed by the {\em reference-base}.  Let the reference pointer
 computed by the {\em reference-base} have pointer part $P$ (which
-may be missing), dereference flag $D$, and call part $C$ (which
+may be missing) and call part $C$ (which
 may be missing).  (Note that per above $P$ and $C$ cannot both be
 missing.)  Let the reference pointer that is the result of
-the operation have pointer part $P'$,
-dereference flag $D'$, and call part $C'$.  Then the computation has
+the operation have pointer part $P'$
+and call part $C'$.  Then the computation has
 the following cases (the first case that
 succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
 \begin{enumerate}
@@ -3635,8 +3600,7 @@ second an index that is either an integer or a string.
 part must exist, and this pointer part is an argument to the call part
 function.
 \end{itemize}
-The dereference flag of a compile-time reference pointer is
-always set.  There are no {\tt point} compile-time reference functions.
+There are no {\tt point} compile-time reference functions.
 All indices must be {\em constant-expressions} evaluating to non-negative
 integers or to strings.  The reference pointer of a
 {\em reference-expression} is completely computed at compile-time.
