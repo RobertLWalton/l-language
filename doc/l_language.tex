@@ -3381,9 +3381,8 @@ In a compound run-time {\em reference-expression}, the
 {\em reference-offset} operates on the reference pointer
 computed by the {\em reference-base}.  Let the reference pointer
 computed by the {\em reference-base} have pointer part $P$ (which
-may be missing) and call part $C$ (which
-may be missing).  (Note that per above $P$ and $C$ cannot both be
-missing.)  Let the reference pointer that is the result of
+may be missing), call part $C$ (which may be missing), and type $T$.
+Let the reference pointer that is the result of
 the operation have pointer part $P'$
 and call part $C'$.  Then the computation has
 the following cases (the first case that
@@ -3392,15 +3391,14 @@ succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
 
 \item\label{OFFSET-CASE}
 If $C$ is missing, search for {\em reference-function-declarations}%
-\pagnote{REFERENCE-FUNCTION-DECLARATIONS} that match the type of
-the {\em reference-base}, and the {\em member-name} or absence of such.
+\pagnote{REFERENCE-FUNCTION-DECLARATIONS} that match the type $T$ of
+the {\em reference-base} and the {\em member-name} or absence of such.
 If the {\em reference-offset} has a {\em member-name} and an
 {\em index-list}, the declaration may have zero indices, in which case
 the {\em index-list} will be split off as a separate {\em reference-offset}.
 Otherwise the declaration must have the same number of indices as the
 {\em reference-offset}.  If the {\em reference-expression} is storing exclude
 {\tt load} declarations, and if loading, exclude {\tt store} declarations.
-If $D =$~clear, exclude both {\tt load} and {\tt store} declarations.
 See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
@@ -3409,10 +3407,10 @@ If a declaration is found:
 \item
 If the declaration is a {\tt point} declaration, call the declared
 reference function with $P$ and the index values as arguments,
-and set $P'$ = result of call, $D' = D$, $C'$ = missing.
+and set $P'$ = result of call, $C'$ = missing.
 \item
 If the declaration is a {\tt load} or {\tt store} declaration,
-set $P' = P$, $D'$ = set, and $C'$ to the declaration and index values.
+set $P' = P$ and $C'$ to the declaration and index values.
 \end{enumerate}
 In either case the declaration specifies the target types of any indices.
 
@@ -3420,20 +3418,10 @@ In either case the declaration specifies the target types of any indices.
 If $C$ is missing and the pointer type of $P$ is \underline{not} builtin
 (not {\tt dp}, {\tt ap}, {\tt av}, {\tt fp}, or {\tt fv}),
 search for a {\em reference-function-declaration}
-whose base has the exactly the type of the pointer part, whose
+whose base has type $T$, whose
 {\em member-name} is `\TT{..point}', and which has no indices.
 If found, call the declared reference function with $P$ and no index
-arguments, and set $P'$ = result of call, $D' = D$, $C'$ = missing.
-
-\item\label{POINTER-CASE}
-If the {\em reference-offset} has a {\em member-name},
-$D$ is set, and the type of the reference pointer $P$/$D$/$C$
-is itself a pointer, set $P'$ = the target value of
-the reference pointer $P$/$D$/$C$, $D'$ = set, $C'$ = missing.
-
-Note: you cannot use a {\em reference-offset} to access parts of a
-pointer value, but you can convert the pointer value to its underlying
-data value\pagnote{POINTER-TYPE-DECLARATIONS} and access parts of that.
+arguments, and set $P'$ = result of call, $C'$ = missing.
 
 \item\label{DP-CASE}
 If $C$ is missing and
@@ -3442,14 +3430,14 @@ $P$ is a {\tt dp} pointer pointing at a user defined type and the
 possibly followed by an {\em index-list} such that the number of
 {\em indices} equals the number of field dimensions:
 \begin{enumerate}
-\item For a {\em field-label} of an aligned field with no
+\item For a {\em field-label} of a field with no
 dimensions, $P'$ = a {\tt dp} pointer pointing at the field value.
-\item For a {\em field-label} of an aligned field with dimensions,
+\item For a {\em field-label} of a field with dimensions,
 $P'$ = a {\tt dp} pointer pointing
 at the field array element value designated by the indices.
 The target type of the indices is {\tt int}.
 \end{enumerate}
-In both cases $D'=D$ and $C'$ = missing.
+In both cases $C'$ = missing.
 
 \item\label{AP-NO-INDEX-CASE}
 If $C$ is missing and
