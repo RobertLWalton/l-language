@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 14, 2026
+October 17, 2026
 
 \bigskip
 
@@ -1501,6 +1501,87 @@ of a sequence of logical lines, a statement can end with
 a block that itself consists of a sequence of statements.
 
 \newpage
+
+\section{Data Structure}
+
+Run-time data is built from numbers, blocks, and pointers into blocks.
+A \key{block} is a continguous sequence of bytes that may be moved
+in memory.  Each block has a \key{root} that points at the block and
+is fixed in memory.  A pointer contains a pointer to the root and an
+offset from the beginning of the block the root points at.
+
+The bytes of a block are grouped into numbers, and the numbers are
+grouped into larger data structures such as character strings, vectors
+of numbers, pointers, and user defined structures.
+
+\subsection{Builtin Run-Time Number Types}
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+\bf Type & \bf Length in Bits & \bf Format \\
+\hline
+\key{int8}	&  8 & two's complement integer \\
+\cline{1-2}
+\key{int16}	&  16 & \\
+\cline{1-2}
+\key{int32}	&  32 & \\
+\cline{1-2}
+\key{int64}	&  64 & \\
+\cline{1-2}
+\key{int128}	& 128 & \\
+\cline{1-2}
+\key{int}	& integer word length & \\
+\cline{1-2}
+\key{intptr}	& address length & \\
+\hline
+\key{uns8}	&  8 & unsigned binary integer \\
+\cline{1-2}
+\key{uns16}	&  16 & \\
+\cline{1-2}
+\key{uns32}	&  32 & \\
+\cline{1-2}
+\key{uns64}	&  64 & \\
+\cline{1-2}
+\key{uns128}	& 128 & \\
+\cline{1-2}
+\key{uns}	& integer word length & \\
+\cline{1-2}
+\key{unsptr}	& address length & \\
+\hline
+\key{ptr}	& address length & {\tt intptr} or {\tt unsptr} \\
+\hline
+\key{flt8}	&  8 & IEEE floating point number \\
+\cline{1-2}
+\key{flt16}	&  16 & \\
+\cline{1-2}
+\key{flt32}	&  32 & \\
+\cline{1-2}
+\key{flt64}	&  64 & \\
+\cline{1-2}
+\key{flt128}	& 128 & \\
+\cline{1-2}
+\key{flt}	& floating point word length & \\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{itemize}
+\item Some computers use {\tt intptr} for direct pointers, and some
+use {\tt unsptr}.  {\tt ptr} is which ever of these the target
+computer uses.
+\item Integer word length in the length of the integer registers,
+floating point word length is the length of the floating point
+registers, address length is the length of the address registers.
+On many computers the same registers are used for integers,
+floating point numbers, and addresses.
+\item {\tt bool}\pagnote{BOOL} is \underline{not} a number type.
+\end{itemize}
+
+\subsection{Builtin Pointer Types}
+
+\subsection{Other Builtin Types}
+
 
 \section{Expressions}
 
