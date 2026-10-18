@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 17, 2026
+October 18, 2026
 
 \bigskip
 
@@ -1567,9 +1567,13 @@ of numbers, pointers, and user defined structures.
 \end{center}
 
 \begin{itemize}
-\item Some computers use {\tt intptr} for direct pointers, and some
+\item Some computers use {\tt intptr} for addresses, and some
 use {\tt unsptr}.  {\tt ptr} is which ever of these the target
 computer uses.
+\item
+Addresses are assumed to be byte addresses.  So the difference
+between two addresses is a number of bytes, and adding an integer I
+to an address moves the address by I bytes (I may be negative).
 \item Integer word length in the length of the integer registers,
 floating point word length is the length of the floating point
 registers, address length is the length of the address registers.
@@ -1578,9 +1582,103 @@ floating point numbers, and addresses.
 \item {\tt bool}\pagnote{BOOL} is \underline{not} a number type.
 \end{itemize}
 
-\subsection{Builtin Pointer Types}
+\subsection{Builtin run-Time Pointer Types}
+
+A pointer type has an associated data type which is a structure
+whose components are the parts of the pointer.  For example, the
+pointer type {\tt dp} has the associated data type {\tt data for dp}.
+
+\begin{description}
+\item[\key{dp}] A \key{direct pointer} is just a byte-address.
+Direct pointers are mostly used to communicate with subroutines written
+in languages such as C and C++.
+\begin{indpar}\begin{verbatim}
+pointer type std dp is type std data for dp
+type std data for dp:
+    ptr address
+\end{verbatim}\end{indpar}
+Here {\tt address} is the byte address.
+
+\item[\key{ap}] An \key{aligned pointer} points at a byte in a block.
+\begin{indpar}\begin{verbatim}
+pointer type std ap is type std data for ap
+type std data for ap:
+    dp ro ptr @base
+    intptr offset
+\end{verbatim}\end{indpar}
+Here {\tt @base} is the address of {\tt base}, the address of the first
+byte of the block, and {\tt base + offset} is
+the address of the byte pointed to in the block.
+
+\item[\key{av}] An \key{aligned vector pointer} points at a vector
+of elements in a block.  The elements must begin on byte boundaries
+and the difference between consecutive elements, known as the \key{step},
+must be an integral
+number of bytes.  The index $I$ used to access an element must be
+in the range [0,\key{limit}).
+\begin{indpar}\begin{verbatim}
+pointer type std av is type std data for av
+type std data for av:
+    dp ro ptr @base
+    intptr offset
+    intptr step
+    intptr limit
+\end{verbatim}\end{indpar}
+Element $I$ has address {\tt base + offset + $I$ * step}, and to be
+legal $I$ must satisfy $0\le I < \mathrm{limit}$.
+
+\item[\key{fp}] A \key{field pointer} points at a \key{field}
+which is a sequence of consecutive bits in a block.
+\begin{indpar}\begin{verbatim}
+pointer type std fp is type std data for fp
+type std data for fp:
+    dp ro ptr @base
+    intptr:
+        [intptr..size - 6] offset
+        [6]                size
+\end{verbatim}\end{indpar}
+Here {\tt @base} is the address of {\tt base}, the address of the first
+byte of the block, and {\tt 8 * base + offset} is
+the bit-address of the first bit of the field in the block.
+{\tt size + 1} is the size of the field in bits.
+
+\item[\key{fv}] A \key{field vector pointer} points at a vector
+of field elements in a block.  The
+difference between consecutive elements, known as the \key{step},
+is an integral number of bits.
+The index $I$ used to access an element must be
+in the range [0,\key{limit}).
+\begin{indpar}\begin{verbatim}
+pointer type std fv is type std data for fv
+type std data for fv:
+    dp ro ptr @base
+    intptr:
+        [intptr..size - 6] offset
+        [6]                size
+    intptr step
+    intptr limit
+\end{verbatim}\end{indpar}
+Field element $I$ has bit-address {\tt 8*base + offset + $I$ * step}, and to be
+legal $I$ must satisfy $0\le I < \mathrm{limit}$.  Each field element
+is {\tt size + 1} bits long.
+
+\end{description}
 
 \subsection{Other Builtin Types}
+
+\begin{description}
+
+\item[\key{bool}]\label{BOOL}  A {\tt bool} datum stores one of two values:
+\key{true} or \key{false}.  When used as the type of a structure
+field, a {\tt bool} is stored as if it were {\tt int8},
+{\tt true} is {\tt -1}, and {\tt false} is {\tt 0}.  When used as
+a subfield type the subfield must be 1 bit long, {\tt true} is {\tt 1}
+and {\tt false} is {\tt 0}.
+
+\item[\key{const}]  {\tt const} is the type of all compile time values,
+which are also known as constants.  See Constants\pagnote{CONSTANTS}.
+
+\end{description}
 
 
 \section{Expressions}
@@ -3670,7 +3768,7 @@ part must exist, and this pointer part is an argument to the call part
 function.
 \end{itemize}
 There are no {\tt point} compile-time reference functions.
-All indices must be {\em constant-expressions} evaluating to non-negative
+All indices must be {\em constant-expres\-sions} evaluating to non-negative
 integers or to strings.  The reference pointer of a
 {\em reference-expression} is completely computed at compile-time.
 
@@ -5559,9 +5657,9 @@ For example, the following are builtin:
 pointer type std dp is type std data for dp
 pointer type std ap is type std data for ap
 type std data for dp:
-    int address
+    ptr address
 type std data for ap:
-    dp ro int @base
+    dp ro ptr @base
     int offset
 
 function dp Q$1 PST$1 @r = std *UNCHECKED* ( std data for dp ddp )
