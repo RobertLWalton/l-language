@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 18, 2026
+October 19, 2026
 
 \bigskip
 
@@ -3558,17 +3558,11 @@ If the {\em reference-expression} is storing exclude
 See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
-If a declaration is found:
-\begin{enumerate}
-\item
-If the declaration is a {\tt point} declaration, call the declared
-reference function with any the index values as arguments,
-and set $P'$ = result of call, $C'$ = missing.
-\item
-If the declaration is a {\tt load} or {\tt store} declaration,
+If a declaration is found
 set $P' = $~missing and $C'$ to the declaration and any index value arguments.
-\end{enumerate}
-In either case the declaration specifies the target types of any indices.
+The declaration specifies the target types of any indices.
+
+\item It is a compile-time error if neither of the above cases applies.
 
 \end{enumerate}
 
@@ -3587,8 +3581,8 @@ succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
 \begin{enumerate}
 
 \item\label{OFFSET-CASE}
-If $C$ is missing, search for {\em reference-function-declarations}%
-\pagnote{REFERENCE-FUNCTION-DECLARATIONS} that match the type $T$ of
+Search for a {\em reference-function-declaration}%
+\pagnote{REFERENCE-FUNCTION-DECLARATIONS} that matches the type $T$ of
 the {\em reference-base} and the {\em member-name} or absence of such.
 If the {\em reference-offset} has a {\em member-name} and an
 {\em index-list}, the declaration may have zero indices, in which case
@@ -3599,30 +3593,24 @@ Otherwise the declaration must have the same number of indices as the
 See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
-If a declaration is found:
-\begin{enumerate}
-\item
-If the declaration is a {\tt point} declaration, call the declared
-reference function with $P$ and the index values as arguments,
-and set $P'$ = result of call, $C'$ = missing.
-\item
-If the declaration is a {\tt load} or {\tt store} declaration,
-set $P' = P$ and $C'$ to the declaration and index values.
-\end{enumerate}
-In either case the declaration specifies the target types of any indices.
+If a declaration is found,
+set $P' = $~the target value of $P/C$ and $C'$ to the declaration
+and index values.
+The declaration specifies the target types of any indices.
 
 \item\label{POINT-CASE}
-If $C$ is missing and the pointer type of $P$ is \underline{not} builtin
+If $T$ is \underline{not} a builtin pointer type
 (not {\tt dp}, {\tt ap}, {\tt av}, {\tt fp}, or {\tt fv}),
 search for a {\em reference-function-declaration}
 whose base has type $T$, whose
 {\em member-name} is `\TT{..point}', and which has no indices.
-If found, call the declared reference function with $P$ and no index
-arguments, and set $P'$ = result of call, $C'$ = missing.
+If a declaration is found,
+set $P' = $~the target value of $P/C$, $C'$ to the declaration,
+and go back to case 1 (this current case does not consume a
+{\em reference-offset}).
 
 \item\label{DP-CASE}
-If $C$ is missing and
-$P$ is a {\tt dp} pointer pointing at a user defined type and the
+If $T$ is a {\tt dp} pointer type pointing at a user defined type and the
 {\em reference-offset} has the form `\TT{.}{\em field-label}\,'
 possibly followed by an {\em index-list} such that the number of
 {\em indices} equals the number of field dimensions:
@@ -3635,6 +3623,9 @@ at the field array element value designated by the indices.
 The target type of the indices is {\tt int}.
 \end{enumerate}
 In both cases $C'$ = missing.
+
+It is a compile-time error if the user defined type has no field
+with the {\em field-label} in the {\em reference-offset}.
 
 \item\label{AP-NO-INDEX-CASE}
 If $C$ is missing and
