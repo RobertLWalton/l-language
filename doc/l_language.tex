@@ -3607,16 +3607,18 @@ whose base has type $T$, whose
 If a declaration is found,
 set $P' = $~the target value of $P/C$, $C'$ to the declaration,
 and go back to case 1 (this current case does not consume a
-{\em reference-offset}).
+{\em reference-offset}, but changes $T$).
 
 \item\label{DP-CASE}
 If $T$ is a {\tt dp} pointer type pointing at a user defined type and the
 {\em reference-offset} has the form `\TT{.}{\em field-label}\,'
 possibly followed by an {\em index-list} such that the number of
-{\em indices} equals the number of field dimensions:
+{\em indices} equals the number of field dimensions for the
+{\em field-label}:
 \begin{enumerate}
 \item For a {\em field-label} of a field with no
-dimensions, $P'$ = a {\tt dp} pointer pointing at the field value.
+dimensions, and a {\em reference-expression} with no {\em index-list},
+$P'$ = a {\tt dp} pointer pointing at the field value.
 \item For a {\em field-label} of a field with dimensions,
 $P'$ = a {\tt dp} pointer pointing
 at the field array element value designated by the indices.
@@ -3625,7 +3627,9 @@ The target type of the indices is {\tt int}.
 In both cases $C'$ = missing.
 
 It is a compile-time error if the user defined type has no field
-with the {\em field-label} in the {\em reference-offset}.
+with the {\em field-label} in the {\em reference-offset}s, or if
+the field with the {\em field-label} has a number of dimensions that
+does not match the number of indices in the {\em reference-expression}.
 
 \item\label{AP-NO-INDEX-CASE}
 If $C$ is missing and
