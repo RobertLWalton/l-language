@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 19, 2026
+October 20, 2026
 
 \bigskip
 
@@ -3609,8 +3609,9 @@ set $P' = $~the target value of $P/C$, $C'$ to the declaration,
 and go back to case 1 (this current case does not consume a
 {\em reference-offset}, but changes $T$).
 
-\item\label{DP-CASE}
-If $T$ is a {\tt dp} pointer type pointing at a user defined type and the
+\item\label{DP-AP-CASE}
+If $T$ is a {\tt dp} (or {\tt ap}) pointer type pointing
+at a user defined type and the
 {\em reference-offset} has the form `\TT{.}{\em field-label}\,'
 possibly followed by an {\em index-list} such that the number of
 {\em indices} equals the number of field dimensions for the
@@ -3618,9 +3619,9 @@ possibly followed by an {\em index-list} such that the number of
 \begin{enumerate}
 \item For a {\em field-label} of a field with no
 dimensions, and a {\em reference-expression} with no {\em index-list},
-$P'$ = a {\tt dp} pointer pointing at the field value.
+$P'$ = a {\tt dp} (or {\tt ap}) pointer pointing at the field value.
 \item For a {\em field-label} of a field with dimensions,
-$P'$ = a {\tt dp} pointer pointing
+$P'$ = a {\tt dp} (or {\tt ap}) pointer pointing
 at the field array element value designated by the indices.
 The target type of the indices is {\tt int}.
 \end{enumerate}
@@ -3631,63 +3632,19 @@ with the {\em field-label} in the {\em reference-offset}s, or if
 the field with the {\em field-label} has a number of dimensions that
 does not match the number of indices in the {\em reference-expression}.
 
-\item\label{AP-NO-INDEX-CASE}
-If $C$ is missing and
-$P$ is an {\tt ap} pointer pointing at a user defined type and the
-{\em reference-offset} has the form
-`\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
-\underline{no} {\em index-list}:
-\begin{enumerate}
-\item For a {\em field-label} of an aligned field with no
-dimensions, $P'$ = an {\tt ap} pointer pointing at the field value.
-\item For a {\em field-label} of an aligned field with \underline{one}
-dimension, $P'$ = an {\tt av} pointer pointing at the vector of field values.
-\item For a {\em field-label} of an unaligned aligned field with no
-dimensions, or a {\em subfield-label},
-$P'$ = an {\tt fp} pointer pointing at the
-field or subfield value.
-\item For a {\em field-label} of an unaligned aligned field with \underline{one}
-dimension, or a {\em subfield-label} of a subfield with \underline{one}
-dimension in a field with no dimensions,
-$P'$ = an {\tt fv} pointer pointing at the vector of
-field or subfield values.
-\end{enumerate}
-In all cases $D'=D$ and $C'$ = missing.
-
-\item\label{AP-INDEX-CASE}
-If $C$ is missing and
-$P$ is an {\tt ap} pointer pointing at a user defined type and the
-{\em reference-offset} has the form
-`\TT{.}{\em field-label}\,' or `\TT{.}{\em subfield-label}\,' with
-an {\em index-list}, and the number of dimensions of
-the designated field, or the sum of the numbers of dimensions of the
-designated subfield and its containing field,
-equals to the number of indices in the {\em index-list}:
-\begin{enumerate}
-\item For a {\em field-label} of an aligned field,
-$P'$ = an {\tt ap} pointer pointing at the field array element value
-designated by the indices.
-\item For a {\em field-label} of an unaligned aligned field,
-or a {\em subfield-label}, $P'$ = an {\tt fp} pointer pointing at the
-field or subfield array element value designated by the indices.
-\end{enumerate}
-In both cases $D'=D$, $C'$ = missing, and the target type of all indices
-is {\tt int}.
-
 \item\label{AV-FV-CASE}
-If $C$ is missing and
-$P$ is an {\tt av} or {\tt fv} pointer and the
-{\em reference-offset} is an
+If $T$ is an {\tt av} (or {\tt fv}) pointer type and the
+{\em reference-offset} is nothing but an
 {\em index-list} with \underline{one} index:
 \begin{enumerate}
 \item For an {\tt av} pointer,
-an {\tt ap} pointer pointing at the array element value
+an {\tt ap} pointer pointing at the vector element value
 designated by the index.
 \item For an {\tt fv} pointer,
-an {\tt fp} pointer pointing at the array element value
+an {\tt fp} pointer pointing at the vector element value
 designated by the index.
 \end{enumerate}
-In both cases $D'=D$ and $C'$ = missing, and the target type of the index
+In both cases $C'$ = missing, and the target type of the index
 is {\tt int}.
 
 \item All other cases are compile errors.
@@ -3702,8 +3659,7 @@ string $S$, is equivalent to `{\em reference-base}\TT{.}$S$'.
 When a {\em reference-offset} specifying a field or subfield
 in a user defined type modifies the pointer part of
 a reference pointer
-(as in Cases~\ref{DP-CASE}, \ref{AP-NO-INDEX-CASE}, \ref{AP-INDEX-CASE},
-and \ref{AV-FV-CASE} above),
+(as in Cases~\ref{DP-AP-CASE} and \ref{AV-FV-CASE} above),
 the access and lifetime qualifiers of the modified
 pointer part are determined according to
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}%
