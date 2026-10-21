@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 20, 2026
+October 21, 2026
 
 \bigskip
 
@@ -2684,6 +2684,9 @@ $N>0$ cascaded pointer types,
 the {\em abbreviating-name} must be a {\em pointer-variable}
 that may begin with up to $N$ `\TT{@}'s, but not more.
 
+Also see {\em field-abbreviations}\pagnote{FIELD-ABBREVIATION}
+and {\em subfield-abbreviations}\pagnote{SUBFIELD-ABBREVIATION}.
+
 Note that {\em function-term-names} used in {\em function-calls}
 cannot be abbreviated.
 
@@ -5007,6 +5010,7 @@ The syntax of a type declaration is:
 \hspace*{0.5in}%
     \begin{tabular}[t]{@{}rl}
     ::= &  {\em field-declaration} \\
+    $|$ &  {\em field-abbreviation} \\
     $|$ &  \ttkey{align} {\em alignment}\QMARK{} \\
     $|$ &  \ttkey{pack} \\
     $|$ &  \ttkey{*EXTERNAL*} \\
@@ -5093,9 +5097,11 @@ The syntax of a type declaration is:
     \end{tabular}
 \\[2ex]
 \emkey{subfield-declaration}\label{SUBFIELD-DECLARATION} ::= \\
-\hspace*{0.5in}
-    {\em bit-range} {\em subfield-type-name} {\em subfield-label}
+\hspace*{0.5in}\begin{tabular}[t]{rl}
+       & {\em bit-range} {\em subfield-type-name} {\em subfield-label}
     		{\em subfield-dimensions}\QMARK{} \\
+   $|$ & {\em subfield-abbreviation}
+    \end{tabular} \\
 \emkey{subfield-type-name}\label{SUBFIELD-TYPE-NAME} ::=
     {\em number-type-name} $|$ \TT{bool} \\
 \emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em non-pointer-label} \\
@@ -5118,6 +5124,16 @@ The syntax of a type declaration is:
 		   with non-negative integer value \\
 {\em dit} ::= see \pagref{DIT}
 \\[2ex]
+\emkey{field-abbreviation}\label{FIELD-ABBREVIATION} ::=
+    {\em abbreviating-field-name}~ \ABV{}~ {\em abbreviated-field-name} \\
+\emkey{abbreviating-field-name} ::= {\em field-label} \\
+\emkey{abbreviated-field-name} ::= {\em field-label} \\
+\emkey{subfield-abbreviation}\label{SUBFIELD-ABBREVIATION} ::= \\
+\hspace*{0.5in}
+    {\em abbreviating-subfield-name}~ \ABV{}~ {\em abbreviated-subfield-name} \\
+\emkey{abbreviating-subfield-name} ::= {\em subfield-label} \\
+\emkey{abbreviated-subfield-name} ::= {\em subfield-label}
+\\[2ex]
 where
 \begin{enumerate}
 \item If a {\em field-without-subfields-declaration}
@@ -5132,6 +5148,12 @@ made by removing one or more `\TT{@}'s from the beginning of the
 names the value pointed at by dereferencing the associated
 {\em pointer-label} field value as many times as there are removed
 `\TT{@}'s.
+\item
+A {\em field-abbreviation} may be used to provide an alternative
+name for a field, and a
+{\em subfield-abbreviation} may be used to provide an alternative
+name for a subfield.  These abbreviations can only be used when
+naming fields or subfields.
 \end{enumerate}
 \end{indpar}
 
