@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 21, 2026
+October 22, 2026
 
 \bigskip
 
@@ -3111,7 +3111,7 @@ The syntax is:
 	    & {\em type-name} {\em non-pointer-variable} \\
 	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
 	      \}\PLUS{} \\
-	    & ~~~~~~~~ {\em type-name} {\em pointer-variable}
+	    & ~~~~~~~~ {\em pointer-target-type} {\em pointer-variable}
 	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
@@ -3121,6 +3121,27 @@ The syntax is:
       $|$ & \ttkey{next} {\em pointer-variable}
 	      ~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
       \end{tabular}
+\\[0.5ex]
+\emkey{pointer-target-type}\label{TARGET-TYPE}
+	::= {\em type-name} | {\em bit-string-type}
+\\[0.5ex]
+\emkey{bit-string-type} ::= \TT{[} {\em bit-string-size} \TT{]}
+				{\em bit-string-base-type}
+\\[0.5ex]
+\emkey{bit-string-size} ::= {\tt constant-expression}
+		    with integer value in range [1,64] \\
+\\[0.5ex]
+\emkey{bit-string-base-type} ::= {\em number-type} $|$ \TT{bool}
+\\[2ex]
+\emkey{number-type-name}
+    \begin{tabular}[t]{@{}rl}
+    ::= &  \ttkey{int} $|$ \ttkey{int8} $|$ \ttkey{int16} $|$ \ttkey{int32}
+                       $|$ \ttkey{int64} $|$ \ttkey{int128} \\
+    $|$ &  \ttkey{uns} $|$ \ttkey{uns8} $|$ \ttkey{uns16} $|$ \ttkey{uns32}
+                       $|$ \ttkey{uns64} $|$ \ttkey{uns128} \\
+    $|$ &  \ttkey{flt} $|$ \ttkey{flt16} $|$ \ttkey{flt32} $|$ \ttkey{flt64}
+                         $|$ \ttkey{flt128} \\
+    \end{tabular}
 \\[0.5ex]
 \emkey{isolated-declaration-statement} ::= {\em initial-variable-declaration}
 \\[0.5ex]
@@ -3140,7 +3161,7 @@ where
 \begin{enumerate}
 \item As there are no compile-time (non-reference) pointers, there are
 no compile-time {\em pointer-variables}.  A compile-time
-{\em non-pointer-variable} as type (i.e., {\em type-name}) \TT{const}.
+{\em non-pointer-variable} has type (i.e., {\em type-name}) \TT{const}.
 \item In a {\em variable-declaration},
 a {\em module-abbreviation} may appear as part of
 a {\em type-name} or {\em variable-name}.
