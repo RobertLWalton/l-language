@@ -3218,11 +3218,13 @@ the {\em allocation-call} allocates and zeros memory for the value of the
 associated {\em primary-target-variable},
 and returns a pointer to the
 allocated memory that is stored in the {\em pointer-variable}.
-\item {\em Bit-string-types} are only for targets of {\tt fp} pointers
-and user defined pointers that resolve to {\tt fp} pointers.
 \item A {\em bit-string-type} describes a number or {\tt bool}
 value that is stored in a bit string with {\em bit-string-size}
-bits.
+bits.  A {\em type-name} descibes a datum that is a sequence
+of memory bytes.
+\item {\em Bit-string-types} are only for targets of bit string pointers
+(e.g., {\tt fp}) and {\em type-names} are only for targets of byte aligned
+pointers (e.g., {\tt ap}).
 \item An {\em isolated-declaration-statement} is a statement that
 consists of nothing but an {\em initial-variable-declaration}.
 \item For an {\em isolated-declaration-statement} declaring a
