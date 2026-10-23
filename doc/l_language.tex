@@ -299,7 +299,8 @@ integers ({\tt int}) containing:
 \begin{itemize}
 \item A `base pointer' {\tt int} holding the byte address
 of an {\tt int} in memory
-that contains the `base (byte) address' of the vector.
+that contains the `base (byte) address' of the memory block
+containing the vector.
 Note that the {\tt av} value does \underline{not} contain
 the base address, but contains instead this pointer to where
 the base address is stored in memory.  This scheme allows
@@ -308,16 +309,18 @@ the base address to be changed without changing the {\tt av} value.
 to form the byte address of the vector element
 that has index {\tt 0} in the vector (this element does not
 exist if {\tt 0} is not an allowed index).
-\item A `lower bound' {\tt int} which is the minimum allowed
-value of the index {\tt int}.
+\item A `step' {\tt int} which is multiplied by the index $I$ to
+determine the offset of the indexed vector element from the
+`offset'.  Specifically, element address = base address + offset + $I$ * step.
 \item An `upper bound' {\tt int} which is the maximum allowed
-value of the index {\tt int} plus 1.
+value of the index $I$ {\tt int} plus 1.  Specifically,
+$I$ must be in the range [0,upper bound).
 \end{itemize}
 
 There are other types of pointer.  An {\tt bsv}, or `bit string vector',
 is like an {\tt av} aligned
 vector except that the offset {\tt int} is a bit offset instead of
-a byte offset.
+a byte offset and the step {\tt int} is measured in bits instead of bytes.
 The {\tt ap} (`aligned pointer') and {\tt bsp} (`bit string pointer')
 types are similar but do not have the bounds and cannot be indexed.  Lastly
 there is the direct pointer, {\tt dp}, that is just a single {\tt int}
@@ -1641,7 +1644,8 @@ type std data for bsp:
 \end{verbatim}\end{indpar}
 Here {\tt @base} is the address of {\tt base}, the address of the first
 byte of the block, and {\tt 8 * base + offset} is
-the bit-address of the first bit of the bit string in the block.
+the bit-offset of the first bit of the bit string from the beginning
+of the containing block.
 
 \item[\key{bsv}] A \key{field vector pointer} points at a vector
 of field elements in a block.  The
@@ -1657,7 +1661,8 @@ type std data for bsv:
     intptr step
     intptr limit
 \end{verbatim}\end{indpar}
-Bit string element $I$ has bit-address {\tt 8*base + offset + $I$ * step},
+Bit string element $I$ has bit-offset {\tt 8*base + offset + $I$ * step}
+from the beginning of the containing block,
 and to be legal $I$ must satisfy $0\le I < \mathrm{limit}$.
 
 \end{description}
