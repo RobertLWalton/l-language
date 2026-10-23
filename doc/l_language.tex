@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 22, 2026
+October 23, 2026
 
 \bigskip
 
@@ -314,12 +314,12 @@ value of the index {\tt int}.
 value of the index {\tt int} plus 1.
 \end{itemize}
 
-There are other types of pointer.  An {\tt fv}, or `field vector',
+There are other types of pointer.  An {\tt bsv}, or `bit string vector',
 is like an {\tt av} aligned
-vector except that the offset {\tt int} has a bit offset in its
-high order part and a field size in bits in its low order part.
-The {\tt ap} (`aligned pointer') and {\tt fp} (`field pointer')  types are
-similar but do not have the bounds and cannot be indexed.  Lastly
+vector except that the offset {\tt int} is a bit offset instead of
+a byte offset.
+The {\tt ap} (`aligned pointer') and {\tt bsp} (`bit string pointer')
+types are similar but do not have the bounds and cannot be indexed.  Lastly
 there is the direct pointer, {\tt dp}, that is just a single {\tt int}
 containing a byte address; this is most useful for calling
 C language functions.
@@ -420,12 +420,15 @@ An example is:
 \begin{indpar}\begin{verbatim}
 type my type:
     uns32                             // Container for:
-    [31:24]  uns8 op code             //   Operation
-    [31]     bool has constant        //   Format indicator
-    [23:0]   int constant             //   Constant
-    [23:16]  uns8 src1                //   Source Register
-    [15:8]   uns8 src2                //   Source Register
-    [7:0]    uns8 des                 //   Destination Register
+    [8]      uns8 op code             //   Operation
+    *OFFSET* 0
+    [1]      bool has constant        //   Format indicator
+    *OFFSET* 8
+    [24]     int constant             //   Constant
+    *OFFSET* 8
+    [8]      uns8 src1                //   Source Register
+    [8]      uns8 src2                //   Source Register
+    [8]      uns8 des                 //   Destination Register
 
 . . . . . . . . . . . .
 
@@ -438,7 +441,7 @@ uns op = X.op code      // Now op == 5
 int d = X.des           // Now d == 3
 ap *READ-WRITE* my type @Y    // `@= allocate' is implied
 Y.op code = 129
-fp *READ-WRITE* int @C = @Y.constant
+bsp *READ-WRITE* int @C = @Y.constant
 ap *READ-WRITE* uns8 @OP = @Y.op code
 next op = OP            // Now op == 129
 bool B = Y.has constant // Now B == 1
@@ -458,10 +461,11 @@ In this example there is one field in a {\tt my type} value,
 an unlabeled {\tt uns32} integer.
 Inside this unlabeled field there are 6 subfields, the first of which is
 an {\tt uns8} integer occupying the highest order 8
-bits of the unlabeled field, bits 31:24,
-where bits are numbered 0, 1, 2, \ldots{} from
-low to high order.  The second subfield is a 1-bit {\tt bool}
-value that occupies the high order bit, bit 31, of the unlabeled field.
+bits of the unlabeled field,
+Bits are numbered 0, 1, 2, \ldots{} from high to low order, so the
+offset of this subfield is 0.  The second subfield, also at offset 0,
+is a 1-bit {\tt bool}
+value that occupies the high order bit of the unlabeled field.
 Note that subfields can overlap.
 
 Defined type values are aligned on byte boundaries when
@@ -470,10 +474,10 @@ is on a byte boundary, and
 the location of {\tt OP} is an {\tt ap} aligned pointer.  Although
 the {\tt constant} subfield is on a byte boundary, it is
 shorter than an {\tt int}, and therefore the
-location of {\tt C} must be an {\tt fp} field pointer.
-If `{\tt op code}' were in bits 30:23 instead of 31:24, it would
+location of {\tt C} must be an {\tt bsp} bit string pointer.
+If `{\tt op code}' were in bits 1 through 8 instead of 0 through 7, it would
 not be on a byte boundary and the location of {\tt OP} would
-also have to be an {\tt fp} field pointer.
+also have to be an {\tt bsp} bit string pointer.
 
 Note that `{\tt Y.op code}' is a {\tt *READ-WRITE*}
 {\tt uns8} while `{\tt @Y.op code}' is a {\tt co} pointer to
@@ -491,8 +495,8 @@ Another example is:
 type my type:
     pack
     uns8    kind             // Object Kind
-    [7] bool animal          // True if Animal
-    [6] bool vegetable       // True if Vegetable
+    [1] bool animal          // True if Animal
+    [1] bool vegetable       // True if Vegetable
     flt64   weight           // Object Weight
     align   64
     *LABEL*   extension
@@ -847,7 +851,7 @@ type {\tt dp} (direct pointer) and calls the `foreign' C programming
 language subroutine {\tt strlen} with the direct pointer.
 The {\tt *UNCHECKED*} function is needed to produce a direct pointer
 from other pointer types, though this function is undefined
-for some argument pointer types (e.g., field pointer types).
+for some argument pointer types (e.g., bit string pointer types).
 Calling {\tt strlen} with a {\tt dp} pointer calls the external
 function directly, bypassing the inline wrapper, because the
 external call has fewer wildcards (only 1 instead of 2).
@@ -1627,40 +1631,34 @@ type std data for av:
 Element $I$ has address {\tt base + offset + $I$ * step}, and to be
 legal $I$ must satisfy $0\le I < \mathrm{limit}$.
 
-\item[\key{fp}] A \key{field pointer} points at a \key{field}
+\item[\key{bsp}] A \key{bit string pointer} points at a \key{bit string}
 which is a sequence of consecutive bits in a block.
 \begin{indpar}\begin{verbatim}
-pointer type std fp is type std data for fp
-type std data for fp:
+pointer type std bsp is type std data for bsp
+type std data for bsp:
     dp ro ptr @base
-    intptr:
-        [intptr..size - 6] offset
-        [6]                size
+    intptr offset
 \end{verbatim}\end{indpar}
 Here {\tt @base} is the address of {\tt base}, the address of the first
 byte of the block, and {\tt 8 * base + offset} is
-the bit-address of the first bit of the field in the block.
-{\tt size + 1} is the size of the field in bits.
+the bit-address of the first bit of the bit string in the block.
 
-\item[\key{fv}] A \key{field vector pointer} points at a vector
+\item[\key{bsv}] A \key{field vector pointer} points at a vector
 of field elements in a block.  The
 difference between consecutive elements, known as the \key{step},
 is an integral number of bits.
 The index $I$ used to access an element must be
 in the range [0,\key{limit}).
 \begin{indpar}\begin{verbatim}
-pointer type std fv is type std data for fv
-type std data for fv:
+pointer type std bsv is type std data for bsv
+type std data for bsv:
     dp ro ptr @base
-    intptr:
-        [intptr..size - 6] offset
-        [6]                size
+    intptr offset
     intptr step
     intptr limit
 \end{verbatim}\end{indpar}
-Field element $I$ has bit-address {\tt 8*base + offset + $I$ * step}, and to be
-legal $I$ must satisfy $0\le I < \mathrm{limit}$.  Each field element
-is {\tt size + 1} bits long.
+Bit string element $I$ has bit-address {\tt 8*base + offset + $I$ * step},
+and to be legal $I$ must satisfy $0\le I < \mathrm{limit}$.
 
 \end{description}
 
@@ -3125,15 +3123,15 @@ The syntax is:
 \emkey{pointer-target-type}\label{TARGET-TYPE}
 	::= {\em type-name} | {\em bit-string-type}
 \\[0.5ex]
-\emkey{bit-string-type} ::= \TT{[} {\em bit-string-size} \TT{]}
-				{\em bit-string-base-type}
+\emkey{bit-string-type}\label{BIT-STRING-TYPE}
+    ::= \TT{[} {\em bit-string-size} \TT{]} {\em bit-string-base-type}
 \\[0.5ex]
 \emkey{bit-string-size} ::= {\tt constant-expression}
 		    with integer value in range [1,64] \\
 \\[0.5ex]
 \emkey{bit-string-base-type} ::= {\em number-type} $|$ \TT{bool}
 \\[2ex]
-\emkey{number-type-name}
+\emkey{number-type-name}\label{NUMBER-TYPE-NAME}
     \begin{tabular}[t]{@{}rl}
     ::= &  \ttkey{int} $|$ \ttkey{int8} $|$ \ttkey{int16} $|$ \ttkey{int32}
                        $|$ \ttkey{int64} $|$ \ttkey{int128} \\
@@ -3223,7 +3221,7 @@ value that is stored in a bit string with {\em bit-string-size}
 bits.  A {\em type-name} descibes a datum that is a sequence
 of memory bytes.
 \item {\em Bit-string-types} are only for targets of bit string pointers
-(e.g., {\tt fp}) and {\em type-names} are only for targets of byte aligned
+(e.g., {\tt bsp}) and {\em type-names} are only for targets of byte aligned
 pointers (e.g., {\tt ap}).
 \item An {\em isolated-declaration-statement} is a statement that
 consists of nothing but an {\em initial-variable-declaration}.
@@ -3436,8 +3434,8 @@ of {\em function-member-name} may be an argument list for the named
 function, or, if the named function takes no arguments, the {\em index-list}
 itself will be a {\em reference-offset} independent of the named function.
 \item
-One dimensional indexing can be used with \TT{av} and \TT{fv} pointers,
-and with user defined pointer types that convert to \TT{av} or \TT{fv}
+One dimensional indexing can be used with \TT{av} and \TT{bsv} pointers,
+and with user defined pointer types that convert to \TT{av} or \TT{bsv}
 pointers.
 Multi-dimensional indexing (of which one dimensional is a special
 case) can be used with {\em member-names}
@@ -3458,7 +3456,7 @@ separately in the following sections.
 
 The pointer part of a run-time reference pointer is just
 a normal run-time pointer value, except that
-{\tt ap} and {\tt fp} pointers that are the pointer part
+{\tt ap} and {\tt bsp} pointers that are the pointer part
 of a reference pointer may point
 into the global or local stacks.
 
@@ -3633,7 +3631,7 @@ The declaration specifies the target types of any indices.
 
 \item\label{POINT-CASE}
 If $T$ is \underline{not} a builtin pointer type
-(not {\tt dp}, {\tt ap}, {\tt av}, {\tt fp}, or {\tt fv}),
+(not {\tt dp}, {\tt ap}, {\tt av}, {\tt bsp}, or {\tt bsv}),
 search for a {\em reference-function-declaration}
 whose base has type $T$, whose
 {\em member-name} is `\TT{..point}', and which has no indices.
@@ -3666,15 +3664,15 @@ the field with the {\em field-label} has a number of dimensions that
 does not match the number of indices in the {\em reference-expression}.
 
 \item\label{AV-FV-CASE}
-If $T$ is an {\tt av} (or {\tt fv}) pointer type and the
+If $T$ is an {\tt av} (or {\tt bsv}) pointer type and the
 {\em reference-offset} is nothing but an
 {\em index-list} with \underline{one} index:
 \begin{enumerate}
 \item For an {\tt av} pointer,
 an {\tt ap} pointer pointing at the vector element value
 designated by the index.
-\item For an {\tt fv} pointer,
-an {\tt fp} pointer pointing at the vector element value
+\item For an {\tt bsv} pointer,
+an {\tt bsp} pointer pointing at the vector element value
 designated by the index.
 \end{enumerate}
 In both cases $C'$ = missing, and the target type of the index
@@ -4232,7 +4230,7 @@ the type of the {\em pointer-variable} being set (but the
 prototype result type may contain wildcards).
 
 As a general rule, allocator functions that return a value of
-type {\tt av} or {\tt fv} or a user defined vector pointer
+type {\tt av} or {\tt bsv} or a user defined vector pointer
 have a {\tt []} argument list
 with a single argument giving a vector size {\tt N}.
 Then the allocator allocates not a single block of the given length
@@ -5114,45 +5112,25 @@ The syntax of a type declaration is:
     \TT{std}\QMARK{} {\em number-type-name}~ {\em non-pointer-label}\QMARK{}
                 {\em field-dimension}\STAR{} \\
 \hspace*{0.5in}
-    {\em subfield-declaration}\PLUS{}
-\\[2ex]
-\emkey{number-type-name}
-    \begin{tabular}[t]{@{}rl}
-    ::= &  \ttkey{int} $|$ \ttkey{int8} $|$ \ttkey{int16} $|$ \ttkey{int32}
-                       $|$ \ttkey{int64} $|$ \ttkey{int128} \\
-    $|$ &  \ttkey{uns} $|$ \ttkey{uns8} $|$ \ttkey{uns16} $|$ \ttkey{uns32}
-                       $|$ \ttkey{uns64} $|$ \ttkey{uns128} \\
-    $|$ &  \ttkey{flt} $|$ \ttkey{flt16} $|$ \ttkey{flt32} $|$ \ttkey{flt64}
-                         $|$ \ttkey{flt128} \\
-    \end{tabular}
+    {\em subfield-declaration}\PLUS{} \\
+{\em number-type-name} ::= see \pagref{NUMBER-TYPE-NAME}
 \\[2ex]
 \emkey{subfield-declaration}\label{SUBFIELD-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{rl}
-       & {\em bit-range} {\em subfield-type-name} {\em subfield-label}
+       & {\em bit-string-type} {\em subfield-label}
     		{\em subfield-dimensions}\QMARK{} \\
+   $|$ & {\em subfield-offset} \\
    $|$ & {\em subfield-abbreviation}
     \end{tabular} \\
-\emkey{subfield-type-name}\label{SUBFIELD-TYPE-NAME} ::=
-    {\em number-type-name} $|$ \TT{bool} \\
+{\em bit-string-type} ::= see \pagref{BIT-STRING-TYPE} \\
 \emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em non-pointer-label} \\
 \emkey{subfield-dimensions} ::=
     \TT{[} {\em dimension-size} \{ \TT{,} {\em dimension-size} \}\STAR{} \TT{]}
 \\[2ex]
-\emkey{bit-range}
-    \begin{tabular}[t]{@{}rl}
-    ::= &  \TT{[} {\em onlybit} \TT{]} \\
-    $|$ &  \TT{[} {\em highlowbits} \TT{]} \\
-    $|$ &  \TT{[} {\em highbit} \TT{:} {\em lowbit} \TT{]}
-    \end{tabular} \\
-\emkey{onlybit} ::= {\tt constant-expression}
-		    with non-negative integer value \\
-\emkey{highlowbits} :::= {\em dit}+ \TT{:} {\em dit}+
-           ~~~~~ [this is a single lexeme] \\
-\emkey{highbit} ::= {\tt constant-expression}
-		    with non-negative integer value \\
-\emkey{lowbit} ::= {\tt constant-expression}
-		   with non-negative integer value \\
-{\em dit} ::= see \pagref{DIT}
+\emkey{subfield-offset}\label{SUBFIELD-OFFSET} ::=
+    \ttkey{*OFFSET*} {\em bit-offset} \\
+\emkey{bit-offset} ::=
+    non-negative integer valued {\em constant-expression}
 \\[2ex]
 \emkey{field-abbreviation}\label{FIELD-ABBREVIATION} ::=
     {\em abbreviating-field-name}~ \ABV{}~ {\em abbreviated-field-name} \\
@@ -5421,9 +5399,11 @@ type my type:       // Expansion of my type
 \subsubsection{Type Subfields}
 
 Subfields are parts of the previously declared number type field.
-The bits occupied
-by a subfield are given by its {\em bit-range}, where bits are numbered
-0, 1, \ldots{} from the low order end of numbers.
+The bits occupied by subfields are allocated from high order to low
+order, with the bits being numbered
+0, 1, \ldots{} from the high order end of numbers.
+The bit number of the next subfield can be reset by the {\tt *OFFSET*}
+subdeclaration.
 Subfield types must themselves be number types or {\tt bool}.
 
 A subfield value may have fewer bits than the number-type of the subfield.
@@ -5449,8 +5429,8 @@ For example:
 \begin{indpar}\begin{verbatim}
 type my type:
     uns8     kind        // Object Kind
-    [0] bool animal      // True if Animal
-    [1] bool vegetable   // True if Vegetable
+    [1] bool animal      // True if Animal (bit 0 of kind)
+    [1] bool vegetable   // True if Vegetable (bit 1 of kind)
     flt      weight
 
 my type X:
@@ -5511,15 +5491,15 @@ For example:
 \begin{indpar}\begin{verbatim}
 type hex digits:
     uns32 container
-    [3:0] uns hex digit [8]
-        // hex digit[i] is stored in bits [4*i+3, 4*i]
+    [4] uns hex digit [8]
+        // hex digit[i] is stored in bits [4*i, 4*i+3]
 
 hex digits X:
     int i = 0
     while i < 8:
         X.hex digit[i] = i
         next i = i + 1
-// Now X.container == X#"76543210"
+// Now X.container == X#"01234567"
 \end{verbatim}\end{indpar}
 
 A {\em subfield-declaration} with {\em subfield-label} S
@@ -5747,8 +5727,8 @@ This conversion function is automatically called
 if a value pointed at by a pointer of type $P1$ is to
 be accessed, in preference to directly calling
 the {\tt ..load} and {\tt ..store} functions above.
-Then if $P2$ is {\tt dp}, {\tt ap}, {\tt fp}, {\tt av},
-or {\tt fv}, the $P2$ pointer can be used to not only read or write
+Then if $P2$ is {\tt dp}, {\tt ap}, {\tt bsp}, {\tt av},
+or {\tt bsv}, the $P2$ pointer can be used to not only read or write
 the value, but to also read or write members or elements of the
 value.
 
@@ -7607,7 +7587,7 @@ their associated {\em out-of-line-function-name}.
 \item
 Arguments and results of foreign C and C++ functions cannot
 have user defined types or user defined pointer types,
-but may have builtin pointer types ({\tt dp}, {\tt ap}, {\tt fp}, etc.)
+but may have builtin pointer types ({\tt dp}, {\tt ap}, {\tt bsp}, etc.)
 pointing at builtin or user defined target types.
 \item
 The rules for inline `{\tt *DEFERRED*}'
@@ -9256,9 +9236,9 @@ flt64		& \ABV & std flt64 \\
 \begin{tabular}{rcl}
 dp		& \ABV & std dp \\
 ap		& \ABV & std ap \\
-fp		& \ABV & std fp \\
+bsp		& \ABV & std bsp \\
 av		& \ABV & std av \\
-fv		& \ABV & std fv \\
+bsv		& \ABV & std bsv \\
 \end{tabular}
 \end{center}
 
