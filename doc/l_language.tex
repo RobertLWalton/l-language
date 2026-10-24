@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 23, 2026
+October 24, 2026
 
 \bigskip
 
@@ -1511,13 +1511,16 @@ a block that itself consists of a sequence of statements.
 
 \section{Data Structure}
 
-Run-time data is built from numbers, blocks, and pointers into blocks.
-A \key{block} is a continguous sequence of bytes that may be moved
-in memory.  Each block has a \key{root} that points at the block and
-is fixed in memory.  A pointer contains a pointer to the root and an
-offset from the beginning of the block the root points at.
+Run-time data is built from numbers, memory blocks,
+and pointers into memory blocks.
+A \key{memory block} is a continguous sequence of bytes that may be moved
+in memory.  Each memory block has a \key{memory block root}
+that points at the memory block and
+is fixed in memory.  A pointer contains a pointer to the memory block
+root and an
+offset from the beginning of the memory block the memory block root points at.
 
-The bytes of a block are grouped into numbers, and the numbers are
+The bytes of a memory block are grouped into numbers, and the numbers are
 grouped into larger data structures such as character strings, vectors
 of numbers, pointers, and user defined structures.
 
@@ -1606,7 +1609,7 @@ type std data for dp:
 \end{verbatim}\end{indpar}
 Here {\tt address} is the byte address.
 
-\item[\key{ap}] An \key{aligned pointer} points at a byte in a block.
+\item[\key{ap}] An \key{aligned pointer} points at a byte in a memory block.
 \begin{indpar}\begin{verbatim}
 pointer type std ap is type std data for ap
 type std data for ap:
@@ -1614,11 +1617,11 @@ type std data for ap:
     intptr offset
 \end{verbatim}\end{indpar}
 Here {\tt @base} is the address of {\tt base}, the address of the first
-byte of the block, and {\tt base + offset} is
+byte of the memory block, and {\tt base + offset} is
 the address of the byte pointed to in the block.
 
 \item[\key{av}] An \key{aligned vector pointer} points at a vector
-of elements in a block.  The elements must begin on byte boundaries
+of elements in a memory block.  The elements must begin on byte boundaries
 and the difference between consecutive elements, known as the \key{step},
 must be an integral
 number of bytes.  The index $I$ used to access an element must be
@@ -1635,7 +1638,7 @@ Element $I$ has address {\tt base + offset + $I$ * step}, and to be
 legal $I$ must satisfy $0\le I < \mathrm{limit}$.
 
 \item[\key{bsp}] A \key{bit string pointer} points at a \key{bit string}
-which is a sequence of consecutive bits in a block.
+which is a sequence of consecutive bits in a memory block.
 \begin{indpar}\begin{verbatim}
 pointer type std bsp is type std data for bsp
 type std data for bsp:
@@ -1643,12 +1646,12 @@ type std data for bsp:
     intptr offset
 \end{verbatim}\end{indpar}
 Here {\tt @base} is the address of {\tt base}, the address of the first
-byte of the block, and {\tt 8 * base + offset} is
+byte of the memory block, and {\tt 8 * base + offset} is
 the bit-offset of the first bit of the bit string from the beginning
-of the containing block.
+of the containing memory block.
 
 \item[\key{bsv}] A \key{field vector pointer} points at a vector
-of field elements in a block.  The
+of field elements in a memory block.  The
 difference between consecutive elements, known as the \key{step},
 is an integral number of bits.
 The index $I$ used to access an element must be
@@ -1662,7 +1665,7 @@ type std data for bsv:
     intptr limit
 \end{verbatim}\end{indpar}
 Bit string element $I$ has bit-offset {\tt 8*base + offset + $I$ * step}
-from the beginning of the containing block,
+from the beginning of the containing memory block,
 and to be legal $I$ must satisfy $0\le I < \mathrm{limit}$.
 
 \end{description}
@@ -3112,9 +3115,8 @@ The syntax is:
 \emkey{initial-variable-declaration}\label{INITIAL-VARIABLE-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
 	    & {\em type-name} {\em non-pointer-variable} \\
-	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      \}\PLUS{} \\
-	    & ~~~~~~~~ {\em pointer-target-type} {\em pointer-variable}
+	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{} \\
+	    & ~~~~~ {\em pointer-target-type} {\em pointer-variable}
 	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
 	\end{tabular}
 \\[0.5ex]
@@ -3126,16 +3128,20 @@ The syntax is:
       \end{tabular}
 \\[0.5ex]
 \emkey{pointer-target-type}\label{TARGET-TYPE}
-	::= {\em type-name} | {\em bit-string-type}
+	\begin{tabular}[t]{rl}
+	::= & {\em type-name} | {\em bit-string-type} \\
+	$|$ & {\em pointer-type-name} {\em qualifier-name}\STAR{}
+	      {\em pointer-target-type}
+	\end{tabular}
 \\[0.5ex]
 \emkey{bit-string-type}\label{BIT-STRING-TYPE}
     ::= \TT{[} {\em bit-string-size} \TT{]} {\em bit-string-base-type}
 \\[0.5ex]
 \emkey{bit-string-size} ::= {\tt constant-expression}
-		    with integer value in range [1,64] \\
+		    with integer value in range [1,64]
 \\[0.5ex]
-\emkey{bit-string-base-type} ::= {\em number-type} $|$ \TT{bool}
-\\[2ex]
+\emkey{bit-string-base-type} ::= {\em number-type-name} $|$ \TT{bool}
+\\[0.5ex]
 \emkey{number-type-name}\label{NUMBER-TYPE-NAME}
     \begin{tabular}[t]{@{}rl}
     ::= &  \ttkey{int} $|$ \ttkey{int8} $|$ \ttkey{int16} $|$ \ttkey{int32}
@@ -3207,7 +3213,7 @@ next V = V + 5 // V has a new reference pointer RP2 and
 next V:        // V has a new reference pointer RP3 and
                // the old reference pointer RP2.
     next V = V + 5   // `next V' names RP3.  V in `V+5'
-                     // names to the RP2.
+                     // names RP2.
 // Now V names only RP3.
 \end{verbatim}\end{indpar}
 \item If a {\em initial-variable-declaration}
@@ -3224,7 +3230,7 @@ allocated memory that is stored in the {\em pointer-variable}.
 \item A {\em bit-string-type} describes a number or {\tt bool}
 value that is stored in a bit string with {\em bit-string-size}
 bits.  A {\em type-name} descibes a datum that is a sequence
-of memory bytes.
+of memory bytes, and is not a bit string.
 \item {\em Bit-string-types} are only for targets of bit string pointers
 (e.g., {\tt bsp}) and {\em type-names} are only for targets of byte aligned
 pointers (e.g., {\tt ap}).
@@ -3241,7 +3247,8 @@ Otherwise this will allocate to the local stack.
 It is a compile error to allocate to the local stack when
 the {\em isolated-declaration-statement} is top level:
 see Lifetimes\pagnote{LIFETIMES}.
-\item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
+\item For an {\em isolated-declaration-statement}
+`{\tt = *DEFERRED*}'\pagnote{DEFERRED-ASSIGNMENT-STATEMENTS}
 is implied unless the declaration is of a
 {\em pointer-variable} with {\tt *READ-WRITE*} target.
 \end{enumerate}
@@ -3435,7 +3442,7 @@ names a different variable or reference function than does the same
 name without the {\em module-abbreviation}.
 \item
 An {\em index-list} immediately after a {\em function-variable-name}
-of {\em function-member-name} may be an argument list for the named
+or {\em function-member-name} may be an argument list for the named
 function, or, if the named function takes no arguments, the {\em index-list}
 itself will be a {\em reference-offset} independent of the named function.
 \item
@@ -3474,7 +3481,8 @@ that is loaded or stored by the reference pointer.  More specifically:
 \centerline{\bf Reference Pointer Type}\label{REFERENCE-POINTER-TYPE}
 \begin{itemize}
 \item If there is no call part,
-the type of the reference pointer is the target type of its pointer part.
+the type of the reference pointer is the target type of its
+first pointer type.
 \item If there is a call part,
 the type of the reference pointer is the result type of a {\tt load}
 reference function declared in the call part or the type of a {\tt store}
