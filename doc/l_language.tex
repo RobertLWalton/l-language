@@ -3218,8 +3218,8 @@ next V:        // V has a new reference pointer RP3 and
 \end{verbatim}\end{indpar}
 \item If a {\em initial-variable-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
-it declares must begin with $N$ `\TT{@}'s.  This variable with exactly
-one of the `\TT{@}'s removed is the associated
+it declares may begin with up to $N$ `\TT{@}'s.  This variable with exactly
+one of its `\TT{@}'s removed is the associated
 {\em primary-target-variable}\pagnote{PRIMARY-TARGET-VARIABLE},
 and names the value the {\em pointer-variable} value points at.
 \item For a {\em pointer-variable} with an {\em allocation-call},
@@ -3481,8 +3481,8 @@ that is loaded or stored by the reference pointer.  More specifically:
 \centerline{\bf Reference Pointer Type}\label{REFERENCE-POINTER-TYPE}
 \begin{itemize}
 \item If there is no call part,
-the type of the reference pointer is the target type of its
-first pointer type.
+the type of the reference pointer is the {\em pointer-target-type} of its
+pointer type.
 \item If there is a call part,
 the type of the reference pointer is the result type of a {\tt load}
 reference function declared in the call part or the type of a {\tt store}
@@ -3533,7 +3533,7 @@ the entire {\em reference-expression} has pointer part $P'$,
 and call part $C'$ where:
 \begin{itemize}
 \item If $T$ is a run-time pointer type,
-$P'=$the pointer value loaded by the reference pointer,
+$P'=$the pointer value loaded by P/C,
 $C'=$~missing.
 \item If $T$ is not a run-time pointer type,
 it is a compile error.
@@ -3569,7 +3569,7 @@ This computation proceeds partly at compile-time and partly at
 run-time.  Specifically, for a reference pointer the pointer part
 value is run-time but its type is compile-time,
 the declaration in any call part is compile time,
-the number of indices is both compile-time and run-time, the target
+the number of indices is compile-time, the target
 types of the indices are compile-time, and the values of the indices
 are run-time.
 
