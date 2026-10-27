@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 26, 2026
+October 27, 2026
 
 \bigskip
 
@@ -3351,7 +3351,7 @@ The full syntax of a {\em reference-expression} is:
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
     $|$ & \TT{next}~ {\em variable-name} \\
-    $|$ & {\em function-variable-name} ~ {\em index-list}\QMARK \\
+    $|$ & {\em function-variable-name} ~ {\em function-index-list}\QMARK \\
     \end{tabular}
 \\[0.5ex]
 \emkey{compound-reference-expression}\label{COMPOUND-REFERENCE-EXPRESSION}
@@ -3362,15 +3362,23 @@ The full syntax of a {\em reference-expression} is:
 \\[0.5ex]
 \emkey{reference-offset}\label{REFERENCE-OFFSET}
     \begin{tabular}[t]{rl}
-    ::= & {\em member-name} ~ {\em index-list}\QMARK \\
-    $|$ & {\em index-list} \\
-    $|$ & {\em function-member-name} ~ {\em index-list}\QMARK \\
+    ::= & {\em member-name} ~ {\em offset-index-list}\QMARK \\
+    $|$ & {\em 1D-index-list} \\
+    $|$ & {\em function-member-name} ~ {\em function-index-list}\QMARK \\
     \end{tabular}
 \\[0.5ex]
 \emkey{index-list} ::= \TT{[} {\em index} \{ \TT{,} {\em index} \}\STAR{} \TT{]}
 \\[0.5ex]
 \emkey{index}\label{REFERENCE-INDEX}
-    ::= {\em expression}
+    ::= {\em expression} $|$ \ttkey{*}
+\\[0.5ex]
+{\em function-index-list} ::=
+    {\em index-list} with \underline{no} \TT{*} indices
+\\[0.5ex]
+{\em offset-index-list} ::=
+    {\em index-list} with \underline{at most one} \TT{*} index
+\\[0.5ex]
+{\em 1D-index-list} ::= \TT{[} {\em expression} \TT{]}
 \\[0.5ex]
 {\em variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
@@ -3441,21 +3449,23 @@ with a {\em module-abbreviation}
 names a different variable or reference function than does the same
 name without the {\em module-abbreviation}.
 \item
-An {\em index-list} immediately after a {\em function-variable-name}
-or {\em function-member-name} may be an argument list for the named
-function, or, if the named function takes no arguments, the {\em index-list}
-itself will be a {\em reference-offset} independent of the named function.
+An {\em function-index-list} immediately after a {\em function-variable-name}
+or {\em function-member-name} is either the argument list for the named
+function, or, if the named function takes no arguments,
+the {\em function-index-list}
+itself must be a separate {\em 1D-index-list}
+{\em reference-offset} independent of the function name {\em reference-offset}.
 \item
-One dimensional indexing can be used with \TT{av} and \TT{bsv} pointers,
+{\em 1D-index-lists} can be used with \TT{av} and \TT{bsv} reference pointers,
 and with user defined pointer types that convert to \TT{av} or \TT{bsv}
 pointers.
-Multi-dimensional indexing (of which one dimensional is a special
-case) can be used with {\em member-names}
-of multi-dimensional fields and subfields.
-Multi-dimensional {\em index-lists} can also be defined by
-a reference function declaration whose pattern is a
-{\em reference-pattern-index-list}: see Reference Function Declarations,
-\itemref{REFERENCE-FUNCTION-DECLARATIONS}.
+\item
+{\em Offset-index-lists} can be used with a {\em field-name}
+or {\em subfield-name}, but the total dimensions\pagnote{TOTAL-DIMENSIONS}
+of this name must equal
+the length of the {\em offset-index-list}.  An {\em offset-index-list}
+of the form `\TT{[*]}' may be omitted, and will be implied if it is omitted
+and the total dimensions is 1.
 
 \end{enumerate}
 \end{indpar}
@@ -3610,8 +3620,6 @@ The declaration specifies the target types of any indices.
 
 \end{enumerate}
 
-TBD
-
 In a compound run-time {\em reference-expression}, the
 {\em reference-offset} operates on the reference pointer
 computed by the {\em reference-base}.  This reference pointer
@@ -3662,43 +3670,65 @@ Then go back to case 1 (this current case does not consume a
 If $PT$ is a {\tt dp} (or {\tt ap}) pointer type pointing
 at a user defined type and the
 {\em reference-offset} has the form `\TT{.}{\em field-label}\,'
-possibly followed by an {\em index-list} such that the number of
-{\em indices} equals the number of field dimensions for the
-{\em field-label}:
+of `\TT{.}{\em subfield-label}\,'
+possibly followed by an {\em offset-index-list} whose number of
+{\em indices} must equal the total dimensions\pagnote{TOTAL-DIMENSIONS}
+of the {\em field-label} or {\em subfield-label} (or if
+the {\em offset-index-list} would be `\TT{[*]}' it may be omitted and
+implied):
 \begin{enumerate}
-\item For a {\em field-label} of a field with no
-dimensions, and a {\em reference-expression} with no {\em index-list},
-$P'$ = a {\tt dp} (or {\tt ap}) pointer pointing at the field value.
-\item For a {\em field-label} of a field with dimensions,
-$P'$ = a {\tt dp} (or {\tt ap}) pointer pointing
+\item For $PT$ a {\tt dp} pointer type, a {\em field-label}
+with 0 total dimensions (so there is no {\em offset-index-list}),
+$P'$ = a {\tt dp} pointer pointing at the field value.
+\item For $PT$ a {\tt dp} pointer type, a {\em field-label}
+with non-zero total dimensions,
+and an {\em offset-index-list} with \underline{no} \TT{*} index,
+$P'$ = a {\tt dp} pointer pointing
 at the field array element value designated by the indices.
 The target type of the indices is {\tt int}.
+\item For $PT$ an {\tt ap} pointer type, a {\em field-label}
+(or {\em subfield-label})
+with 0 total dimensions (so there is no {\em offset-index-list}),
+$P'$ = an {\tt ap} (or {\tt bsp}) pointer pointing at the field
+(or subfield) value.
+\item For $PT$ an {\tt ap} pointer type, a {\em field-label}
+(or {\em subfield-label})
+with non-zero total dimensions,
+and an {\em offset-index-list} with \underline{no} \TT{*} index,
+$P'$ = an {\tt ap} (or \TT{bsp}) pointer pointing
+at the field (or subfield) array element value designated by the indices.
+The target type of the indices is {\tt int}.
+\item For $PT$ an {\tt ap} pointer type, a {\em field-label}
+(or {\em subfield-label})
+with non-zero total dimensions,
+and an {\em offset-index-list} with \underline{one} \TT{*} index
+(including the case of an implied `\TT{[*]}'),
+$P'$ = an {\tt av} (or \TT{bsv}) pointer pointing at a vector
+whose $I$'th index element is the
+the field (or subfield) array element value designated by the indices with
+\TT{*} replaced by $I$.
+The target type of the indices is {\tt int}.
 \end{enumerate}
-In both cases $C'$ = missing.
+In all cases $C'$ = missing.
 
 It is a compile-time error if the user defined type has no field
-with the {\em field-label} in the {\em reference-offset}s, or if
-the field with the {\em field-label} has a number of dimensions that
-does not match the number of indices in the {\em reference-expression}.
+with the {\em field-label} or {\em subfield-label}
+in the {\em reference-offset}, or if the total dimensions of the field
+or subfield does not equal the size of the {\em offset-index-list}.
 
 \item\label{AV-FV-CASE}
 If $PT$ is an {\tt av} (or {\tt bsv}) pointer type and the
-{\em reference-offset} is nothing but an
-{\em index-list} with \underline{one} index:
-\begin{enumerate}
-\item For an {\tt av} pointer,
-an {\tt ap} pointer pointing at the vector element value
-designated by the index.
-\item For an {\tt bsv} pointer,
-an {\tt bsp} pointer pointing at the vector element value
-designated by the index.
-\end{enumerate}
-In both cases $C'$ = missing, and the target type of the index
+{\em reference-offset} is nothing but a {\em 1D-index-list},
+$P'$ = an {\tt ap} (or \TT{bsp}) pointer pointing at the
+vector element designated by the index.
+$C'$ = missing, and the target type of the index
 is {\tt int}.
 
 \item All other cases are compile errors.
 
 \end{enumerate}
+
+TBD
 
 A run-time {\em reference-expression} of the form
 `{\em reference-base}\TT{[}{\em constant-expression}\TT{]}',
@@ -5536,10 +5566,12 @@ and also a subfield with {\em subfield-label} {\tt S} and no
 If in addition the subfield has one {\em dimension-size},
 {\tt S[$i$, $j$]} references the subfield selected by {\tt [$j$]}
 in the field value {\tt F[$i$]}.
-In general, if the {\em field-declaration} has $f>0$ {\em dimension-sizes}
-and the {\em subfield-declaration} has $s>0$ dimension sizes,
+In general, if the {\em field-declaration} has $f$ {\em dimension-sizes}
+and the {\em subfield-declaration} has $s$ dimension sizes,
 then $S$ subfields are referenced using $f+s$ indices, with the
-field indices first.
+field indices first.  In this caseand $f+s$ is called the
+\key{total dimensions}\label{TOTAL-DIMENSIONS}
+of the subfield and $f$ is also called the total dimensions of the field.
 
 \subsubsection{Type Conversions}
 \label{TYPE-CONVERSIONS}
