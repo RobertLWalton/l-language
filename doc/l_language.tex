@@ -3583,16 +3583,16 @@ the number of indices is compile-time, the target
 types of the indices are compile-time, and the values of the indices
 are run-time.
 
-We begin with the run-time root, which has the following cases:
+We begin with the run-time root that computes a reference pointer with
+pointer part $P$ and call part $C$.  There are the following cases:
 \begin{enumerate}
 \item If the root is a {\em variable-name} or
 `\TT{next} {\em variable-name}', the reference pointer is that
 associated with the {\em variable-name} by the variable's
 {\em variable-declaration}: see notes \noteref{INITIAL-REFERENCE-POINTER} and
-\noteref{NEXT-REFERENCE-POINTER}.  The pointer part of the root's
-reference pointer is
-an {\tt ap} pointer into the local or global stack
-and the call part is missing.
+\noteref{NEXT-REFERENCE-POINTER}.
+Then $P$ is set to an {\tt ap} pointer to the variable in
+the local or global stack and $C$ is set missing.
 
 \item Otherwise assume the {\em reference-expression} begins with a
 {\em function-variable-name} and search
@@ -3612,11 +3612,16 @@ If the {\em reference-expression} is storing exclude
 See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
-If a declaration is found
-set $P' = $~missing and $C'$ to the declaration and any index value arguments.
+\begin{enumerate}
+\item If a {\tt load} or {\tt store} declaration is found
+set $P = $~missing and $C$ to the declaration and any index value arguments.
 The declaration specifies the target types of any indices.
+\item If a {\tt point} declaration is found
+set $P=$~the value returned by a call to the reference function
+with any index value arguments, and set $C=$~missing.
+\end{enumerate}
 
-\item It is a compile-time error if neither of the above cases applies.
+\item It is a compile-time error if none of the above cases applies.
 
 \end{enumerate}
 
