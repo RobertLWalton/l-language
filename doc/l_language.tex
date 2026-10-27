@@ -3728,36 +3728,37 @@ is {\tt int}.
 
 \end{enumerate}
 
-TBD
-
 A run-time {\em reference-expression} of the form
 `{\em reference-base}\TT{[}{\em constant-expression}\TT{]}',
 where the {\em constant-expression} evaluates to the {\tt const}
 string $S$, is equivalent to `{\em reference-base}\TT{.}$S$'.
+An {\em offset-index-list} for \TT{.}$S$ may appear after these expressions.
 
 When a {\em reference-offset} specifying a field or subfield
-in a user defined type modifies the pointer part of
-a reference pointer
+in a user defined type produces a new reference pointer with a
+pointer part and no call part
 (as in Cases~\ref{DP-AP-CASE} and \ref{AV-FV-CASE} above),
-the access and lifetime qualifiers of the modified
+the access and lifetime qualifiers of the new
 pointer part are determined according to
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}%
 \label{QUALIFIER-COMPUTATION}
-from the qualifiers of the unmodified pointer part (the base)
+from the qualifiers of the old pointer part (those in $PT$)
 and the qualifiers of the field or subfield.
-Note that if the qualifiers of the unmodified pointer part
+Note that if the qualifiers of the old pointer part
 are {\tt co} or {\tt *INIT*}, these remain the qualifiers of the
-modified pointer part.
+new pointer part.
 
 \begin{boxedfigure}[!t]
 \newcommand{\tts}{\tt \small}
 \begin{center}
-Modified Pointer Part Access Qualifier \\
-Given Base and Field Access Qualifiers
+New Pointer Part Target Access Qualifier \\
+Given Old Pointer Part Target Access Qualifier \\
+and Field or Subfield Access Qualifier
 \\[1ex]
 \begin{tabular}{|l|c|c|c|c|c|}
-\multicolumn{1}{l}{Base}	\\
-\multicolumn{1}{l}{Access}	& \multicolumn{5}{c}{Field Access Qualifier}
+\multicolumn{1}{l}{Old}	\\
+\multicolumn{1}{l}{Access}	&
+	\multicolumn{5}{c}{Field or Subfield Access Qualifier}
 \\\cline{2-6}
 \multicolumn{1}{l|}{Qualifier}
        & (none) & \tt co & \tt ro & \tts *READ-WRITE* & \tts *WRITE-ONLY*
