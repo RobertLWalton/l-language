@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 27, 2026
+October 28, 2026
 
 \bigskip
 
@@ -3822,8 +3822,9 @@ part must exist, and this pointer part is an argument to the call part
 function.
 \end{itemize}
 There are no {\tt point} compile-time reference functions.
-All indices must be {\em constant-expres\-sions} evaluating to non-negative
-integers or to strings.  The reference pointer of a
+All {\em reference-expression} indices must be {\em constant-expres\-sions}
+evaluating to {\tt const} value.
+The reference pointer of a
 {\em reference-expression} is completely computed at compile-time.
 
 The compile-time root has the following cases:
@@ -3832,19 +3833,28 @@ The compile-time root has the following cases:
 `\TT{next} {\em variable-name}', then the pointer part of the root's
 reference pointer points into the compile-time local or global stack
 and the call part is missing.
-\item If the root is the {\em function-variable-name} of a
-{\tt store} reference function and the root is storing
-(so the root must be the \underline{entire} {\em reference-expression}),
-then the pointer part of the root's
-reference pointer is missing
-and the call part consists of the
-declaration of the {\tt store} reference function without any indices.
-\item If the root is the {\em function-variable-name} of a
-{\tt load} reference function
-and the root is loading,
-then the pointer part of the root's
-reference pointer is missing and the call part consists of the
-declaration of the {\tt load} reference function without any indices.
+\item Otherwise assume the {\em reference-expression} begins with a
+{\em function-variable-name} and search
+for {\em reference-function-declarations}
+that have the
+{\em function-variable-name} and \underline{no}
+{\em reference-base} argument.  The
+declaration may have zero indices, in which case any
+{\em index-list} following the {\em function-variable-name}
+in the {\em reference-expression}
+will be split off as a separate {\em reference-offset}.
+Otherwise the declaration must have the same number of indices as
+the {\em index-list} following the {\em function-variable-name}
+in the {\em reference-expression}.
+If the {\em reference-expression} is storing exclude
+{\tt load} declarations, and if loading, exclude {\tt store} declarations.
+See
+\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+
+Any reference function declaration found must be a {\tt load} or {\tt store}
+declaration with {\tt const} results and arguments.
+Set the pointer part of the reference pointer to missing and the call part
+to the declaration and any index value arguments.
 \item Other cases are compile errors.
 For example, a {\em function-variable-name}
 in a storing {\em reference-expression} that has no {\tt store}
@@ -3863,8 +3873,8 @@ The computation has the following cases (the first case that
 succeeds is used):\label{COMPILE-TIME-FIELD-SELECTION}
 \begin{enumerate}
 \item If the {\em reference-offset} has a {\em member-name},
-search for {\em reference-function-declarations}%
-\pagnote{REFERENCE-FUNCTION-DECLARATIONS} with a {\tt const}
+search for {\em reference-function-declarations}
+with a {\tt const}
 {\em reference-base}, the given {\em member-name}, and the same number
 of indices as the {\em reference-offset} (this is zero if indices
 are missing).
