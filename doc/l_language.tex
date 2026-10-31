@@ -3824,7 +3824,7 @@ function.
 There are no {\tt point} compile-time reference functions.
 All {\em reference-expression} indices must be {\em constant-expres\-sions}
 evaluating to {\tt const} value.
-The reference pointer of a
+The reference pointer of a compile-time
 {\em reference-expression} is completely computed at compile-time.
 
 The compile-time root has the following cases:
@@ -3916,7 +3916,7 @@ Dictionary members are marked read-only when they are initially created.
 
 The following example illustrates compile-time {\em reference-expressions}:
 \begin{indpar}\begin{verbatim}
-const U = {"A", "B"}[0]  // Illegal: {"A". "B"} is not a simple
+const U = {"A", "B"}[0]  // Illegal: {"A", "B"} is not a simple
                          // reference expression.
 const X = {"A", "B"}
 const V = X[0]           // Legal, == "A".
@@ -3931,7 +3931,7 @@ Z[0].W = "N"             // Now Z is {{"C", "D", "W" => "N"}, "M"},
 X.W = "P"                // Illegal, X.W is read-only.
 read-write ( X, "W" )
 X.W = "P"                // X and Y are both {"C", "D", "W" => "P"}.
-                         // Now Z is {{"C", "D", "W" => "P"}, "M"},
+                         // Now Z is {{"C", "D", "W" => "P"}, "M"}.
 \end{verbatim}\end{indpar}
 
 \subsection{Function Calls}
