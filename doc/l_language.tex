@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-October 31, 2026
+November 2, 2026
 
 \bigskip
 
@@ -3747,23 +3747,29 @@ the access and lifetime qualifiers of the new
 pointer part are determined according to
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}%
 \label{QUALIFIER-COMPUTATION}
-from the qualifiers of the old pointer part (those in $PT$)
-and the qualifiers of the field or subfield.
-Note that if the qualifiers of the old pointer part
+from the qualifiers of the old pointer part (those in $PT$),
+the container of the field or subfield,
+and the coded qualifiers of the field or or the computed access qualifiers
+of a subfield.
+Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
+is also used to compute the computed access qualifiers of a subfield
+from from the coded access qualifiers of its containing field and the
+coded access qualifiers of the subfield.
+Note that if the qualifiers of the container
 are {\tt co} or {\tt *INIT*}, these remain the qualifiers of the
-new pointer part.
+contained field or subfield.
 
 \begin{boxedfigure}[!t]
 \newcommand{\tts}{\tt \small}
 \begin{center}
-New Pointer Part Target Access Qualifier \\
-Given Old Pointer Part Target Access Qualifier \\
-and Field or Subfield Access Qualifier
+Computed Field or Subfield Access Qualifier \\
+Given Container Access Qualifier \\
+and Coded Field or Subfield Access Qualifier
 \\[1ex]
 \begin{tabular}{|l|c|c|c|c|c|}
-\multicolumn{1}{l}{Old}	\\
+\multicolumn{1}{l}{Container}	\\
 \multicolumn{1}{l}{Access}	&
-	\multicolumn{5}{c}{Field or Subfield Access Qualifier}
+	\multicolumn{5}{c}{Coded Field or Subfield Access Qualifier}
 \\\cline{2-6}
 \multicolumn{1}{l|}{Qualifier}
        & (none) & \tt co & \tt ro & \tts *READ-WRITE* & \tts *WRITE-ONLY*
@@ -3787,13 +3793,15 @@ and Field or Subfield Access Qualifier
 \raggedright
 \begin{enumerate}
 \item Here\label{INIT-FORCING}
-{\tt *INIT*} is a pseudo-qualifier used for bases
+{\tt *INIT*} is a pseudo-qualifier used for containers
 that are being initialized.  It has the same effect as {\tt *WRITE-ONLY*}
-except that it forces fields/subfields of the base to be {\tt *INIT*}
+except that it forces fields/subfields of the container to be {\tt *INIT*}
 even if they are {\tt co} or {\tt ro}.
-\item The modified pointer part has the same lifetime qualifier
+\item A pointer part pointing at a field or subfield is
+given the same lifetime qualifier
 ({\tt *GLOBAL*}, {\tt *HEAP*}, or undeclared )
-and lifetime depth as the base (see \itemref{LIFETIMES}).
+and lifetime depth as the pointer pointing at the
+field or subfield's container (see \itemref{LIFETIMES}).
 \end{enumerate}
 \end{minipage}
 \end{center}
