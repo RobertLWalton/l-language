@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 2, 2026
+November 3, 2026
 
 \bigskip
 
@@ -3739,22 +3739,27 @@ where the {\em constant-expression} evaluates to the {\tt const}
 string $S$, is equivalent to `{\em reference-base}\TT{.}$S$'.
 An {\em offset-index-list} for \TT{.}$S$ may appear after these expressions.
 
-When a {\em reference-offset} specifying a field or subfield
+When a {\em reference-offset} specifying a field 
 in a user defined type produces a new reference pointer with a
 pointer part and no call part
-(as in Cases~\ref{DP-AP-CASE} and \ref{AV-FV-CASE} above),
+(as in Case~\ref{DP-AP-CASE}),
+pointing at the field,
 the access and lifetime qualifiers of the new
 pointer part are determined according to
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}%
 \label{QUALIFIER-COMPUTATION}
-from the qualifiers of the old pointer part (those in $PT$),
-the container of the field or subfield,
-and the coded qualifiers of the field or or the computed access qualifiers
-of a subfield.
-Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
-is also used to compute the computed access qualifiers of a subfield
-from from the coded access qualifiers of its containing field and the
-coded access qualifiers of the subfield.
+from the effective qualifiers of user defined type (those in $PT$),
+which is the container of the field,
+and the coded qualifiers of the field.
+
+When instead the {\em reference-offset} specifies a subfield,
+the effective qualifiers of the new pointer part are determined
+by Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
+from the effective qualifiers of the field containing the subfield
+(after these have been determined according to the last paragraph),
+which is the container of the subfield, and the coded qualifiers of
+the subfield.
+
 Note that if the qualifiers of the container
 are {\tt co} or {\tt *INIT*}, these remain the qualifiers of the
 contained field or subfield.
@@ -3762,7 +3767,7 @@ contained field or subfield.
 \begin{boxedfigure}[!t]
 \newcommand{\tts}{\tt \small}
 \begin{center}
-Computed Field or Subfield Access Qualifier \\
+Effective Field or Subfield Access Qualifier \\
 Given Container Access Qualifier \\
 and Coded Field or Subfield Access Qualifier
 \\[1ex]
