@@ -3219,7 +3219,7 @@ next V:        // V has a new reference pointer RP3 and
                      // names RP2.
 // Now V names only RP3.
 \end{verbatim}\end{indpar}
-\item If a {\em initial-variable-declaration}
+\item If an {\em initial-variable-declaration}
 has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
 it declares may begin with up to $N$ `\TT{@}'s.  This variable with exactly
 one of its `\TT{@}'s removed is the associated
@@ -4175,32 +4175,6 @@ The forms of an {\em assignment-statement} are:
 {\em variable-declaration} ::= see \pagref{VARIABLE-DECLARATION}
 \\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
-\\[2ex]
-where
-\begin{enumerate}
-\item If a {\em initial-variable-declaration}
-has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
-it declares may begin with up to $N$ `\TT{@}'s.
-\item For a {\em pointer-variable} with an {\em allocation-call},
-the {\em allocation-call} allocates and zeros memory for the value of the
-associated {\em primary-target-variable}, and returns a pointer to the
-allocated memory that is stored in the {\em pointer-variable}.
-For such a {\em pointer-variable} it is the
-associated {\em primary-target-variable}
-that is set by the {\em assignment-statement}.
-\item For an {\em isolated-declaration-statement} declaring a
-{\em pointer-variable} with no {\em alloca\-tion-call},
-`{\tt @= allocate}' is implied.  If the pointer has the {\tt *GLOBAL*}
-target qualifier, this will allocate to the global stack, and if
-the pointer has no lifetime qualifier, this will allocate to the local stack.
-\item For an {\em isolated-declaration-statement} `{\tt = *DEFERRED*}'
-is implied unless the declaration is of a {\tt *READ-WRITE*}
-{\em pointer-variable}.
-\item An {\em isolated-declaration-statement} declaring a
-{\tt *READ-WRITE*} {\em pointer-variable} (for which
-`{\tt = *DEFERRED*}' is \underline{not} implied) is equivalent
-to a {\em block-assignment-statement} with an empty subblock.
-\end{enumerate}
 
 \end{indpar}
 
@@ -4219,7 +4193,7 @@ to control the flow of execution within the more complex
     \end{tabular}
 \end{indpar}
 
-A {\em \ldots-variable-declaration}\label{VARIABLE-ALLOCATION}
+A {\em variable-declaration}\label{VARIABLE-ALLOCATION}
 allocates memory for its variables in the global or local stack.
 The sizes of these variables must be known at compile time.
 For a {\em pointer-variable}, it is the pointer itself that is
@@ -4243,11 +4217,11 @@ A {\em variable-declaration}\label{VARIABLE-INITIALIZATION}
 initializes its variables
 according to the declaration syntax as follows:
 \begin{indpar}[0.05in]
-Non-{\tt next} variable declaration with no {\em allocation-call}\,: \\
+Non-{\tt next} {\em variable-declaration} with no {\em allocation-call}\,: \\
 \hspace*{3em}The memory is zeroed. \\
-{\tt Next} variable declaration with no {\em allocation-call}\,: \\
+{\tt Next} {\em variable-declaration} with no {\em allocation-call}\,: \\
 \hspace*{3em}Previous value of the named variable. \\
-Variable declaration with {\em allocation-call}\,: \\
+{\em variable-declaration} with {\em allocation-call}\,: \\
 \hspace*{3em}Value returned by the {\em allocation-call}
              (the allocated memory is zeroed).
 \end{indpar}
@@ -4317,23 +4291,19 @@ Non-{\tt next} variables are allocated only at the start of the
 {\em loop-assignment-statement}, and are {\tt *INIT*} (and not readable)
 throughout all iterations.
 
-If a {\em declaration} declares a {\em pointer-variable},
-the associated {\em target-variables} are implicitly declared at the same time.
-The {\em target-variables} themselves are not allocated to memory,
-but instead reference the values the {\em pointer-variable}
-points at.
-
 Note that a variable declaration does not allow
 qualifiers on anything but the target of a pointer.  The implicit
-qualifier of a declared variable is {\tt co} after the
-{\em assignment-statements} meaning that
+qualifier of a declared variable is {\tt co} after its
+{\em assignment-statement} executes meaning that
 the value of the variable once initially set is never changed.
 The qualifiers of a {\em primary-target-variable} associated with a
 {\em pointer-variable} allocated by an {\em allocation-call}
 are {\tt *INIT*} in the subblock {\em statements}
 of a {\em block/loop-assignment-statement} and those of the target of
 its associated pointer after the
-{\em block/loop-assignment-statement}.
+{\em block/loop-assignment-statement} executes.
+
+TBD
 
 A {\em next-variable-declaration} for a {\em variable} {\tt v}
 must occur in the scope of either a non-{\em next-variable-declaration}
