@@ -4307,8 +4307,6 @@ of a {\em block/loop-assignment-statement} and those of the target of
 its associated pointer after the
 {\em block/loop-assignment-statement} executes.
 
-TBD
-
 A {\em next-variable-declaration} for a variable {\tt v} enables
 `{\tt next v}' to be used as an {\em assignment-result} within the subblock
 {\em statements} of a {\em block/loop assignment-statement}.  Use of
@@ -4390,16 +4388,20 @@ left-to-right order and
 then the {\em expression} values are stored in the {\em assignment-results}.
 
 Variable names declared by {\em initial-variable-declarations} that are
-{\em assignment-results} are not visible to the {\em expressions}.
-In particular, if `{\tt next V}' is an {\em assignment-result},
-the name `{\tt V}' in an {\em expression} will refer to the variable
-that exists before the {\em expression-assignment-statement}.
+{\em assignment-results} of an {\em expression-assignment-statement}
+are not visible in the {\em expressions}.
+But variable names declared by {\em next-variable-declarations}
+(e.g., `{\tt next V}') are visible (e.g., as `{\tt V}')
+and refer to the variable
+that exists before the {\em expression-assignment-statement} is
+executed.
 
 The type of an {\em assignment-result} becomes the \key{target type}
 of its corresponding {\em expression}.  If the {\em expression}
 is a {\em function-call}, the type of the first result of the
 {\em function-prototype} must exactly match
-the target type of the {\em expression},
+the target type of the {\em expression}, the remaining prototype
+results are discarded,
 and the types of the prototype arguments become the target types
 of the {\em actual-argument} sub-expressions.
 
