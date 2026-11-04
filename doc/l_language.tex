@@ -3127,6 +3127,10 @@ The syntax is:
 	      ~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
       \end{tabular}
 \\[0.5ex]
+\emkey{allocation-call}\label{ALLOCATION-CALL} ::=
+    {\em function-call} to
+    an {\tt allocator} function\pagnote{ALLOCATOR-FUNCTION}
+\\[0.5ex]
 \emkey{pointer-target-type}\label{TARGET-TYPE}
 	\begin{tabular}[t]{rl}
 	::= & {\em type-name} | {\em bit-string-type} \\
@@ -3152,7 +3156,8 @@ The syntax is:
                          $|$ \ttkey{flt128} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{isolated-declaration-statement} ::= {\em initial-variable-declaration}
+\emkey{isolated-declaration-statement}\label{ISOLATED-DECLARATION-STATEMENT}
+    ::= {\em initial-variable-declaration}
 \\[0.5ex]
 {\em type-name} ::= see \pagref{TYPE-NAME}
 \\[0.5ex]
@@ -3163,8 +3168,6 @@ The syntax is:
 {\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
 \\[0.5ex]
 {\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
-\\[0.5ex]
-{\em allocation-call} ::= see \pagref{ALLOCATION-CALL}
 \\[0.5ex]
 {\em constant-expression} ::= see \pagref{CONSTANT-EXPRESSION}
 \\[2ex]
@@ -3743,7 +3746,7 @@ When a {\em reference-offset} specifying a field
 in a user defined type produces a new reference pointer with a
 pointer part and no call part
 (as in Case~\ref{DP-AP-CASE}),
-pointing at the field,
+pointing at a field,
 the access and lifetime qualifiers of the new
 pointer part are determined according to
 Figure~\ref{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}%
@@ -4146,7 +4149,8 @@ The forms of an {\em assignment-statement} are:
         & ~~~~~ {\em exit-subblock}\STAR{} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{isolated-declaration-statement} ::= {\em initial-variable-declaration}
+\emkey{isolated-declaration-statement} ::=
+	see \pagref{ISOLATED-DECLARATION-STATEMENT}
 \\[0.5ex]
 \emkey{exit-subblock} ::=
     \begin{tabular}[t]{l}
@@ -4168,45 +4172,9 @@ The forms of an {\em assignment-statement} are:
     $|$ & {\em reference-expression}
     \end{tabular}
 \\[0.5ex]
+{\em variable-declaration} ::= see \pagref{VARIABLE-DECLARATION}
+\\[0.5ex]
 {\em reference-expression} ::= see \pagref{REFERENCE-EXPRESSIONS}
-\\[0.5ex]
-\emkey{variable-declaration}
-    \begin{tabular}[t]{@{}rll}
-    ::= & {\em initial-variable-declaration} \\
-    $|$ & {\em next-variable-declaration} \\
-    \end{tabular}
-\\[0.5ex]
-\emkey{initial-variable-declaration} ::= \\
-\hspace*{0.5in}\begin{tabular}{rl}
-	    & {\em type-name} {\em non-pointer-variable} \\
-	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      \}\PLUS{} \\
-	    & ~~~~~~~~ {\em type-name} {\em pointer-variable}
-	               \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
-	\end{tabular}
-\\[0.5ex]
-\emkey{next-variable-declaration} \\
-\hspace*{0.5in}\begin{tabular}{rl}
-      ::= & \ttkey{next} {\em non-pointer-variable} \\
-      $|$ & \ttkey{next} {\em pointer-variable}
-	      ~ \{ \TT{@=} {\em allocation-call} \}\QMARK{} \\
-      \end{tabular}
-\\[0.5ex]
-{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
-\\[0.5ex]
-{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
-\\[0.5ex]
-{\em type-name} ::= see \pagref{TYPE-NAME}
-\\[0.5ex]
-{\em variable-name} ::= see \pagref{VARIABLE-NAME}
-\\[0.5ex]
-{\em non-pointer-variable} ::= see \pagref{NON-POINTER-VARIABLE}
-\\[0.5ex]
-{\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
-\\[0.5ex]
-\emkey{allocation-call}\label{ALLOCATION-CALL} ::=
-    {\em function-call} to
-    an {\tt allocator} function\pagnote{ALLOCATOR-FUNCTION}
 \\[2ex]
 where
 \begin{enumerate}
