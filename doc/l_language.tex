@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 3, 2026
+November 4, 2026
 
 \bigskip
 
@@ -3185,6 +3185,10 @@ name without the {\em module-abbreviation}.
 \item An {\em initial-variable-declaration} of a variable V cannot
 be within the scope of another
 {\em initial-variable-declaration} of V: see Scope\pagnote{SCOPE}.
+An {\em initial-variable-declara\-tion} of a {\em pointer-variable}
+also declares all the {\em target variables}\pagnote{TARGET-VARIABLE}
+of the {\em pointer-variable}.  For example, declaration of {\tt @@p}
+also declares {\tt @p} and {\tt p}.
 \item \label{INITIAL-REFERENCE-POINTER}
 An {\em initial-variable-declaration} creates a reference pointer
 and assigns a variable name to it.
@@ -3220,7 +3224,7 @@ next V:        // V has a new reference pointer RP3 and
 // Now V names only RP3.
 \end{verbatim}\end{indpar}
 \item If an {\em initial-variable-declaration}
-has $N>0$ {\em pointer-type-names}, the {\em pointer-variable}
+has $N>0$ {\em pointer-type-names}, the {\em pointer-vari\-able}
 it declares may begin with up to $N$ `\TT{@}'s.  This variable with exactly
 one of its `\TT{@}'s removed is the associated
 {\em primary-target-variable}\pagnote{PRIMARY-TARGET-VARIABLE},
@@ -4304,15 +4308,6 @@ its associated pointer after the
 {\em block/loop-assignment-statement} executes.
 
 TBD
-
-A {\em next-variable-declaration} for a {\em variable} {\tt v}
-must occur in the scope of either a non-{\em next-variable-declaration}
-for {\tt v} or another {\em next-variable-declaration} for {\tt v}.
-Furthermore, {\tt v} cannot be a {\em target-variable} associated
-with a {\em pointer-variable}.
-The {\em next-variable-declaration} re-declares {\tt v} making a new
-variable that hides the previously declared {\tt v}.  The new variable
-has the same types and qualifiers as the previous variable named {\tt v}.
 
 A {\em next-variable-declaration} for a variable {\tt v} enables
 `{\tt next v}' to be used as an {\em assignment-result} within the subblock
