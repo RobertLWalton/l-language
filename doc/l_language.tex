@@ -4567,8 +4567,7 @@ enter an {\em exit-subblock} of the block:
 \emkey{go-to-exit-statement}\label{GO-TO-STATEMENT} ::=
     \ttkey{go to} {\em go-to-label} \TT{exit}
 \\[0.5ex]
-\emkey{go-to-label} ::= {\em block-label} $|$ {\em exit-label} other than
-                        {\tt *EXCEPTION*}
+\emkey{go-to-label} ::= {\em block-label} $|$ {\em exit-label}
 \end{indpar}
 
 Unless a {\em go-to-exit-statement} is executed,
@@ -4588,10 +4587,10 @@ but not in the {\em exception-subblock} is executed:
     \ttkey{throw} ~ {\em throw-ID}\QMARK{} \\
 \emkey{throw-ID} ::= {\em expression} evaluating to an {\tt uns} integer
 \end{indpar}
-If a {\tt throw-statement} is executed in an
+If a {\em throw-statement} is executed in an
 {\em exception-subblock}, it behaves as if the containing
 {\em block-assignment-statement}
-were replaced by the {\tt throw-statement}.  If a
+were replaced by the {\em throw-statement}.  If a
 {\em block-assignment-statement} has no {\em exception-subblock},
 it behaves as if it did have an {\em exception-subblock} whose only
 statement was a `{\tt throw}' statement (without {\em throw-ID}).
@@ -4614,7 +4613,7 @@ It is a compile error if a {\em statement}
 within the {\em block-assignment-statement}
 uses a declaration and the statement can be reached by a path that
 does not contain the declaration.
-Note that declarations not in {\em exit-subblocks} have scope
+Declarations not in {\em exit-subblocks} have scope
 that includes the {\em exit-subblocks}, but declarations
 within an {\em exit-subblock} have scope that ends with the end of
 the {\em exit-subblock}.  A {\em function declaration}
@@ -4628,18 +4627,22 @@ by the \TT{allocate} function is treated differently:  see
 
 There is an exception to the last paragraph for {\em exception-subblocks}.
 In these any {\tt co} variable allocated in the
-{\em block-assignment-statement} may be read, but the value will
+{\em block-assignment-statement} (but not in one of its {\em exit-subblocks})
+may be read, but the value will
 be zero or {\tt null} if the variable's declaration has not been
 executed.  The `{\tt is set}' function\pagnote{IS-SET} should be
 used to test a variable in this case.
+
+TBD
 
 If\label{BLOCK-NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
 {\em assignment-result} of some {\em statement} within a
 {\em block-assignment-statement} that is not within the scope of
 a {\em initial-variable-declaration} for the {\em variable-name}
-that is also within some {\em statement} of the
+that is also within the
 {\em block-assignment-statement},
-then `{\tt next} {\em variable-name}' will be automatically added
+then the {\em variable-declaration}
+`{\tt next} {\em variable-name}' will be automatically added
 to the {\em variable-declarations}
 of the {\em block-assignment-state\-ment},
 if it is not already there.  For example:
