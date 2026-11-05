@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 4, 2026
+November 5, 2026
 
 \bigskip
 
@@ -3199,6 +3199,27 @@ of V.  The {\em initial-variable-declaration} of V must preceed the
 
 A `{\tt next V}' expression that does not conform to this rule is
 a {\em reference-expression} and not a {\em variable-declaration}.
+
+\item Given a `{\tt next V}' expression that is a {\em reference-expression},
+it must be contained in a smallest block $B$ that has an
+{\em initial-variable-declaration} for {\tt V}.  Let $B'$ be the immediate
+subblock of $B$ that contains the {\em reference-expression} `{\tt next V}'.
+Then the {\em next-variable-declaration} `{\tt next V}' should be a
+{\em variable-declaration} of $B'$.  If it is not, it is automatically
+added, and thus implied.\label{BLOCK-NEXT-PROMOTION}
+
+Example:
+\begin{indpar}\begin{verbatim}
+int x = 5
+do:
+    next x = x + 1
+\end{verbatim}\end{indpar}
+is equivalent to:
+\begin{indpar}\begin{verbatim}
+int x = 5
+next x = do:
+    next x = x + 1
+\end{verbatim}\end{indpar}
 \item \label{NEXT-REFERENCE-POINTER}
 A {\em next-variable-declaration} `{\tt next V}'
 creates a new reference pointer and assigns it to {\tt V}.
@@ -4543,6 +4564,10 @@ where
 any {\em exception-subblock} must be the last {\em exit-subblock}
 in the {\em block-assignment-statement}.
 
+\item {\em Next-variable-declarations} may be implied: see
+note \ref{BLOCK-NEXT-PROMOTION}\pagnote{BLOCK-NEXT-PROMOTION}.
+
+
 \end{enumerate}
 \end{indpar}
 
@@ -4632,31 +4657,6 @@ may be read, but the value will
 be zero or {\tt null} if the variable's declaration has not been
 executed.  The `{\tt is set}' function\pagnote{IS-SET} should be
 used to test a variable in this case.
-
-TBD
-
-If\label{BLOCK-NEXT-PROMOTION} `{\tt next} {\em variable-name}' is used as an
-{\em assignment-result} of some {\em statement} within a
-{\em block-assignment-statement} that is not within the scope of
-a {\em initial-variable-declaration} for the {\em variable-name}
-that is also within the
-{\em block-assignment-statement},
-then the {\em variable-declaration}
-`{\tt next} {\em variable-name}' will be automatically added
-to the {\em variable-declarations}
-of the {\em block-assignment-state\-ment},
-if it is not already there.  For example:
-\begin{indpar}\begin{verbatim}
-int x = 5
-do:
-    next x = x + 1
-\end{verbatim}\end{indpar}
-is equivalent to:
-\begin{indpar}\begin{verbatim}
-int x = 5
-next x = do:
-    next x = x + 1
-\end{verbatim}\end{indpar}
 
 \subsection{Deferred Assignment Statements}
 \label{DEFERRED-ASSIGNMENT-STATEMENTS}
