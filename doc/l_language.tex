@@ -4708,19 +4708,23 @@ before companions compute their values will
 read zero.
 For pointers this will typically reference undefined memory which
 will cause a memory fault if accessed.
-For code within the scope of a companion the
+For code following a companion the
 variable qualifier will be changed to {\tt co}.
+This paragraph applies to pointer variables \underline{not} allocated by the
+{\em deferred-assignment-statement}.
 
 
 For pointers allocated by a {\em deferred-assignment-statement},
-the target value will be zeroed and
-the pointer target will be given the {\tt ro} qualifier, except for
-code within the scope of the pointer's companion,
-for which the pointer target will be given its declared qualifiers.
+the pointer will be made {\tt co},
+the pointer target value will be zeroed, and
+the pointer target will be given the {\tt ro} qualifier.
+For code following a companion the
+pointer target qualifiers will be changed
+to the qualifiers of the pointer type.
 
 
 The variables declared in a {\em deferred-assignment-statement} are treated as
-normal {\em block-vari\-able-declaration} variables inside their companions.
+normal {\em vari\-able-declaration} variables inside their companions.
 In particular, inside their companions
 the {\tt ro} variables are {\tt *INIT*}\pagnote{INIT-FORCING},
 and the {\tt co} pointer variables set by
