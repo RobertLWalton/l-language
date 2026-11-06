@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 5, 2026
+November 6, 2026
 
 \bigskip
 
@@ -4786,6 +4786,19 @@ A {\em loop-assignment-statement} has the syntax:
 \\[0.5ex]
 \emkey{continue-statement}\label{CONTINUE-STATEMENT} ::=
     \ttkey{continue} {\em loop-label}\QMARK{}
+\\[2.0ex]
+where
+\begin{enumerate}
+
+\item The {\em exit-label} \ttkey{*EXCEPTION*} is special and
+any {\em exception-subblock} must be the last {\em exit-subblock}
+in the {\em loop-assignment-statement}.
+
+\item {\em Next-variable-declarations} may be implied: see
+note \ref{BLOCK-NEXT-PROMOTION}\pagnote{BLOCK-NEXT-PROMOTION}.
+
+
+\end{enumerate}
 \end{indpar}
 
 A {\em loop-assignment-statement} that has
@@ -4884,9 +4897,7 @@ is being exited or continued.
 
 \label{LOOP-NEXT-PROMOTION}
 As in {\em block-assignment-statements}, if `{\tt next V}' occurs
-as an {\em assignment-result} within the loop {\em statements}
-but is not within the scope of a {\em initial-variable-declaration}
-for {\tt V} that is also within the loop {\em statements},
+as a {\em reference-expression} within the loop {\em statements},
 `{\tt next V}' will be added to the {\em next-variable-declaration}
 list of the {\em loop-assignment-statement}.  Therefore the
 above example could be written as:
@@ -4905,6 +4916,12 @@ while i < 4:
     next sum = sum + i
     next i = i + 1
 \end{verbatim}\end{indpar}
+
+{\em Go-to-exit-statements}, {\em throw-statements},
+and {\em exception-subblocks} are treated
+within a loop iteration just as they are for {\em block-assignment-statements}.
+A {\em throw-statement} in an {\em exception-subblock} behaves as if the
+{\em loop-assignment-statement} were replaced by the {\em throw-statement}.
 
 \section{Conditional Statements}
 \label{CONDITIONAL-STATEMENTS}
