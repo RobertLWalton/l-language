@@ -5109,11 +5109,17 @@ The syntax of a type declaration is:
         & {\em qualifier-name}\STAR{} {\em field-type-name}~
           {\em non-pointer-label}~ {\em field-dimensions}\QMARK{} \\
     $|$ & {\em qualifier-name}\STAR{}
-                \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	        \}\PLUS{} \\
-        & ~~~~~ {\em field-type-name}~
+                {\em pointer-type-name} {\em qualifier-name}\STAR{} \\
+        & ~~~~~ {\em field-pointer-target-type}~
                 {\em pointer-label}~ {\em field-dimensions}\QMARK{}
 	\end{tabular}
+\\[2ex]
+\emkey{field-pointer-target-type} ::= \\
+\hspace*{0.5in}\begin{tabular}[t]{@{}rl}
+        &  {\em field-type-name} \\
+    $|$ &  {\em pointer-type-name} {\em qualifier-name}\STAR{}
+           {\em field-pointer-type} \\
+    \end{tabular}
 \\[2ex]
 \emkey{field-type-name} ::= {\em type-name} that is not {\tt const} \\
 {\em type-name} ::= see \pagref{TYPE-NAME} \\
