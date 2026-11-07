@@ -5014,11 +5014,7 @@ The following is a complete list of declarations:
 \begin{indpar}
 \emkey{declaration}\label{DECLARATION}
     \begin{tabular}[t]{@{}rll}
-    ::= & {\em initial-variable-declaration}
-        & [\pagref{INITIAL-VARIABLE-DECLARATION}] \\
-    $|$ & {\em next-variable-declaration}
-        & [\pagref{NEXT-VARIABLE-DECLARATION}] \\
-    $|$ & {\em variable-declaration}
+    ::= & {\em variable-declaration}
         & [\pagref{VARIABLE-DECLARATION}] \\
     $|$ & {\em prototype-result-declaration}
         & [\pagref{PROTOTYPE-RESULT-DECLARATION}] \\
@@ -6017,24 +6013,9 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{prototype-result-variable-declaration}%
     \label{PROTOTYPE-RESULT-VARIABLE-DECLARATION} ::= \\
-\hspace*{0.5in}\begin{tabular}{rl}
-	    & {\em type-name} {\em non-pointer-variable} \\
-	$|$ & \{ {\em pointer-type-name} {\em qualifier-name}\STAR{}
-	      \}\PLUS{}
-	{\em type-name} {\em pointer-variable}
-	\end{tabular}
+\hspace*{0.5in}{\em variable-declaration} that has no {\em allocation-call}
 \\[0.5ex]
-{\em type-name} ::= see \pagref{TYPE-NAME}
-\\[0.5ex]
-{\em qualifier-name} ::= see \pagref{QUALIFIER-NAME}
-\\[0.5ex]
-{\em pointer-type-name} ::= see \pagref{POINTER-TYPE-NAME}
-\\[0.5ex]
-{\em variable-name} ::= see \pagref{VARIABLE-NAME}
-\\[0.5ex]
-{\em non-pointer-variable} ::= see \pagref{NON-POINTER-VARIABLE}
-\\[0.5ex]
-{\em pointer-variable} ::= see \pagref{POINTER-VARIABLE}
+{\em variable-declaration} ::= see \pagref{VARIABLE-DECLARATION}
 \\[0.5ex]
 \emkey{prototype-next-variable-declaration}%
     \label{PROTOTYPE-NEXT-VARIABLE-DECLARATION}
@@ -6053,6 +6034,8 @@ The syntax of a function declaration is:
 \emkey{default-value} ::= {\em expression}
 \\[0.5ex]
 \emkey{required-value} ::= {\em constant-expression}
+\\[0.5ex]
+{\em variable-name} ::= see \pagref{VARIABLE-NAME}
 \\[0.5ex]
 {\em expression} ::= see \pagref{EXPRESSION}
 \\[0.5ex]
