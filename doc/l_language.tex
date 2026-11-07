@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 6, 2026
+November 7, 2026
 
 \bigskip
 
@@ -6013,13 +6013,17 @@ The syntax of a function declaration is:
 \\[0.5ex]
 \emkey{prototype-result-variable-declaration}%
     \label{PROTOTYPE-RESULT-VARIABLE-DECLARATION} ::= \\
-\hspace*{0.5in}{\em variable-declaration} that has no {\em allocation-call}
+\hspace*{0.5in}{\em initial-variable-declaration}
+      that has no {\em allocation-call}
 \\[0.5ex]
-{\em variable-declaration} ::= see \pagref{VARIABLE-DECLARATION}
+{\em initial-variable-declaration} ::= see \pagref{INITIAL-VARIABLE-DECLARATION}
 \\[0.5ex]
 \emkey{prototype-next-variable-declaration}%
-    \label{PROTOTYPE-NEXT-VARIABLE-DECLARATION}
-      ::= \ttkey{next} {\em variable-name}
+    \label{PROTOTYPE-NEXT-VARIABLE-DECLARATION} ::= \\
+\hspace*{0.5in}{\em next-variable-declaration} ~~~~~~~~~~~~~~
+      [May have {\em allocation-call}.]
+\\[0.5ex]
+{\em next-variable-declaration} ::= see \pagref{NEXT-VARIABLE-DECLARATION}
 \\[0.5ex]
 \emkey{prototype-argument-declaration}\label{PROTOTYPE-ARGUMENT-DECLARATION} \\
 \hspace*{0.5in}\begin{tabular}[t]{@{}rl@{}}
