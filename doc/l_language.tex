@@ -5112,11 +5112,11 @@ The syntax of a type declaration is:
 \emkey{field-without-subfields-declaration} ::= \\
 \hspace*{0.5in}\begin{tabular}{rl}
         & {\em qualifier-name}\STAR{} {\em field-type-name}~
-          {\em non-pointer-label}~ {\em field-dimensions}\QMARK{} \\
+          {\em non-pointer-label}~ {\em dimensions}\QMARK{} \\
     $|$ & {\em qualifier-name}\STAR{}
                 {\em pointer-type-name} {\em qualifier-name}\STAR{} \\
         & ~~~~~ {\em field-pointer-target-type}~
-                {\em pointer-label}~ {\em field-dimensions}\QMARK{}
+                {\em pointer-label}~ {\em dimensions}\QMARK{}
 	\end{tabular}
 \\[2ex]
 \emkey{field-pointer-target-type} ::= \\
@@ -5143,7 +5143,7 @@ The syntax of a type declaration is:
     ~~~~~ [see text below] \\
 \emkey{data-label} ::=  see \pagref{DATA-LABEL}
 \\[2ex]
-\emkey{field-dimensions} ::=
+\emkey{dimensions} ::=
     \TT{[} {\em dimension-size} \{ \TT{,} {\em dimension-size} \}\STAR{}
     \TT{]} \\
 \emkey{dimension-size} ::=  {\em constant-expression}
@@ -5153,25 +5153,23 @@ The syntax of a type declaration is:
 \hspace*{0.5in}
     {\em qualifier-name}\STAR{}
     \TT{std}\QMARK{} {\em number-type-name}~ {\em non-pointer-label}\QMARK{}
-                {\em field-dimensions}\QMARK{} \\
-\hspace*{0.5in}
+                {\em dimensions}\QMARK{}\TT{:} \\
+\hspace*{1.0in}
     {\em subfield-declaration}\PLUS{} \\
 {\em number-type-name} ::= see \pagref{NUMBER-TYPE-NAME}
 \\[2ex]
 \emkey{subfield-declaration}\label{SUBFIELD-DECLARATION} ::= \\
 \hspace*{0.5in}\begin{tabular}[t]{rl}
-       & {\em bit-string-type} {\em subfield-label}
-    		{\em subfield-dimensions}\QMARK{} \\
-   $|$ & {\em subfield-offset} \\
-   $|$ & {\em subfield-abbreviation}
+	& {\em bit-string-type} {\em subfield-label}
+    		{\em dimensions}\QMARK{} \\
+    $|$ & {\em subfield-abbreviation} \\
+    $|$ &  \ttkey{*EXTERNAL*} \\
+    $|$ &  \ttkey{*PRIVATE*} \\
+    $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
+    $|$ &  \ttkey{*OFFSET*} {\em offset-specification}
     \end{tabular} \\
 {\em bit-string-type} ::= see \pagref{BIT-STRING-TYPE} \\
-\emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em non-pointer-label} \\
-\emkey{subfield-dimensions} ::=
-    \TT{[} {\em dimension-size}
-    \{ \TT{,} {\em dimension-size} \}\STAR{} \TT{]} \\
-\emkey{subfield-offset}\label{SUBFIELD-OFFSET} ::=
-    \ttkey{*SUBFIELD-OFFSET*} {\em offset-specification}
+\emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em non-pointer-label}
 \\[2ex]
 \emkey{field-abbreviation}\label{FIELD-ABBREVIATION} ::=
     {\em abbreviating-field-name}~ \ABV{}~ {\em abbreviated-field-name} \\
@@ -5198,11 +5196,17 @@ names the value pointed at by dereferencing the associated
 {\em pointer-label} field value as many times as there are removed
 `\TT{@}'s.
 \item
+The labels of fields and subfields in one {\em type-declaration}
+must all be distinct.  For example, a {\em type-declaration}
+may not have distince fields respectively labelled {\tt @p} and {\tt p},
+not may it have a field and a subfield both labeled {\tt x}.
+\item
 A {\em field-abbreviation} may be used to provide an alternative
 name for a field, and a
 {\em subfield-abbreviation} may be used to provide an alternative
 name for a subfield.  These abbreviations can only be used when
-naming fields or subfields.
+naming fields or subfields of the type in whose {\em type-declaration}
+they appear.
 \end{enumerate}
 \end{indpar}
 
