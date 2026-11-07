@@ -5077,12 +5077,7 @@ The syntax of a type declaration is:
     $|$ &  \ttkey{*PRIVATE*} \\
     $|$ &  \ttkey{*INCLUDE*} {\em defined-type-name} \\
     $|$ &  \ttkey{*LABEL*} {\em origin-label} \\
-    $|$ &  \ttkey{*OFFSET*} {\em origin-label} \{ \{\TT{+}|\TT{-}\}
-                            {\em offset-increment} \}\QMARK{} \\
-    $|$ &  \ttkey{*OFFSET*} \{\TT{+}|\TT{-}\}
-                            {\em offset-increment} \\
-    $|$ &  \ttkey{*OFFSET*} {\em offset} \\
-    $|$ &  \ttkey{*OFFSET* *SIZE*} \\
+    $|$ &  \ttkey{*OFFSET*} {\em offset-specification} \\
     $|$ &  \ttkey{***} \\
     \end{tabular}
 \\[2ex]
@@ -5090,7 +5085,17 @@ The syntax of a type declaration is:
 		      with power of 2 integer value \\
 \emkey{origin-label}\label{ORIGIN-LABEL} ::=
     {\em basic-name} not containing \TT{@} \\
-\emkey{basic-name} ::=  see \pagref{BASIC-NAME} \\
+\emkey{basic-name} ::=  see \pagref{BASIC-NAME}
+\\[2ex]
+\emkey{offset-specification} ::= \\
+\hspace*{0.5in}%
+    \begin{tabular}[t]{@{}rl}
+    $|$ &  {\em origin-label} \{ \{\TT{+}|\TT{-}\}
+                            {\em offset-increment} \}\QMARK{} \\
+    $|$ &  \{\TT{+}|\TT{-}\} {\em offset-increment} \\
+    $|$ &  {\em offset} \\
+    $|$ &  \ttkey{*SIZE*} \\
+    \end{tabular} \\
 {\em offset-increment} ::=
     integer valued {\em constant-expression} \\
 {\em offset} ::=
@@ -5118,7 +5123,7 @@ The syntax of a type declaration is:
 \hspace*{0.5in}\begin{tabular}[t]{@{}rl}
         &  {\em field-type-name} \\
     $|$ &  {\em pointer-type-name} {\em qualifier-name}\STAR{}
-           {\em field-pointer-type} \\
+           {\em field-pointer-target-type} \\
     \end{tabular}
 \\[2ex]
 \emkey{field-type-name} ::= {\em type-name} that is not {\tt const} \\
@@ -5148,7 +5153,7 @@ The syntax of a type declaration is:
 \hspace*{0.5in}
     {\em qualifier-name}\STAR{}
     \TT{std}\QMARK{} {\em number-type-name}~ {\em non-pointer-label}\QMARK{}
-                {\em field-dimension}\STAR{} \\
+                {\em field-dimensions}\QMARK{} \\
 \hspace*{0.5in}
     {\em subfield-declaration}\PLUS{} \\
 {\em number-type-name} ::= see \pagref{NUMBER-TYPE-NAME}
@@ -5163,12 +5168,10 @@ The syntax of a type declaration is:
 {\em bit-string-type} ::= see \pagref{BIT-STRING-TYPE} \\
 \emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em non-pointer-label} \\
 \emkey{subfield-dimensions} ::=
-    \TT{[} {\em dimension-size} \{ \TT{,} {\em dimension-size} \}\STAR{} \TT{]}
-\\[2ex]
+    \TT{[} {\em dimension-size}
+    \{ \TT{,} {\em dimension-size} \}\STAR{} \TT{]} \\
 \emkey{subfield-offset}\label{SUBFIELD-OFFSET} ::=
-    \ttkey{*OFFSET*} {\em bit-offset} \\
-\emkey{bit-offset} ::=
-    non-negative integer valued {\em constant-expression}
+    \ttkey{*SUBFIELD-OFFSET*} {\em offset-specification}
 \\[2ex]
 \emkey{field-abbreviation}\label{FIELD-ABBREVIATION} ::=
     {\em abbreviating-field-name}~ \ABV{}~ {\em abbreviated-field-name} \\
