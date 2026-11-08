@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 7, 2026
+November 8, 2026
 
 \bigskip
 
@@ -1525,6 +1525,7 @@ grouped into larger data structures such as character strings, vectors
 of numbers, pointers, and user defined structures.
 
 \subsection{Builtin Run-Time Number Types}
+\label{BUILTIN-RUN-TIME-NUMBER-TYPES}
 
 \begin{center}
 \begin{tabular}{|l|l|l|}
@@ -1592,7 +1593,8 @@ floating point numbers, and addresses.
 \item {\tt bool}\pagnote{BOOL} is \underline{not} a number type.
 \end{itemize}
 
-\subsection{Builtin run-Time Pointer Types}
+\subsection{Builtin Run-Time Pointer Types}
+\label{BUILTIN-RUN-TIME-POINTER-TYPES}
 
 A pointer type has an associated data type which is a structure
 whose components are the parts of the pointer.  For example, the
@@ -3488,8 +3490,8 @@ itself must be a separate {\em 1D-index-list}
 and with user defined pointer types that convert to \TT{av} or \TT{bsv}
 pointers.
 \item
-{\em Offset-index-lists} can be used with a {\em field-name}
-or {\em subfield-name}, but the total dimensions\pagnote{TOTAL-DIMENSIONS}
+{\em Offset-index-lists} can be used with a {\em field-label}
+or {\em subfield-label}, but the total dimensions\pagnote{TOTAL-DIMENSIONS}
 of this name must equal
 the length of the {\em offset-index-list}.  An {\em offset-index-list}
 of the form `\TT{[*]}' may be omitted, and will be implied if it is omitted
@@ -5172,14 +5174,14 @@ The syntax of a type declaration is:
 \emkey{subfield-label}\label{SUBFIELD-LABEL} ::=  {\em non-pointer-label}
 \\[2ex]
 \emkey{field-abbreviation}\label{FIELD-ABBREVIATION} ::=
-    {\em abbreviating-field-name}~ \ABV{}~ {\em abbreviated-field-name} \\
-\emkey{abbreviating-field-name} ::= {\em field-label} \\
-\emkey{abbreviated-field-name} ::= {\em field-label} \\
+    {\em abbreviating-field-label}~ \ABV{}~ {\em abbreviated-field-label} \\
+\emkey{abbreviating-field-label} ::= {\em field-label} \\
+\emkey{abbreviated-field-label} ::= {\em field-label} \\
 \emkey{subfield-abbreviation}\label{SUBFIELD-ABBREVIATION} ::= \\
 \hspace*{0.5in}
-    {\em abbreviating-subfield-name}~ \ABV{}~ {\em abbreviated-subfield-name} \\
-\emkey{abbreviating-subfield-name} ::= {\em subfield-label} \\
-\emkey{abbreviated-subfield-name} ::= {\em subfield-label}
+    {\em abbreviating-subfield-label}~ \ABV{}~ {\em abbreviated-subfield-label} \\
+\emkey{abbreviating-subfield-label} ::= {\em subfield-label} \\
+\emkey{abbreviated-subfield-label} ::= {\em subfield-label}
 \\[2ex]
 where
 \begin{enumerate}
@@ -5199,21 +5201,96 @@ names the value pointed at by dereferencing the associated
 The labels of fields and subfields in one {\em type-declaration}
 must all be distinct.  For example, a {\em type-declaration}
 may not have distince fields respectively labelled {\tt @p} and {\tt p},
-not may it have a field and a subfield both labeled {\tt x}.
+and may not have a field and a subfield both labeled {\tt x}.
 \item
 A {\em field-abbreviation} may be used to provide an alternative
-name for a field, and a
+label for a field, and a
 {\em subfield-abbreviation} may be used to provide an alternative
-name for a subfield.  These abbreviations can only be used when
-naming fields or subfields of the type in whose {\em type-declaration}
+label for a subfield.  These abbreviations can only be used when
+labelling fields or subfields of the type in whose {\em type-declaration}
 they appear.
 \end{enumerate}
 \end{indpar}
 
-The {\em type-subdeclarations} are processed in order.  At the
-beginning of each, there is a align/pack switch value and an
-offset-in-bits integer (the current offset).
-These determine the offset in bits
+Values of user defined types are byte strings.  Fields of a user defined
+type are byte substrings.  The number of bytes in a value that are before
+a field is the \key{byte offset} of the field.  {\em Type-subdeclarations}
+are used to define fields and the the offsets of these fields.
+
+A number-valued field may be treated as a bit string into which
+bit substrings called subfields may be allocated.  The order of these
+bits is from the high order end of the number to the low order end.
+The number of bits
+in the field that are before a subfield is the \key{bit offset} of the
+subfield.  {\em Subfield-declarations} are used to define
+subfields and the offsets of these fields.
+
+The {\em type-subdeclarations} of a {\em type-declaration}
+are processed in order.  At the
+beginning of each, there is a align/pack switch value, an
+byte offset value (the `\key{current offset}'), and an external/private
+switch value.
+
+A {\em field-declaration} defines a field of its containing user
+defined type.  If the align switch is `{\tt pack}', the offset
+of the field is the current offset.  If the align switch
+is `{\tt align}', the current offset is first incremented
+until it is an integer multiple of the alignment of the new field,
+and then the current offset is used as the byte offset of the
+new field.
+
+The alignment of a field is the alignment of its values, as determined
+by the type of the field, as follows:
+\begin{enumerate}
+\item The alignment of a number is the length of the number.  E.g., the
+alignment of a 4 byte integer is 4.
+\item The alignment of a user defined type is the least common multiple
+of the alignment of all its fields.  As alignments are always powers
+or 2, this is the same as the maximum alignment of any of its fields.
+
+E.g., the alignment of builtin pointers
+(see \itemref{BUILTIN-RUN-TIME-POINTER-TYPES}) is the length of a {\tt ptr}
+integer (see \itemref{BUILTIN-RUN-TIME-NUMBER-TYPES}).
+\end{enumerate}
+
+The current offset is set by a {\em field-declaration} to be the
+sum of the byte offset of the field and the length in bytes of the field.
+
+An `\ttkey{align} $N$' sub-declaration behaves like an unnamed
+field of alignment $N$ bytes and zero length,
+and in addition sets the align/pack switch to `align'.
+Here $N$ must be a power of 2.
+An `\ttkey{align}' sub-declaration just sets the
+align/pack switch to `align'.
+
+A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
+
+A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
+given {\em origin-label} and provides the {\em origin-label}
+for use by subsequent {\tt *OFFSET*} sub-declarations.
+Each {\em origin-label} may be defined only once for a given
+defined type.
+
+An \ttkey{*OFFSET*} sub-declaration changes the current offset to the value
+of a given {\em origin-label}, or to that value plus or minus
+an integer, or to the current value plus or minus an integer,
+or to a given non-negative integer.
+
+`\ttkey{*OFFSET* *SIZE*}' sets the current offset to the maximum
+current offset computed for the defined type so far.
+
+The processing of {\em subfield-declarations} within a
+{\em field-with-subfields-declaration} is similar to the
+processing of {\em field-declarations} within a {\em type-declaration}
+except that offsets are in bits and not bytes, and the align/pack
+switch is ignored.  The current offset is saved and reset to 0 before the first
+{\em subfield-declaration} processed, and is restored after the
+last {\em subfield-declaration} is processed.
+
+
+TBD
+
+These determine the offset in bytes
 of the next {\em field-declaration} field encountered
 relative to the beginning of each datum of the defined
 type being declared.  Also at the beginning of each
@@ -5235,25 +5312,6 @@ current offset is set to zero, but at the beginning of all others
 the current offset is undefined, and must be defined
 by an {\tt *OFFSET*} sub-declaration before it is used.
 
-If the align/pack switch is in the \key{align} position and the
-next {\em type-subdeclaration} is a {\em field-declaration}, the
-current offset will be incremented before becoming the offset
-of the field being declared.  The increment will be just enough
-to make the offset an exact multiple of the field's type's alignment.
-The alignment of a number type is its size in bits.  The alignment
-of a defined type is the least common multiple of the alignment of
-any of its fields, which, since all alignments are powers of two,
-is the same as the largest alignment of any of its fields.
-
-If the align/pack switch is in the \key{pack} position and the
-next {\em type-subdeclaration} is a {\em field-declaration}, the
-current offset will become the offset of the field being declared.
-
-When a field is declared, the current offset is set to the offset of
-the field plus the
-size of the field, which must be known.  There is also a current
-size which is the maximum of all the values of the current offset
-computed so far.
 
 If the external/private switch is in the \key{external} position a
 {\em field-label} or {\em subfield-label} declared by the
@@ -5271,15 +5329,6 @@ that is a module, also in the bodies of that module.
 A value of {\tt bool} type has a size of 1 bit and an alignment
 of 8 bits.  When it is stored in 8 bits, the value is encoded
 like a signed integer equal to -1 for {\tt true} and 0 for {\tt false}.
-
-An `\ttkey{align} $N$' sub-declaration behaves like an unnamed
-field of alignment $N$ bits and zero length,
-and in addition sets the align/pack switch to `align'.
-Here $N$ must be a power of 2.
-An `\ttkey{align}' sub-declaration just sets the
-align/pack switch to `align'.
-
-A \ttkey{pack} sub-declaration sets the align/pack switch to `pack'.
 
 A \ttkey{*EXTERNAL*}\label{EXTERNAL-SWITCH}
 sub-declaration sets the external/private switch
@@ -5314,19 +5363,6 @@ must be within the scope of the {\tt *DEFERRED*} {\em type-declaration}.
 If the {\tt *DEFERRED*} {\em type-declaration} is external, the root
 must be in the same module as the {\tt *DEFERRED*} {\em type-declaration},
 or in one of the bodies of that module.
-
-A \ttkey{*LABEL*} sub-declaration assigns the current offset to the
-given {\em origin-label} and provides the {\em origin-label}
-for use by subsequent {\tt *OFFSET*} sub-declarations.
-Each {\em origin-label} may be defined only once for a given
-defined type.
-
-An \ttkey{*OFFSET*} sub-declaration changes the current offset to the value
-of a given {\em origin-label}, or to that value plus or minus
-an integer, or to the current value plus or minus an integer,
-or to a given non-negative integer.
-
-`\ttkey{*OFFSET* *SIZE*}' sets the current offset to the current size.
 
 If a {\em type-declaration} does \underline{not} end with a \ttkey{***}
 sub-declaration, expansions of the {\em type-declaration} are forbidden
