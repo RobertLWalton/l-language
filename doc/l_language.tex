@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 8, 2026
+November 9, 2026
 
 \bigskip
 
@@ -5287,17 +5287,41 @@ switch is ignored.  The current offset is saved and reset to 0 before the first
 {\em subfield-declaration} processed, and is restored after the
 last {\em subfield-declaration} is processed.
 
+A {\em field-label} or {\em subfield-label} will be either external or private
+according to the setting of the external/private switch when the
+{\em type-subdeclaration} or {\em subfield-declaration} defining the label
+is executes.  If the defining declaration is in a body (modules have bodies,
+and bodies \underline{cannot} be imported by other modules or bodies:
+see \itemref{MODULE-AND-BODY-DECLARATIONS}), the label must be private.
+If the defining declaration is in a module (which can be imported by other
+modules or their bodies), the label may be external, in which case it is
+visible throughout the scope\pagnote{SCOPE} of its declaration, even where
+this scope includes other modules or their bodies.
+A private label, on the other hand,
+is not visible outside the module in which it is defined and the bodies
+of that module.
+
+The external/private switch\label{EXTERNAL-PRIVATE-SWITCH}
+is set to private before the first
+{\em type-subdeclaration} of a {\em type-declaration}.  It is set to
+external by the {\tt *EXTERNAL*} {\em type-subdeclaration}, and to private
+by the {\tt *PRIVATE*} {\em type-subdeclaration}.
+
+The external/private switch may only be set to external in a
+{\em type-declaration} of an external {\em defined-type-name}
+(this name must begin with a {\em module-abbreviation}).
+
+Before the first {\em subfield-declaration} of a
+{\em field-with-subfields-declaration} the external/private switch is
+saved, and after the last {\em subfield-declaration} it is restored.
+It may be set by {\tt *EXTERNAL*} and {\tt *PRIVATE*}
+{\em subfield-declarations}, but is not otherwise changed at the
+beginning or during the {\em field-with-subfields-declaration}.
+
+
+
 
 TBD
-
-These determine the offset in bytes
-of the next {\em field-declaration} field encountered
-relative to the beginning of each datum of the defined
-type being declared.  Also at the beginning of each
-{\em type-subdeclaration} is an external/private switch value
-that determines whether {\em field-labels} or {\em subfield-labels}
-are external (usable by other modules) or private (not usable
-by other modules).
 
 There may be several {\em type-declarations}
 for the same defined type.
@@ -5313,33 +5337,9 @@ the current offset is undefined, and must be defined
 by an {\tt *OFFSET*} sub-declaration before it is used.
 
 
-If the external/private switch is in the \key{external} position a
-{\em field-label} or {\em subfield-label} declared by the
-next {\em type-subdeclaration} will be visible throughout the scope
-of the {\em type-declaration}'s {\em defined-type-name}, which must
-itself be external.  Also the {\em field-type-name} of an external field
-{\em type-subdeclaration} must be external.
-
-If the external/private switch is in the \key{private} position a
-{\em field-label} or {\em subfield-label} declared by the
-next {\em type-subdeclaration} will be only be visible in the
-module or body containing the {\em type-subdeclaration}, and if
-that is a module, also in the bodies of that module.
-
 A value of {\tt bool} type has a size of 1 bit and an alignment
 of 8 bits.  When it is stored in 8 bits, the value is encoded
 like a signed integer equal to -1 for {\tt true} and 0 for {\tt false}.
-
-A \ttkey{*EXTERNAL*}\label{EXTERNAL-SWITCH}
-sub-declaration sets the external/private switch
-to `external'.  This is allowed only if the {\em defined-type-name}
-of the {\em type-declaration} is external
-\underline{and}
-the current {\em type-declaration} is in the same module as the
-root of the {\em defined-type-name}.
-
-A \ttkey{*PRIVATE*} sub-declaration sets the external/private switch
-to `private'.
 
 An `\ttkey{*INCLUDE*} {\em defined-type-name}' sub-declaration is similar
 to a `{\em defined-type-name} {\em field-label}' sub-declaration except
@@ -8132,7 +8132,7 @@ expanded definition is used.
 
 Components of a {\em type-declaration} (fields, subfields, labels)
 are external if they are compiled when their defined type's
-external switch\pagnote{EXTERNAL-SWITCH} is on.
+external/private switch\pagnote{EXTERNAL-PRIVATE-SWITCH} is set to external.
 The {\em field-type-names} of an external field must be external.
 
 A {\em function-constant-declaration}
