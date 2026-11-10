@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 9, 2026
+November 10, 2026
 
 \bigskip
 
@@ -5318,23 +5318,42 @@ It may be set by {\tt *EXTERNAL*} and {\tt *PRIVATE*}
 {\em subfield-declarations}, but is not otherwise changed at the
 beginning or during the {\em field-with-subfields-declaration}.
 
-
-
-
-TBD
-
 There may be several {\em type-declarations}
 for the same defined type.
 One of these is the \key{root},
 or first, of the set of these
 {\em type-declarations}, and all the others are called
-\skey{expansion}s, and are in the scope of the root.
+\skey{expansion}s, and are in the scope\pagnote{SCOPE} of the root.
 At the beginning of each {\em type-declaration}
 the align/pack switch is set to align, and the external/private
 switch is set to private.  At the beginning of the root the
 current offset is set to zero, but at the beginning of all others
 the current offset is undefined, and must be defined
 by an {\tt *OFFSET*} sub-declaration before it is used.
+
+If a {\em type-declaration} does \underline{not} end with a \ttkey{***}
+sub-declaration, expansions of the {\em type-declaration} are forbidden
+within the scope of the {\em type-declaration}.  If this {\em type-declaration}
+is in the same module or body as the root of its defined type,
+then the final size of the defined type's values, and the
+fields and subfields of the defined type, are fixed
+and known within the scope of this {\em type-declaration}.
+It is common for the root to not have a {\tt ***} sub-declaration.
+
+If a {\em type-declaration} ends with a \ttkey{***}
+sub-declaration, expansions of the {\em type-declaration} are permitted
+within its scope.  If the root and all expansions of the root
+within the module or body containing the root
+have a {\tt ***}
+sub-declaration, then the size of the defined type's values
+and the complete set of fields and subfields
+of the defined type are not known at any point during compilation.
+The value size is computed at load time, after all modules and bodies
+containing the defined type's root and its expansions have been loaded,
+and is implicitly used by {\em allocate-calls}
+that allocate values of the defined type.
+
+TBD
 
 
 A value of {\tt bool} type has a size of 1 bit and an alignment
@@ -5363,22 +5382,6 @@ must be within the scope of the {\tt *DEFERRED*} {\em type-declaration}.
 If the {\tt *DEFERRED*} {\em type-declaration} is external, the root
 must be in the same module as the {\tt *DEFERRED*} {\em type-declaration},
 or in one of the bodies of that module.
-
-If a {\em type-declaration} does \underline{not} end with a \ttkey{***}
-sub-declaration, expansions of the {\em type-declaration} are forbidden
-within the scope of the {\em type-declaration}.  If this {\em type-declaration}
-is in the same module or body as the root of its defined type,
-then the final size, fields, and subfields of the defined type are fixed
-and known within the scope of this {\em type-declaration}.
-
-If a {\em type-declaration} ends with a \ttkey{***}
-sub-declaration, expansions of the {\em type-declaration} are permitted
-within its scope, and the final size of its {\em defined-type-name} is
-\underline{not} known.  Also, if the {\em type-declaration} is
-\underline{not} in the same module or body as the type's root,
-the final size of the {\em defined-type-name} is \underline{not}
-known (it will be computed at load time and used to allocate
-values of the defined type).
 
 \subsubsection{Type Fields}
 
