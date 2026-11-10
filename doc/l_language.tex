@@ -5355,11 +5355,6 @@ that allocate values of the defined type.
 
 TBD
 
-
-A value of {\tt bool} type has a size of 1 bit and an alignment
-of 8 bits.  When it is stored in 8 bits, the value is encoded
-like a signed integer equal to -1 for {\tt true} and 0 for {\tt false}.
-
 An `\ttkey{*INCLUDE*} {\em defined-type-name}' sub-declaration is similar
 to a `{\em defined-type-name} {\em field-label}' sub-declaration except
 that instead of defining a new {\em field-label}, all the
@@ -5480,6 +5475,11 @@ type my type:       // Expansion of my type
 // how offsets are assigned to believe this.
 \end{verbatim}\end{indpar}
 
+A value of {\tt bool} type may be stored as a 1-byte field value
+or a 1-byte pointer target value.
+When this is done, the value is encoded
+as an unsigned integer equal to 1 for {\tt true} and 0 for {\tt false}.
+
 \subsubsection{Type Subfields}
 
 Subfields are parts of the previously declared number type field.
@@ -5527,6 +5527,11 @@ bool animal = X.animal         // == true
 bool vegetable = X.vegetable   // == false
 flt weight = X.weight
 \end{verbatim}\end{indpar}
+
+A value of {\tt bool} type may be stored as a 1-bit subfield value
+or a 1-bit bit string pointer target value.
+When this is done, the value is encoded
+as 1 for {\tt true} and 0 for {\tt false}.
 
 \subsubsection{Type Dimensions}
 
