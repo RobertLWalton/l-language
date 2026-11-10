@@ -5353,17 +5353,18 @@ containing the defined type's root and its expansions have been loaded,
 and is implicitly used by {\em allocate-calls}
 that allocate values of the defined type.
 
-TBD
-
-An `\ttkey{*INCLUDE*} {\em defined-type-name}' sub-declaration is similar
-to a `{\em defined-type-name} {\em field-label}' sub-declaration except
-that instead of defining a new {\em field-label}, all the
-fields and subfields of the {\em defined-type-name} are imported to the
-defined type containing the sub-declaration.  The final size of the
-{\em defined-type-name} must be known (see {\tt ***} below).
+The \ttkey{*INCLUDE*} sub-declaration copies all the sub-declarations
+from another user defined type.
+The text of the sub-declarations is copied, not the effects which may
+vary according to context.
+If the user defined type is
+defined by multiple {\em type-declarations}, only sub-declarations
+visible in the current scope\pagnote{SCOPE} are copied.
 
 A \ttkey{*DEFERRED*} {\em type-declaration} declares a {\em defined-type-name}
 without declaring the definition of the named type.
+It is the equivalent of a {\em type-declaration} whose only sub-declaration
+is {\tt ***}.
 Such a {\em type-declaration} is typically used to allow the
 {\em defined-type-name}
 to be used as the target type of a pointer before its fields are declared.
@@ -5371,12 +5372,6 @@ to be used as the target type of a pointer before its fields are declared.
 The {\em defined-type-name} in a {\em type-declaration} is declared before
 the {\em type-declaration}'s sub-declarations are processed, so these
 sub-declarations may use the {\em defined-type-name} as a pointer target type.
-
-The root of a defined type with a {\tt *DEFERRED*} {\em type-declaration}
-must be within the scope of the {\tt *DEFERRED*} {\em type-declaration}.
-If the {\tt *DEFERRED*} {\em type-declaration} is external, the root
-must be in the same module as the {\tt *DEFERRED*} {\em type-declaration},
-or in one of the bodies of that module.
 
 \subsubsection{Type Fields}
 
@@ -5459,7 +5454,7 @@ X.I = 55            // Legal, .I has been declared.  X is
                     // *READ-WRITE*.
 
 type my type:       // Expansion of my type
-    *OFFSET* *SIZE* // offset set to 32.
+    *OFFSET* *SIZE* // offset set to 4.
     int32 J         // Now X.J == 0
     ***             // Allows expansion.
 
@@ -5468,7 +5463,7 @@ X.J = 66            // Legal, .J has been declared.
 type my type:       // Expansion of my type
     *OFFSET* origin // Offset set to 0.
     int32 K1        // Overlays I at offset 0.
-    int32 K2        // Overlays J at offset 32.
+    int32 K2        // Overlays J at offset 4.
         // No ***, so this expansion is a linear leaf.
 
 // Now X.K1 == X.I == 55; X.K2 == X.J == 66; but you must know
@@ -5478,7 +5473,7 @@ type my type:       // Expansion of my type
 A value of {\tt bool} type may be stored as a 1-byte field value
 or a 1-byte pointer target value.
 When this is done, the value is encoded
-as an unsigned integer equal to 1 for {\tt true} and 0 for {\tt false}.
+as an unsigned 8-bit integer equal to 1 for {\tt true} and 0 for {\tt false}.
 
 \subsubsection{Type Subfields}
 
