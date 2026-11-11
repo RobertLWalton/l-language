@@ -5485,13 +5485,14 @@ The bit number of the next subfield can be reset by the {\tt *OFFSET*}
 subdeclaration.
 Subfield types must themselves be number types or {\tt bool}.
 
-A subfield value may have fewer bits than the number-type of the subfield.
+A subfield value may have fewer bits than values of
+the number-type of the subfield.
 For integer types, the value is the low order bits of the integer, with
 the high order bits added when the value is read by adding 0 bits
 for unsigned integers or copies of the highest order bit for signed integers.
 For floating types, the value is missing low order mantissa bits, which
 are added as zeros.  If a value outside the representable range is stored,
-it is not an error unless the value is a {\tt const} value (in which
+it is not a detected error unless the value is a {\tt const} value (in which
 case it is a compile-time error).
 Unsigned and two's complement
 integer values are truncated, and IEEE floating values
@@ -5507,9 +5508,9 @@ For example:
 
 \begin{indpar}\begin{verbatim}
 type my type:
-    uns8     kind        // Object Kind
-    [1] bool animal      // True if Animal (bit 0 of kind)
-    [1] bool vegetable   // True if Vegetable (bit 1 of kind)
+    uns8     kind:       // Object Kind
+        [1] bool animal      // True if Animal (bit 0 of kind)
+        [1] bool vegetable   // True if Vegetable (bit 1 of kind)
     flt      weight
 
 my type X:
@@ -5532,8 +5533,10 @@ as 1 for {\tt true} and 0 for {\tt false}.
 
 If a {\em field-declaration} with {\em field-label}\, {\tt F} contains
 a single {\em dimension-size} {\tt [$n$]} then $n$ fields are
-allocated to ascending offsets, using zero padding
-if necessary to align all $n$ fields.  The labels of these
+allocated to ascending offsets.  If the align/pack switch is set to
+`{\tt align}', zero padding is used as necessary before each of the
+$n$ fields to align them.
+The labels of these
 fields are {\tt F[$i$]} for $0\le i<n$, where $i$ is the index.
 If there is a subfield
 labeled {\tt S} of the field, {\tt S[$i$]} refers to the
@@ -5541,8 +5544,8 @@ subfield in {\tt F[$i$]}.  For example:
 
 \begin{indpar}\begin{verbatim}
 type character attributes:
-    uns8 [128]
-    [0] bool is graphic
+    uns8 [128]:
+        [0] bool is graphic
 
 character attributes X:
     int i = 0
@@ -5555,28 +5558,26 @@ bool A is graphic = X.is graphic [C#"A"]             // == true
 
 A {\em field-declaration} with two {\em dimension-sizes}
 {\tt [$n1$, $n2$]} allocates $n1$*$n2$ fields and
-{\tt F[$i1$, $i2$]} references the $i1$*$n2$+$i2$+1'st
+{\tt F[$i1$, $i2$]} references the $i1$*$n2$+$i2$+1'nth
 of these.\footnote{Thus arrays are stored in
 row major order: last subscript varies fastest, as in C/C++.}
 Similarly
 {\tt [$n1$, $n2$, $n3$]} allocates $n1$*$n2$*$n3$ fields with
 {\tt F[$i1$, $i2$, $i3$]} referencing the
-$i1$*$n2$*$n3$*+$i2$*$n2$+$i3$+1'st.  And so forth for any
+$i1$*$n2$*$n3$*+$i2$*$n2$+$i3$+1'nth.  And so forth for any
 number of {\em field-dimensions}.
 
 If a {\em subfield-declaration} with {\em subfield-label}\, {\tt S} contains
 a single {\em dimension-size} {\tt [$n$]} then $n$ subfields are
-allocated to the containing field, starting with the bits
-designated by the {\em subfield-declaration}'s {\em bit-range}
-and adding the number of bits in the {\em bit-range} to each integer
-in the {\em bit-range} for each successive subfield.
+allocated to the containing field in order of increasing bit numbers.
+There is no padding.
 For example:
 
 \begin{indpar}\begin{verbatim}
 type hex digits:
-    uns32 container
-    [4] uns hex digit [8]
-        // hex digit[i] is stored in bits [4*i, 4*i+3]
+    uns32 container:
+        [4] uns hex digit [8]
+        // hex digit[i] is stored in bits 4*i through 4*i+3
 
 hex digits X:
     int i = 0
@@ -5592,7 +5593,7 @@ treated in the same manner as a {\em field-declaration} with
 more than one {\em dimension-size}.  For example,
 {\tt [$n1$, $n2$, $n3$]} allocates $n1$*$n2$*$n3$ subfields with
 {\tt S[$i1$, $i2$, $i3$]} referencing the
-$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$+1'st of these.
+$i1$*$n2$*$n3$*+\EOL $i2$*$n2$+\EOL $i3$+1'nth of these.
 
 If a {\em field-declaration} with {\em field-label} {\tt F}
 has one {\em dimension-size}
