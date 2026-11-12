@@ -165,7 +165,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 10, 2026
+November 12, 2026
 
 \bigskip
 
@@ -4430,7 +4430,7 @@ of the {\em actual-argument} sub-expressions.
 
 If an {\em expression} is a {\em reference-expression}
 or a {\em constant-expression}
-(which is replaced by a constant),
+(which is replaced by a {\tt const} value),
 it will be implicitly
 converted to its target type if possible.
 
@@ -4683,7 +4683,7 @@ of a {\em deferred-assignment-statement} must be declared identically,
 except for addition or subtraction of an {\em allocation-call},
 as a {\em initial-variable-declaration} of an {\em assignment-statement}
 that is within the scope\pagnote{SCOPE} of the
-{\em deferred-assignment-statement}.  The {\em assignment-statement},
+{\em deferred-assignment-statement}.  This {\em assignment-statement},
 known as the \key{companion} of the {\em initial-variable-declaration},
 computes the value of the
 declared variable, except in the case of a pointer variable whose value is
@@ -4852,7 +4852,7 @@ treated as if they had been moved to an immediately enclosing
 \begin{indpar}\begin{verbatim}
 int sum = 0
 int i = 1
-int result, next sum, next i = loop:
+int result, next sum, next i = repeat:
     next sum = sum + i
     next i = i + 1
     if i + 1 >= 4:
@@ -4864,7 +4864,7 @@ is semantically equivalent to:
 int sum = 0
 int i = 1
 int result:
-    next sum, next i = loop:
+    next sum, next i = repeat:
         next sum = sum + i
         next i = i + 1
         if i + 1 >= 4:
@@ -5381,6 +5381,8 @@ a {\em reference-expression} (see \pagref{RUN-TIME-FIELD-SELECTION}).
 An example is:
 
 \begin{indpar}\begin{verbatim}
+const HIPPOPOTAMUS = 128 + 3
+
 type my type:
     uns8    kind         // Object Kind
     flt     weight
@@ -5507,6 +5509,8 @@ Both have associated {\em member-names} made by adding a single
 For example:
 
 \begin{indpar}\begin{verbatim}
+const HIPPOPOTAMUS = (1 << 7) + 3
+
 type my type:
     uns8     kind:       // Object Kind
         [1] bool animal      // True if Animal (bit 0 of kind)
