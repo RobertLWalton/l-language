@@ -11,6 +11,7 @@
 \usepackage{makeidx}
 \usepackage{upquote}
 \usepackage{needspace}
+\usepackage{enumitem}
 % \usepackage{hyperref}
      % interesting but no use for printed version
 
@@ -165,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 13, 2026
+November 15, 2026
 
 \bigskip
 
@@ -3663,18 +3664,14 @@ Let $PT$ be the type of $P$.
 Then the computation has
 the following cases (the first case that
 succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
-\begin{enumerate}
+\begin{enumerate}[resume]
 
 \item\label{OFFSET-CASE}
 Search for a {\em reference-function-declaration}%
 \pagnote{REFERENCE-FUNCTION-DECLARATIONS} whose {\em reference-pattern-base}
 has type $PT$ and whose {\em reference-pattern-offset} matches
 the {\em reference-offset}.
-If the {\em reference-offset} has a {\em member-name} and an
-{\em index-list}, the declaration may have zero indices, in which case
-the {\em index-list} will be split off as a separate {\em reference-offset}.
-Otherwise the declaration must have the same number of indices as the
-{\em reference-offset}.  If the {\em reference-expression} is storing exclude
+If the {\em reference-expression} is storing exclude
 {\tt load} declarations, and if loading, exclude {\tt store} declarations.
 See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
@@ -3692,13 +3689,16 @@ In either case, the declaration specifies the target types of any indices.
 \item\label{POINT-CASE}
 If $PT$ is \underline{not} a builtin pointer type
 (not {\tt dp}, {\tt ap}, {\tt av}, {\tt bsp}, or {\tt bsv}),
-search for a {\em reference-function-declaration}
+search for a {\tt point} {\em reference-function-declaration}
 whose {\em reference-pattern-base} has type $PT$, whose
-{\em member-name} is `\TT{..point}', and which has no indices.
+{\em member-name} is missing, and which has no indices.
+See
+\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+
 If a declaration is found,
 set $P'=$~the value returned by a call to the reference function
 with $P$ as reference base argument.  Set $C'=$~missing.
-Then go back to case 1 (this current case does not consume a
+Then go back to step \ref{OFFSET-CASE} (this current case does not consume a
 {\em reference-offset}, but changes $PT$).
 
 \item\label{DP-AP-CASE}
@@ -3761,6 +3761,26 @@ is {\tt int}.
 
 \item All other cases are compile errors.
 
+\end{enumerate}
+
+After the root reference pointer has been computed and all
+{\em reference-offsets} have operated on the reference pointer,
+the reference pointer is finalized by applying the following
+repeatedly until it is no longer applicable:
+\begin{enumerate}[resume]
+\item\label{FINAL-CASE}
+If the call part of the reference pointer is missing, and the pointer
+part is $P$ with type $PT$ that is not builtin, then search for
+a {\tt point} {\em reference-function-declaration} that matches type $PT$,
+whose {\em member-name} is missing, and which has no indices.
+See
+\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+
+If a declaration is found,
+set $P=$~the value returned by a call to the reference function
+with $P$ as reference base argument, and
+then repeat step \ref{FINAL-CASE} (this current case does not consume a
+{\em reference-offset}, but changes $PT$).
 \end{enumerate}
 
 A run-time {\em reference-expression} of the form
