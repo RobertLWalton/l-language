@@ -3691,7 +3691,7 @@ If $PT$ is \underline{not} a builtin pointer type
 (not {\tt dp}, {\tt ap}, {\tt av}, {\tt bsp}, or {\tt bsv}),
 search for a {\tt point} {\em reference-function-declaration}
 whose {\em reference-pattern-base} has type $PT$, whose
-{\em member-name} is missing, and which has no indices.
+{\em mem\-ber-name} is missing, and which has no indices.
 See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
@@ -3765,23 +3765,37 @@ is {\tt int}.
 
 After the root reference pointer has been computed and all
 {\em reference-offsets} have operated on the reference pointer,
-the reference pointer is finalized by applying the following
-repeatedly until it is no longer applicable:
+the reference pointer is finalized by applying the following:
 \begin{enumerate}[resume]
 \item\label{FINAL-CASE}
 If the call part of the reference pointer is missing, and the pointer
-part is $P$ with type $PT$ that is not builtin, then search for
-a {\tt point} {\em reference-function-declaration} that matches type $PT$,
+part is $P$ with type $PT$ that is
+\underline{not} {\tt dp}, {\tt ap}, or {\tt bsp},
+then search for
+a {\em reference-function-declaration} that matches type $PT$,
 whose {\em member-name} is missing, and which has no indices.
+If the {\em reference-expression} is storing exclude
+{\tt load} declarations, and if loading, exclude {\tt store} declarations.
 See
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
-If a declaration is found,
+If a declaration is found:
+\begin{enumerate}
+\item If the declaration is of a {\tt load} or {\tt store} reference function,
+set the call part of the reference pointer to the declaration and index values.
+\item If the declaration is of a {\tt point} reference function,
 set $P=$~the value returned by a call to the reference function
-with $P$ as reference base argument, and
+with $P$ as reference base argument and no index values, and then
 then repeat step \ref{FINAL-CASE} (this current case does not consume a
 {\em reference-offset}, but changes $PT$).
 \end{enumerate}
+\end{enumerate}
+
+After all of the above is applied, the reference pointer will either
+have a call part that is a {\tt load} or {\tt store}
+{\em refererence-function-declaration}, or the reference pointer will
+have no call part and will have a pointer part with type
+{\tt dp}, {\tt ap}, or {\tt bsp}.
 
 A run-time {\em reference-expression} of the form
 `{\em reference-base}\TT{[}{\em constant-expression}\TT{]}',
