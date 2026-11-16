@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 15, 2026
+November 16, 2026
 
 \bigskip
 
@@ -7155,13 +7155,13 @@ The syntax of a {\em reference-function-declaration} is:
     \begin{tabular}[t]{rl}
         ::= & \ttkey{load reference function} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
-            	{\em function-variable-name} \\
+            	{\em function-variable-pattern} \\
         $|$ & \ttkey{store reference function} \\
-	    & \TT{~~~~}~ {\em function-variable-name} \TT{=}~
+	    & \TT{~~~~}~ {\em function-variable-pattern} \TT{=}~
             	{\em prototype-result-variable-declaration} \\
         $|$ & \ttkey{point reference function} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
-            	{\em function-variable-name} \\
+            	{\em function-variable-pattern} \\
         $|$ & \ttkey{load reference function} \\
 	    & \TT{~~~~}{\em prototype-result-variable-declaration}~ \TT{=}~
 	        {\em reference-prototype-pattern} \\
@@ -7179,10 +7179,13 @@ The syntax of a {\em reference-function-declaration} is:
 {\em prototype-result-variable-declaration} ::=
     see \pagref{PROTOTYPE-RESULT-VARIABLE-DECLARATION}
 \\[0.5ex]
+\emkey{function-variable-pattern}\label{FUNCTION-VARIABLE-PATTERN}
+    ::= {\em function-variable-name}~ {\em reference-pattern-index-list}\QMARK{}
+\\[0.5ex]
 {\em function-variable-name} ::= see \pagref{FUNCTION-VARIABLE-NAME}
 \\[0.5ex]
 \emkey{reference-prototype-pattern}\label{REFERENCE-PROTOTYPE-PATTERN}
-    ::= {\em reference-pattern-base}~ {\em reference-pattern-offset}
+    ::= {\em reference-pattern-base}~ {\em reference-pattern-offset}\QMARK{}
 \\[0.5ex]
 \emkey{reference-pattern-offset}\label{REFERENCE-PATTERN-OFFSET}
     \begin{tabular}[t]{rl}
@@ -7231,20 +7234,26 @@ module containing the declaration.
 \item
 Default values, required values, and {\tt macro} arguments
 are not permitted.
-\item At most two {\em reference-function-declarations} in a context
-may have the same {\em function-variable-name}, and if there are two,
-one must have the {\tt load} {\em reference-function-specifier},
-and the other must have the {\tt store}
-{\em reference-function-specifier}.
-\item At most two {\em reference-function-declarations} in a context
-may have the same {\em reference-pattern-base} argument type and
-{\em member-name}, and if there are two,
-one must have the {\tt load} {\em reference-function-specifier},
-and the other must have the {\tt store}
-{\em reference-function-specifier}.
-\item At most two {\em reference-function-declarations} in a context
-may have the same {\em reference-pattern-base} argument type and
-\underline{no} {\em member-name}, and if there are two,
+\item At most two {\em reference-function-declarations} in a context may
+\begin{itemize}
+\item
+have the same {\em function-variable-name} and no index list
+\item
+have the same {\em function-variable-name}
+and index lists of the same length
+\item
+have the same {\em member-name} and no index list
+\item
+have the same {\em member-name}
+and index lists of the same length
+\item
+have no {\em function-variable-name} and no {\em member-name},
+but have index lists of the same length
+\item
+have no {\em function-variable-name}, no {\em member-name},
+and no index list
+\end{itemize}
+If there are two,
 one must have the {\tt load} {\em reference-function-specifier},
 and the other must have the {\tt store}
 {\em reference-function-specifier}.
