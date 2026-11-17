@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 16, 2026
+November 17, 2026
 
 \bigskip
 
@@ -7208,6 +7208,14 @@ The syntax of a {\em reference-function-declaration} is:
 {\em member-name} ::= see \pagref{MEMBER-NAME}
 \end{indpar}
 \begin{enumerate}
+\item\label{FUNCTION-VARIABLE-NAME-SCOPE}
+{\em Function-variable-names} and {\em variable-names} are in the same
+name space and must not conflict with each other.  Specifically,
+{\em (function-) variable-names} are declared by
+{\em reference-function-declarations/initial-variable-declarations}
+and a {\em (function-) varible-name} cannot be declared within the
+scope\pagnote{SCOPE}
+of another declaration of the same name.
 \item
 A {\em reference-function-declaration} is compile-time if
 its {\em prototype-result-variable-declara\-tion} before or after the
@@ -7234,7 +7242,8 @@ module containing the declaration.
 \item
 Default values, required values, and {\tt macro} arguments
 are not permitted.
-\item At most two {\em reference-function-declarations} in a context may
+\item\label{TWO-REFERENCE-FUNCTION-DECLARATIONS}
+At most two {\em reference-function-declarations} in a context may
 \begin{itemize}
 \item
 have the same {\em function-variable-name} and no index list
@@ -7255,8 +7264,10 @@ and no index list
 \end{itemize}
 If there are two,
 one must have the {\tt load} {\em reference-function-specifier},
-and the other must have the {\tt store}
-{\em reference-function-specifier}.
+the other must have the {\tt store}
+{\em reference-function-specifier}, and both must have identical
+{\em reference-pattern-index-declarations} (or both can have no
+{\em reference-pattern-index-declarations}).
 \item
 Wild-cards may appear in a {\em reference-pattern-base}.
 Wild-cards appearing elsewhere in the {\em reference-function-prototype}
@@ -7271,21 +7282,33 @@ and {\tt Q\ldots\$\ldots} behaves as a qualifier.
 \subsubsection{Reference Call-Declaration Matching}
 \label{REFERENCE-CALL-DECLARATION-MATCHING}
 
-In the case of a {\em function-variable-name} reference call,
-the {\em function-variable-name} is located in the current
-context just like any other {\em variable-name}.
-The {\em function-variable-name} begins the {\em reference-expression}
-and is the root of the {\em reference-expression}.
-The {\em function-variable-name} can have at most two
-{\em reference-function-declarations}, and if it has two, one must
-be {\tt load} and one must be {\tt store}.  One of these is excluded
-by context.  If the root is the entire {\em reference-expression} and
-that is storing, then {\tt load} is excluded.  Otherwise {\tt store}
-is excluded.  So the {\em function-variable-name} can have at most
-one non-excluded {\em reference-function-declaration},
-and it is a compile error
-if it has none (e.g., if a storing {\em simple-reference-expression}
-has only a {\tt load} {\em reference-function-declaration}).
+In the case of a {\em function-variable-name} beginning a reference call,
+declarations of the the {\em function-variable-name} are
+located in the same namespace as {\em variable-names}
+(see Rule \itemref{FUNCTION-VARIABLE-NAME-SCOPE}).
+Index lists are ignored when finding {\em function-variable-name} declarations.
+
+If the {\em reference-function-declarations} found
+have an index list (if two declarations are found they must have
+identical index lists by Rule \itemref{TWO-REFERENCE-FUNCTION-DECLARATIONS}),
+the {\em reference-expression} must be followed by an equal length
+index list, and the {\em function-variable-name} and following index list
+match the declarations are are the root of the {\em reference-expression}.
+
+If the {\em reference-function-declarations} have \underline{no}
+index list, the {\em function-variable-name} by itself matches the
+declarations and is the root of the {\em reference-expression}.
+
+If the {\em reference-expression} is storing and the root is the entire
+{\em reference-expression}, any {\tt load} declaration is discarded.
+Otherwise any {\em store} declaration is discarded.
+
+It is a compile error if the {\em reference-expression} begins with a
+{\em function-variable-name} and
+no declarations that match the beginning of the
+{\em reference-expression} are found.
+
+TBD
 
 In the case of a compound {\em reference-expression}, we have a
 {\em reference-base} and a following {\em reference-offset}, and the type
