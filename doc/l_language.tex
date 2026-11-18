@@ -7292,27 +7292,36 @@ Because of Rule \itemref{FUNCTION-VARIABLE-NAME-SCOPE}, if a
 {\em function-variable-name}, the {\em function-variable-name} cannot also
 be a {\em variable-name}.
 
+Only the possible {\em function-variable-name} beginning the
+{\em reference-expression} is used in finding
+{\em function-variable-name} declarations.
 Index lists are ignored when finding {\em function-variable-name} declarations.
 
-If the {\em reference-function-declarations} found
-have an index list (if two declarations are found they must have
-identical index lists by Rule \itemref{TWO-REFERENCE-FUNCTION-DECLARATIONS}),
-the {\em reference-expression} must be followed by an equal length
-index list, and the {\em function-variable-name} and following index list
-match the declarations are are the root of the {\em reference-expression}.
+If the {\em function-variable-name} is followed in the
+{\em reference-expression} by an index list, and \underline{any}
+{\em reference-function-declaration} found has a
+{\em reference-pattern-index-list} of the same length,
+then all found {\em reference-function-declarations}
+that do \underline{not} have a
+{\em reference-pattern-index-list} of this length are discarded from the
+list of found {\em reference-function-declarations}, and the
+index list in the {\em reference-expression} is part of the
+root of the {\em reference-expression}.
 
-If the {\em reference-function-declarations} have \underline{no}
-index list, the {\em function-variable-name} by itself matches the
-declarations and is the root of the {\em reference-expression}.
+Otherwise, all {\em reference-function-declarations} that \underline{have}
+a {\em reference-pattern-index-list} are discarded from the
+list of found {\em reference-function-declarations}, and the
+{\em function-variable-name} by itself is the
+root of the {\em reference-expression}.
 
 If the {\em reference-expression} is storing and the root is the entire
 {\em reference-expression}, any {\tt load} declaration is discarded.
 Otherwise any {\em store} declaration is discarded.
 
-It is a compile error if the {\em reference-expression} begins with a
-{\em function-variable-name} and
-no declarations that match the beginning of the
-{\em reference-expression} are found.
+It is a compile error if the {\em reference-expression} does \underline{not}
+begin with a {\em variable-name} or `{\tt next} {\em variable-name}' and
+\underline{no un-discarded} {\em reference-function-declarations}
+are found.
 
 TBD
 
