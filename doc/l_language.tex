@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 17, 2026
+November 18, 2026
 
 \bigskip
 
@@ -7215,7 +7215,8 @@ name space and must not conflict with each other.  Specifically,
 {\em reference-function-declarations/initial-variable-declarations}
 and a {\em (function-) varible-name} cannot be declared within the
 scope\pagnote{SCOPE}
-of another declaration of the same name.
+of another declaration of the same name, unless \underline{both}
+declarations are {\em reference-function-declarations}.
 \item
 A {\em reference-function-declaration} is compile-time if
 its {\em prototype-result-variable-declara\-tion} before or after the
@@ -7282,10 +7283,15 @@ and {\tt Q\ldots\$\ldots} behaves as a qualifier.
 \subsubsection{Reference Call-Declaration Matching}
 \label{REFERENCE-CALL-DECLARATION-MATCHING}
 
-In the case of a {\em function-variable-name} beginning a reference call,
+In the case of a {\em function-variable-name} beginning
+a {\em reference-expression},
 declarations of the the {\em function-variable-name} are
-located in the same namespace as {\em variable-names}
-(see Rule \itemref{FUNCTION-VARIABLE-NAME-SCOPE}).
+located in the same namespace as {\em variable-names}.
+Because of Rule \itemref{FUNCTION-VARIABLE-NAME-SCOPE}, if a
+{\em reference-function-declaration} is found for a
+{\em function-variable-name}, the {\em function-variable-name} cannot also
+be a {\em variable-name}.
+
 Index lists are ignored when finding {\em function-variable-name} declarations.
 
 If the {\em reference-function-declarations} found
