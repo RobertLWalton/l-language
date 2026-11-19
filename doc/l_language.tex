@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 18, 2026
+November 19, 2026
 
 \bigskip
 
@@ -806,9 +806,9 @@ is guaranteed to not generate any run-time code.
 Thus it can be executed at compile time to compute with
 {\tt const} values.
 
-Inline function definitions may make use of type wildcards.
+Inline function definitions may make use of type wild cards.
 A name that is a single word beginning with {\tt T\$}
-is a type wildcard that denotes
+is a type wild card that denotes
 an arbitrary type.  Thus the example:
 
 \begin{indpar}\begin{verbatim}
@@ -826,8 +826,8 @@ int v = max ( x, u )      // Illegal, T$r is int, u cannot
                           // implicitly convert to int.
 \end{verbatim}\end{indpar}
 
-A wildcard type of a result variable gets its value from the
-target type of a function call.  A wildcard type of an argument
+A wild card type of a result variable gets its value from the
+target type of a function call.  A wild card type of an argument
 can get its value from the argument type, but only if the
 later is a variable, or more generally, a reference expression
 (e.g., {\tt x[i]}).
@@ -835,7 +835,7 @@ Typing is mostly done top-down using target types, but reference
 expressions get types bottom up from the variable explicitly named
 in the reference expression.
 
-Pointer types can be wildcards which must have names that are
+Pointer types can be wild cards which must have names that are
 single words beginning with {\tt P\$}.  A list of qualifiers
 can also be a wild card named by a single word beginning with
 {\tt Q\$}.  An example is:
@@ -858,7 +858,7 @@ from other pointer types, though this function is undefined
 for some argument pointer types (e.g., bit string pointer types).
 Calling {\tt strlen} with a {\tt dp} pointer calls the external
 function directly, bypassing the inline wrapper, because the
-external call has fewer wildcards (only 1 instead of 2).
+external call has fewer wild cards (only 1 instead of 2).
 
 A pointer type
 has two places where a qualifier may appear, as in
@@ -2366,7 +2366,7 @@ for use by systems and compilers (e.g., \TT{..size} in the examples).
 Name items that are words containing `\TT{\$}' or that both
 begin and end with `\TT{*}' are
 similarly reserved.  For example, words of the form `\TT{T\$}\ldots'
-are reserved for use as type wildcards, and the word \TT{*READ-WRITE*}
+are reserved for use as type wild cards, and the word \TT{*READ-WRITE*}
 is reserved for use as a qualifier.
 
 A name may begin with a {\em word} that is a {\em module-abbreviation}
@@ -2566,7 +2566,7 @@ may only be as long as the lifetime of the pointer.
 \hspace*{0.2in}\begin{tabular}{rp{4in}}
 \ttkey{T\$} & name is assigned a {\em type-name} \\
 \ttkey{P\$} & name is assigned a {\em pointer-type-name} \\
-\ttkey{PST\$} & name is assigned a {\em type-name} preceeded by a
+\ttkey{PTT\$} & name is assigned a {\em type-name} preceeded by a
 		possibly empty sequence of {\em pointer-type-names}
 	        and {\em qualifiers} beginning with
 	        a {\em pointer-type-name} \\
@@ -2598,7 +2598,7 @@ It may have fewer `\TT{@}'s, including none, but may not have more.
 See the example on \pagref{POINTER-DEREFERENCE-EXAMPLE}.
 
 The usual reason for having fewer then $N$ `\TT{@}'s is that
-the pointer type contains \TT{PST\$\ldots} and therefore the total number of
+the pointer type contains \TT{PTT\$\ldots} and therefore the total number of
 {\em pointer-type-names} in the pointer type is unknown.
 
 \item
@@ -4309,7 +4309,7 @@ memory with the required number of bytes and alignment and zero that
 block.  The prototype must have
 exactly one result variable whose type is identical to
 the type of the {\em pointer-variable} being set (but the
-prototype result type may contain wildcards).
+prototype result type may contain wild cards).
 
 As a general rule, allocator functions that return a value of
 type {\tt av} or {\tt bsv} or a user defined vector pointer
@@ -5682,7 +5682,8 @@ You can define {\tt *IMPLICIT* *CONVERSION*} functions provided:
 \begin{enumerate}
 \item
 If either {\tt T1} or {\tt T2} is a pointer type, both must be pointer types,
-and they must have identical pointer target qualifiers and types.
+and they must have identical pointer target qualifiers and types (which
+may contain wild cards).
 \item
 {\tt T1} is \underline{not} a builtin pointer type.
 \item
@@ -5778,8 +5779,8 @@ are generally user defined types.
 A {\em pointer-type-declaration} `{\tt pointer type $P$ is type $D$}'
 implicitly declares the functions:
 \begin{indpar} \tt
-function $P$ Q\$1 PST\$1 @p = {\em ma}\QMARK{} *UNCHECKED* ( $D$ d ) \\
-function $D$ d = $D$ ( $P$ Q\$1 PST\$1 @p )
+function $P$ Q\$1 PTT\$1 @p = {\em ma}\QMARK{} *UNCHECKED* ( $D$ d ) \\
+function $D$ d = $D$ ( $P$ Q\$1 PTT\$1 @p )
 \end{indpar}
 where {\em ma}\QMARK{} denotes the {\em module-abbreviation} of $P$,
 if any.
@@ -5796,14 +5797,14 @@ type std data for ap:
     dp ro ptr @base
     int offset
 
-function dp Q$1 PST$1 @r = std *UNCHECKED* ( std data for dp ddp )
-function ap Q$1 PST$1 @r = std *UNCHECKED* ( std data for ap dap )
-function std data for dp r = std data for dp ( dp Q$1 PST$1 @ptr )
-function std data for ap r = std data for ap ( ap Q$1 PST$1 @ptr )
+function dp Q$1 PTT$1 @r = std *UNCHECKED* ( std data for dp ddp )
+function ap Q$1 PTT$1 @r = std *UNCHECKED* ( std data for ap dap )
+function std data for dp r = std data for dp ( dp Q$1 PTT$1 @ptr )
+function std data for ap r = std data for ap ( ap Q$1 PTT$1 @ptr )
     // These functions just copy the argument value to the
     // result value changing the type of the value.  Here
-    // Q$1 is a wild-card that matches any list of qualifier-names,
-    // and PST$1 is a wild-card that matches any pointer target
+    // Q$1 is a wild card that matches any list of qualifier-names,
+    // and PTT$1 is a wild card that matches any pointer target
     // type.
 \end{verbatim}\end{indpar}
 
@@ -5811,10 +5812,10 @@ Reading and writing values using a pointer of type $P$
 can be accomplished by the functions:
 
 \begin{indpar}[1ex] \tt
-load reference function PST\$1 r =
-    ( $P$ QR\$1 PST\$1 @p ) \ttkey{..load} \\
-store reference function ( $P$ QW\$1 PST\$1 @p ) \ttkey{..store} =
-    PST\$1 r
+load reference function PTT\$1 r =
+    ( $P$ QR\$1 PTT\$1 @p ) \ttkey{..load} \\
+store reference function ( $P$ QW\$1 PTT\$1 @p ) \ttkey{..store} =
+    PTT\$1 r
 \end{indpar}
 
 These functions can be defined after $P$ is defined.
@@ -5852,8 +5853,8 @@ pointer type $P2$ is type $D2$
 
 Then we can define a reference function with the prototype:
 \begin{indpar}\label{..POINT} \tt
-point reference function $P2$ Q\$1 PST\$1 @p2 = \\
-\hspace*{1in}( $P1$ Q\$1 PST\$1 @p1 ) \ttkey{..point}
+point reference function $P2$ Q\$1 PTT\$1 @p2 = \\
+\hspace*{1in}( $P1$ Q\$1 PTT\$1 @p1 ) \ttkey{..point}
 \end{indpar}
 which converts a pointer of type $P1$ to a pointer of type $P2$.
 This conversion function is automatically called
@@ -5894,7 +5895,7 @@ ignore the prototype result types, and use only the prototype
 argument types.\pagnote{REFERENCE-CALL-DECLARATION-MATCHING}
 Generally an inserted call to {\tt ..point} can be matched only if there
 is at most one {\tt "..point"} function in the current context
-with suitable qualifiers and type (e.g., {\tt Q\$1} and {\tt PST\$1})
+with suitable qualifiers and type (e.g., {\tt Q\$1} and {\tt PTT\$1})
 for a given $P1$).
 
 Because there can be at most one matching {\tt ..point} reference function
@@ -5902,8 +5903,8 @@ declaration, {\tt ..point} calls can be chained by the compiler.  In particular,
 a {\tt ..point} reference function that produces an {\tt ap} result will
 be chained to the builtin:
 \begin{indpar}\begin{verbatim}
-point reference function dp Q$1 PST$1 @r =
-        std ( ap Q$1 PST$1 @p ) ..point:
+point reference function dp Q$1 PTT$1 @r =
+        std ( ap Q$1 PTT$1 @p ) ..point:
     std data for ap dap = std data for ap ( @p )
     std data for dp ddp:
         ddp.address = dap.base + dap.offset
@@ -5912,8 +5913,8 @@ point reference function dp Q$1 PST$1 @r =
 
 You can provide reference function definitions of {\tt ..point}
 with different actual
-types in place of {\tt PST\$1}, and these will be used in preference
-to a definition that has the wildcard {\tt PST\$1}.
+types in place of {\tt PTT\$1}, and these will be used in preference
+to a definition that has the wild card {\tt PTT\$1}.
 
 Similar considerations apply to {\tt ..load} and {\tt .store}.  However
 if {\tt ..point} is defined, its use will be preferred.
@@ -5928,8 +5929,8 @@ function $D2$ d2 = \\
 where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
 This implicitly defines the reference function:
 \begin{indpar} \tt
-point reference function $P2$ Q\$1 PST\$1 @p2 = \\
-\hspace*{1in}( $P1$ Q\$1 PST\$1 @p1 ) "..point": \\
+point reference function $P2$ Q\$1 PTT\$1 @p2 = \\
+\hspace*{1in}( $P1$ Q\$1 PTT\$1 @p1 ) "..point": \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 = *POINTER* *ACCESS* *CONVERSION* ( d1 ) \\
 \hspace*{0.3in}@p2 = *UNCHECKED* ( d2 )
@@ -5999,8 +6000,8 @@ An example is:
 //
 dp *GLOBAL* int std @zero:
     zero = 0
-function std ap QU$1 *GLOBAL* PST$1 @r = std *IMPLICIT* *CONVERSION*
-        ( std dp QU$1 *GLOBAL* PST$1 @p ):
+function std ap QU$1 *GLOBAL* PTT$1 @r = std *IMPLICIT* *CONVERSION*
+        ( std dp QU$1 *GLOBAL* PTT$1 @p ):
     std data for dp ddp = std data for dp ( @p )
     std data for ap dap:
         dap.@base  = std @zero
@@ -6023,9 +6024,9 @@ function $D2$ d2 = {\em ma}\QMARK{} \ttkey{*POINTER* *IMPLICIT* *CONVERSION*}
 where {\em ma} refers to any module in which both $D1$ and $D2$ are defined.
 This implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 PST\$1 @p2 = \\
+function $P2$ Q\$1 PTT\$1 @p2 = \\
 \hspace*{1in}{\em ma}\QMARK{} *IMPLICIT* *CONVERSION*
-			( $P1$ Q\$1 PST\$1 @p1 ): \\
+			( $P1$ Q\$1 PTT\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 =
     {\em ma}\QMARK{} *POINTER* *IMPLICIT* *CONVERSION* ( d1 ) \\
@@ -6043,8 +6044,8 @@ function $D2$ d2 = {\em ma}\QMARK{}  \ttkey{*POINTER* *UNCHECKED* *CONVERSION*}
 \end{indpar}
 which implicitly defines the function:
 \begin{indpar} \tt
-function $P2$ Q\$1 PST\$1 @p2 = {\em ma}\QMARK{} \ttkey{*UNCHECKED*}
-	( $P1$ Q\$1 PST\$1 @p1 ): \\
+function $P2$ Q\$1 PTT\$1 @p2 = {\em ma}\QMARK{} \ttkey{*UNCHECKED*}
+	( $P1$ Q\$1 PTT\$1 @p1 ): \\
 \hspace*{0.3in}$D1$ d1 = $D1$ ( @p1 ) \\
 \hspace*{0.3in}$D2$ d2 =
     {\em ma}\QMARK{} *POINTER* *UNCHECKED* *CONVERSION* ( d1 ) \\
@@ -6067,7 +6068,7 @@ function std data for dp r = std *POINTER* *UNCHECKED* *CONVERSION*
 Lastly, one can define an explicit pointer conversion function with
 prototype:
 \begin{indpar}
-function $P2$ Q\$1 PST\$1 @p2 = {\em ma}\QMARK{} $P2$ ( $P1$ Q\$1 PST\$1 @p1 )
+function $P2$ Q\$1 PTT\$1 @p2 = {\em ma}\QMARK{} $P2$ ( $P1$ Q\$1 PTT\$1 @p1 )
 \end{indpar}
 
 \subsection{Inline Function Declarations}
@@ -6201,10 +6202,10 @@ contains $N>0$ {\em pointer-type-names}, then the {\em pointer-\EOL variable}
 it declares typically begins with exactly $N$ `\TT{@}'s.
 It may have fewer `\TT{@}'s, including none, but may not have more.
 
-If the declaration contains a {\tt PST\$\ldots} wildcard
+If the declaration contains a {\tt PTT\$\ldots} wild card
 that is resolved into a list with {\em pointer-type-names},
 the {\em prototype-result-declaration} \underline{after}
-wildcard substitution will necessarily have fewer
+wild card substitution will necessarily have fewer
 `\TT{@}'s than {\em pointer-type-names}.
 \item
 \label{PROTOTYPE-NEXT-RESULT}
@@ -6255,17 +6256,17 @@ declared is called a \key{explicit type conversion function}%
 to the function is called an \key{explicit type conversion}%
 \label{EXPLICIT-TYPE-CONVERSION}.
 \item\label{PROTOTYPE-WILD-CARDS}
-A wild-card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
+A wild card\pagnote{WILD-CARD} name of the form {\tt T\$\ldots}
 can only match a {\em type-name}.
-A wild-card name of the form {\tt P\$\ldots} can only match a
+A wild card name of the form {\tt P\$\ldots} can only match a
 {\em pointer-type-name}.
-A wild-card name of the form {\tt Q\ldots\$\ldots} can only match a
+A wild card name of the form {\tt Q\ldots\$\ldots} can only match a
 possibly empty sequence of {\em qualifier-names}.
-A wild-card name of the form {\tt PST\$\ldots} can only match an
+A wild card name of the form {\tt PTT\$\ldots} can only match an
 optional sequence of {\em pointer-type-names} and {\em qualifier-names}
 beginning with a {\em pointer-type-name}, all followed by a {\em type-name}.
 
-Syntactically {\tt T\$\ldots} and {\tt PST\$\ldots} behave as
+Syntactically {\tt T\$\ldots} and {\tt PTT\$\ldots} behave as
 a {\em type-name},
 {\tt P\$\ldots} behaves as a {\em pointer-type-name},
 and {\tt Q\ldots\$\ldots} behaves as a {\em qualifier-name}.
@@ -6992,10 +6993,10 @@ This section is skipped for special functions (functions whose
 
 The types in the {\em prototype-result-variable-declarations} are
 matched left-to-right to the target types for these results.
-Any wildcards\pagnote{WILD-CARD} in a
+Any wild cards\pagnote{WILD-CARD} in a
 {\em prototype-result-variable-declaration}
 are filled in from the corresponding target type, left-to-right.
-If a wildcard gets more
+If a wild card gets more
 than one value from this process, the call-declaration match fails.
 
 Note that {\em prototype-next-variable-declarations} are ignored
@@ -7011,23 +7012,23 @@ types).
 an {\em actual-arguments} and processed left to right.
 
 If a {\em prototype-argument-declaration} $PAD$ is matched
-to an {\em actual-argument} $AA$ and $PAD$ has a wildcard not
+to an {\em actual-argument} $AA$ and $PAD$ has a wild card not
 assigned in Step~\ref{CALL-DECLARATION-TARGET-MATCHING},
 $AA$ must be {\em reference-expression} or a {\em constant-expression},
 (i.e., annotated with a {\tt const} value by the Bottom-Up Algorithm)
 else the
-call-declaration match fails.  The wildcard is assigned from
+call-declaration match fails.  The wild card is assigned from
 information in the {\em reference-expression}'s
 type (the type of value the reference pointer points at) or
 {\em constant-expression}'s type (which is just {\tt const}).
 
-If different values are assigned to the same wildcard by this
+If different values are assigned to the same wild card by this
 process (by different prototype-actual argument matches, or by
 assignments made in Step~\ref{CALL-DECLARATION-TARGET-MATCHING})
 the call-declaration match fails.
 
 \item\label{CALL-DECLARATION-UNASSIGNED-WILDCARDS}
-If any {\em prototype-argument-declaration} wildcards are unassigned
+If any {\em prototype-argument-declaration} wild cards are unassigned
 at this point,
 the call-declaration match fails.
 
@@ -7079,8 +7080,8 @@ If the call-declaration match has been successful, it is assigned
 a \key{rank} that is the sum of:
 \begin{itemize}
 \item the number of required arguments the prototype has
-\item the negative of the number of {\tt T\$\ldots} wildcards
-the prototype has; a wildcard name appearing more than once in
+\item the negative of the number of {\tt T\$\ldots} wild cards
+the prototype has; a wild card name appearing more than once in
 the prototype is counted only once
 \item a very large number if the match is conversion proficient
 \item an even larger number if the match is module proficient
@@ -7238,7 +7239,7 @@ A {\em reference-function-declaration} containing a
 {\em reference-pattern-base} is external if and only if
 all the {\em pointer-type-names}
 and {\em type-names} in its {\em reference-pattern-base} are external or
-are wildcards, and at least one that is external is in the
+are wild cards, and at least one that is external is in the
 module containing the declaration.
 \item
 Default values, required values, and {\tt macro} arguments
@@ -7270,11 +7271,11 @@ the other must have the {\tt store}
 {\em reference-pattern-index-declarations} (or both can have no
 {\em reference-pattern-index-declarations}).
 \item
-Wild-cards may appear in a {\em reference-pattern-base}.
-Wild-cards appearing elsewhere in the {\em reference-function-prototype}
+Wild cards may appear in a {\em reference-pattern-base}.
+Wild cards appearing elsewhere in the {\em reference-function-prototype}
 must also appear in its {\em reference-pattern-base}.
 
-Syntactically {\tt T\$\ldots} and {\tt PST\$\ldots} behave as
+Syntactically {\tt T\$\ldots} and {\tt PTT\$\ldots} behave as
 a {\em type-name},
 {\tt P\$\ldots} behaves as a {\em pointer-type-name},
 and {\tt Q\ldots\$\ldots} behaves as a qualifier.
@@ -7388,10 +7389,10 @@ else the call-declaration match fails
 \item\label{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}
 The type of the {\em reference-base} in the call is matched to the
 type of the {\em reference-pattern-base} in the declaration.
-If the latter has wildcards, the wildcards are assigned
+If the latter has wild cards, the wild cards are assigned
 information from the {\em reference-bases}'s type.
 
-If one wildcard is assigned two or more different values, or zero values,
+If one wild card is assigned two or more different values, or zero values,
 the call-declaration match fails.
 
 If after this has been done, the type of the {\em reference-base}
@@ -7402,8 +7403,8 @@ the call-declaration match fails.
 If the call-declaration match has been successful, it is assigned
 a \key{rank} that is:
 \begin{itemize}
-\item the negative of the number of wildcards
-the prototype has; a wildcard name appearing more than once in
+\item the negative of the number of wild cards
+the prototype has; a wild card name appearing more than once in
 the prototype is counted only once
 \end{itemize}
 
@@ -7419,8 +7420,8 @@ Example:
 //
 // For one of these uses *UNCHECKED* has the prototype:
 //
-//    av Q$ PST$ @r = std *UNCHECKED*
-//        ( ap Q$ PST$ @p, int offset, int lower, int upper )
+//    av Q$ PTT$ @r = std *UNCHECKED*
+//        ( ap Q$ PTT$ @p, int offset, int lower, int upper )
 //
 // This takes the ap @p, adds the offset argument to the
 // pointer offset, and returns this as an av with bounds
@@ -7428,7 +7429,7 @@ Example:
 //
 // For another of these uses *UNCHECKED* has the prototype:
 //
-//    ap Q$1 PST$1 @r = std *UNCHECKED* ( ap Q$1 PST$2 @p )
+//    ap Q$1 PTT$1 @r = std *UNCHECKED* ( ap Q$1 PTT$2 @p )
 //
 // and simply changes the type of value pointed at by an ap.
 
@@ -7750,7 +7751,7 @@ The rules for inline {\em function-declarations} on
 \item
 {\tt macro} and required arguments are not allowed.
 \item
-Wild-cards are not allowed.
+Wild cards are not allowed.
 \item Functions with {\em foreign-function-names} are called \key{foreign}
 and are {\tt *DEFERRED*} but have \underline{no} companions.
 Foreign functions are called using
@@ -8251,7 +8252,7 @@ A {\em reference-function-declaration} containing a
 {\em reference-pattern-base} is external if and only if
 all the {\em pointer-type-names}
 and {\em type-names} in its {\em reference-pattern-base} are external or
-are wildcards, and at least one that is external is in the
+are wild cards, and at least one that is external is in the
 module containing the declaration.
 
 {\em Prototype-result-declaration} and {\em prototype-argument-declaration}
@@ -8931,7 +8932,7 @@ pointer.
 
 A {\tt point reference function} assigns lifetime qualifiers according
 to instructions in its {\em reference-function-prototype}.  By using
-wildcards the prototype may copy root lifetime qualifiers to the
+wild cards the prototype may copy root lifetime qualifiers to the
 result or change these qualifiers.
 
 The garbage collector must be able to find all heap pointer variables
@@ -10772,8 +10773,8 @@ to a {\tt flt} will not be (in the latter case the result is {\tt +inf}).
 An aligned pointer may be implicitly converted to a direct pointer:
 
 \begin{indpar}
-{\tt function dp Q\$ PST\$ @r =
-    std \ttkey{*IMPLICIT* *CONVERSION} ( ap Q\$ PST\$ @p )}
+{\tt function dp Q\$ PTT\$ @r =
+    std \ttkey{*IMPLICIT* *CONVERSION} ( ap Q\$ PTT\$ @p )}
 \begin{indpar}
 The base address of {\tt @p} is added to the offset of {\tt @p} to
 produce the value of {\tt @r}.
@@ -10881,21 +10882,21 @@ the {\tt Inexact} flag is set.
 
 \subsubsection{Pointer Explicit Conversions}
 
-{\tt function P\$ Q\$ PST\$1 @r = std \ttkey{*UNCHECKED*} ( P\$ Q\$ PST\$2 @p )}
+{\tt function P\$ Q\$ PTT\$1 @r = std \ttkey{*UNCHECKED*} ( P\$ Q\$ PTT\$2 @p )}
 \begin{indpar}
 This just copies the pointer, in effect changing the type of its
 target.
 \end{indpar}
 
-{\tt function ap Q\$ PST\$ @r = std \ttkey{*UNCHECKED*} ( dp Q\$ PST\$ @p )}
+{\tt function ap Q\$ PTT\$ @r = std \ttkey{*UNCHECKED*} ( dp Q\$ PTT\$ @p )}
 \begin{indpar}
 The base pointer of {\tt r} is set to point at a location that is
 always {\tt 0} and the offset of {\tt r} is set to point to the
 address stored as the value of {\tt p}.
 \end{indpar}
 
-{\tt function av Q\$ PST\$ r = std \ttkey{*UNCHECKED*} \\
-\hspace*{0.2in}( ap Q\$ PST\$ p, int offset, int lower, int upper )}
+{\tt function av Q\$ PTT\$ r = std \ttkey{*UNCHECKED*} \\
+\hspace*{0.2in}( ap Q\$ PTT\$ p, int offset, int lower, int upper )}
 \begin{indpar}
 The base pointer of {\tt @r} is set to the base pointer of {\tt @p},
 the offset of {\tt @r} is set to the sum of the offset of {\tt @p}
@@ -11200,40 +11201,40 @@ Standard comparison operators on integers {\tt v1} and {\tt v2}.
 \subsection{Builtin Pointer Operations}
 \label{BUILTIN-POINTER-OPERATIONS}
 
-{\tt allocator function ap Q\$1  PST\$1 r = \\
+{\tt allocator function ap Q\$1  PTT\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) null}%
 \label{NULL} \\
-{\tt allocator function av Q\$1  PST\$1 r = \\
+{\tt allocator function av Q\$1  PTT\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) null [ uns count ]}
 \begin{indpar}
-These functions allocate a value of type {\tt PST\$1}
-(or {\tt count} values of type {\tt PST\$1}) to null
+These functions allocate a value of type {\tt PTT\$1}
+(or {\tt count} values of type {\tt PTT\$1}) to null
 memory (memory in inaccessible virtual pages that memory fault if
 accessed)
 and return a pointer to the value(s).
 \end{indpar}
 
-{\tt allocator function ap QU\$1  PST\$1 r = \\
+{\tt allocator function ap QU\$1  PTT\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) allocate}%
 \label{LOCAL} \\
-{\tt allocator function av QU\$1  PST\$1 r = \\
+{\tt allocator function av QU\$1  PTT\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) allocate [ uns count ]}
 \begin{indpar}
-These functions allocate a value of type {\tt PST\$1}
-(or {\tt count} values of type {\tt PST\$1}) to local
+These functions allocate a value of type {\tt PTT\$1}
+(or {\tt count} values of type {\tt PTT\$1}) to local
 memory (the current out-of-line function execution's frame in the local stack:
 see \pagref{OUT-OF-LINE-LOCALS})
 and return a pointer to the value(s).
 \end{indpar}
 
-{\tt allocator function ap QU\$1 *GLOBAL* PST\$1 r = \\
+{\tt allocator function ap QU\$1 *GLOBAL* PTT\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) allocate}%
 \label{GLOBAL} \\
-{\tt allocator function av QU\$1 *GLOBAL* PST\$1 r = \\
+{\tt allocator function av QU\$1 *GLOBAL* PTT\$1 r = \\
 \hspace*{1in}std ( uns length, uns alignment ) allocate [ uns count ]}
 \begin{indpar}
-These functions allocate a value of type {\tt PST\$1}
-(or {\tt count} values of type {\tt PST\$1}) to global
+These functions allocate a value of type {\tt PTT\$1}
+(or {\tt count} values of type {\tt PTT\$1}) to global
 memory (the global stack: see \pagref{GLOBAL-MEMORY})
 and return a pointer to the value(s).
 \end{indpar}
@@ -11247,7 +11248,7 @@ to determine which variables of its containing
 have been set.
 
 {\tt function bool r = std is set ( N value )} \\
-{\tt function bool r = std is set ( P\$1 Q\$1 PST\$1 pointer )}%
+{\tt function bool r = std is set ( P\$1 Q\$1 PTT\$1 pointer )}%
 \label{IS-SET}
 \begin{indpar}
 where {\tt N} is any number type.
