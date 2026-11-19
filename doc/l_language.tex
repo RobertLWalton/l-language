@@ -5892,7 +5892,7 @@ Since {\tt @p..point} is syntactically a {\em reference-call},
 this {\em expression}
 can only match {\em reference-function-prototypes}, and such matches
 ignore the prototype result types, and use only the prototype
-argument types.\pagnote{REFERENCE-CALL-DECLARATION-MATCHING}
+argument types.\pagnote{REFERENCE-OFFSET-CALL-DECLARATION-MATCHING}
 Generally an inserted call to {\tt ..point} can be matched only if there
 is at most one {\tt "..point"} function in the current context
 with suitable qualifiers and type (e.g., {\tt Q\$1} and {\tt PTT\$1})
@@ -7281,8 +7281,8 @@ a {\em type-name},
 and {\tt Q\ldots\$\ldots} behaves as a qualifier.
 \end{enumerate}
 
-\subsubsection{Reference Call-Declaration Matching}
-\label{REFERENCE-CALL-DECLARATION-MATCHING}
+\subsubsection{Reference Root Call-Declaration Matching}
+\label{REFERENCE-ROOT-CALL-DECLARATION-MATCHING}
 
 In the case of a {\em function-variable-name} beginning
 a {\em reference-expression},
@@ -7323,6 +7323,9 @@ It is a compile error if the {\em reference-expression} does \underline{not}
 begin with a {\em variable-name} or `{\tt next} {\em variable-name}' and
 \underline{no un-discarded} {\em reference-function-declarations}
 are found.
+
+\subsubsection{Reference Offset Call-Declaration Matching}
+\label{REFERENCE-OFFSET-CALL-DECLARATION-MATCHING}
 
 TBD
 
