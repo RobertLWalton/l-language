@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 19, 2026
+November 20, 2026
 
 \bigskip
 
@@ -7332,14 +7332,19 @@ compiled so that it will produce a reference pointer at run time,
 any remainder of the {\em reference-expression} will begin with
 a {\em reference-offset} to which the initial part is the
 complementary {\em reference-base} in a {\em compound-reference-expression}.
-The following specifies how to find a {\em reference-function-declaration}
-that makes the {\em compound-reference-expression} a
+The possible {\em reference-offsets} may be a {\em member-name} by itself,
+a {\em member-name} and following {\em offset-index-list},
+or just a {\em reference-offset-index-list}.
+
+The following specifies how to pick a {\em reference-offset} 
+and find a corresponding {\em reference-function-declaration}
+that makes a {\em compound-reference-expression} which is a
 {\em reference-call}.
 
 If the reference pointer computed for the {\em reference-base}
 has a call part, no {\em reference-function-declarations} can match
-the situation, and the {\em compound-reference-expression} is not
-a {\em reference-call}.
+the situation, and any {\em reference-offset} is not
+part of a {\em reference-call}.
 
 Otherwise we begin with the set of {\em reference-function-declarations}
 whose {\em reference-pattern-base} type matches the
@@ -7348,24 +7353,56 @@ The match must be exact after wild cards are substituted for using
 $PT$ and the {\em pointer-type-name} of $PT$ is changed if required by
 implicit conversion of $P$.  If a {\em reference-function-declaration}
 is in this set, we assign it a rank equal to the number of wild card names
-substituted for (if the same wild card name appears several times in the
+in the {\em reference-pattern-base}
+(if the same wild card name appears several times in the
 {\em reference-pattern-base} it is counted only once).
 
 Then declarations are discarded from this set of
 {\em reference-function-declarations} as follows.
 
+If the {\em reference-offset} must contain a {\em member-name},
+discard all declarations not having that {\em member-name}.
+
+Then if the
+{\em reference-offset} can be a {\em member-name} possibly followed by an
+{\em offset-index-list}, a decision must be made as to whether to
+include the index list.  If some declaration has a
+{\em reference-pattern-index-list} of the same length as
+the {\em offset-index-list},
+all {\em reference-function-declarations}
+that do \underline{not} have a
+{\em reference-pattern-index-list} of this length are discarded,
+and the {\em offset-index-list} is included in the {\em reference-offset}.
+Otherwise, all {\em reference-function-declarations} that \underline{have}
+a {\em reference-pattern-index-list} are discarded and the
+{\em offset-index-list} is excluded from the {\em reference-offset}.
+
+If on the other hand the
+{\em reference-offset} must be an
+{\em offset-index-list} by itself,
+all {\em reference-function-declarations}
+that do \underline{not} have a
+{\em reference-pattern-index-list} of the same length
+as the {\em offset-index-list} are discarded.
+
+Next, find the minumum rank of any un-discarded declaration,
+and discard any declarations of greater rank (more wild card names).
+
+Lastly, if the entire {\em reference-expression} is storing
+and the {\em compound-reference-expression} consisting of the
+{\em reference-base} followed by the {\em reference-offset} found
+is the entire {\em reference-expression},
+any {\tt load} declaration is discarded.
+Otherwise any {\em store} declaration is discarded.
+
+It is a compile error if more than one
+\underline{un-discarded} {\em reference-function-declaration}
+is found.  If one is found, the {\em compound-reference-expression}
+is a {\em reference-call} to the declaration found.
+
+
 
 TBD
-
-In the case of a compound {\em reference-expression}, we have a
-{\em reference-base} and a following {\em reference-offset}, and the type
-of the {\em reference-base} has already been computed at compile-time.
-In some situations, the {\em reference-offset} can be either a
-{\em member-name} followed by an {\em index-list}, or it can be just
-the {\em member-name} by itself.  Regardless, the following algorithm
-is used to find a {\em reference-function-declaration} matching the
-{\em reference-base} and one of the possible following
-{\em reference-offsets}:
 
 \bigskip
 
