@@ -7319,13 +7319,41 @@ If the {\em reference-expression} is storing and the root is the entire
 {\em reference-expression}, any {\tt load} declaration is discarded.
 Otherwise any {\em store} declaration is discarded.
 
-It is a compile error if the {\em reference-expression} does \underline{not}
-begin with a {\em variable-name} or `{\tt next} {\em variable-name}' and
-\underline{no un-discarded} {\em reference-function-declarations}
-are found.
+It is a compile error if more than one
+\underline{un-discarded} {\em reference-function-declaration}
+is found.  If one is found, the root of the {\em reference-expression}
+is a {\em reference-call} to the declaration found.
 
 \subsubsection{Reference Offset Call-Declaration Matching}
 \label{REFERENCE-OFFSET-CALL-DECLARATION-MATCHING}
+
+After an initial part of a {\em reference-expression} has been
+compiled so that it will produce a reference pointer at run time,
+any remainder of the {\em reference-expression} will begin with
+a {\em reference-offset} to which the initial part is the
+complementary {\em reference-base} in a {\em compound-reference-expression}.
+The following specifies how to find a {\em reference-function-declaration}
+that makes the {\em compound-reference-expression} a
+{\em reference-call}.
+
+If the reference pointer computed for the {\em reference-base}
+has a call part, no {\em reference-function-declarations} can match
+the situation, and the {\em compound-reference-expression} is not
+a {\em reference-call}.
+
+Otherwise we begin with the set of {\em reference-function-declarations}
+whose {\em reference-pattern-base} type matches the
+type $PT$ of the pointer part $P$ of the {\em reference-base} reference pointer.
+The match must be exact after wild cards are substituted for using
+$PT$ and the {\em pointer-type-name} of $PT$ is changed if required by
+implicit conversion of $P$.  If a {\em reference-function-declaration}
+is in this set, we assign it a rank equal to the number of wild card names
+substituted for (if the same wild card name appears several times in the
+{\em reference-pattern-base} it is counted only once).
+
+Then declarations are discarded from this set of
+{\em reference-function-declarations} as follows.
+
 
 TBD
 
