@@ -3625,7 +3625,7 @@ associated with the {\em variable-name} by the variable's
 Then $P$ is set to an {\tt ap} pointer to the variable in
 the local or global stack and $C$ is set missing.
 
-\item\label{REFERENCE-ROOT-CASE}
+\item\label{RUN-TIME-REFERENCE-ROOT-CASE}
 Otherwise assume the {\em reference-expression} begins with a
 {\em function-variable-name} and search
 for a {\em reference-function-declaration} that has that
@@ -3671,11 +3671,15 @@ succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
 Search for a {\em reference-function-declaration}%
 \pagnote{REFERENCE-FUNCTION-DECLARATIONS} whose {\em reference-pattern-base}
 has type $PT$ and whose {\em reference-pattern-offset} matches
-the {\em reference-offset}.
-If the {\em reference-expression} is storing exclude
-{\tt load} declarations, and if loading, exclude {\tt store} declarations.
+the {\em reference-offset}, which may be a {\em member-name},
+and {\em offset-index-list}, or a {\em member-name} followed by an
+{\em offset-index-list}.
+If the {\em reference-expression} is storing
+and the {\em reference-offset} is at the very end of the
+{\em reference-expression}, exclude {\tt load} declarations;
+otherwise exclude {\tt store} declarations.
 See
-\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+\itemref{REFERENCE-COMPOUND-CALL-DECLARATION-MATCHING} for details.
 
 If a declaration is found:
 \begin{enumerate}
@@ -3913,24 +3917,24 @@ The compile-time root has the following cases:
 `\TT{next} {\em variable-name}', then the pointer part of the root's
 reference pointer points into the compile-time local or global stack
 and the call part is missing.
-\item
+\item\label{COMPILE-TIME-REFERENCE-ROOT-CASE}
 Otherwise assume the {\em reference-expression} begins with a
 {\em function-variable-name} and search
-for {\em reference-function-declarations}
-that have the
-{\em function-variable-name} and \underline{no}
-{\em reference-base} argument.
-The declaration may have zero indices, in which case any
+for a {\em reference-function-declaration} that has that
+{\em function-variable-name}.
+If the declaration has zero indices, any
 {\em index-list} following the {\em function-variable-name}
 in the {\em reference-expression}
-will be split off as a separate {\em reference-offset}.
+will be split off as a separate {\em reference-offset}, and the
+{\em function-name} will be the root.
 Otherwise the declaration must have the same number of indices as
 the {\em index-list} following the {\em function-variable-name}
-in the {\em reference-expression}.
-If the {\em reference-expression} is storing exclude
-{\tt load} declarations, and if loading, exclude {\tt store} declarations.
-See
-\itemref{REFERENCE-ROOT-CALL-DECLARATION-MATCHING} for details.
+in the {\em reference-expression}, and the {\em function-name}
+plus {\em index-list} is the root.
+If the {\em reference-expression} is storing and the root is the
+entire {\em reference-expression}, exclude
+{\tt load} declarations; otherwise exclude {\tt store} declarations.
+See \itemref{REFERENCE-ROOT-CALL-DECLARATION-MATCHING} for details.
 
 Any reference function declaration found must be a {\tt load} or {\tt store}
 declaration with {\tt const} results and arguments.
@@ -3952,7 +3956,7 @@ and the new reference pointer is given the map by itself as its pointer part.
 
 The computation has the following cases (the first case that
 succeeds is used):\label{COMPILE-TIME-FIELD-SELECTION}
-\begin{enumerate}
+\begin{enumerate}[resume]
 \item If the {\em reference-offset} has a {\em member-name},
 search for {\em reference-function-declarations}
 with a {\tt const}
@@ -5894,7 +5898,7 @@ Since {\tt @p..point} is syntactically a {\em reference-call},
 this {\em expression}
 can only match {\em reference-function-prototypes}, and such matches
 ignore the prototype result types, and use only the prototype
-argument types.\pagnote{REFERENCE-OFFSET-CALL-DECLARATION-MATCHING}
+argument types.\pagnote{REFERENCE-COMPOUND-CALL-DECLARATION-MATCHING}
 Generally an inserted call to {\tt ..point} can be matched only if there
 is at most one {\tt "..point"} function in the current context
 with suitable qualifiers and type (e.g., {\tt Q\$1} and {\tt PTT\$1})
@@ -7347,10 +7351,12 @@ It is a compile error if more than one
 is found.  If one is found, the root of the {\em reference-expression}
 is a {\em reference-call} to the declaration found.
 
-See Case \itemref{REFERENCE-ROOT-CASE} for usage.
+See Case \itemref{RUN-TIME-REFERENCE-ROOT-CASE}
+and Case \itemref{COMPILE-TIME-REFERENCE-ROOT-CASE}
+for usage.
 
-\subsubsection{Reference Offset Call-Declaration Matching}
-\label{REFERENCE-OFFSET-CALL-DECLARATION-MATCHING}
+\subsubsection{Reference Compound Call-Declaration Matching}
+\label{REFERENCE-COMPOUND-CALL-DECLARATION-MATCHING}
 
 After an initial part of a {\em reference-expression} has been
 compiled so that it will produce a reference pointer at run time,
