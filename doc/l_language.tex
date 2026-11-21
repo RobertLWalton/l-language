@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 20, 2026
+November 21, 2026
 
 \bigskip
 
@@ -3374,11 +3374,11 @@ The full syntax of a {\em reference-expression} is:
 \begin{indpar}
 \emkey{reference-expression}\label{REFERENCE-EXPRESSION}
     \begin{tabular}[t]{rl}
-    ::= & {\em simple-reference-expression} \\
+    ::= & {\em root-reference-expression} \\
     $|$ & {\em compound-reference-expression} \\
     \end{tabular}
 \\[0.5ex]
-\emkey{simple-reference-expression}\label{SIMPLE-REFERENCE-EXPRESSION}
+\emkey{root-reference-expression}\label{ROOT-REFERENCE-EXPRESSION}
     \begin{tabular}[t]{rl}
     ::= & {\em variable-name} \\
     $|$ & \TT{next}~ {\em variable-name} \\
@@ -3625,23 +3625,24 @@ associated with the {\em variable-name} by the variable's
 Then $P$ is set to an {\tt ap} pointer to the variable in
 the local or global stack and $C$ is set missing.
 
-\item Otherwise assume the {\em reference-expression} begins with a
+\item\label{REFERENCE-ROOT-CASE}
+Otherwise assume the {\em reference-expression} begins with a
 {\em function-variable-name} and search
-for {\em reference-function-declarations}%
-\pagnote{REFERENCE-FUNCTION-DECLARATIONS} that have the
-{\em function-variable-name} and \underline{no}
-{\em reference-base} argument.  The
-declaration may have zero indices, in which case any
+for a {\em reference-function-declaration} that has that
+{\em function-variable-name}.
+If the declaration has zero indices, any
 {\em index-list} following the {\em function-variable-name}
 in the {\em reference-expression}
-will be split off as a separate {\em reference-offset}.
+will be split off as a separate {\em reference-offset}, and the
+{\em function-name} will be the root.
 Otherwise the declaration must have the same number of indices as
 the {\em index-list} following the {\em function-variable-name}
-in the {\em reference-expression}.
-If the {\em reference-expression} is storing exclude
-{\tt load} declarations, and if loading, exclude {\tt store} declarations.
-See
-\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+in the {\em reference-expression}, and the {\em function-name}
+plus {\em index-list} is the root.
+If the {\em reference-expression} is storing and the root is the
+entire {\em reference-expression}, exclude
+{\tt load} declarations; otherwise exclude {\tt store} declarations.
+See \itemref{REFERENCE-ROOT-CALL-DECLARATION-MATCHING} for details.
 
 \begin{enumerate}
 \item If a {\tt load} or {\tt store} declaration is found
@@ -3912,7 +3913,8 @@ The compile-time root has the following cases:
 `\TT{next} {\em variable-name}', then the pointer part of the root's
 reference pointer points into the compile-time local or global stack
 and the call part is missing.
-\item Otherwise assume the {\em reference-expression} begins with a
+\item
+Otherwise assume the {\em reference-expression} begins with a
 {\em function-variable-name} and search
 for {\em reference-function-declarations}
 that have the
@@ -3928,7 +3930,7 @@ in the {\em reference-expression}.
 If the {\em reference-expression} is storing exclude
 {\tt load} declarations, and if loading, exclude {\tt store} declarations.
 See
-\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+\itemref{REFERENCE-ROOT-CALL-DECLARATION-MATCHING} for details.
 
 Any reference function declaration found must be a {\tt load} or {\tt store}
 declaration with {\tt const} results and arguments.
@@ -7281,6 +7283,27 @@ a {\em type-name},
 and {\tt Q\ldots\$\ldots} behaves as a qualifier.
 \end{enumerate}
 
+\subsubsection{Reference Call-Declaration Matching}
+\label{REFERENCE-CALL-DECLARATION-MATCHING}
+
+A {\em reference-call} is an initial segment of a {\em reference-expression}
+that is itself a {\em reference-expression} and that is associated
+with a {\em reference-function-declaration} defining a reference function
+to be called to process the {\em reference-call}.
+
+A {\em reference-call} may be a {\em root-reference-expression}
+or {\em compound-reference-expression}.
+
+Or a {\em reference-call} may be any initial segment {\em reference-expression}
+that has computed a reference pointer with no call part that has a
+pointer part with a \underline{non-builtin} run-time pointer type.
+In this case the {\em reference-call} just replaces the pointer part
+with a pointer of a different type.  Such a call is called
+a \key{reference-conversion}, and differs in part from an implicit
+conversion in that the conversion function is chosen by its input
+argument type instead of by its output argument type.
+
+
 \subsubsection{Reference Root Call-Declaration Matching}
 \label{REFERENCE-ROOT-CALL-DECLARATION-MATCHING}
 
@@ -7323,6 +7346,8 @@ It is a compile error if more than one
 \underline{un-discarded} {\em reference-function-declaration}
 is found.  If one is found, the root of the {\em reference-expression}
 is a {\em reference-call} to the declaration found.
+
+See Case \itemref{REFERENCE-ROOT-CASE} for usage.
 
 \subsubsection{Reference Offset Call-Declaration Matching}
 \label{REFERENCE-OFFSET-CALL-DECLARATION-MATCHING}
