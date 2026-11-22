@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 21, 2026
+November 22, 2026
 
 \bigskip
 
@@ -3667,7 +3667,7 @@ the following cases (the first case that
 succeeds is used):\label{RUN-TIME-FIELD-SELECTION}
 \begin{enumerate}[resume]
 
-\item\label{OFFSET-CASE}
+\item\label{RUN-TIME-REFERENCE-COMPOUND-CASE}
 Search for a {\em reference-function-declaration}%
 \pagnote{REFERENCE-FUNCTION-DECLARATIONS} whose {\em reference-pattern-base}
 has type $PT$ and whose {\em reference-pattern-offset} matches
@@ -3691,7 +3691,7 @@ with $P$ as reference base argument and the index values.  Set $C'=$~missing.
 \end{enumerate}
 In either case, the declaration specifies the target types of any indices.
 
-\item\label{POINT-CASE}
+\item\label{RUN-TIME-REFERENCE-CONVERSION-CASE}
 If $PT$ is \underline{not} a builtin pointer type
 (not {\tt dp}, {\tt ap}, {\tt av}, {\tt bsp}, or {\tt bsv}),
 search for a {\tt point} {\em reference-function-declaration}
@@ -3703,7 +3703,8 @@ See
 If a declaration is found,
 set $P'=$~the value returned by a call to the reference function
 with $P$ as reference base argument.  Set $C'=$~missing.
-Then go back to step \ref{OFFSET-CASE} (this current case does not consume a
+Then go back to step \ref{RUN-TIME-REFERENCE-COMPOUND-CASE}
+(this current case does not consume a
 {\em reference-offset}, but changes $PT$).
 
 \item\label{DP-AP-CASE}
@@ -3886,9 +3887,11 @@ field or subfield's container (see \itemref{LIFETIMES}).
 \label{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
 \end{boxedfigure}
 
-In Cases~\ref{OFFSET-CASE} and \ref{POINT-CASE} above, the
+In Cases~\ref{RUN-TIME-REFERENCE-COMPOUND-CASE} and
+\ref{RUN-TIME-REFERENCE-CONVERSION-CASE} above, if a
+{\em reference-function-declaration} is found, the
 qualifiers of the computed reference pointer are determined by
-the {\em reference-function-declaration} involved.
+the declaration.
 
 \subsubsection{Compile-Time Reference Expressions}
 \label{COMPILE-TIME-REFERENCE-EXPRESSIONS}
@@ -3941,8 +3944,8 @@ declaration with {\tt const} results and arguments.
 Set the pointer part of the reference pointer to missing and the call part
 to the declaration and any index value arguments.
 \item Other cases are compile errors.
-For example, a {\em function-variable-name}
-in a storing {\em reference-expression} that has no {\tt store}
+For example, a storing {\em reference-expression} that consists of nothing
+but a {\em function-variable-name} that has no {\tt store}
 {\em reference-function-declaration}.
 \end{enumerate}
 
@@ -3957,21 +3960,18 @@ and the new reference pointer is given the map by itself as its pointer part.
 The computation has the following cases (the first case that
 succeeds is used):\label{COMPILE-TIME-FIELD-SELECTION}
 \begin{enumerate}[resume]
-\item If the {\em reference-offset} has a {\em member-name},
-search for {\em reference-function-declarations}
-with a {\tt const}
-{\em reference-base}, and the given {\em member-name}.
-The declaration may have zero indices, in which case any
-{\em index-list} following the {\em member-name}
-in the {\em reference-expression}
-will be split off as a separate {\em reference-offset}.
-Otherwise the declaration must have the same number of indices as
-the {\em index-list} following the {\em member-name}
-in the {\em reference-expression}.
-For a storing
-{\em reference-expression}, exclude {\tt load} declarations, and
-for a loading {\em reference-expression}, exclude {\tt store}
-declarations.  See
+\item\label{COMPILE-TIME-REFERENCE-COMPOUND-CASE}
+Search for a {\em reference-function-declaration}%
+\pagnote{REFERENCE-FUNCTION-DECLARATIONS} that matches
+the {\em reference-offset}, which may be a {\em member-name},
+and {\em offset-index-list}, or a {\em member-name} followed by an
+{\em offset-index-list}.
+If the {\em reference-expression} is storing
+and the {\em reference-offset} is at the very end of the
+{\em reference-expression}, exclude {\tt load} declarations;
+otherwise exclude {\tt store} declarations.
+See
+\itemref{REFERENCE-COMPOUND-CALL-DECLARATION-MATCHING} for details.
 \pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
 If a declaration is found its declaration becomes the call part of the
@@ -7348,7 +7348,7 @@ Otherwise any {\em store} declaration is discarded.
 
 It is a compile error if more than one
 \underline{un-discarded} {\em reference-function-declaration}
-is found.  If one is found, the root of the {\em reference-expression}
+remains.  If just one remains, the root of the {\em reference-expression}
 is a {\em reference-call} to the declaration found.
 
 See Case \itemref{RUN-TIME-REFERENCE-ROOT-CASE}
@@ -7372,7 +7372,12 @@ and find a corresponding {\em reference-function-declaration}
 that makes a {\em compound-reference-expression} which is a
 {\em reference-call}.
 
-If the reference pointer computed for the {\em reference-base}
+We being by computing a set of possible {\em reference-function-declarations}:
+
+\begin{description}
+
+\item[For Run-Time Reference Expressions]
+If the reference pointer computed for the {\em refer\-ence-base}
 has a call part, no {\em reference-function-declarations} can match
 the situation, and any {\em reference-offset} is not
 part of a {\em reference-call}.
@@ -7387,6 +7392,13 @@ is in this set, we assign it a rank equal to the number of wild card names
 in the {\em reference-pattern-base}
 (if the same wild card name appears several times in the
 {\em reference-pattern-base} it is counted only once).
+
+\item[For Compile-Time Reference Expressions]
+Begin with the set of \underline{all}
+{\em reference-function-declarations} in the
+current scope.
+
+\end{description}
 
 Then declarations are discarded from this set of
 {\em reference-function-declarations} as follows.
@@ -7416,7 +7428,8 @@ that do \underline{not} have a
 {\em reference-pattern-index-list} of the same length
 as the {\em offset-index-list} are discarded.
 
-Next, find the minumum rank of any un-discarded declaration,
+Next, for run-time {\em reference-expressions} only,
+find the minumum rank of any un-discarded declaration,
 and discard any declarations of greater rank (more wild card names).
 
 Lastly, if the entire {\em reference-expression} is storing
@@ -7424,12 +7437,16 @@ and the {\em compound-reference-expression} consisting of the
 {\em reference-base} followed by the {\em reference-offset} found
 is the entire {\em reference-expression},
 any {\tt load} declaration is discarded.
-Otherwise any {\em store} declaration is discarded.
+Otherwise any {\tt store} declaration is discarded.
 
 It is a compile error if more than one
 \underline{un-discarded} {\em reference-function-declaration}
-is found.  If one is found, the {\em compound-reference-expression}
+remains.  If just one remains, the {\em compound-reference-expression}
 is a {\em reference-call} to the declaration found.
+
+See Case \itemref{RUN-TIME-REFERENCE-COMPOUND-CASE}
+and Case \itemref{COMPILE-TIME-REFERENCE-COMPOUND-CASE}
+for usage.
 
 
 
