@@ -3700,12 +3700,17 @@ whose {\em reference-pattern-base} has type $PT$, whose
 See
 \itemref{REFERENCE-CONVERSION-CALL-DECLARATION-MATCHING} for details.
 
-If a declaration is found,
-set $P'=$~the value returned by a call to the reference function
-with $P$ as reference base argument.  Set $C'=$~missing.
+\begin{enumerate}
+\item If a {\tt load} or {\tt store} declaration is found
+leave $P$ unchanged and set $C$ to the declaration.
+\item If a {\tt point} declaration is found
+set $P=$~the value returned by a call to the reference function
+with any index value arguments, and set $C=$~missing.
+
 Then go back to step \ref{RUN-TIME-REFERENCE-COMPOUND-CASE}
 (this current case does not consume a
 {\em reference-offset}, but changes $PT$).
+\end{enumerate}
 
 \item\label{DP-AP-CASE}
 If $PT$ is a {\tt dp} (or {\tt ap}) pointer type pointing
@@ -3788,7 +3793,8 @@ See
 If a declaration is found:
 \begin{enumerate}
 \item If the declaration is of a {\tt load} or {\tt store} reference function,
-set the call part of the reference pointer to the declaration and index values.
+set the call part of the reference pointer to the declaration and
+leave the pointer part unchanged.
 \item If the declaration is of a {\tt point} reference function,
 set $P=$~the value returned by a call to the reference function
 with $P$ as reference base argument and no index values, and then
@@ -7457,12 +7463,16 @@ Compute the same set of {\em reference-function-declarations}
 that is the initial set in
 \itemref{REFERENCE-COMPOUND-CALL-DECLARATION-MATCHING} above.
 
-Then discard all {\tt load} and {\tt store}
-{\em reference-function-declarations} and all declarations that have
+Then discard all
+{\em reference-function-declarations} declarations that have
 a {\em member-name} or {\em reference-pattern-index-list}.
 
 Then find the minumum rank of any un-discarded declaration,
 and discard any declarations of greater rank (more wild card names).
+
+If the {\em reference-base} is the entire {\em reference-expression},
+and that {\em reference-expression} is storing, discard {\tt load}
+declarations; otherwise discard {\tt store} declarations.
 
 It is a compile error if more than one
 \underline{un-discarded} {\em reference-function-declaration}
