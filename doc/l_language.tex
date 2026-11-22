@@ -3698,7 +3698,7 @@ search for a {\tt point} {\em reference-function-declaration}
 whose {\em reference-pattern-base} has type $PT$, whose
 {\em mem\-ber-name} is missing, and which has no indices.
 See
-\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+\itemref{REFERENCE-CONVERSION-CALL-DECLARATION-MATCHING} for details.
 
 If a declaration is found,
 set $P'=$~the value returned by a call to the reference function
@@ -3783,7 +3783,7 @@ whose {\em member-name} is missing, and which has no indices.
 If the {\em reference-expression} is storing exclude
 {\tt load} declarations, and if loading, exclude {\tt store} declarations.
 See
-\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
+\itemref{REFERENCE-CONVERSION-CALL-DECLARATION-MATCHING} for details.
 
 If a declaration is found:
 \begin{enumerate}
@@ -3887,8 +3887,9 @@ field or subfield's container (see \itemref{LIFETIMES}).
 \label{REFERENCE-EXPRESSION-QUALIFIER-COMPUTATION}
 \end{boxedfigure}
 
-In Cases~\ref{RUN-TIME-REFERENCE-COMPOUND-CASE} and
-\ref{RUN-TIME-REFERENCE-CONVERSION-CASE} above, if a
+In Cases~\ref{RUN-TIME-REFERENCE-COMPOUND-CASE},
+\ref{RUN-TIME-REFERENCE-CONVERSION-CASE},
+and \ref{FINAL-CASE} above, if a
 {\em reference-function-declaration} is found, the
 qualifiers of the computed reference pointer are determined by
 the declaration.
@@ -3972,19 +3973,20 @@ and the {\em reference-offset} is at the very end of the
 otherwise exclude {\tt store} declarations.
 See
 \itemref{REFERENCE-COMPOUND-CALL-DECLARATION-MATCHING} for details.
-\pagref{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING} for details.
 
 If a declaration is found its declaration becomes the call part of the
 computed reference pointer along with the values of any indices
 in the {\em reference-offset}
 
-\item If the {\em reference-offset} is a {\em member-name} `\TT{.}$M$',
+\item If the {\em reference-offset} is a {\em member-name} `\TT{.}$M$'
+(ignoring any {\em offset-index-list} that might follow the
+{\em member-name}).
 set the pointer part index to the {\tt const} string $M$.
-\item If the {\em reference-offset} is an {\em index-list} with more than
-one index, split the {\em reference-offset} into two
-{\em reference-offsets}, one with just the first index and one with
+\item If the {\em reference-offset} is an {\em offset-index-list} with more than
+one index, split the {\em offset-index-list} into two
+{\em offset-index-lists}, one with just the first index and one with
 the remaining indices.  Then proceed as in the next case.
-\item If the {\em reference-offset} is an {\em index-list} with one
+\item If the {\em reference-offset} is an {\em offset-index-list} with one
 index, and the evaluated index $I$ is an integer or string {\tt const} value,
 set the pointer part index to $I$.
 \item All other cases are compile errors.
@@ -7448,84 +7450,30 @@ See Case \itemref{RUN-TIME-REFERENCE-COMPOUND-CASE}
 and Case \itemref{COMPILE-TIME-REFERENCE-COMPOUND-CASE}
 for usage.
 
+\subsubsection{Reference Conversion Call-Declaration Matching}
+\label{REFERENCE-CONVERSION-CALL-DECLARATION-MATCHING}
 
+Compute the same set of {\em reference-function-declarations}
+that is the initial set in
+\itemref{REFERENCE-COMPOUND-CALL-DECLARATION-MATCHING} above.
 
-TBD
+Then discard all {\tt load} and {\tt store}
+{\em reference-function-declarations} and all declarations that have
+a {\em member-name} or {\em reference-pattern-index-list}.
 
-\bigskip
+Then find the minumum rank of any un-discarded declaration,
+and discard any declarations of greater rank (more wild card names).
 
-\centerline{\bf Reference Function Declaration Search Algorithm}
-\begin{enumerate}
-\item This algorithm examines all {\em reference-function-declarations}
-in the current context\pagnote{CONTEXT} that meet criteria specified in
-the following, and applies applies the Reference Function Declaration Matching
-Algorithm (below) to each.
-\item If the {\em reference-base} is followed by a {\em member-name}
-that is followed by an {\em index-list}, this algorithm is applied first
-to a {\em reference-offset} consisting of both the {\em member-name}
-and the {\em index-list}.  If no declarations are found, this algorithm
-is reapplied to a {\em reference-offset} consisting of just the
-{\em member-name}.
-\item If the compound {\em reference-expression} consisting of the
-{\em reference-base} followed by the {\em reference-offset} is loading,
-{\tt store} {\em reference-function-declarations} are excluded from
-the search, and
-if instead it is storing, {\tt load} {\em reference-function-declarations}
-are excluded.
-\item
-After examining all the appropriate declarations, this algorithm has
-a set of declarations satisfying the above criteria.
-If the set is empty, this algorithm reports failure.  Otherwise all but
-the highest ranking matches are discarded.  If there is only one match
-left, this algorithm reports success along with the single highest
-ranking matching declaration.
-If there are more than one highest ranking match, this algorithm reports
-ambiguity failure.
+It is a compile error if more than one
+\underline{un-discarded} {\em reference-function-declaration}
+remains.  If just one remains, the {\em reference-base}
+is a {\em reference-call} to the declaration found.
 
-\end{enumerate}
+See Case \itemref{RUN-TIME-REFERENCE-CONVERSION-CASE}
+and Case \itemref{FINAL-CASE}
+for usage.
 
 \bigskip
-
-\centerline{\bf Reference Function Declaration Matching Algorithm}
-\begin{enumerate}
-\item\label{REFERENCE-CALL-REFERENCE-DECLARATION-OFFSET-MATCHING}
-The {\em reference-offset} and the {\em  reference-pattern-offset} must
-match in that
-\begin{enumerate}
-\item
-If one has a {\em member-name}, both must have the same {\em member-name},
-else the call-declaration match fails.
-\item
-If one has an {\em index-list}, both must have {\em index-lists}
-with the same number of elements
-else the call-declaration match fails
-(but the types of the elements are not involved in matching).
-\end{enumerate}
-
-\item\label{REFERENCE-CALL-DECLARATION-ARGUMENT-MATCHING}
-The type of the {\em reference-base} in the call is matched to the
-type of the {\em reference-pattern-base} in the declaration.
-If the latter has wild cards, the wild cards are assigned
-information from the {\em reference-bases}'s type.
-
-If one wild card is assigned two or more different values, or zero values,
-the call-declaration match fails.
-
-If after this has been done, the type of the {\em reference-base}
-does not exactly match the type of the {\em reference-pattern-base},
-the call-declaration match fails.
-
-\item\label{REFERENCE-CALL-DECLARATION-RANK-COMPUTATION}
-If the call-declaration match has been successful, it is assigned
-a \key{rank} that is:
-\begin{itemize}
-\item the negative of the number of wild cards
-the prototype has; a wild card name appearing more than once in
-the prototype is counted only once
-\end{itemize}
-
-\end{enumerate}
-
 
 Example:
 
