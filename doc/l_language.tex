@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 22, 2026
+November 23, 2026
 
 \bigskip
 
@@ -7495,11 +7495,12 @@ Example:
 // For one of these uses *UNCHECKED* has the prototype:
 //
 //    av Q$ PTT$ @r = std *UNCHECKED*
-//        ( ap Q$ PTT$ @p, int offset, int lower, int upper )
+//        ( ap Q$ PTT$ @p, intptr offset,
+//                         intptr step, intptr limit )
 //
 // This takes the ap @p, adds the offset argument to the
-// pointer offset, and returns this as an av with bounds
-// lower and upper.
+// pointer offset, and returns this as an av with step
+// and limit.
 //
 // For another of these uses *UNCHECKED* has the prototype:
 //
@@ -7507,20 +7508,24 @@ Example:
 //
 // and simply changes the type of value pointed at by an ap.
 
-// In my vector X, a vector with flt64 elements is located
+// In my vector X, a vector with step length elements is located
 // at X.offset from the address of X and allows index range
-// from 0 through X.length-1.
+// from 0 through X.limit-1.
 //
 type my vector:
-    int offset        // Offset of first element in bytes.
-    int length        // Number of elements.
+    intptr offset     // Offset of first element in bytes.
+    intptr limit      // Number of elements.
+    intptr step       // Element length.
     align 64
-    *LABEL* first     // Offset of first element in bits.
+    *LABEL* first     // Offset of first element in bytes.
 
+// Reference function the indexes pointer to my vector
+// to point to element of the vector.
+//
 point reference function ap Q$1 flt64 @x =
         ( ap Q$1 my vector @v ) [ int index ]:
     av Q$1 flt64 @p = *UNCHECKED*
-            ( @v, v.offset, 0, v.length )
+            ( @v, v.offset, v.step, v.limit )
         // See *UNCHECKED* above.
     @x = @p[index]
 
@@ -7528,13 +7533,17 @@ type my data:
     *INCLUDE* my vector
     flt64[2]
 
+// Reference conversion function converts pointer to
+// my data to pointer to my vector.
+//
 point reference function ap Q$1 my vector @x =
-    ( ap Q$1 my data @y ) ..point:
+    ( ap Q$1 my data @y ):
     @x = *UNCHECKED* ( @y )
 
 ap *READ-WRITE* my data @D:    // `@= allocate' is implied
-    D.offset = D.first / 8     // 8 converts bits to bytes.
-    D.length = 2
+    D.offset = D.first         // 8 converts bits to bytes.
+    D.step = flt64..size
+    D.limit = 2
 
 D[0] = 5.5      // Computes and uses pointer @D[0]
 D[1] = -7.33    // Computes and uses pointer @D[1]
@@ -7542,7 +7551,6 @@ flt64 x = D[0]  // Now x == 5.5
 flt64 y = D[1]  // Now y == -7.33
 flt64 z = D[2]  // Run time error: 2 >= upper bound of av
                 // that equals D.length.
-
 D[2] = 1.0      // Run-time error: bounds limit exceeded.
 \end{verbatim}\end{indpar}
 
