@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 23, 2026
+November 25, 2026
 
 \bigskip
 
@@ -3660,7 +3660,7 @@ with any index value arguments, and set $C=$~missing.
 In a compound run-time {\em reference-expression}, the
 {\em reference-offset} operates on the reference pointer
 computed by the {\em reference-base}.  This reference pointer
-must have missing call part and non-missing pointer part $P$.
+must have \underline{missing call part} and non-missing pointer part $P$.
 Let $PT$ be the type of $P$.
 Then the computation has
 the following cases (the first case that
@@ -3692,9 +3692,7 @@ with $P$ as reference base argument and the index values.  Set $C'=$~missing.
 In either case, the declaration specifies the target types of any indices.
 
 \item\label{RUN-TIME-REFERENCE-CONVERSION-CASE}
-If $PT$ is \underline{not} a builtin pointer type
-(not {\tt dp}, {\tt ap}, {\tt av}, {\tt bsp}, or {\tt bsv}),
-search for a {\tt point} {\em reference-function-declaration}
+Search for a {\tt point} {\em reference-function-declaration}
 whose {\em reference-pattern-base} has type $PT$, whose
 {\em mem\-ber-name} is missing, and which has no indices.
 See
@@ -3780,8 +3778,7 @@ the reference pointer is finalized by applying the following:
 \begin{enumerate}[resume]
 \item\label{FINAL-CASE}
 If the call part of the reference pointer is missing, and the pointer
-part is $P$ with type $PT$ that is
-\underline{not} {\tt dp}, {\tt ap}, or {\tt bsp},
+part is $P$ with type $PT$,
 then search for
 a {\em reference-function-declaration} that matches type $PT$,
 whose {\em member-name} is missing, and which has no indices.
@@ -3802,7 +3799,12 @@ then repeat step \ref{FINAL-CASE} (this current case does not consume a
 {\em reference-offset}, but changes $PT$).
 \end{enumerate}
 
-It is a compile error if no declaration is found.
+It is a compile error if no declaration is found
+and $PT$ is not a {\tt dp}, {\tt ap}, or {\tt bsp} pointer
+(allowing direct load and
+store of a byte-aligned value or bit string value respectively, if allowed
+by qualifiers).
+
 \end{enumerate}
 
 After all of the above is applied, the reference pointer will either
