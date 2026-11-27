@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 25, 2026
+November 27, 2026
 
 \bigskip
 
@@ -3545,7 +3545,7 @@ type my type:
 
 my type Z:       // The Z reference pointer is an `ap my type' pointer
                  // to Z in the stack.
-    Z.X = 5      // The Z.X reference pointer is an `ap int' pointer
+    Z.X = 3      // The Z.X reference pointer is an `ap int' pointer
                  // to Z.X in the stack.
 
 ap my type @W:   // The @W reference pointer is an `ap ap my type'
@@ -3557,11 +3557,15 @@ ap my type @W:   // The @W reference pointer is an `ap ap my type'
     W.@Y = @W    // The W.@Y reference pointer is an `ap ap my type'
                  // pointer to the member @Y of W.  It is used
                  // to store the value of @W.
-    W.Y.X = 6    // The W.Y reference pointer is an `ap my type'
-                 // pointer, the target value of W.@Y.
+int I = W.Y.X    // Now I == 5.  The W.Y reference pointer is an
+                 // `ap my type' pointer, the target value of W.@Y.
                  // The W.Y.X reference pointer is an `ap int' pointer,
                  // computed from W.@Y and the offset of X in my type.
-                 // It is used to store the value 6.
+                 // It is used to read the value 5.
+ap int @X = W.Y.X.@    // Now X == 5.
+                 // .@ returns the value of the reference pointer
+                 // computed by W.Y.X, so @X points at W.Y.X.
+
 \end{verbatim}\end{indpar}
 
 The special member name `\TT{.*}' may be used to dereference
@@ -3603,6 +3607,23 @@ one has:
 \tt p & \tt @@@p.*.*.* \\
 \end{tabular}
 \end{center}
+
+The special member name `\TT{.@}', which must be placed at the very
+end of a reference expression, returns the value of the reference pointer
+computed by the reference
+expression.  Specifically if `{\em reference-base}\TT{.@}' is
+the {\em reference-expression}, $P$ is the pointer part of the
+reference pointer computed by the {\em reference-base}, and
+$C$ is the call part, then the reference pointer computed by
+the entire {\em reference-expression} is:
+\begin{itemize}
+\item If $C=$~missing, a temporary local varable is allocated and set to $P$,
+and then $P$ is reset to be an {\tt ap} pointer pointing at the
+temporary local variable.  The temporary local variable behaves like
+temporaries allocated during an {\em expression} evaluation, and is
+discarded at the end of the statement containing the {\em reference-expression}.
+\item It is a compile error if $C$ is not missing.
+\end{itemize}
 
 We proceed to specify how the reference pointer of a run-time
 {\em reference-expression} is computed.
