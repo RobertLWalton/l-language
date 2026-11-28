@@ -166,7 +166,7 @@ L-LANGUAGE
 (Draft 1d)
 \\[0.5ex]
 Robert L. Walton\\
-November 27, 2026
+November 28, 2026
 
 \bigskip
 
@@ -5849,10 +5849,8 @@ Reading and writing values using a pointer of type $P$
 can be accomplished by the functions:
 
 \begin{indpar}[1ex] \tt
-load reference function PTT\$1 r =
-    ( $P$ QR\$1 PTT\$1 @p ) \ttkey{..load} \\
-store reference function ( $P$ QW\$1 PTT\$1 @p ) \ttkey{..store} =
-    PTT\$1 r
+load reference function PTT\$1 r = ( $P$ QR\$1 PTT\$1 @p ) \\
+store reference function ( $P$ QW\$1 PTT\$1 @p ) = PTT\$1 r
 \end{indpar}
 
 These functions can be defined after $P$ is defined.
@@ -5864,7 +5862,65 @@ members or elements of the value to be accessed
 These functions are implicitly called when the target
 of a pointer variable is read or written.  For example:
 \begin{indpar}\begin{verbatim}
-// Assume that ..load and ..store are defined for P = ap
+type file descriptor:
+    uns32 length
+    av uns8 name 
+av *READ-WRITE* file descriptor @file descriptor table
+ap *READ-WRITE* uns number of files
+
+// Pointer to file descriptor table entry.
+//
+type data for fdp:
+    uns index
+
+pointer type fdp is type data for fdp
+
+const too many files = std new exception ID ( "too many files" )
+
+fdp file descriptor @r = allocate ( file descriptor d ):
+    if number of files >= @file descriptor table..limit:
+        throw too many files
+    data for fdp data:
+        d.index = number of files
+    file descriptor table[number of files] = d
+    number of files += 1
+    @r = *UNCHECKED* ( data )
+
+// Load and store reference functions for fdp
+//
+load reference function file descriptor r ( fdp file descriptor @p ):
+    data for fdp ddp = data for fdp ( @p )
+    r = file descriptor table[ddp.index]
+store reference function ( fdp file descriptor @p ) =
+        file descriptor d:
+    data for fdp ddp = data for fdp ( @p )
+    file descriptor table[ddp.index] = d
+
+// Pointer conversion reference function for fdp
+//
+point reference function ap *READ-WRITE* file descriptor @r
+        ( fdp file descriptor @p ):
+    data for fdp ddp = data for fdp ( @p )
+    @r = file descriptor table[ddp.index].@
+
+// IMPORTANT: if load or store reference function is defined,
+//            a point reference function CANNOT be defined.
+
+file descriptor my file:
+    my file.length = 4096
+    my file.name = "my file"
+file descriptor your file:
+    my file.length = 1024
+    my file.name = "your file"
+
+fdp file descriptor @my file descriptor = allocate ( my file )
+file descriptor d1 = my file descriptor
+my file descriptor = your file
+    
+
+
+
+
 //
 ap int @p:
     p = 5
